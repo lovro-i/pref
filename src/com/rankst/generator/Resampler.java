@@ -2,6 +2,7 @@ package com.rankst.generator;
 
 import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
+import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 
 /** Creates new sample from the current one, with replacement */
@@ -17,7 +18,7 @@ public class Resampler {
   public Sample resample(int size) {
     Sample resample = new Sample(sample.getElements());
     for (int i = 0; i < size; i++) {
-      int index = Utils.random.nextInt(sample.size());
+      int index = MathUtils.RANDOM.nextInt(sample.size());
       Ranking r = sample.get(index);
       resample.add(r, sample.getWeight(index));
     }

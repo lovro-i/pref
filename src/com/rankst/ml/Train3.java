@@ -11,6 +11,7 @@ import com.rankst.model.MallowsModel;
 import com.rankst.reconstruct.DirectReconstructor;
 import com.rankst.reconstruct.MallowsReconstructor;
 import com.rankst.triangle.MallowsTriangle;
+import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.io.File;
 import java.io.FileInputStream;
@@ -124,7 +125,7 @@ public class Train3 {
         instance.setValue(0, samples);
         instance.setValue(1, model.getPhi());
         instance.setValue(2, phib);
-        instance.setValue(3, Utils.variance(boots));
+        instance.setValue(3, MathUtils.variance(boots));
         //instance.setValue(4, samples);
 //        instance.setValue(ATTRIBUTE_SAMPLES, samples);
 //        instance.setValue(ATTRIBUTE_DIRECT_PHI, model.getPhi());

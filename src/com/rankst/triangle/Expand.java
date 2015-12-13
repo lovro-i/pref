@@ -58,16 +58,17 @@ public class Expand {
   
   public Expands insertMissing(TriangleRow row) {    
     Expands expands = new Expands();
-    // if (counts.length != this.length() + 1) System.err.println("warn");
     
     int counter = 0;
     for (int i = 0; i < miss.length; i++) {
       Expand ex = new Expand(this);
       ex.miss[i]++;
-      expands.add(ex, row.getProbability(counter, counter + ex.miss[i]));
+      double p = row.getProbability(counter, counter + ex.miss[i]);
+      expands.add(ex, p);
       counter += ex.miss[i];
     }
-    expands.normalize();
+    
+    // expands.normalize();
     return expands;
   }
   

@@ -68,9 +68,9 @@ public class SampleTriangle extends Triangle {
         continue;
       }
                   
-      Element before = null;
-      if (pos > 0) before = mini.get(pos - 1);
-      expands = expands.insert(e, before);      
+      Element previous = null;
+      if (pos > 0) previous = mini.get(pos - 1);
+      expands = expands.insert(e, previous);      
       
       double[] displacements = expands.getDistribution(e);
       for (int j = 0; j < displacements.length; j++) {

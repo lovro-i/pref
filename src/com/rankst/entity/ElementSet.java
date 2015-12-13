@@ -1,5 +1,6 @@
 package com.rankst.entity;
 
+import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class ElementSet {
     Ranking ranking = new Ranking(this);
     List<Element> elems = new ArrayList<Element>(elements);
     while (ranking.size() < len) {
-      int id = Utils.random.nextInt(elems.size());
+      int id = MathUtils.RANDOM.nextInt(elems.size());
       Element element = elems.get(id);
       ranking.add(element);
       elems.remove(id);
@@ -54,7 +55,7 @@ public class ElementSet {
   public Ranking getRandomRanking() {
     Ranking ranking = new Ranking(this.getReferenceRanking());
     for (int i = 0; i < ranking.size() - 1; i++) {
-      int j = i + Utils.random.nextInt(ranking.size() - i);
+      int j = i + MathUtils.RANDOM.nextInt(ranking.size() - i);
       ranking.swap(i, j);
     }
     return ranking;

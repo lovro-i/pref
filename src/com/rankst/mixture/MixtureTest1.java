@@ -11,6 +11,7 @@ import com.rankst.model.MallowsModel;
 import com.rankst.histogram.Histogram;
 import com.rankst.triangle.MallowsTriangle;
 import com.rankst.util.Logger;
+import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import fr.lri.tao.apro.ap.Apro;
 import fr.lri.tao.apro.data.DataProvider;
@@ -101,17 +102,17 @@ public class MixtureTest1 {
     int n = 10;
     ElementSet elements = new ElementSet(n);
     
-    double phi1 = Utils.random.nextDouble() * 0.6 + 0.2;
-    double phi2 = Utils.random.nextDouble() * 0.6 + 0.2;
-    double phi3 = Utils.random.nextDouble() * 0.6 + 0.2;
+    double phi1 = MathUtils.RANDOM.nextDouble() * 0.6 + 0.2;
+    double phi2 = MathUtils.RANDOM.nextDouble() * 0.6 + 0.2;
+    double phi3 = MathUtils.RANDOM.nextDouble() * 0.6 + 0.2;
     
     MallowsModel model1 = new MallowsModel(elements.getRandomRanking(), phi1);
     MallowsModel model2 = new MallowsModel(elements.getRandomRanking(), phi2);
     MallowsModel model3 = new MallowsModel(elements.getRandomRanking(), phi3);        
     
-    double weight1 = Utils.random.nextDouble() * 0.8 + 0.2;
-    double weight2 = Utils.random.nextDouble() * 0.8 + 0.2;
-    double weight3 = Utils.random.nextDouble() * 0.8 + 0.2;
+    double weight1 = MathUtils.RANDOM.nextDouble() * 0.8 + 0.2;
+    double weight2 = MathUtils.RANDOM.nextDouble() * 0.8 + 0.2;
+    double weight3 = MathUtils.RANDOM.nextDouble() * 0.8 + 0.2;
     
     MallowsMixtureModel model = new MallowsMixtureModel(elements);
     model.add(model1, weight1);

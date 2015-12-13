@@ -3,6 +3,7 @@ package com.rankst.mixture;
 import com.rankst.entity.ElementSet;
 import com.rankst.entity.Ranking;
 import com.rankst.model.MallowsModel;
+import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class MallowsMixtureModel {
 
   /** @return index of a random model */
   int getRandomModel() {
-    double p = Utils.random.nextDouble() * sumWeights;
+    double p = MathUtils.RANDOM.nextDouble() * sumWeights;
     double acc = 0;
     int last = weights.size() - 1;
     for (int i = 0; i < last; i++) {

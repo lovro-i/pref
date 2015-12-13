@@ -1,9 +1,13 @@
 package com.rankst.util;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Random;
 
 public class MathUtils {
 
+  public static final Random RANDOM = new SecureRandom();
+  
   public static BigInteger choose(final int n, final int k) {
     BigInteger ret = BigInteger.ONE;
     for (int i = 0; i < k; i++) {
@@ -29,6 +33,30 @@ public class MathUtils {
     return p;
   }
   
+  public static double variance(double[] a) {
+    double sum = 0;
+    for (int i = 0; i < a.length; i++) {
+      sum += a[i];      
+    }
+    double mean = sum / a.length;
+    double var = 0;
+    for (int i = 0; i < a.length; i++) {
+      double d = a[i] - mean;
+      var += d * d;
+    }
+    var = var / (a.length - 1);
+    return var;
+  }
+  
+  public static double mean(double[] a) {
+    double s = 0;
+    for (int i = 0; i < a.length; i++) {
+      s += a[i];      
+    }
+    return s / a.length;
+  }
+    
+    
   public static void main(String[] args) {
     int n = 220;
     int k = 16;

@@ -11,6 +11,7 @@ import com.rankst.model.MallowsModel;
 import com.rankst.reconstruct.DirectReconstructor;
 import com.rankst.reconstruct.MallowsReconstructor;
 import com.rankst.triangle.MallowsTriangle;
+import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
@@ -136,7 +137,7 @@ public class Train2 {
           instance.setValue(ATTRIBUTE_SAMPLES, samps);
           instance.setValue(ATTRIBUTE_DIRECT_PHI, model.getPhi());
           instance.setValue(ATTRIBUTE_BOOTSTRAP_PHI, phib);
-          instance.setValue(ATTRIBUTE_BOOTSTRAP_VAR, Utils.variance(boots));
+          instance.setValue(ATTRIBUTE_BOOTSTRAP_VAR, MathUtils.variance(boots));
           instance.setValue(ATTRIBUTE_REAL_PHI, phi);
           instance.setDataset(data);
           data.add(instance);
@@ -209,7 +210,7 @@ public class Train2 {
         instance.setValue(0, samples);
         instance.setValue(1, model.getPhi());
         instance.setValue(2, phib);
-        instance.setValue(3, Utils.variance(boots));
+        instance.setValue(3, MathUtils.variance(boots));
         //instance.setValue(4, samples);
 //        instance.setValue(ATTRIBUTE_SAMPLES, samples);
 //        instance.setValue(ATTRIBUTE_DIRECT_PHI, model.getPhi());

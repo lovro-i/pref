@@ -23,6 +23,10 @@ class TriangleRow {
     inc(pos, 1);
   }
   
+  public int size() {
+    return counts.length;  
+  }
+  
   public boolean isEmpty() {
     return empty;
   }

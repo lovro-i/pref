@@ -7,6 +7,7 @@ import com.rankst.model.MallowsModel;
 import com.rankst.reconstruct.DirectReconstructor;
 import com.rankst.reconstruct.MallowsReconstructor;
 import com.rankst.histogram.Histogram;
+import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,23 +64,20 @@ public class RegressionReconstructor implements MallowsReconstructor {
 
     // Bootstrap
     Resampler resampler = new Resampler(sample);          
-    double phib = 0;
     double boots[] = new double[bootstraps];
     for (int j = 0; j < bootstraps; j++) {
       Sample resample = resampler.resample();
       MallowsModel m = new DirectReconstructor().reconstruct(resample);
-      phib += m.getPhi();
       boots[j] = m.getPhi();
     }
-    phib = phib / bootstraps;
 
           
     // Regression
     Instance instance = new DenseInstance(ATTRIBUTES.size());
     instance.setValue(0, sample.size());
     instance.setValue(1, direct.getPhi());
-    instance.setValue(2, phib);
-    instance.setValue(3, Utils.variance(boots));
+    instance.setValue(2, MathUtils.mean(boots));
+    instance.setValue(3, MathUtils.variance(boots));
         
     double regressionPhi = this.model.classifyInstance(instance);
     return new MallowsModel(direct.getCenter(), regressionPhi);

@@ -8,16 +8,20 @@ import com.rankst.entity.Sample;
 import com.rankst.model.MallowsModel;
 import com.rankst.histogram.Histogram;
 
-
+/** Reconstructs Mallows model presuming that when divided by the number of rankings at distance d, you get geometric distribution */
 public class DirectReconstructor implements MallowsReconstructor {
 
 
   public DirectReconstructor() {
   }
   
-  public MallowsModel reconstruct(Sample sample) {
+  protected Ranking reconstructCenter(Sample sample) {
     Histogram<Ranking> rankHist = new Histogram(sample, sample.getWeights());
-    Ranking center = rankHist.getMostFrequent();
+    return rankHist.getMostFrequent();
+  }
+  
+  public MallowsModel reconstruct(Sample sample) {
+    Ranking center = reconstructCenter(sample);
     
     RankingDistance dist = new KendallTauRankingDistance();
     Histogram<Integer> hist = new Histogram<Integer>();
@@ -42,14 +46,15 @@ public class DirectReconstructor implements MallowsReconstructor {
       sum += c;
     }
     
-    for (int i = 0; i <= max; i++) {
-      arr[i] = arr[i] / sum;
-    }
+//    for (int i = 0; i <= max; i++) {
+//      arr[i] = arr[i] / sum;
+//    }
     
     double e = 0; // expectation
     for (int i = 0; i < arr.length; i++) {
       e += arr[i] * i;
     }
+    e = e / sum;
     double phi = e / (e+1);
     return new MallowsModel(center, phi);
   }

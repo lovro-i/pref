@@ -42,9 +42,9 @@ public class IncompleteTest1 {
 //      System.out.println(String.format("%.3f -> %.3f", phi, dm.getPhi()));
       
       File folder = new File("C:\\Projects\\Rankst\\Results2");
-      RegressionReconstructor reconstructor = new RegressionReconstructor(new File(folder, "train.arff"));
-      MallowsModel reconstructedModel = reconstructor.reconstruct(resample);
-      System.out.println(String.format("%.3f -> %.3f", phi, reconstructedModel.getPhi()));  
+//      RegressionReconstructor reconstructor = new RegressionReconstructor(new File(folder, "train.arff"));
+//      MallowsModel reconstructedModel = reconstructor.reconstruct(resample);
+//      System.out.println(String.format("%.3f -> %.3f", phi, reconstructedModel.getPhi()));  
     }
     
     

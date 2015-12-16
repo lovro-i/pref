@@ -7,6 +7,8 @@ import com.rankst.model.MallowsModel;
 import com.rankst.reconstruct.DirectReconstructor;
 import com.rankst.reconstruct.MallowsReconstructor;
 import com.rankst.histogram.Histogram;
+import static com.rankst.ml.CompleteAttributes.ATTRIBUTES;
+import com.rankst.reconstruct.DirectReconstructorSmart;
 import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.io.File;
@@ -24,27 +26,15 @@ import weka.core.converters.ConverterUtils;
 /** Reconstructs Mallows Model from the sample using ensemble of direct and bootstrap reconstruction (regression) */
 public class RegressionReconstructor implements MallowsReconstructor {
 
-  public static final Attribute ATTRIBUTE_SAMPLES = new Attribute("samples");
-  public static final Attribute ATTRIBUTE_DIRECT_PHI = new Attribute("direct_phi");
-  public static final Attribute ATTRIBUTE_BOOTSTRAP_PHI = new Attribute("bootstrap_phi");
-  public static final Attribute ATTRIBUTE_BOOTSTRAP_VAR = new Attribute("bootstrap_var");
-  public static final Attribute ATTRIBUTE_REAL_PHI = new Attribute("real_phi");
-  
-  public static final ArrayList<Attribute> ATTRIBUTES = new ArrayList<Attribute>();
-  
   private AbstractClassifier model;
   private int bootstraps = 10;
   
-  static {
-    ATTRIBUTES.add(ATTRIBUTE_SAMPLES);
-    ATTRIBUTES.add(ATTRIBUTE_DIRECT_PHI);
-    ATTRIBUTES.add(ATTRIBUTE_BOOTSTRAP_PHI);
-    ATTRIBUTES.add(ATTRIBUTE_BOOTSTRAP_VAR);
-    ATTRIBUTES.add(ATTRIBUTE_REAL_PHI);
-  }
+  private DirectReconstructor directReconstructor;
+  
   
   /** Create reconstructor with the arff train data file from which to learn regressor */
-  public RegressionReconstructor(File train) throws Exception {
+  public RegressionReconstructor(File train, DirectReconstructor directReconstructor) throws Exception {
+    this.directReconstructor = directReconstructor;
     InputStream is = new FileInputStream(train);
     ConverterUtils.DataSource source = new ConverterUtils.DataSource(is);
     Instances data = source.getDataSet();
@@ -60,24 +50,25 @@ public class RegressionReconstructor implements MallowsReconstructor {
   public MallowsModel reconstruct(Sample sample) throws Exception {
     
     // No Bootstrap
-    MallowsModel direct = new DirectReconstructor().reconstruct(sample);        
+    MallowsModel direct = directReconstructor.reconstruct(sample);        
 
     // Bootstrap
     Resampler resampler = new Resampler(sample);          
     double boots[] = new double[bootstraps];
     for (int j = 0; j < bootstraps; j++) {
       Sample resample = resampler.resample();
-      MallowsModel m = new DirectReconstructor().reconstruct(resample);
+      MallowsModel m = directReconstructor.reconstruct(resample);
       boots[j] = m.getPhi();
     }
 
           
     // Regression
-    Instance instance = new DenseInstance(ATTRIBUTES.size());
-    instance.setValue(0, sample.size());
-    instance.setValue(1, direct.getPhi());
-    instance.setValue(2, MathUtils.mean(boots));
-    instance.setValue(3, MathUtils.variance(boots));
+    Instance instance = new DenseInstance(CompleteAttributes.ATTRIBUTES.size());
+    instance.setValue(ATTRIBUTES.indexOf(CompleteAttributes.ATTRIBUTE_ELEMENTS), sample.getElements().size());
+    instance.setValue(ATTRIBUTES.indexOf(CompleteAttributes.ATTRIBUTE_SAMPLE_SIZE), sample.size());
+    instance.setValue(ATTRIBUTES.indexOf(CompleteAttributes.ATTRIBUTE_DIRECT_PHI), direct.getPhi());
+    instance.setValue(ATTRIBUTES.indexOf(CompleteAttributes.ATTRIBUTE_BOOTSTRAP_PHI), MathUtils.mean(boots));
+    instance.setValue(ATTRIBUTES.indexOf(CompleteAttributes.ATTRIBUTE_BOOTSTRAP_VAR), MathUtils.variance(boots));
         
     double regressionPhi = this.model.classifyInstance(instance);
     return new MallowsModel(direct.getCenter(), regressionPhi);

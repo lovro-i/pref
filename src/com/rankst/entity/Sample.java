@@ -79,8 +79,10 @@ public class Sample extends ArrayList<Ranking> {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < this.size(); i++) {
-      sb.append(this.get(i)).append(" (").append(weights.get(i)).append(")\n");
-      
+      sb.append(this.get(i));
+      if (weights != null)
+        sb.append(" (").append(weights.get(i)).append(")");
+      sb.append("\n");      
     }
     sb.append("=== ").append(this.size()).append(" samples ===");
     return sb.toString();

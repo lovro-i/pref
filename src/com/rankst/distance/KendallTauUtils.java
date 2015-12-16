@@ -6,10 +6,10 @@ import java.util.Map;
 
 public class KendallTauUtils {
   
-  private static Map<Entry, Integer> distances = new HashMap<Entry, Integer>();
+  private static Map<Entry, Double> distances = new HashMap<Entry, Double>();
 
   /** Get the number of rankings of length n at the distance d */
-  public static int getCount(int n, int d) {
+  public static double getCount(int n, int d) {
     if (d < 0) return 0;
     if (n < 1) return 0;
     if (d == 0) return 1;
@@ -22,7 +22,7 @@ public class KendallTauUtils {
       return distances.get(entry);
     }
     else {
-      int dist = getCount(n-1, d) + getCount(n, d-1) - getCount(n-1, d-n);
+      double dist = getCount(n-1, d) + getCount(n, d-1) - getCount(n-1, d-n);
       distances.put(entry, dist);
       return dist;
     }

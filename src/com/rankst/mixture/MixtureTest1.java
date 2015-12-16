@@ -58,7 +58,7 @@ public class MixtureTest1 {
     double normDiagonal = hist.getMostFrequentCount();
     int normDistance = n * (n-1) / 2;
     
-    /* Create a distance matrix */
+    /* Create the similarity matrix */
     long start = System.currentTimeMillis();
     double[][] matrix = new double[rankings.size()][rankings.size()];
     for (int i = 0; i < matrix.length; i++) {

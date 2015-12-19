@@ -44,7 +44,7 @@ public class ReconstructionPrecision {
     RegressionReconstructor reconstructor = new RegressionReconstructor(new File(folder, "complete.train.arff"), new DirectReconstructor());
     
     String name = String.format("precision.%d.csv", n);
-    PrintWriter out = FileUtils.open(new File(folder, name));
+    PrintWriter out = FileUtils.append(new File(folder, name));
         
     for (double phi: phis) {
       System.out.println(String.format("Testing n = %d, phi = %2f", n, phi));

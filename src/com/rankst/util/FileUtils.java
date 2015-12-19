@@ -11,11 +11,17 @@ import java.util.Scanner;
 
 public class FileUtils {
 
-  public static PrintWriter open(File file) throws IOException {
+  public static PrintWriter append(File file) throws IOException {
     FileWriter fstream = new FileWriter(file, true);
     return new PrintWriter(new BufferedWriter(fstream));
   }
 
+  
+  public static PrintWriter write(File file) throws IOException {
+    FileWriter fstream = new FileWriter(file, false);
+    return new PrintWriter(new BufferedWriter(fstream));
+  }
+  
   public static ArrayList<String> read(File file) throws FileNotFoundException {
     Scanner s = new Scanner(file);
     ArrayList<String> list = new ArrayList<String>();

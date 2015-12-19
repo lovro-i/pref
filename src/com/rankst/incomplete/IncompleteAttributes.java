@@ -9,7 +9,7 @@ public class IncompleteAttributes {
   public static final int BOOTSTRAPS = 10;
   public static final int RESAMPLE_SIZE = 10000;
   
-  public static final Attribute ATTRIBUTE_ELEMENTS = new Attribute("elements");
+  public static final Attribute ATTRIBUTE_ELEMENTS = new Attribute("elements"); // number of elements
   public static final Attribute ATTRIBUTE_SAMPLE_SIZE = new Attribute("sample_size"); // number of rankings in the sample
   public static final Attribute ATTRIBUTE_RESAMPLE_SIZE = new Attribute("resample_size");
   public static final Attribute ATTRIBUTE_MISSING = new Attribute("missing"); // percentage of missing elemenets (0..1)

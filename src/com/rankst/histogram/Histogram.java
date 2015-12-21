@@ -27,6 +27,10 @@ public class Histogram<T> {
     return map.size();
   }
   
+  public boolean isEmpty() {
+    return map.isEmpty();
+  }
+  
   public void add(Collection<T> collection) {
     for (T ranking: collection) {
       this.add(ranking, 1d);

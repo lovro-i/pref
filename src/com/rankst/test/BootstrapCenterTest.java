@@ -6,14 +6,10 @@ import com.rankst.entity.ElementSet;
 import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
 import com.rankst.generator.RIMRSampler;
-import com.rankst.generator.Resampler;
-import com.rankst.kemeny.BubbleTableKemenizator;
-import com.rankst.kemeny.Kemenizator;
 import com.rankst.model.MallowsModel;
-import com.rankst.reconstruct.PolynomialReconstructor;
+import com.rankst.reconstruct.CompleteReconstructor;
 import com.rankst.triangle.MallowsTriangle;
 import com.rankst.triangle.SampleTriangle;
-import com.rankst.triangle.SampleTriangleByRow;
 
 
 public class BootstrapCenterTest {
@@ -31,7 +27,7 @@ public class BootstrapCenterTest {
       Sample sample = sampler.generate(200);
 
       
-      PolynomialReconstructor rec = new PolynomialReconstructor();
+      CompleteReconstructor rec = new CompleteReconstructor();
       MallowsModel model = rec.reconstruct(sample);
       double d = KendallTauRankingDistance.between(center, model.getCenter());
       sumd += d;
@@ -39,7 +35,7 @@ public class BootstrapCenterTest {
       System.out.println("phi = " + model.getPhi());
       
       
-      SampleTriangle striangle = new SampleTriangle(sample);
+      SampleTriangle striangle = new SampleTriangle(center, sample);
       RIMRSampler resampler = new RIMRSampler(striangle);
       Sample resample = resampler.generate(10000);
       MallowsModel m2 = rec.reconstruct(resample);

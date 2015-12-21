@@ -4,11 +4,10 @@ import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
 import com.rankst.generator.Resampler;
 import com.rankst.model.MallowsModel;
-import com.rankst.reconstruct.DirectReconstructor;
+import com.rankst.reconstruct.CompleteReconstructor;
 import com.rankst.reconstruct.MallowsReconstructor;
 import com.rankst.histogram.Histogram;
 import static com.rankst.ml.CompleteAttributes.ATTRIBUTES;
-import com.rankst.reconstruct.DirectReconstructorSmart;
 import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.io.File;
@@ -29,11 +28,11 @@ public class RegressionReconstructor implements MallowsReconstructor {
   private AbstractClassifier model;
   private int bootstraps = 10;
   
-  private DirectReconstructor directReconstructor;
+  private CompleteReconstructor directReconstructor;
   
   
   /** Create reconstructor with the arff train data file from which to learn regressor */
-  public RegressionReconstructor(File train, DirectReconstructor directReconstructor) throws Exception {
+  public RegressionReconstructor(File train, CompleteReconstructor directReconstructor) throws Exception {
     this.directReconstructor = directReconstructor;
     InputStream is = new FileInputStream(train);
     ConverterUtils.DataSource source = new ConverterUtils.DataSource(is);

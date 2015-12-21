@@ -8,7 +8,7 @@ import com.rankst.entity.Sample;
 import com.rankst.generator.RIMRSampler;
 import com.rankst.histogram.Histogram;
 import com.rankst.model.MallowsModel;
-import com.rankst.reconstruct.DirectReconstructor;
+import com.rankst.reconstruct.CompleteReconstructor;
 import com.rankst.triangle.MallowsTriangle;
 
 
@@ -40,7 +40,7 @@ public class SomeTest1 {
     RIMRSampler sampler = new RIMRSampler(triangle);
     Sample sample = sampler.generate(sampleSize); 
     
-    DirectReconstructor direct = new DirectReconstructor();
+    CompleteReconstructor direct = new CompleteReconstructor();
     MallowsModel mallows = direct.reconstruct(sample);
     // System.out.println(mallows);
     

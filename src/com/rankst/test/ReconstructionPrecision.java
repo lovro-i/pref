@@ -6,7 +6,7 @@ import com.rankst.generator.RIMRSampler;
 import com.rankst.ml.RegressionReconstructor;
 import com.rankst.ml.TrainUtils;
 import com.rankst.model.MallowsModel;
-import com.rankst.reconstruct.DirectReconstructor;
+import com.rankst.reconstruct.CompleteReconstructor;
 import com.rankst.triangle.MallowsTriangle;
 import com.rankst.util.FileUtils;
 import java.awt.BasicStroke;
@@ -41,7 +41,7 @@ public class ReconstructionPrecision {
     
   private void test(int n, double[] phis, int[] sampleSizes) throws Exception {
     ElementSet elements = new ElementSet(n);
-    RegressionReconstructor reconstructor = new RegressionReconstructor(new File(folder, "complete.train.arff"), new DirectReconstructor());
+    RegressionReconstructor reconstructor = new RegressionReconstructor(new File(folder, "complete.train.arff"), new CompleteReconstructor());
     
     String name = String.format("precision.%d.csv", n);
     PrintWriter out = FileUtils.append(new File(folder, name));

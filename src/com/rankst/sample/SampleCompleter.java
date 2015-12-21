@@ -9,8 +9,8 @@ import com.rankst.generator.RIMRSampler;
 import com.rankst.histogram.Histogram;
 import com.rankst.triangle.MallowsTriangle;
 import com.rankst.triangle.SampleTriangle;
-import com.rankst.triangle.SampleTriangleBad;
 
+/** Complete each ranking in the sample with a random one(s), consistent with the ranking (the order of the present elements is kept) */
 public class SampleCompleter {
 
   private Sample sample;
@@ -18,7 +18,17 @@ public class SampleCompleter {
   public SampleCompleter(Sample sample) {
     this.sample = sample;
   }
+
+  /** Completes the incomplete rankings in the sample with random consistent complete one.
+   */
+  public Sample complete() {
+    return complete(1);
+  }
   
+  
+  /** Completes the incomplete rankings in the sample with <code>num</code> random consistent complete ones.
+   * Each incomplete ranking is substituted with <code>num</code> complete ones, each with weight <code>1 / num</code>
+   */
   public Sample complete(int num) {
     ElementSet elements = sample.getElements();
     Sample complete = new Sample(elements);

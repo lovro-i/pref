@@ -8,7 +8,7 @@ import com.rankst.entity.Sample;
 import com.rankst.generator.RIMRSampler;
 import com.rankst.generator.Resampler;
 import com.rankst.model.MallowsModel;
-import com.rankst.reconstruct.DirectReconstructor;
+import com.rankst.reconstruct.CompleteReconstructor;
 import com.rankst.reconstruct.MallowsReconstructor;
 import com.rankst.triangle.MallowsTriangle;
 import java.awt.Color;
@@ -63,7 +63,7 @@ public class Bootstrap1 {
         RIMRSampler sampler = new RIMRSampler(triangle);
         for (int samps: samples) {        
           Sample sample = sampler.generate(samps);
-          MallowsModel model = new DirectReconstructor().reconstruct(sample);
+          MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           
           double absErr = phi - model.getPhi();
@@ -78,7 +78,7 @@ public class Bootstrap1 {
           //double phim = 0;
           for (int i = 0; i < bootstraps; i++) {
             Sample resample = resampler.resample();
-            MallowsModel m = new DirectReconstructor().reconstruct(resample);
+            MallowsModel m = new CompleteReconstructor().reconstruct(resample);
             double absErrBoot = phi - m.getPhi();
             phiAbsBootSeries.add(1.05d * samps, absErrBoot);
             //a/ phim += m.getPhi();

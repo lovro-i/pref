@@ -7,7 +7,7 @@ import weka.core.Attribute;
 public class IncompleteAttributes {
   
   public static final int BOOTSTRAPS = 10;
-  public static final int RESAMPLE_SIZE = 10000;
+  public static final int RESAMPLE_SIZE = 5000;
   
   public static final Attribute ATTRIBUTE_ELEMENTS = new Attribute("elements"); // number of elements
   public static final Attribute ATTRIBUTE_SAMPLE_SIZE = new Attribute("sample_size"); // number of rankings in the sample

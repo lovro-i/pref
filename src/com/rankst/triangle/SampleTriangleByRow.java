@@ -13,38 +13,33 @@ public class SampleTriangleByRow extends Triangle {
 
   protected final Map<Integer, TriangleRow> rows;
   
-  protected final ElementSet elements;
   
-  public SampleTriangleByRow(ElementSet elements) {
-    super(elements.getReferenceRanking());
-    this.elements = elements;
-    
+  public SampleTriangleByRow(Ranking reference) {
+    super(reference); 
+    this.buildReferenceIndexMap();
     rows = new HashMap<Integer, TriangleRow>();
-    for (int i = 0; i < elements.size(); i++) {
+    for (int i = 0; i < reference.size(); i++) {
       TriangleRow c = new TriangleRow(i);
       rows.put(i, c);
     }
   }
   
-  public SampleTriangleByRow(Sample sample) {
-    this(sample.getElements());
+  public SampleTriangleByRow(Ranking reference, Sample sample) {
+    this(reference);
     
-    for (int element = 1; element < elements.size(); element++) {    
-                      
+    for (int element = 1; element < reference.size(); element++) {                          
       for (int index = 0; index < sample.size(); index++) {
         Ranking ranking = sample.get(index);
         double weight = sample.getWeight(index);
         this.add(ranking, weight, element);
       }
-
-      //System.out.println(this);
     }
     
   }
   
   
   private void add(Ranking ranking, double weight, int element) {
-    Element el = elements.getElement(element);
+    Element el = reference.get(element);
     if (!ranking.contains(el)) return;
     
     
@@ -53,7 +48,7 @@ public class SampleTriangleByRow extends Triangle {
     
     for (int i = 0; i < element; i++) {       
       Ranking mini = upTo(ranking, i);
-      Element e = elements.getElement(i);
+      Element e = reference.get(i);
       int pos = mini.indexOf(e);
       
       if (pos == -1) { 
@@ -81,17 +76,26 @@ public class SampleTriangleByRow extends Triangle {
 
   }
   
+  private Map<Element, Integer> referenceIndex = new HashMap<Element, Integer>();
+  
+  private void buildReferenceIndexMap() {
+    referenceIndex.clear();
+    for (int i = 0; i < reference.size(); i++) {
+      Element e = reference.get(i);
+      referenceIndex.put(e, i);
+    }    
+  }
   
   /** Return the ranking containing only the elements up to (and including) max */
-  private static Ranking upTo(Ranking ranking, int max) {
+  private Ranking upTo(Ranking ranking, int max) {
     Ranking r = new Ranking(ranking.getElementSet());
     for (int i=0; i<ranking.size(); i++) {
       Element e = ranking.get(i);
-      if (e.getId() <= max) r.add(e);
+      int index = referenceIndex.get(e);
+      if (index <= max) r.add(e);
     }
     return r;
-  }
-  
+  }    
   
   @Override
   public int randomPosition(int e) {

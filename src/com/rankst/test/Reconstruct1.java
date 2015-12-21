@@ -8,7 +8,7 @@ import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
 import com.rankst.generator.RIMRSampler;
 import com.rankst.model.MallowsModel;
-import com.rankst.reconstruct.DirectReconstructor;
+import com.rankst.reconstruct.CompleteReconstructor;
 import com.rankst.reconstruct.MallowsReconstructor;
 import com.rankst.triangle.MallowsTriangle;
 import java.awt.Color;
@@ -62,7 +62,7 @@ public class Reconstruct1 {
         for (int t = 0; t < tests; t++) {
           Sample sample = sampler.generate(sampleSize);
 
-          MallowsModel model = new DirectReconstructor().reconstruct(sample);
+          MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int c = 1;
           double sum = model.getPhi();
           
@@ -70,7 +70,7 @@ public class Reconstruct1 {
             for (int j = 0; j < models; j++) {
               c++;
               Sample perturbed = perturb(sample, pert);
-              MallowsModel m = new DirectReconstructor().reconstruct(perturbed);
+              MallowsModel m = new CompleteReconstructor().reconstruct(perturbed);
               sum += m.getPhi();
             }
           }
@@ -150,7 +150,7 @@ public class Reconstruct1 {
         Sample perturbed = perturb(sample, 0.05);
         sample.addAll(perturbed);
 
-        MallowsModel m0 = new DirectReconstructor().reconstruct(sample);
+        MallowsModel m0 = new CompleteReconstructor().reconstruct(sample);
         // int centerDistance = (int) dist.distance(center, m0.getCenter());
         sumPhi += m0.getPhi();
       }
@@ -178,7 +178,7 @@ public class Reconstruct1 {
       
       StringBuilder sb = new StringBuilder();
 
-      MallowsModel m0 = new DirectReconstructor().reconstruct(sample);
+      MallowsModel m0 = new CompleteReconstructor().reconstruct(sample);
       int centerDistance = (int) dist.distance(center, m0.getCenter());
       sb.append((phi - m0.getPhi()));
       
@@ -189,7 +189,7 @@ public class Reconstruct1 {
         for (int j = 0; j < ns; j++) {
           Sample perturbed = perturb(sample, pert);
           // perturbed.addAll(sample);
-          MallowsModel model = new DirectReconstructor().reconstruct(perturbed);
+          MallowsModel model = new CompleteReconstructor().reconstruct(perturbed);
           
           sum += model.getE();
         }
@@ -324,7 +324,7 @@ public class Reconstruct1 {
         RIMRSampler sampler = new RIMRSampler(triangle);
         for (int samps: samples) {        
           Sample sample = sampler.generate(samps);
-          MallowsModel model = new DirectReconstructor().reconstruct(sample);
+          MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           
           double absErr = phi - model.getPhi();
@@ -401,7 +401,7 @@ public class Reconstruct1 {
         RIMRSampler sampler = new RIMRSampler(triangle);
         for (int samps: samples) {        
           Sample sample = sampler.generate(samps);
-          MallowsModel model = new DirectReconstructor().reconstruct(sample);
+          MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           
           double absErr = Math.abs(phi - model.getPhi());

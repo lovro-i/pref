@@ -14,17 +14,18 @@ public class SampleTriangle extends Triangle {
 
   protected final Map<Integer, TriangleRow> rows;
   
-  public SampleTriangle(ElementSet elements) {
-    super(elements.getReferenceRanking());
+  public SampleTriangle(Ranking reference) {
+    super(reference);
+    this.buildReferenceIndexMap();
     rows = new HashMap<Integer, TriangleRow>();
-    for (int i = 0; i < elements.size(); i++) {
+    for (int i = 0; i < reference.size(); i++) {
       TriangleRow c = new TriangleRow(i);
       rows.put(i, c);
     }
   }
   
-  public SampleTriangle(Sample sample) {
-    this(sample.getElements());
+  public SampleTriangle(Ranking reference, Sample sample) {
+    this(reference);
     for (int index = 0; index < sample.size(); index++) {
       Ranking ranking = sample.get(index);
       double weight = sample.getWeight(index);
@@ -50,15 +51,14 @@ public class SampleTriangle extends Triangle {
   
   /** Adds ranking to the triangle with specified weight. Returns true if added, false otherwise */
   public boolean add(Ranking ranking, double weight) {
-    ElementSet elements = getElements();
     
     Expands expands = new Expands();
     expands.nullify();
     
-    for (int i = 0; i < elements.size(); i++) {
+    for (int i = 0; i < reference.size(); i++) {
       TriangleRow row = rows.get(i); // Triangle row to be updated
       Ranking mini = upTo(ranking, i);
-      Element e = elements.getElement(i);
+      Element e = reference.get(i);
       int pos = mini.indexOf(e);
       
       if (pos == -1) { // This one is missing. Distribute evenly its probability
@@ -94,30 +94,23 @@ public class SampleTriangle extends Triangle {
     return p;
   }
   
-  public static void main(String[] args) {
-    // System.out.println(mixes(-1, 3));
-    ElementSet elements = new ElementSet(8);
-    Ranking ranking = new Ranking(elements);
-    ranking.add(elements.getElement(1));
-    ranking.add(elements.getElement(0));
-    ranking.add(elements.getElement(7));
-    ranking.add(elements.getElement(3));
-
-    System.out.println(ranking);
-    
-    Sample sample = new Sample(elements);
-    sample.add(ranking);
-    
-    SampleTriangle triangle = new SampleTriangle(sample);
-    System.out.println(triangle);
+  private Map<Element, Integer> referenceIndex = new HashMap<Element, Integer>();
+  
+  private void buildReferenceIndexMap() {
+    referenceIndex.clear();
+    for (int i = 0; i < reference.size(); i++) {
+      Element e = reference.get(i);
+      referenceIndex.put(e, i);
+    }    
   }
   
   /** Return the ranking containing only the elements up to (and including) max */
-  private static Ranking upTo(Ranking ranking, int max) {
+  private Ranking upTo(Ranking ranking, int max) {
     Ranking r = new Ranking(ranking.getElementSet());
     for (int i=0; i<ranking.size(); i++) {
       Element e = ranking.get(i);
-      if (e.getId() <= max) r.add(e);
+      int index = referenceIndex.get(e);
+      if (index <= max) r.add(e);
     }
     return r;
   }

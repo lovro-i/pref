@@ -2,12 +2,12 @@ package com.rankst.incomplete;
 
 import com.rankst.comb.Comb;
 import com.rankst.entity.ElementSet;
+import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
 import com.rankst.generator.RIMRSampler;
 import static com.rankst.incomplete.IncompleteAttributes.ATTRIBUTES;
 import com.rankst.ml.TrainUtils;
 import com.rankst.model.MallowsModel;
-import com.rankst.reconstruct.DirectReconstructor;
 import com.rankst.reconstruct.PolynomialReconstructor;
 import com.rankst.sample.SampleCompleter;
 import com.rankst.triangle.MallowsTriangle;
@@ -40,12 +40,11 @@ public class IncompleteGenerator {
   private Instances data;
   
   
-  private int[] sampleSizes = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000 };
-  private double misses[] = TrainUtils.step(0, 0.75, 0.05);
+  private int[] sampleSizes = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000 };
+  private double misses[] = TrainUtils.step(0, 0.75, 0.1);
   private double phis[] = TrainUtils.step(0.05, 0.8, 0.05);
   private int elems[] = { 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200 };
   private int reps = 10;
-  private int resampleSize = 5000;
 
   
   
@@ -57,8 +56,6 @@ public class IncompleteGenerator {
       ConverterUtils.DataSource source = new ConverterUtils.DataSource(is);
       data = source.getDataSet();
       Logger.info("Loaded %d instances", data.size());
-      loadState();
-      rewindState();
     }
     else {
       int size = phis.length * sampleSizes.length * misses.length * reps * elems.length;
@@ -104,9 +101,10 @@ public class IncompleteGenerator {
   }
   
   private synchronized void rewindState() {
-    if (pi > 0) pi--;
     si = 0;
-    mi = 0;
+    if (pi > 0) pi--;
+    // pi = 0;
+    // if (mi > 0) mi--;    
   }
   
   private synchronized TrainInstance next() {
@@ -116,13 +114,13 @@ public class IncompleteGenerator {
       mi++;
     }
     
-    if (mi == misses.length) {
-      mi = 0;
-      pi++;
-    }
-    
     if (pi == phis.length) {
       pi = 0;
+      mi++;
+    }
+    
+    if (mi == misses.length) {
+      mi = 0;
       ei++;
     }
     
@@ -134,10 +132,10 @@ public class IncompleteGenerator {
     if (rep == reps) return null;
     if (elements == null || elements.size() != elems[ei]) elements = new ElementSet(elems[ei]);
     
-    return new TrainInstance(elements, sampleSizes[si], resampleSize, phis[pi], misses[mi]);
+    return new TrainInstance(elements, sampleSizes[si], IncompleteAttributes.RESAMPLE_SIZE, phis[pi], misses[mi]);
   }
   
-  private synchronized void write() throws IOException {
+  public synchronized void write() throws IOException {
     BufferedWriter writer = new BufferedWriter(new FileWriter(arff));
     writer.write(data.toString());
     writer.close();
@@ -183,7 +181,7 @@ public class IncompleteGenerator {
   }
   
   
-  private Instance generateInstance(ElementSet elements, int sampleSize, int resampleSize, double phi, double missing) {
+  public Instance generateInstance(ElementSet elements, int sampleSize, int resampleSize, double phi, double missing) {
     Instance instance = new DenseInstance(ATTRIBUTES.size());
     instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_ELEMENTS), elements.size());
     instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_REAL_PHI), phi);
@@ -193,7 +191,9 @@ public class IncompleteGenerator {
 
 
     // Sample
-    MallowsTriangle triangle = new MallowsTriangle(elements.getReferenceRanking(), phi);
+    Ranking center = elements.getReferenceRanking();
+    MallowsModel model = new MallowsModel(center, phi);
+    MallowsTriangle triangle = new MallowsTriangle(model);
     RIMRSampler sampler = new RIMRSampler(triangle);
     Sample sample = sampler.generate(sampleSize);
     Comb.comb(sample, missing);
@@ -202,20 +202,20 @@ public class IncompleteGenerator {
     
     // triangle no row
     {
-      SampleTriangle st = new SampleTriangle(sample);
+      SampleTriangle st = new SampleTriangle(center, sample);
       RIMRSampler resampler = new RIMRSampler(st);
       Sample resample = resampler.generate(resampleSize);
-      MallowsModel mallows = reconstructor.reconstruct(resample);
+      MallowsModel mallows = reconstructor.reconstruct(resample, center);
       instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_TRIANGLE_NO_ROW), mallows.getPhi());
     }
 
 
     // triangle by row
     {
-      SampleTriangleByRow st = new SampleTriangleByRow(sample);
+      SampleTriangleByRow st = new SampleTriangleByRow(model.getCenter(), sample);
       RIMRSampler resampler = new RIMRSampler(st);
       Sample resample = resampler.generate(resampleSize);
-      MallowsModel mallows = reconstructor.reconstruct(resample);
+      MallowsModel mallows = reconstructor.reconstruct(resample, center);
       instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_TRIANGLE_BY_ROW), mallows.getPhi());
     }
 
@@ -224,7 +224,7 @@ public class IncompleteGenerator {
     for (int j = 0; j < bootstraps.length; j++) {
       SampleCompleter completer = new SampleCompleter(sample);
       Sample resample = completer.complete(1);
-      MallowsModel mallows = reconstructor.reconstruct(resample);
+      MallowsModel mallows = reconstructor.reconstruct(resample, center);
       bootstraps[j] = mallows.getPhi();
     }
     instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_COMPLETER_MEAN), MathUtils.mean(bootstraps));
@@ -234,7 +234,7 @@ public class IncompleteGenerator {
     return instance;
   }
   
-  private synchronized void add(Instance instance) {
+  public synchronized void add(Instance instance) {
     instance.setDataset(data);
     data.add(instance);
   }
@@ -298,6 +298,8 @@ public class IncompleteGenerator {
   public static void main(String[] args) throws Exception {
     File folder = new File("C:\\Projects\\Rankst\\Results.3");
     IncompleteGenerator generator = new IncompleteGenerator(new File(folder, "incomplete.train.arff"));
+    generator.loadState();
+    generator.rewindState();
     generator.generate();
   }
 }

@@ -8,6 +8,7 @@ import com.rankst.entity.Sample;
 import com.rankst.generator.RIMRSampler;
 import com.rankst.ml.TrainUtils;
 import com.rankst.model.MallowsModel;
+import com.rankst.reconstruct.CompleteReconstructor;
 import com.rankst.reconstruct.PolynomialReconstructor;
 import com.rankst.triangle.MallowsTriangle;
 import com.rankst.util.FileUtils;
@@ -33,7 +34,7 @@ public class PolynomialTests {
   private void fixElements(int n) throws IOException {
     ElementSet elements = new ElementSet(n);
     PrintWriter out = FileUtils.append(new File(folder, "results.n="+n+".tsv"));
-    PolynomialReconstructor rec = new PolynomialReconstructor();
+    CompleteReconstructor rec = new CompleteReconstructor();
     
     // elements, sampleSize, real_phi, rec_phi, rel_error, center_error, time_kemeny, time_center, time_phi, time_total, solver_start
     for (int rep = 1; rep <= reps; rep++) {
@@ -59,10 +60,10 @@ public class PolynomialTests {
           out.print(KendallTauRankingDistance.between(reference, mallows.getCenter()));
           
           // time profiling
-          out.print(String.format("\t%.1f\t%.1f\t%.1f\t", .001 * rec.getTimeCenter(), .001 * rec.getTimePhi(), .001 * rec.getTimeTotal()));
+          // out.print(String.format("\t%.1f\t", .001 * rec.getTime()));
           
           // solver start
-          out.println(rec.getSolverStart());
+          // out.println(rec.getSolverStart());
           out.flush();
         }
       }      
@@ -75,7 +76,7 @@ public class PolynomialTests {
   private void fixPhi(double phi) throws IOException {
     
     PrintWriter out = FileUtils.append(new File(folder, "results.phi=" + phi + ".tsv"));
-    PolynomialReconstructor rec = new PolynomialReconstructor();
+    CompleteReconstructor rec = new CompleteReconstructor();
     
     // elements, sampleSize, real_phi, rec_phi, rel_error, center_error, time_kemeny, time_center, time_phi, time_total, solver_start
     for (int rep = 1; rep <= reps; rep++) {
@@ -102,10 +103,10 @@ public class PolynomialTests {
           out.print(KendallTauRankingDistance.between(reference, mallows.getCenter()));
           
           // time profiling
-          out.print(String.format("\t%.1f\t%.1f\t%.1f\t", .001 * rec.getTimeCenter(), .001 * rec.getTimePhi(), .001 * rec.getTimeTotal()));
+          // out.print(String.format("\t%.1f\t%.1f\t%.1f\t", .001 * rec.getTimeCenter(), .001 * rec.getTimePhi(), .001 * rec.getTimeTotal()));
           
           // solver start
-          out.println(rec.getSolverStart());
+          // out.println(rec.getSolverStart());
           out.flush();
         }
       }      

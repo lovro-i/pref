@@ -36,18 +36,6 @@ public class FullSample extends Sample {
     Ranking reference = elements.getReferenceRanking();
     Sample sample = new FullSample(reference);
     System.out.println(sample);
-//    System.out.println(sample.size());
-//    
-//    
-//    Histogram<Integer> h = new Histogram<Integer>();
-//    RankingDistance dist = new KendallTauRankingDistance();
-//    for (Ranking r: sample) {
-//      int d = (int) dist.distance(reference, r);
-//      h.add(d);
-//      System.out.println(r+": " + d);
-//    }
-//    System.out.println(n);
-//    new HistogramReport(h).out();
   }
   
 }

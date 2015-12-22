@@ -45,12 +45,14 @@ public class BubbleTableKemenizator implements Kemenizator {
     int n = sample.getElements().size();
     double[][] before = new double[n][n];
     
-    for (Ranking r: sample) {
+    for (int ri = 0; ri < sample.size(); ri++) {
+      Ranking r = sample.get(ri);
+      double w = sample.getWeight(ri);
       for (int i = 0; i < r.size()-1; i++) {
         int e1 = r.get(i).getId();
         for (int j = i+1; j < r.size(); j++) {
           int e2 = r.get(j).getId();
-          before[e1][e2]++;
+          before[e1][e2] += w;
         }
       }
     }

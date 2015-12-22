@@ -1,6 +1,6 @@
 package com.rankst.test;
 
-import com.rankst.comb.Comb;
+import com.rankst.filter.Filter;
 import com.rankst.distance.KendallTauRankingDistance;
 import com.rankst.entity.ElementSet;
 import com.rankst.entity.Ranking;
@@ -35,7 +35,7 @@ public class TestReferenceRandom {
     MallowsModel mallows1 = reconstructor.reconstruct(sample);
     System.out.println(mallows1);
     
-    Comb.comb(sample, missing);
+    Filter.remove(sample, missing);
     Ranking candidate = KemenyCandidate.find(sample);
     System.out.println(candidate);
     BubbleTableKemenizator kemenizator = new BubbleTableKemenizator();

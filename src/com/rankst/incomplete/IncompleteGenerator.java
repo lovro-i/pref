@@ -1,6 +1,6 @@
 package com.rankst.incomplete;
 
-import com.rankst.comb.Comb;
+import com.rankst.filter.Filter;
 import com.rankst.entity.ElementSet;
 import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
@@ -196,7 +196,7 @@ public class IncompleteGenerator {
     MallowsTriangle triangle = new MallowsTriangle(model);
     RIMRSampler sampler = new RIMRSampler(triangle);
     Sample sample = sampler.generate(sampleSize);
-    Comb.comb(sample, missing);
+    Filter.remove(sample, missing);
     
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     

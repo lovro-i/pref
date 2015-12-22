@@ -1,6 +1,6 @@
 package com.rankst.incomplete;
 
-import com.rankst.comb.Comb;
+import com.rankst.filter.Filter;
 import com.rankst.entity.ElementSet;
 import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
@@ -184,7 +184,7 @@ public class IncompleteReconstructor implements MallowsReconstructor {
     
     int n = 15;
     ElementSet elements = new ElementSet(n);    
-    double phi = 0.25;
+    double phi = 0.32;
     double missing = 0.55;
     int sampleSize = 3000;
     
@@ -193,7 +193,7 @@ public class IncompleteReconstructor implements MallowsReconstructor {
     MallowsTriangle triangle = new MallowsTriangle(original);
     RIMRSampler sampler = new RIMRSampler(triangle);
     Sample sample = sampler.generate(sampleSize);
-    Comb.comb(sample, missing);
+    Filter.remove(sample, missing);
     
     //reconstructor.trainParallel(sample, 6);
     MallowsModel model = reconstructor.reconstruct(sample);

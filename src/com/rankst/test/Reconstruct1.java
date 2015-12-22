@@ -1,6 +1,6 @@
 package com.rankst.test;
 
-import com.rankst.comb.Comb;
+import com.rankst.filter.Filter;
 import com.rankst.distance.KendallTauRankingDistance;
 import com.rankst.distance.RankingDistance;
 import com.rankst.entity.ElementSet;
@@ -174,7 +174,7 @@ public class Reconstruct1 {
       MallowsTriangle triangle = new MallowsTriangle(center, phi);
       RIMRSampler sampler = new RIMRSampler(triangle);
       Sample sample = sampler.generate(samps);
-      Comb.comb(sample, 0.1);
+      Filter.remove(sample, 0.1);
       
       StringBuilder sb = new StringBuilder();
 

@@ -1,6 +1,6 @@
 package com.rankst.sample;
 
-import com.rankst.comb.Comb;
+import com.rankst.filter.Filter;
 import com.rankst.entity.Element;
 import com.rankst.entity.ElementSet;
 import com.rankst.entity.Ranking;
@@ -94,7 +94,7 @@ public class SampleCompleter {
     MallowsTriangle triangle = new MallowsTriangle(center, phi);
     RIMRSampler sampler = new RIMRSampler(triangle);    
     Sample sample = sampler.generate(10);
-    Comb.comb(sample, 0.1);
+    Filter.remove(sample, 0.1);
     
     SampleCompleter completer = new SampleCompleter(sample);
     Sample complete = completer.complete(10);

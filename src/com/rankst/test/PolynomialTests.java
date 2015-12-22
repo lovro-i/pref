@@ -64,6 +64,7 @@ public class PolynomialTests {
           
           // solver start
           // out.println(rec.getSolverStart());
+          out.println();
           out.flush();
         }
       }      
@@ -107,6 +108,7 @@ public class PolynomialTests {
           
           // solver start
           // out.println(rec.getSolverStart());
+          out.println();
           out.flush();
         }
       }      

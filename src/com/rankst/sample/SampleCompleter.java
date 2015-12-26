@@ -32,13 +32,16 @@ public class SampleCompleter {
   public Sample complete(int num) {
     ElementSet elements = sample.getElements();
     Sample complete = new Sample(elements);
-    for (Ranking r: sample) {
+    for (int index = 0; index < sample.size(); index++) {
+      Ranking r = sample.get(index);
+      double weight = sample.getWeight(index);
+
       int m = elements.size() - r.size();
       if (m == 0) {
-        complete.add(r);
+        complete.add(r, weight);
         continue;
       }
-      double w = 1d / num;
+      double w = weight / num;
       for (int i = 0; i < num; i++) {
         Ranking random = elements.getRandomRanking();
         int k = 0; // index of element in the incomplete ranking to be inserted next

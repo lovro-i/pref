@@ -14,17 +14,7 @@ public class ElementSet {
     for (int i=0; i<n; i++) elements.add(new Element(i));
   }
 
-  /** Create the set from the elements seen in the sample (plus the ones not seen in the sample, but which have lower id than the maximum appearing id) */
-  public ElementSet(Sample sample) {
-    int maxId = -1;
-    for (Ranking ranking: sample) {
-      for (Element element: ranking.getElements()) {
-        maxId = Math.max(maxId, element.getId());
-      }
-    }    
-    for (int i=0; i<=maxId; i++) elements.add(new Element(i));
-  }
-  
+ 
   public Element getElement(int id) {
     return elements.get(id);
   }

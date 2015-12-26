@@ -12,5 +12,6 @@ public interface MallowsReconstructor {
   
   public MallowsModel reconstruct(Sample sample) throws Exception;
   
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception;
 
 }

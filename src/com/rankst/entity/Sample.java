@@ -1,6 +1,7 @@
 package com.rankst.entity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /** Sample of rankings. Can be weighted if rankings are added through add(Ranking ranking, double weight)
  * 
@@ -17,7 +18,13 @@ public class Sample extends ArrayList<Ranking> {
   
   public Sample(Sample sample) {
     this.elements = sample.elements;
-    this.addAll(sample);
+    if (sample.weights != null) initWeights();
+    for (int i = 0; i < sample.size(); i++) {
+      Ranking r = sample.get(i);
+      Ranking rc = new Ranking(r);
+      if (sample.weights == null) this.add(rc);
+      else this.add(rc, sample.getWeight(i));
+    }
   }
 
   public ElementSet getElements() {
@@ -39,7 +46,7 @@ public class Sample extends ArrayList<Ranking> {
   }
   
   public boolean add(Ranking ranking, double weight) {
-    initWeights();    
+    initWeights();
     weights.add(weight);
     return super.add(ranking);
   }
@@ -86,6 +93,38 @@ public class Sample extends ArrayList<Ranking> {
     }
     sb.append("=== ").append(this.size()).append(" samples ===");
     return sb.toString();
+  }
+  
+  
+  public List<RW> enumerate() {
+    List<RW> list = new ArrayList<RW>();
+    for (int i = 0; i < size(); i++) {
+      Ranking r = this.get(i);
+      double w = this.getWeight(i);
+      list.add(new RW(r, w));
+    }
+    return list;
+  }
+
+  public double sumWeights() {
+    if (weights == null) return size();
+    double sum = 0;
+    for (double w: weights) sum += w;
+    return sum;
+  }
+ 
+  
+  /** Class that represents Ranking - Weight pair */
+  public static class RW {
+    
+    public final Ranking r;
+    public final double w;
+    
+    private RW(Ranking r, double w) {
+      this.r = r;
+      this.w = w;
+    }
+    
   }
   
 }

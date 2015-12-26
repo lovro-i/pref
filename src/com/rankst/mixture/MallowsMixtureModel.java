@@ -6,6 +6,7 @@ import com.rankst.model.MallowsModel;
 import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** Mixture of Mallows models (with weights) */
@@ -26,9 +27,27 @@ public class MallowsMixtureModel {
     models.add(model);
     weights.add(weight);
     sumWeights += weight;
+    sort();
     return this;
   }
 
+  private void sort() {
+    boolean dirty = true;
+    while (dirty) {
+      dirty = false;
+      for (int i = 0; i < models.size() - 1; i++) {
+        MallowsModel m1 = models.get(i);
+        MallowsModel m2 = models.get(i+1);
+        if (m1.getCenter().compareTo(m2.getCenter()) > 0) {
+          Collections.swap(models, i, i+1);
+          Collections.swap(weights, i, i+1);
+          dirty = true;
+        }
+      }
+    }
+  }
+  
+  
   /** @return index of a random model */
   int getRandomModel() {
     double p = MathUtils.RANDOM.nextDouble() * sumWeights;
@@ -68,10 +87,8 @@ public class MallowsMixtureModel {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < models.size(); i++) {
       MallowsModel model = models.get(i);
-      sb.append("[Model ").append(i+1).append("] Center = ").append(model.getCenter());
-      sb.append(", phi = ").append(model.getPhi());
-      sb.append(", weight = ").append(weights.get(i) / sumWeights);
-      sb.append("\n");
+      String s = String.format("[Model %d] Center = %s, phi = %.3f, weight = %.1f", i+1, model.getCenter(), model.getPhi(), 100d * weights.get(i) / sumWeights);
+      sb.append(s).append("\n");
     }
     return sb.toString();
   }

@@ -18,7 +18,7 @@ public class NoiseTest {
     Ranking center = elements.getRandomRanking();
     
     double phi = 0.4;
-    int sampleSize = 5000;
+    int sampleSize = 1000;
     
         
     MallowsModel original = new MallowsModel(center, phi);
@@ -35,7 +35,7 @@ public class NoiseTest {
     System.out.println(mallows);
     System.out.println(KendallTauRankingDistance.between(center, mallows.getCenter()));
     
-    Filter.swap(sample, 0.25);
+    Filter.noise(sample, 0.25);
     MallowsModel mallows1 = direct.reconstruct(sample);
     System.out.println(mallows1);
     System.out.println(KendallTauRankingDistance.between(center, mallows1.getCenter()));

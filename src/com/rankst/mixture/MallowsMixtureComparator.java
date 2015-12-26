@@ -3,7 +3,7 @@ package com.rankst.mixture;
 import com.rankst.distance.KendallTauRankingDistance;
 import com.rankst.distance.RankingDistance;
 import com.rankst.entity.Ranking;
-import java.io.PrintWriter;
+import com.rankst.util.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +18,11 @@ public class MallowsMixtureComparator {
     this.originalModel = original;
   }
   
-  public void compareCenters(List<Ranking> centers, PrintWriter out) {
+  public void compare(MallowsMixtureModel model) {
+    compareCenters(model.getCenters());
+  }
+  
+  public void compareCenters(List<Ranking> centers) {
     List<Ranking> originalCenters = originalModel.getCenters();
     List<Ranking> closest = new ArrayList<Ranking>();
     
@@ -32,17 +36,17 @@ public class MallowsMixtureComparator {
     
     // Compare number of clusters
     if (originalCenters.size() == closest.size()) {
-      out.println("[GOOD] The number of models (centers) is equal");
+      Logger.info("[GOOD] The number of models (centers) is equal");
     }
     else if (originalCenters.size() > closest.size()) {
-      out.println(String.format("[WARNING] There are more original models (centers) than the reconstructed ones: %d > %d", originalCenters.size(), closest.size()));
+      Logger.info(String.format("[WARNING] There are more original models (centers) than the reconstructed ones: %d > %d", originalCenters.size(), closest.size()));
     }
     else {
-      out.println(String.format("[WARNING] There are more reconstucted centers than the original ones: %d > %d", closest.size(), originalCenters.size()));
+      Logger.info(String.format("[WARNING] There are more reconstucted centers than the original ones: %d > %d", closest.size(), originalCenters.size()));
     }
     
     // Paired centers
-    out.println("Paired centers (original, reconstructed, distance):");
+    Logger.info("Paired centers (original, reconstructed, distance):");
     for (int i = 0; i < Math.max(originalCenters.size(), closest.size()); i++) {
       Ranking oc = i < originalCenters.size() ? originalCenters.get(i) : null;
       Ranking rc = i < closest.size() ? closest.get(i) : null;
@@ -57,7 +61,7 @@ public class MallowsMixtureComparator {
       if (oc != null && rc != null) sb.append(dist.distance(oc, rc));
       else sb.append("-");
       
-      out.println(sb.toString());
+      Logger.info(sb.toString());
     }
   }
   

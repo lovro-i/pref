@@ -39,12 +39,13 @@ public class IncompleteGenerator {
   private File arff;
   private Instances data;
   
+  double[] phis = TrainUtils.step(0, 0.95, 0.05);
   
-  private int[] sampleSizes = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000 };
-  private double misses[] = TrainUtils.step(0, 0.75, 0.1);
-  private double phis[] = TrainUtils.step(0.05, 0.8, 0.05);
-  private int elems[] = { 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200 };
-  private int reps = 10;
+//  private int[] sampleSizes = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000 };
+//  private double misses[] = TrainUtils.step(0, 0.75, 0.1);
+//  private double phis[] = TrainUtils.step(0.05, 0.8, 0.05);
+//  private int elems[] = { 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200 };
+//  private int reps = 10;
 
   
   
@@ -58,82 +59,11 @@ public class IncompleteGenerator {
       Logger.info("Loaded %d instances", data.size());
     }
     else {
-      int size = phis.length * sampleSizes.length * misses.length * reps * elems.length;
-      System.out.println("Creating new dataset with " + size + " instances");
-      data = new Instances("Train Incomplete", IncompleteAttributes.ATTRIBUTES, size);
+      data = new Instances("Train Incomplete", IncompleteAttributes.ATTRIBUTES, 100);
     }
   }
+
   
-  private int si = 0;
-  private int rep = 0;
-  private int pi = 0;
-  private int mi = 0;
-  private int ei = 0;
-  private ElementSet elements;
-  
-  private synchronized void saveState() throws IOException {
-    Properties props = new Properties();
-    props.setProperty("si", String.valueOf(si));
-    props.setProperty("rep", String.valueOf(rep));
-    props.setProperty("pi", String.valueOf(pi));
-    props.setProperty("mi", String.valueOf(mi));
-    props.setProperty("ei", String.valueOf(ei));
-    PrintWriter out = FileUtils.write(new File(arff.getParentFile(), "incomplete.generator.state"));
-    props.store(out, "IncompleteGenerator State");
-    out.close();
-  }
-  
-  private synchronized void loadState() throws IOException {
-    Properties props = new Properties();
-    File stateFile = new File(arff.getParentFile(), "incomplete.generator.state");
-    if (!stateFile.exists()) return;
-    
-    FileReader reader = new FileReader(stateFile); 
-    props.load(reader);
-    
-    this.si = Integer.parseInt(props.getProperty("si"));
-    this.rep = Integer.parseInt(props.getProperty("rep"));
-    this.pi = Integer.parseInt(props.getProperty("pi"));
-    this.mi = Integer.parseInt(props.getProperty("mi"));
-    this.ei = Integer.parseInt(props.getProperty("ei"));
-    
-    System.out.println("Continuing...");
-  }
-  
-  private synchronized void rewindState() {
-    si = 0;
-    if (pi > 0) pi--;
-    // pi = 0;
-    // if (mi > 0) mi--;    
-  }
-  
-  private synchronized TrainInstance next() {
-    si++;
-    if (si == sampleSizes.length) {
-      si = 0;
-      mi++;
-    }
-    
-    if (pi == phis.length) {
-      pi = 0;
-      mi++;
-    }
-    
-    if (mi == misses.length) {
-      mi = 0;
-      ei++;
-    }
-    
-    if (ei == elems.length) {
-      ei = 0;
-      rep++;
-    }
-    
-    if (rep == reps) return null;
-    if (elements == null || elements.size() != elems[ei]) elements = new ElementSet(elems[ei]);
-    
-    return new TrainInstance(elements, sampleSizes[si], IncompleteAttributes.RESAMPLE_SIZE, phis[pi], misses[mi]);
-  }
   
   public synchronized void write() throws IOException {
     BufferedWriter writer = new BufferedWriter(new FileWriter(arff));
@@ -141,44 +71,8 @@ public class IncompleteGenerator {
     writer.close();
   }
   
-  private long lastSave = 0;
-  private long savePeriod = 1 * 60 * 1000;
   
-  private synchronized void checkWrite() throws IOException {
-    if (System.currentTimeMillis() - lastSave >= savePeriod) {
-      System.out.println("Writing data...");
-      write();
-      saveState();
-      lastSave = System.currentTimeMillis();
-    }
-  }
-  
-  
-  
-  
-  
-  private long lastLog = 0;
-  private long logPeriod = 1 * 1000;
-  
-  private void log(TrainInstance ti) {
-    if (System.currentTimeMillis() - lastLog >= logPeriod) {
-      lastLog = System.currentTimeMillis();
-      System.out.println(ti);      
-    }
-  }
-  
-  private int threads = 8;
-  private List<Trainer> trainers = new ArrayList<Trainer>();
-  
-  private void generate() throws InterruptedException {
-    for (int i = 0; i < threads; i++) {
-      Trainer trainer = new Trainer(i);
-      trainer.start();
-      trainers.add(trainer);
-    }
-    
-    for (Trainer trainer: trainers) trainer.join();    
-  }
+
   
   
   public Instance generateInstance(ElementSet elements, int sampleSize, int resampleSize, double phi, double missing) {
@@ -239,58 +133,78 @@ public class IncompleteGenerator {
     data.add(instance);
   }
   
-  private class Trainer extends Thread {
-
-    private int id;
-    
-    private Trainer(int id) {
-      this.id = id;
-    }
-
-    @Override
-    public void run() {
-      System.out.println("Starting trainer " + id);
-      TrainInstance ti = next();
-      while (ti != null) {
-        ti.train();
-        log(ti);
-        try { checkWrite(); }
-        catch (IOException e) { e.printStackTrace(); }
-        ti = next();
+  /** Generates training examples with parameters from the sample: sampleSize, number of elements, missing rate
+   * Iterates through <i>phi</i>s, and repeats it <i>reps</i> times for every <i>phi</i>
+   * 
+   * @param sample Sample to generate similar ones
+   * @param reps Number of instances to generate per every phi
+   */
+  public void generate(Sample sample, int reps) throws Exception {
+    long start = System.currentTimeMillis();
+    IncompleteGenerator generator = new IncompleteGenerator(arff);
+    int count = 0;
+    double missing = IncompleteUtils.getMissingRate(sample);    
+    for (int i = 0; i < reps; i++) {
+      for (double phi: phis) {
+        Logger.info("Training pass %d, phi %.2f", i, phi);
+        Instance instance = generator.generateInstance(sample.getElements(), sample.size(), IncompleteAttributes.RESAMPLE_SIZE, phi, missing);
+        generator.add(instance);
+        count++;
       }
+      generator.write();
     }
-    
-    @Override
-    public String toString() {
-      return "Trainer #"+id;
-    }
+    Logger.info("%d instances generated in %d sec", count, (System.currentTimeMillis() - start) / 1000);
   }
   
-  private class TrainInstance {
+  
+  
+  
+  /** Parallel implementation of method generate, with <code>reps</code> number of threads
+   * 
+   * @param sample Sample to generate similar ones (size, number of elements, missing rate)
+   * @param reps Number of threads per phi
+   */
+  public void generateParallel(Sample sample, int reps) throws Exception {
+    long start = System.currentTimeMillis();
+    IncompleteGenerator generator = new IncompleteGenerator(arff);
     
-    private double miss;
-    private ElementSet elements;
-    private int sampleSize;
-    private int resampleSize;
-    private double phi;
+    //SystemOut.mute();
+    List<Trainer> trainers = new ArrayList<Trainer>();
+    for (int id = 1; id <= reps; id++) {
+      Trainer trainer = new Trainer(sample);
+      trainer.start();
+      trainers.add(trainer);
+    }
+    
+    for (Trainer trainer: trainers) trainer.join();
+    
+    generator.write();
+    //SystemOut.unmute();
+    Logger.info("%d instance series generated in %d sec", reps, (System.currentTimeMillis() - start) / 1000);
+  }
 
+  private int nextId = 1;
+  
+  private class Trainer extends Thread {
+
+    private final Sample sample;
+    private final int id;
+
+    private Trainer(Sample sample) {
+      this.id = nextId++;
+      this.sample = sample;
+    }
+    
     @Override
-    public String toString() {
-      return String.format("n = %d, phi = %.2f, miss = %.2f, sample = %d", elements.size(), phi, miss, sampleSize);
-    }
-    
-    
-    private TrainInstance(ElementSet elements, int sampleSize, int resampleSize, double phi, double miss) {
-      this.miss = miss;
-      this.phi = phi;
-      this.elements = elements;
-      this.sampleSize = sampleSize;
-      this.resampleSize = resampleSize;
-    }
-
-    public void train() {
-      Instance instance = generateInstance(elements, sampleSize, resampleSize, phi, miss);
-      add(instance);
+    public void run() {
+      long start = System.currentTimeMillis();
+      double missing = IncompleteUtils.getMissingRate(sample);
+      for (double phi: phis) {
+        Logger.info("Trainer #%d, phi %.2f", id, phi);
+        Instance instance = generateInstance(sample.getElements(), sample.size(), IncompleteAttributes.RESAMPLE_SIZE, phi, missing);
+        add(instance);
+      }
+      Logger.info("Trainer #%d finished in %d sec", id, (System.currentTimeMillis() - start) / 1000);
     }
   }
   
@@ -298,8 +212,5 @@ public class IncompleteGenerator {
   public static void main(String[] args) throws Exception {
     File folder = new File("C:\\Projects\\Rankst\\Results.3");
     IncompleteGenerator generator = new IncompleteGenerator(new File(folder, "incomplete.train.arff"));
-    generator.loadState();
-    generator.rewindState();
-    generator.generate();
   }
 }

@@ -8,6 +8,7 @@ import com.rankst.reconstruct.CompleteReconstructor;
 import com.rankst.reconstruct.MallowsReconstructor;
 import com.rankst.histogram.Histogram;
 import static com.rankst.ml.CompleteAttributes.ATTRIBUTES;
+import com.rankst.reconstruct.CenterReconstructor;
 import com.rankst.util.MathUtils;
 import com.rankst.util.Utils;
 import java.io.File;
@@ -23,6 +24,7 @@ import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 
 /** Reconstructs Mallows Model from the sample using ensemble of direct and bootstrap reconstruction (regression) */
+@Deprecated
 public class RegressionReconstructor implements MallowsReconstructor {
 
   private AbstractClassifier model;
@@ -45,18 +47,27 @@ public class RegressionReconstructor implements MallowsReconstructor {
     this.model = model;
   }
   
+  
   @Override
   public MallowsModel reconstruct(Sample sample) throws Exception {
+    Ranking center = CenterReconstructor.reconstruct(sample);
+    return this.reconstruct(sample, center);
+  }
+  
+  
+  
+  @Override
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     
     // No Bootstrap
-    MallowsModel direct = directReconstructor.reconstruct(sample);        
+    MallowsModel direct = directReconstructor.reconstruct(sample, center);        
 
     // Bootstrap
     Resampler resampler = new Resampler(sample);          
     double boots[] = new double[bootstraps];
     for (int j = 0; j < bootstraps; j++) {
       Sample resample = resampler.resample();
-      MallowsModel m = directReconstructor.reconstruct(resample);
+      MallowsModel m = directReconstructor.reconstruct(resample, center);
       boots[j] = m.getPhi();
     }
 
@@ -70,7 +81,7 @@ public class RegressionReconstructor implements MallowsReconstructor {
     instance.setValue(ATTRIBUTES.indexOf(CompleteAttributes.ATTRIBUTE_BOOTSTRAP_VAR), MathUtils.variance(boots));
         
     double regressionPhi = this.model.classifyInstance(instance);
-    return new MallowsModel(direct.getCenter(), regressionPhi);
+    return new MallowsModel(center, regressionPhi);
   }
   
 }

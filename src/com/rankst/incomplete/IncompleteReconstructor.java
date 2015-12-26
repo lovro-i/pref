@@ -17,9 +17,11 @@ import com.rankst.triangle.SampleTriangle;
 import com.rankst.triangle.SampleTriangleByRow;
 import com.rankst.util.Logger;
 import com.rankst.util.MathUtils;
+import com.rankst.util.SystemOut;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import weka.classifiers.trees.M5P;
@@ -38,7 +40,7 @@ public class IncompleteReconstructor implements MallowsReconstructor {
     load();
   }  
   
-  private void load() throws Exception {
+  public void load() throws Exception {
     long start = System.currentTimeMillis();
     InputStream is = new FileInputStream(arff);
     ConverterUtils.DataSource source = new ConverterUtils.DataSource(is);    
@@ -51,83 +53,17 @@ public class IncompleteReconstructor implements MallowsReconstructor {
     System.out.println(String.format("Incomplete regression classifier learnt in %d ms", System.currentTimeMillis() - start));
   }
 
-  /** Generates training examples with parameters from the sample: sampleSize, number of elements, missing rate
-   * Iterates through <i>phi</i>s, and repeats it <i>reps</i> times for every <i>phi</i>
-   * 
-   * @param sample Sample to generate similar ones
-   * @param reps Number of instances to generate per every phi
-   */
-  public void train(Sample sample, int reps) throws Exception {
-    long start = System.currentTimeMillis();
-    IncompleteGenerator generator = new IncompleteGenerator(arff);
-    int count = 0;
-    double missing = IncompleteUtils.getMissingRate(sample);
-    double[] phis = TrainUtils.step(0.05, 0.95, 0.05);
-    for (int i = 0; i < reps; i++) {
-      for (double phi: phis) {
-        Logger.info("Training pass %d, phi %.2f", i, phi);
-        Instance instance = generator.generateInstance(sample.getElements(), sample.size(), IncompleteAttributes.RESAMPLE_SIZE, phi, missing);
-        generator.add(instance);
-        count++;
-      }
-      generator.write();
-    }
-    Logger.info("%d instances generated in %d sec", count, (System.currentTimeMillis() - start) / 1000);
-    load();
-  }
   
-  
-  /** Parallel implementation of method train, with <code>reps</code> number of threads
-   * 
-   * @param sample Sample to generate similar ones (size, number of elements, missing rate)
-   * @param reps Number of threads per phi
-   */
-  public void trainParallel(Sample sample, int reps) throws Exception {
-    long start = System.currentTimeMillis();
-    IncompleteGenerator generator = new IncompleteGenerator(arff);
-    
-    List<Trainer> trainers = new ArrayList<Trainer>();
-    for (int id = 1; id <= reps; id++) {
-      Trainer trainer = new Trainer(id, sample, generator);
-      trainer.start();
-      trainers.add(trainer);
-    }
-    
-    for (Trainer trainer: trainers) trainer.join();
-    
-    generator.write();
-    Logger.info("%d instance series generated in %d sec", reps, (System.currentTimeMillis() - start) / 1000);
-    load();
-  }
-  
-  private class Trainer extends Thread {
-
-    private final IncompleteGenerator generator;
-    private final Sample sample;
-    private final int id;
-
-    private Trainer(int id, Sample sample, IncompleteGenerator generator) {
-      this.id = id;
-      this.sample = sample;
-      this.generator = generator;
-    }
-    
-    @Override
-    public void run() {
-      long start = System.currentTimeMillis();
-      double missing = IncompleteUtils.getMissingRate(sample);
-      double[] phis = TrainUtils.step(0, 0.95, 0.05);
-      for (double phi: phis) {
-        Logger.info("Trainer #%d, phi %.2f", id, phi);
-        Instance instance = generator.generateInstance(sample.getElements(), sample.size(), IncompleteAttributes.RESAMPLE_SIZE, phi, missing);
-        generator.add(instance);
-      }
-      Logger.info("Trainer #%d finished in %d sec", id, (System.currentTimeMillis() - start) / 1000);
-    }
-  }
   
   @Override
   public MallowsModel reconstruct(Sample sample) throws Exception {
+    Ranking center = CenterReconstructor.reconstruct(sample);
+    return this.reconstruct(sample, center);
+  }
+  
+  
+  @Override
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     int resampleSize = IncompleteAttributes.RESAMPLE_SIZE;
     
     Instance instance = new DenseInstance(ATTRIBUTES.size()); 
@@ -136,7 +72,7 @@ public class IncompleteReconstructor implements MallowsReconstructor {
     instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_RESAMPLE_SIZE), resampleSize);
     instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_MISSING), IncompleteUtils.getMissingRate(sample));
       
-    Ranking center = CenterReconstructor.reconstruct(sample);
+    if (center == null) center = CenterReconstructor.reconstruct(sample);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     
     // triangle no row

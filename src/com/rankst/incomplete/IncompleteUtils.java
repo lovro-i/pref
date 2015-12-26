@@ -8,12 +8,13 @@ import com.rankst.entity.Sample;
 public class IncompleteUtils {
 
   public static double getMissingRate(Sample sample) {
-    ElementSet elements = sample.getElements();
-    long count = 0;
-    for (Ranking r: sample) {
-      count += r.size();
+    ElementSet elements = sample.getElements();    
+    double count = 0;
+    double total = 0;    
+    for (Sample.RW rw: sample.enumerate()) {
+      count += rw.w * rw.r.size();
+      total += rw.w * elements.size();
     }
-    long total = sample.size() * elements.size();
     return 1d * (total - count) / total;
   }  
   

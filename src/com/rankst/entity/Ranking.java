@@ -3,7 +3,7 @@ package com.rankst.entity;
 import java.util.*;
 
 
-public class Ranking {
+public class Ranking implements Comparable {
 
   private static final Random random = new Random();
   private static final String DELIMITER = "-";
@@ -131,12 +131,11 @@ public class Ranking {
     }
     return ranking;
   }    
- 
-  
-  public static void main(String[] args) {
-    
+
+  @Override
+  public int compareTo(Object o) {
+    return this.toString().compareTo(o.toString());
   }
-  
   
 }
  

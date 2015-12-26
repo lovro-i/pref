@@ -8,10 +8,14 @@ import com.rankst.entity.Sample;
 import com.rankst.model.MallowsModel;
 import flanagan.complex.Complex;
 import flanagan.math.Polynomial;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 
-/** Reconstructs phi from the known (reconstructed) center and the sample finding the root of the polynomial */
-public class PolynomialReconstructor {
+/** Reconstructs phi from the known (reconstructed) center and the sample finding the root of the polynomial
+  * If the center is not specified, uses CenterReconstructor */
+public class PolynomialReconstructor implements MallowsReconstructor {
 
   /** Starting values for solving the polynomial */
   private double[] starts = { 0.5d, 0.875d, 0.125d, 0.75d, 0.375d, 1d, 0.625d, 0.25d, 0d }; // { 0.5d, 1d, 0d, 0.75d, 0.25d };
@@ -55,13 +59,22 @@ public class PolynomialReconstructor {
   }
   
 
+  @Override
+  public MallowsModel reconstruct(Sample sample) {
+    Ranking center = CenterReconstructor.reconstruct(sample);
+    return this.reconstruct(sample, center);
+  }
   
+  
+  @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) {
     long t0 = System.currentTimeMillis();
 
     double sumd = 0;
-    for (Ranking r: sample) sumd += KendallTauRankingDistance.getInstance().distance(center, r);
-    double meand = sumd / sample.size();
+    for (Sample.RW rw: sample.enumerate()) {
+      sumd += rw.w * KendallTauRankingDistance.getInstance().distance(center, rw.r);
+    }
+    double meand = sumd / sample.sumWeights();
     
     int n = sample.getElements().size();
     Polynomial left = z(n).times(meand);
@@ -70,7 +83,7 @@ public class PolynomialReconstructor {
     Polynomial solve = left.minus(right);
     
     double phi = Double.NaN;
-    this.start = Double.NaN;
+    this.start = Double.NaN;    
     for (double s: starts) {
       Complex[] roots = solve.roots(s);
       phi = getPhi(roots);

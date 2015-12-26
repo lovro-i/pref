@@ -53,9 +53,9 @@ public class BubbleKemenizator implements Kemenizator {
   /** Sum of distances from the given ranking to each one in the sample */
   private double getDistance(Ranking from, Sample sample) {
     double dist = 0;
-    for (Ranking r: sample) {
-      double d = distance.distance(from, r);
-      dist += d;
+    for (Sample.RW rw: sample.enumerate()) {
+      double d = distance.distance(from, rw.r);
+      dist += rw.w * d;
     }
     return dist;
   }

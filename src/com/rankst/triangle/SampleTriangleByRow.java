@@ -46,28 +46,33 @@ public class SampleTriangleByRow extends Triangle {
     Expands expands = new Expands();
     expands.nullify();
     
-    for (int i = 0; i < element; i++) {       
-      Ranking mini = upTo(ranking, i);
+    for (int i = 0; i < element; i++) {
       Element e = reference.get(i);
-      int pos = mini.indexOf(e);
+      
+      // Ranking mini = upTo(ranking, i);      
+      // int pos = mini.indexOf(e);
+      
+      UpTo upto = new UpTo(ranking, i, referenceIndex);
+      int pos = upto.position;
       
       if (pos == -1) { 
         TriangleRow row = rows.get(i);
         expands = expands.insertMissing(row);
       }
       else {
-        Element previous = null;
-        if (pos > 0) previous = mini.get(pos - 1);
-        expands = expands.insert(e, previous);      
+        // Element previous = null;
+        // if (pos > 0) previous = mini.get(pos - 1);
+        expands = expands.insert(e, upto.previous);      
       }
     }
     
     
-    Ranking mini = upTo(ranking, element);
-    int pos = mini.indexOf(el);            
-    Element previous = null;
-    if (pos > 0) previous = mini.get(pos - 1);
-    expands = expands.insert(el, previous);      
+    // Ranking mini = upTo(ranking, element);
+    // int pos = mini.indexOf(el);            
+    // Element previous = null;
+    // if (pos > 0) previous = mini.get(pos - 1);
+    UpTo upto = new UpTo(ranking, element, referenceIndex);
+    expands = expands.insert(el, upto.previous);      
     TriangleRow row = rows.get(element);
     double[] displacements = expands.getDistribution(el);
     for (int j = 0; j < displacements.length; j++) {

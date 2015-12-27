@@ -1,9 +1,14 @@
 package com.rankst.triangle;
 
 import com.rankst.entity.Element;
+import com.rankst.util.Logger;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Expands extends HashMap<Expand, Double> {
+  
+  private static double threshold = 0.0001;
   
   /** Clear this Expands so that it contains only null (empty) expansion */
   public void nullify() {
@@ -28,7 +33,12 @@ public class Expands extends HashMap<Expand, Double> {
       expands.add(exs, p);
     }
     expands.normalize();
+    expands.prune();
     return expands;
+  }
+  
+  public static void setThreshold(double value) {
+    Expands.threshold = value;
   }
   
   
@@ -59,8 +69,18 @@ public class Expands extends HashMap<Expand, Double> {
       expands.add(exs, this.get(e));
     }
     expands.normalize();
+    expands.prune();
     return expands;
   }
+  
+  private void prune() {
+    if (threshold <= 0) return;    
+    Iterator<Map.Entry<Expand, Double>> it = this.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry<Expand, Double> entry = it.next();
+      if (entry.getValue() < threshold) it.remove();
+    }   
+  } 
   
   public Expands insertMissing(TriangleRow row) {
     Expands expands = new Expands();
@@ -92,6 +112,7 @@ public class Expands extends HashMap<Expand, Double> {
     return sum;
   }
   
+  /** Distribution of element e being at different positions */
   public double[] getDistribution(Element e) {
     double[] dist = null;
     double sum = 0;
@@ -101,9 +122,15 @@ public class Expands extends HashMap<Expand, Double> {
       int pos = ex.position(e);
       dist[pos] += p;
       sum += p;
-    }    
-    for (int i = 0; i < dist.length; i++) {
-      dist[i] = dist[i] / sum;
+    }
+    
+    if (dist != null && sum > 0) {
+      for (int i = 0; i < dist.length; i++) {
+        dist[i] = dist[i] / sum;
+      }
+    }
+    else {
+      dist = new double[0];
     }
     return dist;
   }

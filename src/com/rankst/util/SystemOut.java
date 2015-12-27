@@ -28,5 +28,13 @@ public class SystemOut {
     System.setOut(out);
   }
   
+  public static synchronized void reset() {
+    stack.clear();
+    System.setOut(out);
+  }
+
+  public static void println(String format, Object... args) {
+    out.println(String.format(format, args));
+  }
   
 }

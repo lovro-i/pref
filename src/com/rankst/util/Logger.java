@@ -10,5 +10,9 @@ public class Logger {
   public static void info(Object obj) {
     System.out.println(obj.toString());
   }
+  
+  public static void time(String msg, long start) {
+    info("%s | time: %.1f sec", msg, 0.001d * (System.currentTimeMillis() - start));
+  }
     
 }

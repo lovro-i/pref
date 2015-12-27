@@ -6,6 +6,7 @@ import com.rankst.incomplete.IncompleteGenerator;
 import com.rankst.incomplete.IncompleteReconstructor;
 import com.rankst.incomplete.IncompleteUtils;
 import com.rankst.model.MallowsModel;
+import com.rankst.util.Logger;
 import java.io.File;
 
 /** Decides whether to use Complete or Incomplete reconstructor */

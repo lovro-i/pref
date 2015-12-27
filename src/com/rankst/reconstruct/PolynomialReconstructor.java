@@ -3,9 +3,13 @@ package com.rankst.reconstruct;
 
 import com.rankst.distance.KendallTauRankingDistance;
 import com.rankst.distance.KendallTauUtils;
+import com.rankst.entity.ElementSet;
 import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
+import com.rankst.generator.RIMRSampler;
 import com.rankst.model.MallowsModel;
+import com.rankst.triangle.MallowsTriangle;
+import com.rankst.util.SystemOut;
 import flanagan.complex.Complex;
 import flanagan.math.Polynomial;
 import java.io.IOException;
@@ -17,23 +21,6 @@ import java.util.Arrays;
   * If the center is not specified, uses CenterReconstructor */
 public class PolynomialReconstructor implements MallowsReconstructor {
 
-  /** Starting values for solving the polynomial */
-  private double[] starts = { 0.5d, 0.875d, 0.125d, 0.75d, 0.375d, 1d, 0.625d, 0.25d, 0d }; // { 0.5d, 1d, 0d, 0.75d, 0.25d };
-  
-  private long time = 0;
-  private double start = Double.NaN;
-
-
-  public long getTime() {
-    return time;
-  }
-  
-  
-  /** Value from which the polynomial solver started */
-  public double getSolverStart() {
-    return start;
-  }
-  
   
   /** Normalization factor for n elements */
   private static Polynomial z(int n) {
@@ -68,8 +55,6 @@ public class PolynomialReconstructor implements MallowsReconstructor {
   
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) {
-    long t0 = System.currentTimeMillis();
-
     double sumd = 0;
     for (Sample.RW rw: sample.enumerate()) {
       sumd += rw.w * KendallTauRankingDistance.getInstance().distance(center, rw.r);
@@ -82,42 +67,31 @@ public class PolynomialReconstructor implements MallowsReconstructor {
     
     Polynomial solve = left.minus(right);
     
-    double phi = Double.NaN;
-    this.start = Double.NaN;    
-    for (double s: starts) {
-      Complex[] roots = solve.roots(s);
-      phi = getPhi(roots);
-      if (!Double.isNaN(phi)) {
-        start = s;
-        break;
-      }
-    }
+    double[] a = solve.coefficientsReference();
     
-    this.time = System.currentTimeMillis() - t0;    
+    com.rankst.math.Polynomial solverson = new com.rankst.math.Polynomial(a);
+    double phi = solverson.root(0d, 1d, 0.00001d);
     return new MallowsModel(center, phi);
   }
   
   
-  /** Find the best candidate for phi, or return NaN */
-  private double getPhi(Complex[] roots) {
-    double bestRoot = Double.NaN;
-    double minImag = Double.POSITIVE_INFINITY;
+  
+  public static void main(String[] args) {
+    int n = 20;    
+    ElementSet elements = new ElementSet(n);
+    double phi = Math.random() * 0.8;
+    Ranking center = elements.getRandomRanking();
+    MallowsModel model = new MallowsModel(center, phi);
     
-    for (Complex root: roots) {
-      double imag = root.getImag();
-      if (imag == Double.NaN) continue;
-      
-      double imagAbs = Math.abs(imag);
-      double real = root.getReal();
-      if (imagAbs < minImag && real >= 0 && real <= 1) {
-        bestRoot = real;
-        minImag = imagAbs;
-      }
-    }
+    int sampleSize = 5000;
+    MallowsTriangle triangle = new MallowsTriangle(model);
+    RIMRSampler sampler = new RIMRSampler(triangle);
+    Sample sample = sampler.generate(sampleSize);
     
-    double phi = (minImag < 0.01) ? bestRoot : Double.NaN;
-    return phi;
+    PolynomialReconstructor rec = new PolynomialReconstructor();
+    MallowsModel mm = rec.reconstruct(sample, center);
+    System.out.println(model);
+    System.out.println(mm);
   }
-   
 
 }

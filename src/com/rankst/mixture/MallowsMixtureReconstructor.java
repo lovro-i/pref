@@ -117,6 +117,7 @@ public class MallowsMixtureReconstructor {
     for (int i = 0; i < rankings.size(); i++) {
       Ranking r = rankings.get(i);
       int exi = apro.getExemplar(i);
+      if (exi == -1) continue;
       Ranking exemplar = rankings.get(exi);
       Sample s = samples.get(exemplar);
       if (s == null) {

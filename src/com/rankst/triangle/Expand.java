@@ -2,7 +2,6 @@ package com.rankst.triangle;
 
 import com.rankst.entity.Element;
 import com.rankst.entity.ElementSet;
-import com.rankst.util.MathUtils;
 import java.util.Arrays;
 
 public class Expand {

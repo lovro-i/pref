@@ -4,7 +4,9 @@ import com.rankst.entity.Element;
 import com.rankst.entity.ElementSet;
 import com.rankst.entity.Ranking;
 import com.rankst.entity.Sample;
+import com.rankst.util.Logger;
 import com.rankst.util.MathUtils;
+import com.rankst.util.Utils;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,9 +59,13 @@ public class SampleTriangle extends Triangle {
     
     for (int i = 0; i < reference.size(); i++) {
       TriangleRow row = rows.get(i); // Triangle row to be updated
-      Ranking mini = upTo(ranking, i);
       Element e = reference.get(i);
-      int pos = mini.indexOf(e);
+      
+      // Ranking mini = upTo(ranking, i);      //old
+      // int pos = mini.indexOf(e);            //old
+      
+      UpTo upto = new UpTo(ranking, i, referenceIndex); //new 
+      int pos = upto.position; //new 
       
       if (pos == -1) { // This one is missing. Distribute evenly its probability
         expands = expands.insertMissing();
@@ -68,9 +74,11 @@ public class SampleTriangle extends Triangle {
         continue;
       }
                   
-      Element previous = null;
-      if (pos > 0) previous = mini.get(pos - 1);
-      expands = expands.insert(e, previous);      
+      // Element previous = null; //old
+      // if (pos > 0) previous = mini.get(pos - 1); //old
+      // expands = expands.insert(e, previous); //old
+      
+      expands = expands.insert(e, upto.previous); //new 
       
       double[] displacements = expands.getDistribution(e);
       for (int j = 0; j < displacements.length; j++) {

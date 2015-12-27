@@ -16,6 +16,7 @@ import com.rankst.triangle.SampleTriangleByRow;
 import com.rankst.util.FileUtils;
 import com.rankst.util.Logger;
 import com.rankst.util.MathUtils;
+import com.rankst.util.SystemOut;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -96,24 +97,29 @@ public class IncompleteGenerator {
     
     // triangle no row
     {
+      long start = System.currentTimeMillis();
       SampleTriangle st = new SampleTriangle(center, sample);
       RIMRSampler resampler = new RIMRSampler(st);
       Sample resample = resampler.generate(resampleSize);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
+      Logger.info("SampleTriangle reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
       instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_TRIANGLE_NO_ROW), mallows.getPhi());
     }
 
 
     // triangle by row
     {
+      long start = System.currentTimeMillis();
       SampleTriangleByRow st = new SampleTriangleByRow(model.getCenter(), sample);
       RIMRSampler resampler = new RIMRSampler(st);
       Sample resample = resampler.generate(resampleSize);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
+      Logger.info("SampleTriangleByRow reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
       instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_TRIANGLE_BY_ROW), mallows.getPhi());
     }
 
     // Completer
+    long start = System.currentTimeMillis();
     double[] bootstraps = new double[IncompleteAttributes.BOOTSTRAPS];
     for (int j = 0; j < bootstraps.length; j++) {
       SampleCompleter completer = new SampleCompleter(sample);
@@ -146,14 +152,14 @@ public class IncompleteGenerator {
     double missing = IncompleteUtils.getMissingRate(sample);    
     for (int i = 0; i < reps; i++) {
       for (double phi: phis) {
-        Logger.info("Training pass %d, phi %.2f", i, phi);
+        SystemOut.println("Training pass %d, phi %.2f", i, phi);
         Instance instance = generator.generateInstance(sample.getElements(), sample.size(), IncompleteAttributes.RESAMPLE_SIZE, phi, missing);
         generator.add(instance);
         count++;
       }
       generator.write();
     }
-    Logger.info("%d instances generated in %d sec", count, (System.currentTimeMillis() - start) / 1000);
+    SystemOut.println("%d instances generated in %d sec", count, (System.currentTimeMillis() - start) / 1000);
   }
   
   

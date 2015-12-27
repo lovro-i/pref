@@ -27,7 +27,8 @@ public class MixtureTestRandom {
   
   
   public static void randomTest(PrintWriter out) throws Exception {
-    int n = MathUtils.RANDOM.nextInt(30) + 10;
+    int n = MathUtils.RANDOM.nextInt(20) + 10;
+    // n = 20;
     ElementSet elements = new ElementSet(n);
     MallowsMixtureModel model = new MallowsMixtureModel(elements);
     
@@ -44,9 +45,11 @@ public class MixtureTestRandom {
     
     MallowsMixtureSampler sampler = new MallowsMixtureSampler(model);
     int sampleSize = (MathUtils.RANDOM.nextInt(95) + 5) * 100;
+    // sampleSize = 2000;
     Sample sample = sampler.generate(sampleSize);
     
-    double missing = Math.max(0, MathUtils.RANDOM.nextDouble() - 0.3);    
+    double missing = Math.max(0, MathUtils.RANDOM.nextDouble() - 0.3); 
+    // missing = 0.5;
     if (missing > 0) Filter.remove(sample, missing);
     
     Logger.info("-----[ Test ]----------------------------");
@@ -56,7 +59,7 @@ public class MixtureTestRandom {
     
     File folder = new File("C:\\Projects\\Rankst\\Results.3");
     File arff = new File(folder, "incomplete.train.arff");
-    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(arff, 6);
+    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(arff, 1);
     long start = System.currentTimeMillis();
     MallowsMixtureModel rec = reconstructor.reconstruct(sample);
     double time = 0.001 * (System.currentTimeMillis() - start);

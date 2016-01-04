@@ -80,9 +80,9 @@ public class ReconstructionPrecision {
   }
   
   
-  private XYSeriesCollection graphData(int n, double[] phis, int[] sampleSizes) throws FileNotFoundException {    
+  private XYSeriesCollection graphData(int n, double[] phis, int[] sampleSizes) throws IOException {    
     String name = String.format("precision.%d.csv", n);    
-    List<String> lines = FileUtils.read(new File(folder, name));
+    List<String> lines = FileUtils.readLines(new File(folder, name));
     
     XYSeriesCollection dataset = new XYSeriesCollection();
     

@@ -1,7 +1,15 @@
 package com.rankst.entity;
 
+import com.rankst.generator.MallowsUtils;
+import com.rankst.util.FileUtils;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+import javax.lang.model.util.Elements;
 
 /** Sample of rankings. Can be weighted if rankings are added through add(Ranking ranking, double weight)
  * 
@@ -24,6 +32,26 @@ public class Sample extends ArrayList<Ranking> {
       Ranking rc = new Ranking(r);
       if (sample.weights == null) this.add(rc);
       else this.add(rc, sample.getWeight(i));
+    }
+  }
+  
+  public Sample(File file) throws IOException {
+    Scanner scanner = new Scanner(file);
+    int n = Integer.parseInt(scanner.next());
+    this.elements = new ElementSet(n);
+    
+    while (scanner.hasNext()) {
+      String line = scanner.next();
+      StringTokenizer st = new StringTokenizer(line);
+      String rs = st.nextToken();
+      Ranking r = Ranking.fromString(elements, rs);
+      if (st.hasMoreTokens()) {
+        double w = Double.parseDouble(st.nextToken());
+        this.add(r, w);
+      }
+      else {
+        this.add(r);
+      }
     }
   }
 
@@ -49,6 +77,29 @@ public class Sample extends ArrayList<Ranking> {
     initWeights();
     weights.add(weight);
     return super.add(ranking);
+  }
+  
+  public void addAll(Sample sample) {
+    if (!this.elements.equals(sample.elements)) throw new IllegalArgumentException("Element sets do not match");
+    
+    if (this.weights == null && sample.weights == null) {
+      super.addAll(sample);
+      return;
+    }
+    
+    for (RW rw: sample.enumerate()) {
+      this.add(rw.r, rw.w);
+    }
+  }
+  
+  public void addAll(Sample sample, double weight) {
+    if (!this.elements.equals(sample.elements)) {
+      throw new IllegalArgumentException("Element sets do not match");
+    }
+    
+    for (RW rw: sample.enumerate()) {
+      this.add(rw.r, rw.w * weight);
+    }
   }
   
   public double getWeight(int index) {
@@ -127,4 +178,40 @@ public class Sample extends ArrayList<Ranking> {
     
   }
   
+  
+  public void save(PrintWriter out) {
+    out.println(this.elements.size());
+    for (int i = 0; i < this.size(); i++) {
+      Ranking r = this.get(i);
+      out.print(r);
+      if (this.weights != null) {
+        out.print("\t");
+        out.print(this.weights.get(i));
+      }
+      out.println();
+    }    
+  }
+  
+  public void save(File file) throws IOException {
+    PrintWriter out = FileUtils.write(file);
+    save(out);
+    out.close();
+  }
+
+
+  public static void main(String[] args) throws IOException {
+    File folder = new File("C:\\Projects\\Rankst\\Results.3");
+    File file = new File(folder, "first.sample");
+    
+    ElementSet elements = new ElementSet(15);
+    Ranking center = elements.getRandomRanking();
+    Sample sample = MallowsUtils.sample(center, 0.5, 200);
+    sample.save(file);
+    System.out.println(sample);
+    
+    Sample s2 = new Sample(file);
+    System.out.println(s2);
+    
+  }
+
 }

@@ -57,4 +57,15 @@ public class ElementSet {
     return ranking;
   }
   
+  public boolean equals(Object obj) {
+    if (!(obj instanceof ElementSet)) return false;
+    ElementSet elements = (ElementSet) obj;
+    if (elements.size() != this.size()) return false;
+    
+    for (int i = 0; i < this.elements.size(); i++) {
+      if (!this.elements.get(i).equals(elements.elements.get(i))) return false;
+    }
+    return true;
+  }
+  
 }

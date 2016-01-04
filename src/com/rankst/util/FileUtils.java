@@ -1,13 +1,14 @@
 package com.rankst.util;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.List;
 
 public class FileUtils {
 
@@ -22,6 +23,34 @@ public class FileUtils {
     return new PrintWriter(new BufferedWriter(fstream));
   }
   
+  public static String read(File file) throws IOException {
+    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+      StringBuilder sb = new StringBuilder();
+      String line = br.readLine();
+
+      while (line != null) {
+        sb.append(line);
+        sb.append(System.lineSeparator());
+        line = br.readLine();
+      }
+      return sb.toString();
+    }
+  }
+  
+  public static List<String> readLines(File file) throws IOException {
+    List<String> lines = new ArrayList<String>();
+    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+      String line = br.readLine();
+
+      while (line != null) {
+        lines.add(line);
+        line = br.readLine();
+      }
+      return lines;
+    }
+  }
+  
+  /*
   public static ArrayList<String> read(File file) throws FileNotFoundException {
     Scanner s = new Scanner(file);
     ArrayList<String> list = new ArrayList<String>();
@@ -31,5 +60,5 @@ public class FileUtils {
     s.close();
     return list;
   }
-
+  */
 }

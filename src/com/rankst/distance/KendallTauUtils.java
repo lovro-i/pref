@@ -9,7 +9,7 @@ public class KendallTauUtils {
   private static Map<Entry, Double> distances = new HashMap<Entry, Double>();
 
   /** Get the number of rankings of length n at the distance d */
-  public static double getCount(int n, int d) {
+  public static synchronized double getCount(int n, int d) {
     if (d < 0) return 0;
     if (n < 1) return 0;
     if (d == 0) return 1;

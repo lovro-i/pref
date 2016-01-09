@@ -7,6 +7,7 @@ import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.ppm.PPMDistance;
+import edu.drexel.cs.db.rank.reconstruct.SmartReconstructor;
 import edu.drexel.cs.db.rank.triangle.Expands;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.Logger;
@@ -21,21 +22,21 @@ import java.util.Scanner;
 public class MixtureTestRandom {
 
   public static void main(String[] args) throws Exception {    
-    File folder = new File("C:\\Projects\\Rankst\\Results.3");
+    File folder = new File("C:\\Projects\\Rank\\Results.3");
     File log = new File(folder, "Mallows.mixture.results.txt");
     
     //generateSamples(new File(folder, "Samples"), 10);
     
     //testSample(folder, 9);
-    //testSample(folder, 6);
+    testSample(folder, 6);
     //testSample(folder, 4);
     // testSamples(folder);
     
-    for (int i = 0; i < 100; i++) {
-      PrintWriter out = FileUtils.append(log);
-      randomTest(out);    
-      out.close();
-    }
+//    for (int i = 0; i < 100; i++) {
+//      PrintWriter out = FileUtils.append(log);
+//      randomTest(out);    
+//      out.close();
+//    }
   }
 
 
@@ -114,9 +115,10 @@ public class MixtureTestRandom {
     Logger.info(model);
     
     Expands.setThreshold(0.001);
-    File folder = new File("C:\\Projects\\Rankst\\Results.3");
+    File folder = new File("C:\\Projects\\Rank\\Results.3");
     File arff = new File(folder, "incomplete.train.arff");
-    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(arff, 4);
+    SmartReconstructor single = new SmartReconstructor(arff, 4);
+    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single);
     long start = System.currentTimeMillis();
     MallowsMixtureModel rec = reconstructor.reconstruct(sample);
     double time = 0.001 * (System.currentTimeMillis() - start);
@@ -163,17 +165,31 @@ public class MixtureTestRandom {
 
 
     File arff = new File(folder, "incomplete.train.arff");
-    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(arff, 4);
+    SmartReconstructor single = new SmartReconstructor(arff, 4);
+    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single);
     long start = System.currentTimeMillis();
     MallowsMixtureModel rec = reconstructor.reconstruct(sample);
+    rec.getElements().letters();
     double time = 0.001 * (System.currentTimeMillis() - start);
 
+    
+    MallowsMixtureCompactor compactor = new MallowsMixtureCompactor(0.05, 0.05);
+    
+    
     double distance = PPMDistance.distance(sample, MallowsUtils.sample(rec, 10000));
     Logger.info("-----[ Original ]-------------------");
     Logger.info(info);
     Logger.info("-----[ Reconstructed ]-------------------");
     Logger.info(rec);
     Logger.info("Model distance: %.4f | Reconstructed in %.1f sec\n", distance, time);
+    
+    
+    Logger.info("-----[ Compacted ]-------------------");
+    MallowsMixtureModel compact = compactor.compact(rec);
+    Logger.info(compact);
+    double distanceComp = PPMDistance.distance(sample, MallowsUtils.sample(compact, 10000));
+    Logger.info("Model distance: %.4f", distanceComp, time);
+    
     return distance;
   }
   

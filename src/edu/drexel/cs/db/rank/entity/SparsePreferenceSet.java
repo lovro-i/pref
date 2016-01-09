@@ -28,4 +28,17 @@ public class SparsePreferenceSet extends HashSet<Preference> implements Preferen
     sb.append("===== ").append(this.size()).append(" preference pairs =====");
     return sb.toString();
   }
+  
+  @Override
+  public Sample toSample() {
+    Sample sample = new Sample(elements);
+    for (Preference pref: this) {
+      Ranking r = new Ranking(elements);
+      r.add(pref.higher);
+      r.add(pref.lower);
+      sample.add(r);
+    }
+    return sample;
+  }
+  
 }

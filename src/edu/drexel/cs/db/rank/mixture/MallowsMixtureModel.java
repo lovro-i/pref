@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.entity.ElementSet;
 import edu.drexel.cs.db.rank.entity.Ranking;
+import edu.drexel.cs.db.rank.entity.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import edu.drexel.cs.db.rank.util.Utils;
@@ -31,6 +32,18 @@ public class MallowsMixtureModel {
     return this;
   }
 
+  public int size() {
+    return models.size();
+  }
+  
+  public MallowsModel getModel(int i) {
+    return models.get(i);
+  }
+  
+  public double getWeight(int i) {
+    return weights.get(i);
+  }
+  
   private void sort() {
     boolean dirty = true;
     while (dirty) {
@@ -45,6 +58,16 @@ public class MallowsMixtureModel {
         }
       }
     }
+  }
+  
+  public Sample getCenterSample() {
+    Sample sample = new Sample(elements);
+    for (int i = 0; i < this.size(); i++) {
+      Ranking r = this.getModel(i).getCenter();
+      double w = this.getWeight(i);
+      sample.add(r, w);
+    }
+    return sample;
   }
   
   

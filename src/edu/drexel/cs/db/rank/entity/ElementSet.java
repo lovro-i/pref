@@ -33,6 +33,13 @@ public class ElementSet implements List<Element> {
     return elements.size();
   }
   
+  /** Convert the names (tags) of the elements to letters */
+  public void letters() {
+    for (Element e: elements) {
+      e.setTag(String.valueOf(Character.toChars(e.getId()+'A')));
+    }
+  }
+  
   /** @return random ranking of length len */
   public Ranking getRandomRanking(int len) {
     if (len > elements.size()) throw new IllegalArgumentException("Ranking length cannot be greater that the number of elements");

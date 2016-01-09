@@ -7,6 +7,7 @@ public class Ranking implements Comparable {
 
   private static final Random random = new Random();
   private static final String DELIMITER = "-";
+  private static final String DELIMITERS = "-, >;\t";
   
   private ElementSet elementSet;
   private List<Element> elements = new ArrayList<Element>();
@@ -126,12 +127,12 @@ public class Ranking implements Comparable {
   
   public static Ranking fromString(ElementSet elements, String s) {
     Ranking ranking = new Ranking(elements);
-    StringTokenizer st = new StringTokenizer(s, DELIMITER);
-    while(st.hasMoreTokens()) {
+    StringTokenizer st = new StringTokenizer(s, DELIMITERS);
+    while (st.hasMoreTokens()) {
       String t = st.nextToken();
-      char c = t.charAt(0);
-      int id = c - 'A';
-      // int id = Integer.parseInt(t);
+      // char c = t.charAt(0);
+      // int id = c - 'A';
+      int id = Integer.parseInt(t);
       Element e = elements.getElement(id);
       ranking.add(e);
     }

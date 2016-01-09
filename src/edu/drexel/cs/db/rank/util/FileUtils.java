@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +39,12 @@ public class FileUtils {
   }
   
   public static List<String> readLines(File file) throws IOException {
+    return readLines(new FileReader(file));
+  }
+  
+  public static List<String> readLines(Reader reader) throws IOException {
     List<String> lines = new ArrayList<String>();
-    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+    try (BufferedReader br = new BufferedReader(reader)) {
       String line = br.readLine();
 
       while (line != null) {

@@ -5,6 +5,7 @@ import edu.drexel.cs.db.rank.entity.ElementSet;
 import edu.drexel.cs.db.rank.entity.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.reconstruct.SmartReconstructor;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import fr.lri.tao.apro.ap.Apro;
@@ -60,7 +61,8 @@ public class MixtureTest1 {
     
     File folder = new File("C:\\Projects\\Rankst\\Results.3");
     File arff = new File(folder, "incomplete.train.arff");
-    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(arff, 0);
+    SmartReconstructor single = new SmartReconstructor(arff, 0);
+    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single);
     MallowsMixtureModel rec = reconstructor.reconstruct(sample);
     
     

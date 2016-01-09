@@ -1,9 +1,6 @@
 
 package edu.drexel.cs.db.rank.kemeny;
 
-import cern.colt.Arrays;
-import edu.drexel.cs.db.rank.distance.RankingDistance;
-import edu.drexel.cs.db.rank.entity.Element;
 import edu.drexel.cs.db.rank.entity.ElementSet;
 import edu.drexel.cs.db.rank.entity.Ranking;
 import edu.drexel.cs.db.rank.entity.Sample;

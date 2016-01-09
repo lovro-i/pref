@@ -7,7 +7,7 @@ public class Element {
   private Object tag;
     
   Element(int id) {
-    this(id, String.valueOf(Character.toChars(id+'A')));
+    this(id, String.valueOf(id));
   }
   
   Element(int id, Object tag) {
@@ -34,6 +34,7 @@ public class Element {
   
   @Override
   public boolean equals(Object o) {
+    if (o == null) return false;
     Element e = (Element) o;
     return e.id == this.id;
   }

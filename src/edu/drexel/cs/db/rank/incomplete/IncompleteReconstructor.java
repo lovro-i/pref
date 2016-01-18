@@ -34,11 +34,23 @@ public class IncompleteReconstructor implements MallowsReconstructor {
 
   private File arff;
   private M5P classifier;
+  private int trains;
   
   public IncompleteReconstructor(File arff) throws Exception {    
-    this.arff = arff;
-    load();
+    this(arff, 0);
   }  
+  
+  /** Create reconstructor that first generates <code>trains</code> training samples
+   * 
+   * @param arff File with training samples
+   * @param trains Number of train samples to generate, 0 for no training (if you already have it in arff)
+   * @throws Exception 
+   */
+  public IncompleteReconstructor(File arff, int trains) throws Exception {    
+    this.arff = arff;
+    this.trains = trains;
+    // load();
+  }
   
   public void load() throws Exception {
     long start = System.currentTimeMillis();
@@ -64,6 +76,16 @@ public class IncompleteReconstructor implements MallowsReconstructor {
   
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
+    Logger.info("IncompleteReconstructor: %d elements, %d rankings, %.3f missing rate", sample.getElements().size(), sample.size(), IncompleteUtils.getMissingRate(sample));
+    if (trains > 0) {
+      IncompleteGenerator generator = new IncompleteGenerator(arff);
+      generator.generateParallel(sample, trains);
+      classifier = null;
+    }
+    
+    
+    if (classifier == null) load();
+    
     int resampleSize = IncompleteAttributes.RESAMPLE_SIZE;
     
     Instance instance = new DenseInstance(ATTRIBUTES.size()); 

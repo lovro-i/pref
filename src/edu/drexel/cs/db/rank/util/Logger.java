@@ -1,5 +1,7 @@
 package edu.drexel.cs.db.rank.util;
 
+import java.io.IOException;
+
 
 public class Logger {
 
@@ -15,4 +17,19 @@ public class Logger {
     info("%s | time: %.1f sec", msg, 0.001d * (System.currentTimeMillis() - start));
   }
     
+  public static void waitKey() {
+    try { System.in.read(); }
+    catch (IOException e) {}
+  }
+  
+  public static void waitKey(String msg, Object... args) {
+    info(msg, args);
+    waitKey();
+  }
+  
+  public static void waitKey(Object obj) {
+    info(obj);
+    waitKey();
+  }
+  
 }

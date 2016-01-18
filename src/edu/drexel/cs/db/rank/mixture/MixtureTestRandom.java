@@ -5,6 +5,7 @@ import edu.drexel.cs.db.rank.entity.Ranking;
 import edu.drexel.cs.db.rank.entity.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.loader.SampleLoader;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.ppm.PPMDistance;
 import edu.drexel.cs.db.rank.reconstruct.SmartReconstructor;
@@ -144,9 +145,9 @@ public class MixtureTestRandom {
   
   
   private static Sample loadSample(File folder, int id) throws IOException {
-    File file = new File(folder, "sample."+id+".tsv");
+    File file = new File(folder, "sample." + id + ".tsv");
     if (!file.exists()) return null;
-    Sample sample = new Sample(file);        
+    Sample sample = new SampleLoader(file, false).getSample();
     return sample;
   }
   

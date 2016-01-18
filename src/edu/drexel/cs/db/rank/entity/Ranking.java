@@ -1,5 +1,6 @@
 package edu.drexel.cs.db.rank.entity;
 
+import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.*;
 
 
@@ -33,9 +34,18 @@ public class Ranking implements Comparable {
     return missing;
   }
   
+  
+  /** Shuffles the elements in this ranking */
+  public void randomize() {
+    for (int i = 0; i < this.size() - 1; i++) {
+      int j = i + MathUtils.RANDOM.nextInt(size() - i);
+      swap(i, j);
+    }
+  }
+  
   /** Add Element e at the end of the ranking */
   public void add(Element e) {
-    if (this.contains(e)) throw new IllegalArgumentException("Element already in the sample");
+    if (this.contains(e)) throw new IllegalArgumentException("Element " + e + " already in the sample: " + this.toString());
     elements.add(e);
   }
   
@@ -125,34 +135,34 @@ public class Ranking implements Comparable {
     return hash;
   }
   
-  public static Ranking fromString(ElementSet elements, String s) {
+  public static Ranking fromStringById(ElementSet elements, String s) {
     Ranking ranking = new Ranking(elements);
     StringTokenizer st = new StringTokenizer(s, DELIMITERS);
     while (st.hasMoreTokens()) {
       String t = st.nextToken();
-      // char c = t.charAt(0);
-      // int id = c - 'A';
       int id = Integer.parseInt(t);
       Element e = elements.getElement(id);
       ranking.add(e);
     }
     return ranking;
   }    
+  
+  public static Ranking fromStringByTag(ElementSet elements, String s) {
+    Ranking ranking = new Ranking(elements);
+    StringTokenizer st = new StringTokenizer(s, DELIMITERS);
+    while (st.hasMoreTokens()) {
+      String t = st.nextToken();
+      Element e = elements.getElementByTag(t);
+      ranking.add(e);
+    }
+    return ranking;
+  }
 
   @Override
   public int compareTo(Object o) {
     return this.toString().compareTo(o.toString());
   }
   
-  public static void main(String[] args) {
-    ElementSet elements = new ElementSet(6);
-    
-    Ranking r1 = elements.getRandomRanking();
-    System.out.println(r1);
-    
-    String rs = r1.toString();
-    Ranking r2 = Ranking.fromString(elements, rs);
-    System.out.println(r2);        
-  }
+  
 }
  

@@ -1,6 +1,8 @@
 package edu.drexel.cs.db.rank.filter;
 
 import edu.drexel.cs.db.rank.entity.Ranking;
+import edu.drexel.cs.db.rank.entity.Ratings;
+import edu.drexel.cs.db.rank.entity.RatingsSample;
 import edu.drexel.cs.db.rank.entity.Sample;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.ArrayList;
@@ -17,6 +19,21 @@ public class Split {
     for (int i = 0; i < sample.size(); i++) {
       Ranking r = sample.get(i);
       double w = sample.getWeight(i);
+      double flip = MathUtils.RANDOM.nextDouble();
+      if (flip < first) samples.get(0).add(r, w);
+      else samples.get(1).add(r, w);
+      
+    }
+    return samples;
+  }
+  
+  public static List<RatingsSample> twoFold(RatingsSample sample, double first) {
+    List<RatingsSample> samples = new ArrayList<RatingsSample>();
+    samples.add(new RatingsSample(sample.getElements()));
+    samples.add(new RatingsSample(sample.getElements()));
+    for (int i = 0; i < sample.size(); i++) {
+      Ratings r = sample.get(i);
+      double w = sample.getWeight(r);
       double flip = MathUtils.RANDOM.nextDouble();
       if (flip < first) samples.get(0).add(r, w);
       else samples.get(1).add(r, w);

@@ -1,20 +1,21 @@
 package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.distance.RankingSimilarity;
+import edu.drexel.cs.db.rank.distance.RatingsSimilarity;
 import edu.drexel.cs.db.rank.entity.ElementSet;
 import edu.drexel.cs.db.rank.entity.Ranking;
+import edu.drexel.cs.db.rank.entity.Ratings;
+import edu.drexel.cs.db.rank.entity.RatingsSample;
 import edu.drexel.cs.db.rank.entity.Sample;
 import edu.drexel.cs.db.rank.histogram.Histogram;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
-import edu.drexel.cs.db.rank.reconstruct.SmartReconstructor;
 import edu.drexel.cs.db.rank.util.Logger;
 import fr.lri.tao.apro.ap.Apro;
 import fr.lri.tao.apro.data.DataProvider;
 import fr.lri.tao.apro.data.MatrixProvider;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,10 +37,6 @@ public class MallowsMixtureReconstructor {
     this.maxClusters = maxClusters;
   }
   
-
-  
-
-    
   
   private ClusteringResult cluster(Sample sample, double alpha) {
     Histogram<Ranking> hist = new Histogram<Ranking>();
@@ -57,7 +54,18 @@ public class MallowsMixtureReconstructor {
     /* Create similarity matrix */
     long start = System.currentTimeMillis();
     double[][] matrix = new double[rankings.size()][rankings.size()];
+    
+    double lastPercent = -20;
+    int done = 0;
+    double nsquare100 = 200d / (matrix.length * (matrix.length - 1));
     for (int i = 0; i < matrix.length; i++) {
+      
+      double percent = nsquare100 * done;
+      if (percent > lastPercent + 10) {
+        System.out.print(String.format("%.0f%% ", percent));
+        lastPercent = percent;
+      }
+
       Ranking ranking = rankings.get(i);
       double pref = weights.get(ranking);
       maxPref = Math.max(maxPref, pref);
@@ -70,6 +78,7 @@ public class MallowsMixtureReconstructor {
         maxSim = Math.max(maxSim, s);
         minSim = Math.min(minSim, s);
         matrix[i][j] = matrix[j][i] = s;
+        done++;
       }
     }
         
@@ -145,9 +154,13 @@ public class MallowsMixtureReconstructor {
   
   public MallowsMixtureModel reconstruct(Sample sample) throws Exception {  
     ClusteringResult clustering = cluster(sample, 1d);
-    
-    /* Now reconstruct each model */
-    MallowsMixtureModel model = new MallowsMixtureModel(sample.getElements());
+    return model(clustering);
+  }
+  
+  
+  /** Now reconstruct each model from ClusteringResult */
+  private MallowsMixtureModel model(ClusteringResult clustering) throws Exception {
+    MallowsMixtureModel model = new MallowsMixtureModel(clustering.getElements());
     BubbleTableKemenizator kemenizator = new BubbleTableKemenizator();    
     int m = 0;
     for (Ranking exemplar: clustering.samples.keySet()) {
@@ -161,7 +174,9 @@ public class MallowsMixtureReconstructor {
     }
     return model;
   }
+  
 
+  
   public int getMaxClusters() {
     return this.maxClusters;
   }
@@ -177,6 +192,13 @@ public class MallowsMixtureReconstructor {
       this.exemplars = exemplars;
       this.samples = samples;
     }
+    
+    public ElementSet getElements() {
+      for (Ranking r: exemplars.keySet()) return r.getElementSet();
+      for (Ranking r: samples.keySet()) return r.getElementSet();
+      return null;
+    }
+    
   }
   
 

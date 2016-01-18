@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.rank.test;
+package edu.drexel.cs.db.rank.test.datasets;
 
 import edu.drexel.cs.db.rank.entity.ElementSet;
 import edu.drexel.cs.db.rank.entity.Ranking;
@@ -6,6 +6,7 @@ import edu.drexel.cs.db.rank.entity.Sample;
 import edu.drexel.cs.db.rank.filter.Split;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
+import edu.drexel.cs.db.rank.measure.KullbackLeibler;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureCompactor;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
@@ -16,6 +17,7 @@ import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.plot.ScatterPlot;
+import edu.drexel.cs.db.rank.ppm.PairwisePreferenceMatrix;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,10 +28,7 @@ public class Sushi {
 
   /** MallowsMixtureModel from the whole sushi dataset */
   public static void first() throws Exception {
-    File folder = new File("C:\\Projects\\Rank\\Data\\sushi");
-    File file = new File(folder, "sushi3a.csv");
-    
-    Sample sample = new SampleLoader(file, false).getSample();
+    Sample sample = getSushiSample();
     Logger.info("%d sushi rankings loaded", sample.size());
     
     // Reconstruct
@@ -58,36 +57,51 @@ public class Sushi {
     Logger.info("Distance OF GRIM model to the sample: %.4f", grimDistance);
   }
   
-  
+  /** Divide sushi into train and test, and check... */
   public static void second() throws Exception {
-    File folder = new File("C:\\Projects\\Rank\\Data\\sushi");
-    File file = new File(folder, "sushi3a.csv");
-    
-    Sample sample = new SampleLoader(file, false).getSample();
+    Sample sample = getSushiSample();
     Logger.info("%d sushi rankings loaded", sample.size());
     
-    double split = 0.8;
+    double split = 0.7;
     List<Sample> splits = Split.twoFold(sample, split);
     Logger.info("Splitting the sample intro train (%.2f) and test (%.2f)", split, 1-split);
     
     // Reconstruct
-    long start = System.currentTimeMillis();
     MallowsReconstructor single = new CompleteReconstructor();
     MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, 10);
     MallowsMixtureModel model = reconstructor.reconstruct(splits.get(0));    
+    PairwisePreferenceMatrix modelPPM = new PairwisePreferenceMatrix(MallowsUtils.sample(model, 50000));
+    
+    
     Logger.info("----------[ Reconstructed Mixture %d ]-----------------------------", reconstructor.getMaxClusters());
     Logger.info(model);
     
-    double distance = PPMDistance.distance(splits.get(1), MallowsUtils.sample(model, 100000));
-    Logger.info("Model distance from the test sample: %.4f\n", distance);
+
+
+    Logger.info("----------[ Distances ]-----------------------------");
+    PairwisePreferenceMatrix testPPM = new PairwisePreferenceMatrix(splits.get(1));
+    
+    Logger.info("[KL Divergence] True: test sample (1500 rankings); Model: our model: %.4f", KullbackLeibler.divergence(testPPM, modelPPM));
+    Logger.info("[KL Divergence] True: test sample (1500 rankings); Model: GRIM model: %.4f", KullbackLeibler.divergence(testPPM, new PairwisePreferenceMatrix(MallowsUtils.sample(getGrimModel(), 50000))));
+    Logger.info("(lower is better)");
+    
+    Logger.info("Log Likelihood of test sample being created with our model: %.4f", model.getLogLikelihood(splits.get(1)));
+    Logger.info("Log Likelihood of test sample being created with GRIM model: %.4f", getGrimModel().getLogLikelihood(splits.get(1)));
+    Logger.info("(higher is better)");
   }
+  
+  
+  public static Sample getSushiSample() throws IOException {
+    File folder = new File("C:\\Projects\\Rank\\Data\\sushi");
+    File data = new File(folder, "sushi3a.csv");    
+    return new SampleLoader(data, false).getSample();
+  }
+  
   
   /** Goodness of fit depending on maxClusters */
   public static void third() throws Exception {
-    File folder = new File("C:\\Projects\\Rank\\Data\\sushi");
-    File data = new File(folder, "sushi3a.csv");
     
-    Sample sample = new SampleLoader(data, false).getSample();
+    Sample sample = getSushiSample();
     Logger.info("%d sushi rankings loaded", sample.size());
     
     
@@ -96,7 +110,7 @@ public class Sushi {
     MallowsReconstructor single = new CompleteReconstructor();
     
     for (int rep = 0; rep < 10; rep++) {
-      double split = 0.8;
+      double split = 0.7;
       List<Sample> splits = Split.twoFold(sample, split);
       Sample trainSample = splits.get(0);
       Sample testSample = splits.get(1);
@@ -138,36 +152,39 @@ public class Sushi {
     scatterPlot.plot(png);
   }
   
+  
+  /**
+    [Model 2] Center = 0-1-3-6-7-2-8-9-5-4, phi = 0.74, weight = 15
+    [Model 3] Center = 4-7-1-5-0-2-3-8-6-9, phi = 0.61, weight = 17
+    [Model 4] Center = 7-2-0-8-3-1-6-9-5-4, phi = 0.64, weight = 18
+    [Model 5] Center = 7-4-2-5-1-8-0-3-6-9, phi = 0.61, weight = 16
+    [Model 6] Center = 7-4-5-0-2-3-8-1-6-9, phi = 0.62, weight = 18
+
+   * @return 
+   */
   public static MallowsMixtureModel getGrimModel() {
     ElementSet elements = new ElementSet(10);
     MallowsMixtureModel model = new MallowsMixtureModel(elements);
 
-//    [Model 1] Center = 7-5-2-1-8-0-6-3-9-4, phi = 0.66, weight = 17
-//    [Model 2] Center = 0-1-3-6-7-2-8-9-5-4, phi = 0.74, weight = 15
-//    [Model 3] Center = 4-7-1-5-0-2-3-8-6-9, phi = 0.61, weight = 17
-//    [Model 4] Center = 7-2-0-8-3-1-6-9-5-4, phi = 0.64, weight = 18
-//    [Model 5] Center = 7-4-2-5-1-8-0-3-6-9, phi = 0.61, weight = 16
-//    [Model 6] Center = 7-4-5-0-2-3-8-1-6-9, phi = 0.62, weight = 18
-
-    Ranking c1 = Ranking.fromString(elements, "7-5-2-1-8-0-6-3-9-4");
+    Ranking c1 = Ranking.fromStringById(elements, "7-5-2-1-8-0-6-3-9-4");
     model.add(new MallowsModel(c1, 0.66), 17);
-    Ranking c2 = Ranking.fromString(elements, "0-1-3-6-7-2-8-9-5-4");
+    Ranking c2 = Ranking.fromStringById(elements, "0-1-3-6-7-2-8-9-5-4");
     model.add(new MallowsModel(c2, 0.74), 15);
-    Ranking c3 = Ranking.fromString(elements, "4-7-1-5-0-2-3-8-6-9");
+    Ranking c3 = Ranking.fromStringById(elements, "4-7-1-5-0-2-3-8-6-9");
     model.add(new MallowsModel(c3, 0.61), 17);
-    Ranking c4 = Ranking.fromString(elements, "7-2-0-8-3-1-6-9-5-4");
+    Ranking c4 = Ranking.fromStringById(elements, "7-2-0-8-3-1-6-9-5-4");
     model.add(new MallowsModel(c4, 0.64), 18);
-    Ranking c5 = Ranking.fromString(elements, "7-4-2-5-1-8-0-3-6-9");
+    Ranking c5 = Ranking.fromStringById(elements, "7-4-2-5-1-8-0-3-6-9");
     model.add(new MallowsModel(c5, 0.61), 16);
-    Ranking c6 = Ranking.fromString(elements, "7-4-5-0-2-3-8-1-6-9");
+    Ranking c6 = Ranking.fromStringById(elements, "7-4-5-0-2-3-8-1-6-9");
     model.add(new MallowsModel(c6, 0.62), 18);
 
     return model;
   }
   
   public static void main(String[] args) throws Exception {
-    first();
-    // second();
+    // first();
+    second();
     // third();
     // plotThird();
     

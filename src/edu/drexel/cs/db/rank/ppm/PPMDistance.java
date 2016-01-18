@@ -5,7 +5,7 @@ import edu.drexel.cs.db.rank.entity.Sample;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 
-
+/** Simple distance between two samples / PPMs by averaging the difference on each field */
 public class PPMDistance {
 
   public static double distance(Sample sample1, Sample sample2) {    

@@ -1,18 +1,16 @@
 package edu.drexel.cs.db.rank.incomplete;
 
-import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.entity.ElementSet;
 import edu.drexel.cs.db.rank.entity.Ranking;
 import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
-import static edu.drexel.cs.db.rank.incomplete.IncompleteAttributes.ATTRIBUTES;
+import static edu.drexel.cs.db.rank.incomplete.QuickIncompleteAttributes.ATTRIBUTES;
 import edu.drexel.cs.db.rank.ml.TrainUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sample.SampleCompleter;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
-import edu.drexel.cs.db.rank.triangle.SampleTriangle;
-import edu.drexel.cs.db.rank.triangle.SampleTriangleByRow;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import edu.drexel.cs.db.rank.util.SystemOut;
@@ -24,30 +22,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 
 
-public class IncompleteGenerator {
-
+public class QuickIncompleteGenerator {
   
   private File arff;
   private Instances data;
   
   double[] phis = TrainUtils.step(0, 0.95, 0.05);
   
-//  private int[] sampleSizes = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000 };
-//  private double misses[] = TrainUtils.step(0, 0.75, 0.1);
-//  private double phis[] = TrainUtils.step(0.05, 0.8, 0.05);
-//  private int elems[] = { 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200 };
-//  private int reps = 10;
 
   
   
-  public IncompleteGenerator(File arff) throws Exception {
+  public QuickIncompleteGenerator(File arff) throws Exception {
     this.arff = arff;
     if (arff.exists()) {
       Logger.info("Loading existing dataset");
@@ -57,7 +48,7 @@ public class IncompleteGenerator {
       Logger.info("Loaded %d instances", data.size());
     }
     else {
-      data = new Instances("Train Incomplete", IncompleteAttributes.ATTRIBUTES, 100);
+      data = new Instances("Train Incomplete", QuickIncompleteAttributes.ATTRIBUTES, 1);
     }
   }
 
@@ -79,13 +70,12 @@ public class IncompleteGenerator {
 
   
   
-  public Instance generateInstance(ElementSet elements, int sampleSize, int resampleSize, double phi, double missing) {
+  public Instance generateInstance(ElementSet elements, int sampleSize, double phi, double missing) {
     Instance instance = new DenseInstance(ATTRIBUTES.size());
-    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_ELEMENTS), elements.size());
-    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_REAL_PHI), phi);
-    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_SAMPLE_SIZE), sampleSize);
-    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_RESAMPLE_SIZE), resampleSize);
-    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_MISSING), missing);
+    instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_ELEMENTS), elements.size());
+    instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_SAMPLE_SIZE), sampleSize);
+    instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_REAL_PHI), phi);
+    instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_MISSING), missing);
 
 
     // Sample
@@ -98,40 +88,18 @@ public class IncompleteGenerator {
     
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     
-    // triangle no row
-    {
-      long start = System.currentTimeMillis();
-      SampleTriangle st = new SampleTriangle(center, sample);
-      RIMRSampler resampler = new RIMRSampler(st);
-      Sample resample = resampler.generate(resampleSize);
-      MallowsModel mallows = reconstructor.reconstruct(resample, center);
-      Logger.info("SampleTriangle reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
-      instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_TRIANGLE_NO_ROW), mallows.getPhi());
-    }
-
-
-    // triangle by row
-    {
-      long start = System.currentTimeMillis();
-      SampleTriangleByRow st = new SampleTriangleByRow(model.getCenter(), sample);
-      RIMRSampler resampler = new RIMRSampler(st);
-      Sample resample = resampler.generate(resampleSize);
-      MallowsModel mallows = reconstructor.reconstruct(resample, center);
-      Logger.info("SampleTriangleByRow reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
-      instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_TRIANGLE_BY_ROW), mallows.getPhi());
-    }
 
     // Completer
     long start = System.currentTimeMillis();
-    double[] bootstraps = new double[IncompleteAttributes.BOOTSTRAPS];
+    double[] bootstraps = new double[QuickIncompleteAttributes.BOOTSTRAPS];
     for (int j = 0; j < bootstraps.length; j++) {
       SampleCompleter completer = new SampleCompleter(sample);
       Sample resample = completer.complete(1);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
       bootstraps[j] = mallows.getPhi();
     }
-    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_COMPLETER_MEAN), MathUtils.mean(bootstraps));
-    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_COMPLETER_VAR), MathUtils.variance(bootstraps));
+    instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_COMPLETER_MEAN), MathUtils.mean(bootstraps));
+    instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_COMPLETER_VAR), MathUtils.variance(bootstraps));
 
 
     return instance;
@@ -155,7 +123,7 @@ public class IncompleteGenerator {
     for (int i = 0; i < reps; i++) {
       for (double phi: phis) {
         SystemOut.println("Training pass %d, phi %.2f", i, phi);
-        Instance instance = generateInstance(sample.getElements(), sample.size(), IncompleteAttributes.RESAMPLE_SIZE, phi, missing);
+        Instance instance = generateInstance(sample.getElements(), sample.size(), phi, missing);
         add(instance);
         count++;
       }
@@ -173,7 +141,7 @@ public class IncompleteGenerator {
    * @param reps Number of threads per phi
    */
   public void generateParallel(Sample sample, int reps) throws Exception {
-    Logger.info("Generating regression training samples: %d elements, %d rankings, %.3f missing rate", sample.getElements().size(), sample.size(), IncompleteUtils.getMissingRate(sample));
+    Logger.info("QuickGenerating regression training samples: %d elements, %d rankings, %.3f missing rate", sample.getElements().size(), sample.size(), IncompleteUtils.getMissingRate(sample));
     long start = System.currentTimeMillis();
     
     //SystemOut.mute();
@@ -207,8 +175,8 @@ public class IncompleteGenerator {
       long start = System.currentTimeMillis();
       double missing = IncompleteUtils.getMissingRate(sample);
       for (double phi: phis) {
-        Logger.info("Trainer #%d, phi %.2f", id, phi);
-        Instance instance = generateInstance(sample.getElements(), sample.size(), IncompleteAttributes.RESAMPLE_SIZE, phi, missing);
+        if (id == 1) Logger.info("Trainer #%d, phi %.2f", id, phi);
+        Instance instance = generateInstance(sample.getElements(), sample.size(), phi, missing);
         add(instance);
         try { checkWrite(5000); } 
         catch (IOException ex) { }
@@ -218,8 +186,4 @@ public class IncompleteGenerator {
   }
   
   
-  public static void main(String[] args) throws Exception {
-    File folder = new File("C:\\Projects\\Rankst\\Results.3");
-    IncompleteGenerator generator = new IncompleteGenerator(new File(folder, "incomplete.train.arff"));
-  }
 }

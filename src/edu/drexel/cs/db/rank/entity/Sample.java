@@ -34,25 +34,6 @@ public class Sample extends ArrayList<Ranking> {
     }
   }
   
-  public Sample(File file) throws IOException {
-    Scanner scanner = new Scanner(file);
-    int n = Integer.parseInt(scanner.next());
-    this.elements = new ElementSet(n);
-    
-    while (scanner.hasNext()) {
-      String line = scanner.next();
-      StringTokenizer st = new StringTokenizer(line);
-      String rs = st.nextToken();
-      Ranking r = Ranking.fromString(elements, rs);
-      if (st.hasMoreTokens()) {
-        double w = Double.parseDouble(st.nextToken());
-        this.add(r, w);
-      }
-      else {
-        this.add(r);
-      }
-    }
-  }
 
   public ElementSet getElements() {
     return elements;
@@ -141,7 +122,7 @@ public class Sample extends ArrayList<Ranking> {
         sb.append(" (").append(weights.get(i)).append(")");
       sb.append("\n");      
     }
-    sb.append("=== ").append(this.size()).append(" samples ===");
+    sb.append("=== ").append(this.elements.size()).append(" items, ").append(this.size()).append(" rankings ===");
     return sb.toString();
   }
   
@@ -175,6 +156,14 @@ public class Sample extends ArrayList<Ranking> {
       }
     }
     return sample;
+  }
+
+  public void setWeights(double d) {
+    if (weights == null) weights = new ArrayList<Double>();
+    else weights.clear();
+    for (int i = 0; i < size(); i++) {
+      weights.add(d);
+    }
   }
  
   
@@ -220,10 +209,7 @@ public class Sample extends ArrayList<Ranking> {
     Ranking center = elements.getRandomRanking();
     Sample sample = MallowsUtils.sample(center, 0.5, 200);
     sample.save(file);
-    System.out.println(sample);
-    
-    Sample s2 = new Sample(file);
-    System.out.println(s2);
+    System.out.println(sample);   
     
   }
 

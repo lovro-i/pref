@@ -85,7 +85,9 @@ public class ScatterPlot {
     List<String> lines = FileUtils.readLines(input);
     for (String line: lines) {
       double[] values = getValues(line);
-      series.add(values[xIndex], values[yIndex]);
+      double x = values[xIndex];
+      double y = values[yIndex];
+      if (Double.isFinite(x) && Double.isFinite(y)) series.add(x, y);
     }
     
     return dataset;

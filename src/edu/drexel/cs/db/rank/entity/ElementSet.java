@@ -28,6 +28,13 @@ public class ElementSet implements List<Element> {
     return elements.get(id);
   }
   
+  public Element getElementByTag(Object tag) {
+    for (Element e: elements) {
+      if (tag.equals(e.getTag())) return e;
+    }
+    return null;
+  }
+  
   @Override
   public int size() {
     return elements.size();
@@ -191,4 +198,15 @@ public class ElementSet implements List<Element> {
     return elements.subList(fromIndex, toIndex);
   }
   
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(this.size()).append(" elements: { ");
+    for (int i = 0; i < elements.size(); i++) {
+      if (i > 0) sb.append(", ");
+      sb.append(elements.get(i));
+    }
+    sb.append(" }");
+    return sb.toString();
+  }
 }

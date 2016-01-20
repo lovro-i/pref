@@ -1,9 +1,9 @@
 package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.Kemenizator;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -37,8 +37,8 @@ public class MallowsMixtureCompactor {
 
   /** Still doing nothing, but it will... */
   public MallowsMixtureModel compact(MallowsMixtureModel model) {
-    ElementSet elements = model.getElements();
-    int n = elements.size();
+    ItemSet items = model.getItemSet();
+    int n = items.size();
     long maxDist = n * (n-1) / 2;
     
     List<MallowsMixtureModel> clusters = new ArrayList<MallowsMixtureModel>();
@@ -68,7 +68,7 @@ public class MallowsMixtureCompactor {
       }
       
       if (!found) {
-        MallowsMixtureModel newMixture = new MallowsMixtureModel(elements);
+        MallowsMixtureModel newMixture = new MallowsMixtureModel(items);
         newMixture.add(modelToAdd, weightToAdd);
         clusters.add(newMixture);
         weights.add(weightToAdd);
@@ -77,7 +77,7 @@ public class MallowsMixtureCompactor {
 
     
     Kemenizator kemenizator = new BubbleTableKemenizator();
-    MallowsMixtureModel compacted = new MallowsMixtureModel(elements);
+    MallowsMixtureModel compacted = new MallowsMixtureModel(items);
     for (int i = 0; i < clusters.size(); i++) {
       MallowsMixtureModel cluster = clusters.get(i);
       if (cluster.size() == 1) {

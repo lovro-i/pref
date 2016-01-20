@@ -2,9 +2,9 @@
 package edu.drexel.cs.db.rank.test;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
@@ -23,8 +23,8 @@ public class BootstrapCenterTest {
     double sum3 = 0;
     int reps = 20;
     for (int i = 0; i < reps; i++) {
-      ElementSet elements = new ElementSet(50);
-      Ranking center = elements.getRandomRanking();
+      ItemSet items = new ItemSet(50);
+      Ranking center = items.getRandomRanking();
       MallowsTriangle triangle = new MallowsTriangle(center, 0.92);
       RIMRSampler sampler = new RIMRSampler(triangle);
       Sample sample = sampler.generate(150);

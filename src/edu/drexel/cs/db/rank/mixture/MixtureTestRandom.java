@@ -1,13 +1,13 @@
 package edu.drexel.cs.db.rank.mixture;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.ppm.PPMDistance;
+import edu.drexel.cs.db.rank.preference.PPMDistance;
 import edu.drexel.cs.db.rank.reconstruct.SmartReconstructor;
 import edu.drexel.cs.db.rank.triangle.Expands;
 import edu.drexel.cs.db.rank.util.FileUtils;
@@ -43,13 +43,13 @@ public class MixtureTestRandom {
 
   public static void generateSample(File folder, int id) throws IOException {
     int n = MathUtils.RANDOM.nextInt(20) + 10;
-    ElementSet elements = new ElementSet(n);
-    MallowsMixtureModel model = new MallowsMixtureModel(elements);
+    ItemSet items = new ItemSet(n);
+    MallowsMixtureModel model = new MallowsMixtureModel(items);
     
     int maxModels = 6;
     int models = MathUtils.RANDOM.nextInt(maxModels-1) + 2;
     for (int i = 0; i < models; i++) {
-      Ranking center = elements.getRandomRanking();
+      Ranking center = items.getRandomRanking();
       double phi = MathUtils.RANDOM.nextDouble() * 0.8 + 0.05;
       double weight = MathUtils.RANDOM.nextDouble() + 0.05;
       MallowsModel mm = new MallowsModel(center, phi);
@@ -70,7 +70,7 @@ public class MixtureTestRandom {
     
     sample.save(new File(folder, "sample."+id+".tsv"));
     PrintWriter out = FileUtils.write(new File(folder, "sample."+id+".txt"));
-    out.println(String.format("%d elements, %d models, %d rankings in sample, %.1f%% missing elements\n", n, models, sampleSize, missing * 100));
+    out.println(String.format("%d items, %d models, %d rankings in sample, %.1f%% missing items\n", n, models, sampleSize, missing * 100));
     out.println(model);
     out.close();
   }
@@ -84,13 +84,13 @@ public class MixtureTestRandom {
   public static void randomTest(PrintWriter out) throws Exception {
     int n = MathUtils.RANDOM.nextInt(10) + 10;
     // n = 20;
-    ElementSet elements = new ElementSet(n);
-    MallowsMixtureModel model = new MallowsMixtureModel(elements);
+    ItemSet items = new ItemSet(n);
+    MallowsMixtureModel model = new MallowsMixtureModel(items);
     
     int maxModels = 6;
     int models = MathUtils.RANDOM.nextInt(maxModels) + 1;
     for (int i = 0; i < models; i++) {
-      Ranking center = elements.getRandomRanking();
+      Ranking center = items.getRandomRanking();
       double phi = MathUtils.RANDOM.nextDouble() * 0.8 + 0.05;
       double weight = MathUtils.RANDOM.nextDouble() + 0.05;
       MallowsModel mm = new MallowsModel(center, phi);
@@ -111,7 +111,7 @@ public class MixtureTestRandom {
     for (int i = 0; i < 300; i++) System.out.print('=');    
     System.out.println("\n");
     Logger.info("-----[ Test ]----------------------------");
-    Logger.info("%d elements, %d models, %d rankings in sample, %.1f%% missing elements\n", n, models, sampleSize, missing * 100);
+    Logger.info("%d items, %d models, %d rankings in sample, %.1f%% missing items\n", n, models, sampleSize, missing * 100);
     Logger.info("-----[ Original ]------------------------");
     Logger.info(model);
     
@@ -127,7 +127,7 @@ public class MixtureTestRandom {
     double distance = PPMDistance.distance(sample, MallowsUtils.sample(rec, 10000));
     
     Logger.info("-----[ Test ]----------------------------");
-    Logger.info("%d elements, %d models, %d rankings in sample, %.1f%% missing elements", n, models, sampleSize, missing * 100);
+    Logger.info("%d items, %d models, %d rankings in sample, %.1f%% missing items", n, models, sampleSize, missing * 100);
     Logger.info("Model distance: %.4f | Reconstructed in %.1f sec\n", distance, time);
     Logger.info("-----[ Original ]------------------------");
     Logger.info(model);
@@ -135,7 +135,7 @@ public class MixtureTestRandom {
     Logger.info(rec);
     
     out.println("\n\n-----[ Test ]----------------------------");
-    out.println(String.format("%d elements, %d models, %d rankings in sample, %.1f%% missing elements", n, models, sampleSize, missing * 100));
+    out.println(String.format("%d items, %d models, %d rankings in sample, %.1f%% missing items", n, models, sampleSize, missing * 100));
     out.println(String.format("Model distance: %.4f | Reconstructed in %.1f sec\n", distance, time));    
     out.println("-----[ Original ]------------------------");
     out.println(model);
@@ -170,7 +170,7 @@ public class MixtureTestRandom {
     MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single);
     long start = System.currentTimeMillis();
     MallowsMixtureModel rec = reconstructor.reconstruct(sample);
-    rec.getElements().letters();
+    rec.getItemSet().letters();
     double time = 0.001 * (System.currentTimeMillis() - start);
 
     

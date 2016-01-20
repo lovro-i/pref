@@ -2,9 +2,9 @@ package edu.drexel.cs.db.rank.test;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.RankingDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
@@ -31,9 +31,9 @@ public class Reconstruct2 {
   /** Graphs for reconstruction errors depending on sample size ***/
   public static void errors() throws IOException {
     int n = 10;
-    File folder = new File("D:\\Projects\\Rankst\\Results2");
-    ElementSet elements = new ElementSet(n);
-    Ranking center = elements.getReferenceRanking();
+    File folder = new File("C:\\Projects\\Rank\\Results2");
+    ItemSet items = new ItemSet(n);
+    Ranking center = items.getReferenceRanking();
     RankingDistance dist = new KendallTauDistance();
 
     int[] samples = {10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000};

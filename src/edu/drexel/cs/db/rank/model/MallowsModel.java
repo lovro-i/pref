@@ -1,9 +1,9 @@
 package edu.drexel.cs.db.rank.model;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 
 
@@ -17,8 +17,8 @@ public class MallowsModel {
     this.phi = phi;
   }
 
-  public ElementSet getElements() {
-    return this.center.getElementSet();
+  public ItemSet getItemSet() {
+    return this.center.getItemSet();
   }
 
   public Ranking getCenter() {
@@ -61,7 +61,7 @@ public class MallowsModel {
     double z = 1;
     double s = 1;
     double phip = 1;
-    for (int i = 1; i < this.getElements().size(); i++) {
+    for (int i = 1; i < this.getItemSet().size(); i++) {
       phip *= phi;
       s  += phip;
       z *= s;
@@ -87,16 +87,16 @@ public class MallowsModel {
   }
     
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(10);
-    MallowsModel model = new MallowsModel(elements.getReferenceRanking(), 0.3);
+    ItemSet items = new ItemSet(10);
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.3);
     Sample sample = MallowsUtils.sample(model, 1000);
     System.out.println(model.getLogLikelihood(sample));
     
     
-    MallowsModel model2 = new MallowsModel(elements.getReferenceRanking(), 0.7);
+    MallowsModel model2 = new MallowsModel(items.getReferenceRanking(), 0.7);
     System.out.println(model2.getLogLikelihood(sample));
     
-    MallowsModel model3 = new MallowsModel(elements.getRandomRanking(), 0.3);
+    MallowsModel model3 = new MallowsModel(items.getRandomRanking(), 0.3);
     System.out.println(model3.getLogLikelihood(sample));
   }
   

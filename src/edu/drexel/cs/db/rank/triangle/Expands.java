@@ -1,6 +1,6 @@
 package edu.drexel.cs.db.rank.triangle;
 
-import edu.drexel.cs.db.rank.entity.Element;
+import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,10 +22,10 @@ public class Expands extends HashMap<Expand, Double> {
     this.put(e, p);
   }
   
-  /** Adds element e to the right of the element 'prev' in all the Expands.
+  /** Adds item e to the right of the item 'prev' in all the Expands.
    *  If (after == null), it is added at the beginning
    */  
-  public Expands insert(Element e, Element prev) {
+  public Expands insert(Item e, Item prev) {
     Expands expands = new Expands();
     for (Expand ex: this.keySet()) {
       double p = this.get(ex);
@@ -101,8 +101,8 @@ public class Expands extends HashMap<Expand, Double> {
     return sb.toString();
   }
   
-  /** Get the sum of weights where element e is at the position pos (zero based) */
-  public double count(Element e, int pos) {
+  /** Get the sum of weights where item e is at the position pos (zero based) */
+  public double count(Item e, int pos) {
     double sum = 0;
     for (int i = 0; i < 10; i++) {
       for (Expand ex: this.keySet()) {
@@ -112,8 +112,8 @@ public class Expands extends HashMap<Expand, Double> {
     return sum;
   }
   
-  /** Distribution of element e being at different positions */
-  public double[] getDistribution(Element e) {
+  /** Distribution of item e being at different positions */
+  public double[] getDistribution(Item e) {
     double[] dist = null;
     double sum = 0;
     for (Expand ex: this.keySet()) {

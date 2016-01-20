@@ -2,11 +2,11 @@
 package edu.drexel.cs.db.rank.test;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
-import edu.drexel.cs.db.rank.histogram.Histogram;
+import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
@@ -30,8 +30,8 @@ public class SomeTest1 {
   
   
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(15);
-    Ranking reference = elements.getReferenceRanking();
+    ItemSet items = new ItemSet(15);
+    Ranking reference = items.getReferenceRanking();
     
     double phi = 0.3;
     int sampleSize = 5000;
@@ -50,7 +50,7 @@ public class SomeTest1 {
       hist.add(d, 1);
     }
     
-    //System.out.println(z(elements.size(), phi));
+    //System.out.println(z(items.size(), phi));
     System.out.println("----");
     System.out.println(hist.get(0));
     System.out.println(hist.get(1));

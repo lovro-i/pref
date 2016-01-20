@@ -1,9 +1,9 @@
 package edu.drexel.cs.db.rank.test;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -14,8 +14,8 @@ import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 public class NoiseTest {
 
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(45);
-    Ranking center = elements.getRandomRanking();
+    ItemSet items = new ItemSet(45);
+    Ranking center = items.getRandomRanking();
     
     double phi = 0.4;
     int sampleSize = 1000;

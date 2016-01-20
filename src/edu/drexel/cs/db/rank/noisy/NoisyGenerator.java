@@ -1,15 +1,14 @@
 package edu.drexel.cs.db.rank.noisy;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import edu.drexel.cs.db.rank.generator.Resampler;
-import edu.drexel.cs.db.rank.ml.TrainUtils;
+import edu.drexel.cs.db.rank.util.TrainUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTES;
-import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTE_ELEMENTS;
 import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTE_REAL_PHI;
 import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTE_SAMPLE_SIZE;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
@@ -28,6 +27,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
+import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTE_ITEMS;
 
 
 public class NoisyGenerator {
@@ -65,15 +65,15 @@ public class NoisyGenerator {
     data.add(instance);
   }
   
-  public Instance generateInstance(ElementSet elements, int sampleSize, double phi, double noise) {
+  public Instance generateInstance(ItemSet items, int sampleSize, double phi, double noise) {
     Instance instance = new DenseInstance(ATTRIBUTES.size());
-    instance.setValue(ATTRIBUTES.indexOf(ATTRIBUTE_ELEMENTS), elements.size());
+    instance.setValue(ATTRIBUTES.indexOf(ATTRIBUTE_ITEMS), items.size());
     instance.setValue(ATTRIBUTES.indexOf(ATTRIBUTE_REAL_PHI), phi);
     instance.setValue(ATTRIBUTES.indexOf(ATTRIBUTE_SAMPLE_SIZE), sampleSize);
 
 
     // Sample
-    Ranking center = elements.getReferenceRanking();
+    Ranking center = items.getReferenceRanking();
     MallowsModel model = new MallowsModel(center, phi);
     MallowsTriangle triangle = new MallowsTriangle(model);
     RIMRSampler sampler = new RIMRSampler(triangle);
@@ -109,7 +109,7 @@ public class NoisyGenerator {
   
   
   
-  /** Generates training examples with parameters from the sample: sampleSize, number of elements
+  /** Generates training examples with parameters from the sample: sampleSize, number of items
    * Iterates through <i>phi</i>s and <i>noise</i>s, and repeats it <i>reps</i> times for every <i>phi</i>
    * 
    * @param sample Sample to generate similar ones
@@ -124,7 +124,7 @@ public class NoisyGenerator {
       for (double phi: phis) {
         for (double noise: noises) {
           Logger.info("Training pass %d, phi %.2f, noise %.0f%%", i, phi, 100 * noise);
-          Instance instance = generator.generateInstance(sample.getElements(), sample.size(), phi, noise);
+          Instance instance = generator.generateInstance(sample.getItemSet(), sample.size(), phi, noise);
           generator.add(instance);
           count++;
         }
@@ -137,7 +137,7 @@ public class NoisyGenerator {
   
   /** Parallel implementation of method train, with <code>reps</code> number of threads
    * 
-   * @param sample Sample to generate similar ones (size, number of elements, missing rate)
+   * @param sample Sample to generate similar ones (size, number of items, missing rate)
    * @param reps Number of threads per phi
    */
   public void generateParallel(Sample sample, int reps) throws Exception {
@@ -179,7 +179,7 @@ public class NoisyGenerator {
       double[] phis = TrainUtils.step(0, 0.5, 0.05);      
       for (double phi: phis) {
         Logger.info("Trainer #%d, phi %.2f, noise %.2f", id, phi, noise);
-        Instance instance = generateInstance(sample.getElements(), sample.size(), phi, noise);
+        Instance instance = generateInstance(sample.getItemSet(), sample.size(), phi, noise);
         add(instance);
       }
       Logger.info("Trainer #%d finished in %d sec", id, (System.currentTimeMillis() - start) / 1000);

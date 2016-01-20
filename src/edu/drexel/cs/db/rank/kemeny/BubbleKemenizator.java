@@ -3,9 +3,9 @@ package edu.drexel.cs.db.rank.kemeny;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.RankingDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import edu.drexel.cs.db.rank.util.MathUtils;
@@ -61,8 +61,8 @@ public class BubbleKemenizator implements Kemenizator {
   }
   
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(30);
-    Ranking reference = elements.getReferenceRanking();
+    ItemSet items = new ItemSet(30);
+    Ranking reference = items.getReferenceRanking();
     
     double phi = 0.8;
     int sampleSize = 5000;

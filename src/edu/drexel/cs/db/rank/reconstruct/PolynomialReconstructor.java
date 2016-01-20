@@ -3,18 +3,13 @@ package edu.drexel.cs.db.rank.reconstruct;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.KendallTauUtils;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
-import edu.drexel.cs.db.rank.util.SystemOut;
-import flanagan.complex.Complex;
 import flanagan.math.Polynomial;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.Arrays;
 
 /** Reconstructs phi from the known (reconstructed) center and the sample finding the root of the polynomial
@@ -22,7 +17,7 @@ import java.util.Arrays;
 public class PolynomialReconstructor implements MallowsReconstructor {
 
   
-  /** Normalization factor for n elements */
+  /** Normalization factor for n items */
   private static Polynomial z(int n) {
     Polynomial z = new Polynomial(1d);
     for (int i = 1; i < n; i++) {
@@ -61,7 +56,7 @@ public class PolynomialReconstructor implements MallowsReconstructor {
     }
     double meand = sumd / sample.sumWeights();
     
-    int n = sample.getElements().size();
+    int n = sample.getItemSet().size();
     Polynomial left = z(n).times(meand);
     Polynomial right = c(n);
     
@@ -78,9 +73,9 @@ public class PolynomialReconstructor implements MallowsReconstructor {
   
   public static void main(String[] args) {
     int n = 20;    
-    ElementSet elements = new ElementSet(n);
+    ItemSet items = new ItemSet(n);
     double phi = Math.random() * 0.8;
-    Ranking center = elements.getRandomRanking();
+    Ranking center = items.getRandomRanking();
     MallowsModel model = new MallowsModel(center, phi);
     
     int sampleSize = 5000;

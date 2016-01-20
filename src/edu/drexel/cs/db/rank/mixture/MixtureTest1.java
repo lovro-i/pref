@@ -1,8 +1,8 @@
 package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.SmartReconstructor;
@@ -22,24 +22,24 @@ public class MixtureTest1 {
   
   public static void randomTest() throws Exception {
     int n = 10;
-    ElementSet elements = new ElementSet(n);
+    ItemSet items = new ItemSet(n);
     
     double phi1 = MathUtils.RANDOM.nextDouble() * 0.6 + 0.2;
     double phi2 = MathUtils.RANDOM.nextDouble() * 0.6 + 0.2;
     double phi3 = MathUtils.RANDOM.nextDouble() * 0.6 + 0.2;
     double phi4 = MathUtils.RANDOM.nextDouble() * 0.6 + 0.2;
     
-    MallowsModel model1 = new MallowsModel(elements.getRandomRanking(), phi1);
-    MallowsModel model2 = new MallowsModel(elements.getRandomRanking(), phi2);
-    MallowsModel model3 = new MallowsModel(elements.getRandomRanking(), phi3);        
-    MallowsModel model4 = new MallowsModel(elements.getRandomRanking(), phi4);        
+    MallowsModel model1 = new MallowsModel(items.getRandomRanking(), phi1);
+    MallowsModel model2 = new MallowsModel(items.getRandomRanking(), phi2);
+    MallowsModel model3 = new MallowsModel(items.getRandomRanking(), phi3);        
+    MallowsModel model4 = new MallowsModel(items.getRandomRanking(), phi4);        
     
     double weight1 = MathUtils.RANDOM.nextDouble() * 0.8 + 0.2;
     double weight2 = MathUtils.RANDOM.nextDouble() * 0.8 + 0.2;
     double weight3 = MathUtils.RANDOM.nextDouble() * 0.8 + 0.2;
     double weight4 = MathUtils.RANDOM.nextDouble() * 0.8 + 0.2;
     
-    MallowsMixtureModel model = new MallowsMixtureModel(elements);
+    MallowsMixtureModel model = new MallowsMixtureModel(items);
     model.add(model1, weight1);
     model.add(model2, weight2);
     model.add(model3, weight3);        
@@ -51,7 +51,7 @@ public class MixtureTest1 {
     Filter.remove(sample, 0.15);
     
     
-    Logger.info("[Test sample] %d elements, %d rankings, %d models", n, sample.size(), model.getModels().size());
+    Logger.info("[Test sample] %d items, %d rankings, %d models", n, sample.size(), model.getModels().size());
     Logger.info(model);
     Logger.info("[Center distances]");
     Logger.info("C1 to C2: " + KendallTauDistance.getInstance().distance(model1.getCenter(), model2.getCenter()));
@@ -59,7 +59,7 @@ public class MixtureTest1 {
     Logger.info("C2 to C3: " + KendallTauDistance.getInstance().distance(model2.getCenter(), model3.getCenter()));
     
     
-    File folder = new File("C:\\Projects\\Rankst\\Results.3");
+    File folder = new File("C:\\Projects\\Rank\\Results.3");
     File arff = new File(folder, "incomplete.train.arff");
     SmartReconstructor single = new SmartReconstructor(arff, 0);
     MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single);
@@ -81,7 +81,7 @@ public class MixtureTest1 {
   }
     
   public static void main(String[] args) throws IOException, Exception {
-    File folder = new File("C:\\Projects\\Rankst\\Results.3");
+    File folder = new File("C:\\Projects\\Rank\\Results.3");
     randomTest();
   }
   

@@ -1,8 +1,8 @@
 package edu.drexel.cs.db.rank.test;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import edu.drexel.cs.db.rank.incomplete.IncompleteGenerator;
@@ -16,9 +16,9 @@ public class SpeedTest {
 
   public static void main(String[] args) throws Exception {
     int n = 1000;
-    ElementSet elements = new ElementSet(n);
+    ItemSet items = new ItemSet(n);
     
-    Ranking center = elements.getRandomRanking();
+    Ranking center = items.getRandomRanking();
     double phi = 0.5;    
     MallowsModel model = new MallowsModel(center, phi);
     
@@ -38,11 +38,11 @@ public class SpeedTest {
     Filter.remove(sample, missing);
     
     Expands.setThreshold(0.001);
-    File folder = new File("C:\\Projects\\Rankst\\Results.3");
+    File folder = new File("C:\\Projects\\Rank\\Results.3");
     File arff = new File(folder, "incomplete.train.arff");
     IncompleteGenerator generator = new IncompleteGenerator(arff);
     
-    Logger.info("%d elements, %.2f missing", n, missing);
+    Logger.info("%d items, %.2f missing", n, missing);
     
     long start = System.currentTimeMillis();
     generator.generateParallel(sample, 1);

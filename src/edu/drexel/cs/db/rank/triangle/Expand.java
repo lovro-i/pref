@@ -1,35 +1,35 @@
 package edu.drexel.cs.db.rank.triangle;
 
-import edu.drexel.cs.db.rank.entity.Element;
-import edu.drexel.cs.db.rank.entity.ElementSet;
+import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.ItemSet;
 import java.util.Arrays;
 
 public class Expand {
   
   private int[] miss;
-  private Element[] elements;
+  private Item[] items;
 
   public Expand() {
-    this.elements = new Element[0];
+    this.items = new Item[0];
     this.miss = new int[1];
   }
   
-  private Expand(Element[] elements) {
-    this.elements = new Element[elements.length];
-    System.arraycopy(elements, 0, this.elements, 0, elements.length);
-    miss = new int[elements.length + 1];
+  private Expand(Item[] items) {
+    this.items = new Item[items.length];
+    System.arraycopy(items, 0, this.items, 0, items.length);
+    miss = new int[items.length + 1];
   }
   
   private Expand(Expand e) {
-    this.elements = new Element[e.elements.length];
-    System.arraycopy(e.elements, 0, this.elements, 0, elements.length);    
+    this.items = new Item[e.items.length];
+    System.arraycopy(e.items, 0, this.items, 0, items.length);    
     this.miss = new int[e.miss.length];
     System.arraycopy(e.miss, 0, this.miss, 0, miss.length);
   }
   
   /** Returns the length of this ranking (missing + fixed) */
   public int length() {
-    int len = this.elements.length;
+    int len = this.items.length;
     for (int i = 0; i < miss.length; i++) {
       len += miss[i];      
     }
@@ -66,10 +66,10 @@ public class Expand {
   }
   
   
-  /** Adds element e to the right of the element 'prev'.
+  /** Adds item e to the right of the item 'prev'.
    *  If (after == null), it is added at the beginning
    */  
-  public Expands insert(Element e, Element prev) {
+  public Expands insert(Item e, Item prev) {
     Expands expands = new Expands();
     
     int index = indexOf(prev);        
@@ -78,15 +78,15 @@ public class Expand {
     double p = 1d / n;
     
     
-    Element[] elements1 = new Element[elements.length + 1];
-    for (int i = 0; i < elements1.length; i++) {
-      if (i <= index) elements1[i] = elements[i];
-      else if (i == index + 1) elements1[i] = e;
-      else elements1[i] = elements[i - 1];
+    Item[] items1 = new Item[items.length + 1];
+    for (int i = 0; i < items1.length; i++) {
+      if (i <= index) items1[i] = items[i];
+      else if (i == index + 1) items1[i] = e;
+      else items1[i] = items[i - 1];
     }
     
     for (int i = 0; i < n; i++) {
-      Expand ex = new Expand(elements1);
+      Expand ex = new Expand(items1);
       for (int j = 0; j < ex.miss.length; j++) {
         if (j <= index) ex.miss[j] = this.miss[j];
         else if (j == index + 1) ex.miss[j] = i;
@@ -100,22 +100,22 @@ public class Expand {
     return expands;
   }
   
-  /** @returns Index of element e in the array of fixed elements */
-  private int indexOf(Element e) {
+  /** @returns Index of item e in the array of fixed items */
+  private int indexOf(Item e) {
     if (e == null) return -1;
-    for (int i = 0; i < elements.length; i++) {
-      if (e.equals(elements[i])) return i;      
+    for (int i = 0; i < items.length; i++) {
+      if (e.equals(items[i])) return i;      
     }
     return -1;
   }
   
-  /** @returns Index of element e in the array of all (fixed + missed) elements */
-  public int position(Element e) {
+  /** @returns Index of item e in the array of all (fixed + missed) items */
+  public int position(Item e) {
     if (e == null) return -1;
     int pos = 0;
-    for (int i = 0; i < elements.length; i++) {
+    for (int i = 0; i < items.length; i++) {
       pos += miss[i];
-      if (e.equals(elements[i])) return pos;
+      if (e.equals(items[i])) return pos;
       pos++;
     }
     return -1;
@@ -129,8 +129,8 @@ public class Expand {
       if (this.miss[i] != e.miss[i]) return false;      
     }
     
-    for (int i = 0; i < elements.length; i++) {
-      if (!this.elements[i].equals(e.elements[i])) return false;      
+    for (int i = 0; i < items.length; i++) {
+      if (!this.items[i].equals(e.items[i])) return false;      
     }
     
     return true;
@@ -140,7 +140,7 @@ public class Expand {
   public int hashCode() {
     int hash = 7;
     hash = 73 * hash + Arrays.hashCode(this.miss);
-    hash = 73 * hash + Arrays.deepHashCode(this.elements);
+    hash = 73 * hash + Arrays.deepHashCode(this.items);
     return hash;
   }
   
@@ -148,20 +148,20 @@ public class Expand {
   public String toString() {
     StringBuilder sb = new StringBuilder();    
     sb.append(miss[0]);
-    for (int i = 0; i < elements.length; i++) {
-      sb.append('.').append(elements[i]);
+    for (int i = 0; i < items.length; i++) {
+      sb.append('.').append(items[i]);
       sb.append('.').append(miss[i+1]);      
     }
     return sb.toString();
   }
   
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(8);
-    Element b = elements.getElement(1);
-    Element a = elements.getElement(0);
-    Element c = elements.getElement(2);
-    Element d = elements.getElement(3);
-    Element h = elements.getElement(7);
+    ItemSet items = new ItemSet(8);
+    Item b = items.getItemById(1);
+    Item a = items.getItemById(0);
+    Item c = items.getItemById(2);
+    Item d = items.getItemById(3);
+    Item h = items.getItemById(7);
     
     {
       Expands eps = new Expands();
@@ -205,7 +205,7 @@ public class Expand {
     
     
     
-    Element[] es = new Element[2];
+    Item[] es = new Item[2];
     es[0] = b;
     es[1] = a;
     Expand ex = new Expand(es);
@@ -234,12 +234,12 @@ public class Expand {
     
   }
 
-  /** @return is Element e at position pos */
-  public boolean isAt(Element e, int pos) {
+  /** @return is Item e at position pos */
+  public boolean isAt(Item e, int pos) {
     int i = 0;
-    for (int j = 0; j < elements.length; j++) {
+    for (int j = 0; j < items.length; j++) {
       i += miss[j];
-      if (e.equals(elements[i])) return i == pos;
+      if (e.equals(items[i])) return i == pos;
       i++;
     }
     return false;

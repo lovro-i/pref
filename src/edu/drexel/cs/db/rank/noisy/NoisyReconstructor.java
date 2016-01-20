@@ -1,13 +1,12 @@
 package edu.drexel.cs.db.rank.noisy;
 
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.Resampler;
 import edu.drexel.cs.db.rank.incomplete.IncompleteUtils;
-import edu.drexel.cs.db.rank.ml.TrainUtils;
+import edu.drexel.cs.db.rank.util.TrainUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTES;
-import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTE_ELEMENTS;
 import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTE_SAMPLE_SIZE;
 import edu.drexel.cs.db.rank.reconstruct.CenterReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
@@ -24,6 +23,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
+import static edu.drexel.cs.db.rank.noisy.NoisyAttributes.ATTRIBUTE_ITEMS;
 
 /** In case there is noise in the sample, direct and bootstrap reconstructor should differ. We can use this to reconstruct the correct model */
 public class NoisyReconstructor implements MallowsReconstructor {
@@ -58,7 +58,7 @@ public class NoisyReconstructor implements MallowsReconstructor {
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     Instance instance = new DenseInstance(ATTRIBUTES.size()); 
-    instance.setValue(ATTRIBUTES.indexOf(ATTRIBUTE_ELEMENTS), sample.getElements().size());
+    instance.setValue(ATTRIBUTES.indexOf(ATTRIBUTE_ITEMS), sample.getItemSet().size());
     instance.setValue(ATTRIBUTES.indexOf(ATTRIBUTE_SAMPLE_SIZE), sample.size());
       
     if (center == null) center = CenterReconstructor.reconstruct(sample);

@@ -1,9 +1,9 @@
 package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.util.MathUtils;
@@ -15,15 +15,15 @@ import java.util.List;
 /** Mixture of Mallows models (with weights) */
 public class MallowsMixtureModel {
 
-  private final ElementSet elements;
+  private final ItemSet itemSet;
   private final List<MallowsModel> models = new ArrayList<MallowsModel>();
   private final List<Double> weights = new ArrayList<Double>();
   
   private double sumWeights = 0;
   
   
-  public MallowsMixtureModel(ElementSet elements) {    
-    this.elements = elements;
+  public MallowsMixtureModel(ItemSet items) {    
+    this.itemSet = items;
   }
   
   public MallowsMixtureModel add(MallowsModel model, double weight) {
@@ -64,7 +64,7 @@ public class MallowsMixtureModel {
   }
   
   public Sample getCenterSample() {
-    Sample sample = new Sample(elements);
+    Sample sample = new Sample(itemSet);
     for (int i = 0; i < this.size(); i++) {
       Ranking r = this.getModel(i).getCenter();
       double w = this.getWeight(i);
@@ -87,8 +87,8 @@ public class MallowsMixtureModel {
   }
 
 
-  public ElementSet getElements() {
-    return elements;
+  public ItemSet getItemSet() {
+    return itemSet;
   }
 
   public List<MallowsModel> getModels() {
@@ -140,10 +140,10 @@ public class MallowsMixtureModel {
   }
   
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(10);
-    MallowsModel model1 = new MallowsModel(elements.getReferenceRanking(), 0.3);
-    MallowsModel model2 = new MallowsModel(elements.getRandomRanking(), 0.5);
-    MallowsMixtureModel mix = new MallowsMixtureModel(elements);
+    ItemSet items = new ItemSet(10);
+    MallowsModel model1 = new MallowsModel(items.getReferenceRanking(), 0.3);
+    MallowsModel model2 = new MallowsModel(items.getRandomRanking(), 0.5);
+    MallowsMixtureModel mix = new MallowsMixtureModel(items);
     mix.add(model1, 0.3);
     mix.add(model2, 0.7);
     

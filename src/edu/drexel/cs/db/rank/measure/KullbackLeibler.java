@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.measure;
 
-import edu.drexel.cs.db.rank.entity.Sample;
-import edu.drexel.cs.db.rank.ppm.PairwisePreferenceMatrix;
+import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
 
 /** Calculates Kullback-Leibler divergence between two PPMs */
 public class KullbackLeibler {
@@ -11,9 +11,9 @@ public class KullbackLeibler {
   }
   
   public static double divergence(PairwisePreferenceMatrix real, PairwisePreferenceMatrix model) {
-    if (!real.getElements().equals(model.getElements())) return Double.NaN;
+    if (!real.getItemSet().equals(model.getItemSet())) return Double.NaN;
     
-    int n = real.getElements().size();
+    int n = real.getItemSet().size();
     double sum = 0;
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {

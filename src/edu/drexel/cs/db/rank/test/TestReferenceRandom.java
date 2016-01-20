@@ -2,9 +2,9 @@ package edu.drexel.cs.db.rank.test;
 
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
@@ -20,12 +20,12 @@ public class TestReferenceRandom {
 
   public static void main(String[] args) {
     int n = 15;
-    ElementSet elements = new ElementSet(n);    
+    ItemSet items = new ItemSet(n);    
     double phi = 0.35;
     double missing = 0.2;
     int sampleSize = 3000;
     
-    MallowsModel original = new MallowsModel(elements.getRandomRanking(), phi);
+    MallowsModel original = new MallowsModel(items.getRandomRanking(), phi);
     System.out.println(original);
     MallowsTriangle triangle = new MallowsTriangle(original);
     RIMRSampler sampler = new RIMRSampler(triangle);

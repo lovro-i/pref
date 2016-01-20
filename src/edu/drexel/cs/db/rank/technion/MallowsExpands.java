@@ -1,6 +1,6 @@
 package edu.drexel.cs.db.rank.technion;
 
-import edu.drexel.cs.db.rank.entity.Element;
+import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 
@@ -24,10 +24,10 @@ public class MallowsExpands extends HashMap<MallowsExpand, Double> {
     this.put(e, p);
   }
   
-  /** Adds element e to the right of the element 'prev' in all the Expands.
+  /** Adds item e to the right of the item 'prev' in all the Expands.
    *  If (after == null), it is added at the beginning
    */  
-  public MallowsExpands insert(Element e, Element prev) {
+  public MallowsExpands insert(Item e, Item prev) {
     MallowsExpands expands = new MallowsExpands(expander);
     for (MallowsExpand ex: this.keySet()) {
       double p = this.get(ex);
@@ -60,10 +60,10 @@ public class MallowsExpands extends HashMap<MallowsExpand, Double> {
     }
   }
   
-  public MallowsExpands insertMissing(Element element) {
+  public MallowsExpands insertMissing(Item item) {
     MallowsExpands expands = new MallowsExpands(expander);    
     for (MallowsExpand ex: this.keySet()) {
-      MallowsExpands exs = ex.insertMissing(element);
+      MallowsExpands exs = ex.insertMissing(item);
       expands.add(exs, this.get(ex));
     }
     //expands.normalize();
@@ -81,8 +81,8 @@ public class MallowsExpands extends HashMap<MallowsExpand, Double> {
     return sb.toString();
   }
   
-  /** Get the sum of weights where element e is at the position pos (zero based) */
-  public double count(Element e, int pos) {
+  /** Get the sum of weights where item e is at the position pos (zero based) */
+  public double count(Item e, int pos) {
     double sum = 0;
     for (int i = 0; i < 10; i++) {
       for (MallowsExpand ex: this.keySet()) {
@@ -92,8 +92,8 @@ public class MallowsExpands extends HashMap<MallowsExpand, Double> {
     return sum;
   }
   
-  /** Distribution of element e being at different positions */
-  public double[] getDistribution(Element e) {
+  /** Distribution of item e being at different positions */
+  public double[] getDistribution(Item e) {
     double[] dist = null;
     double sum = 0;
     for (MallowsExpand ex: this.keySet()) {

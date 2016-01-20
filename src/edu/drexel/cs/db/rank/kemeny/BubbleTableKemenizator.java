@@ -1,13 +1,13 @@
 
 package edu.drexel.cs.db.rank.kemeny;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.RatingsSample;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.rating.RatingsSample;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
-import edu.drexel.cs.db.rank.histogram.Histogram;
-import edu.drexel.cs.db.rank.ppm.PairwisePreferenceMatrix;
+import edu.drexel.cs.db.rank.util.Histogram;
+import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import edu.drexel.cs.db.rank.util.MathUtils;
 
@@ -62,8 +62,8 @@ public class BubbleTableKemenizator implements Kemenizator {
   
   
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(50);
-    Ranking center = elements.getRandomRanking();
+    ItemSet items = new ItemSet(50);
+    Ranking center = items.getRandomRanking();
     System.out.println(center);
     MallowsTriangle triangle = new MallowsTriangle(center, 0.97);
     RIMRSampler sampler = new RIMRSampler(triangle);

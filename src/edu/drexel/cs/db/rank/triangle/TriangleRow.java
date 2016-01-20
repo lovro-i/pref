@@ -35,7 +35,7 @@ class TriangleRow {
     return counts[index] / sum;
   }
   
-  /** Returns the probability that the element is between index start (inclusive) and end (exclusive) */
+  /** Returns the probability that the item is between index start (inclusive) and end (exclusive) */
   public double getProbability(int start, int end) {
     if (empty) return 1d * (end - start) / counts.length;    
     
@@ -70,7 +70,7 @@ class TriangleRow {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("Element ").append(counts.length-1).append(":");
+    sb.append("Item ").append(counts.length-1).append(":");
     for (int j=0; j<counts.length; j++) sb.append(" ").append(counts[j]);
     return sb.toString();
   }

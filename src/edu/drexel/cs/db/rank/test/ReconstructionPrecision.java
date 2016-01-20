@@ -1,10 +1,9 @@
 package edu.drexel.cs.db.rank.test;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
-import edu.drexel.cs.db.rank.ml.RegressionReconstructor;
-import edu.drexel.cs.db.rank.ml.TrainUtils;
+import edu.drexel.cs.db.rank.util.TrainUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
@@ -37,28 +36,7 @@ public class ReconstructionPrecision {
   public ReconstructionPrecision(File folder) {
     this.folder = folder;
   }
-  
-    
-  private void test(int n, double[] phis, int[] sampleSizes) throws Exception {
-    ElementSet elements = new ElementSet(n);
-    RegressionReconstructor reconstructor = new RegressionReconstructor(new File(folder, "complete.train.arff"), new CompleteReconstructor());
-    
-    String name = String.format("precision.%d.csv", n);
-    PrintWriter out = FileUtils.append(new File(folder, name));
-        
-    for (double phi: phis) {
-      System.out.println(String.format("Testing n = %d, phi = %2f", n, phi));
-      for (int sampleSize: sampleSizes) {
-        MallowsTriangle triangle = new MallowsTriangle(elements.getReferenceRanking(), phi);
-        RIMRSampler sampler = new RIMRSampler(triangle);
-        Sample sample = sampler.generate(sampleSize);
-        MallowsModel mallows = reconstructor.reconstruct(sample);
-        out.println(String.format("%.2f,%d,%.3f", phi, sampleSize, mallows.getPhi()));
-      }
-      out.flush();
-    }
-    out.close();
-  }
+
   
   
   private double meanReconstructionPhi(List<String> lines, double phi, int sampleSize) {
@@ -109,7 +87,7 @@ public class ReconstructionPrecision {
   }
   
   private void graph(int n, XYSeriesCollection dataset) throws IOException {
-    String title = "Reconstruction precision for n = " + n + " elements";
+    String title = "Reconstruction precision for n = " + n + " items";
     JFreeChart chart = ChartFactory.createXYLineChart(title, "Sample size", "Reconstructed phi", dataset, PlotOrientation.VERTICAL, true, true, true);
     
     
@@ -146,22 +124,8 @@ public class ReconstructionPrecision {
   
   
   public static void main(String[] args) throws Exception {
-    File folder = new File("C:\\Projects\\Rankst\\Results.3");    
-    
-    double[] phis = TrainUtils.step(0.05, 0.85, 0.05);
-    int[] sampleSizes = { 100, 200, 500, 1000, 2000, 5000, 10000 };
-    
-    ReconstructionPrecision tester = new ReconstructionPrecision(folder);    
-    
-    int[] ns = { 15, 20, 25, 30, 40, 50, 70, 100 };
-    int reps = 10;
-    
-    for (int n: ns) {
-      for (int i = 0; i < reps; i++) {
-        tester.test(n, phis, sampleSizes);
-      }
-      tester.graph(n, phis, sampleSizes);
-    }
+    File temp = File.createTempFile("train.", ".arff");
+    System.out.println(temp);
   }
   
 }

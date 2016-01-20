@@ -1,9 +1,9 @@
 package edu.drexel.cs.db.rank.loader;
 
-import edu.drexel.cs.db.rank.entity.Element;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ratings;
-import edu.drexel.cs.db.rank.entity.RatingsSample;
+import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.rating.Ratings;
+import edu.drexel.cs.db.rank.rating.RatingsSample;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.File;
@@ -20,11 +20,11 @@ import java.util.StringTokenizer;
 /** Loads RatingsSample from the text file (user_id, item_id, rating [, weight]) */
 public class RatingsLoader {
 
-  private final ElementSet elements;
+  private final ItemSet itemSet;
   private final RatingsSample sample;
   private final String delimiters;
   
-  private Map<String, Element> tags = new HashMap<String, Element>();
+  private Map<String, Item> tags = new HashMap<String, Item>();
   
   public RatingsLoader(File file) throws IOException {
     this(new FileReader(file), ", \t;");
@@ -40,14 +40,14 @@ public class RatingsLoader {
     
     List<String> lines = FileUtils.readLines(reader);
     
-    // Load elements
-    this.elements = getElements(lines);
-    for (Element e: elements) {
+    // Load items
+    this.itemSet = getItemSet(lines);
+    for (Item e: itemSet) {
       tags.put((String) e.getTag(), e);
     }
     
     // Load ratings
-    this.sample = new RatingsSample(elements);
+    this.sample = new RatingsSample(itemSet);
     loadSample(lines);
   }
   
@@ -62,7 +62,7 @@ public class RatingsLoader {
         Float val = Float.valueOf(tokenizer.nextToken());
         Ratings ratings = users.get(uid);
         if (ratings == null) {
-          ratings = new Ratings(elements);
+          ratings = new Ratings(itemSet);
           users.put(uid, ratings);
         }
         ratings.put(tags.get(itemId), val);
@@ -76,7 +76,7 @@ public class RatingsLoader {
   }
 
   
-  public ElementSet getElements(List<String> lines) {
+  private ItemSet getItemSet(List<String> lines) {
     Set<String> ids = new HashSet<String>();
     for (String line: lines) {
       try {
@@ -87,7 +87,7 @@ public class RatingsLoader {
       }
       catch (NumberFormatException skip) {}
     }
-    return new ElementSet(ids.toArray());
+    return new ItemSet(ids.toArray());
   }
 
   public RatingsSample getRatingsSample() {

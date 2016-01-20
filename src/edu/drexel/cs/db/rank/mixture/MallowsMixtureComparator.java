@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.RankingDistance;
-import edu.drexel.cs.db.rank.entity.Ranking;
+import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.util.ArrayList;
 import java.util.List;

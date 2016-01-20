@@ -1,8 +1,8 @@
 package edu.drexel.cs.db.rank.technion;
 
-import edu.drexel.cs.db.rank.entity.Element;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
+import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.UpTo;
 import edu.drexel.cs.db.rank.util.Logger;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class Expander {
 
   private MallowsModel model;
-  private Map<Element, Integer> referenceIndex = new HashMap<Element, Integer>();
+  private Map<Item, Integer> referenceIndex = new HashMap<Item, Integer>();
   private Ranking ranking;
   private MallowsExpands expands;
   
@@ -31,7 +31,7 @@ public class Expander {
     Ranking reference = model.getCenter();
     referenceIndex.clear();
     for (int i = 0; i < reference.size(); i++) {
-      Element e = reference.get(i);
+      Item e = reference.get(i);
       referenceIndex.put(e, i);
     }    
   }
@@ -42,7 +42,7 @@ public class Expander {
     Ranking reference = model.getCenter();
     
     for (int i = 0; i < reference.size(); i++) {
-      Element e = reference.get(i);
+      Item e = reference.get(i);
       
       UpTo upto = new UpTo(ranking, i, referenceIndex); 
       int pos = upto.position;

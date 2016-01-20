@@ -1,6 +1,8 @@
 package edu.drexel.cs.db.rank.distance;
 
-import edu.drexel.cs.db.rank.entity.*;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.Ranking;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class KendallTauDistance implements RankingDistance {
   private int threshold = 2;
   
   /** Set threshold for which the kendall tau distance is computed.
-   * if (number_of_common_elements < threshold) return Double.POSITIVE_INFINITY
+   * if (number_of_common_items < threshold) return Double.POSITIVE_INFINITY
    * Default is 2;
    * @param threshold 
    */
@@ -35,14 +37,14 @@ public class KendallTauDistance implements RankingDistance {
   @Override
   public double distance(Ranking ranking1, Ranking ranking2) {
     // find intersection
-    List<Element> comp1 = new ArrayList<Element>();
-    List<Element> comp2 = new ArrayList<Element>();    
+    List<Item> comp1 = new ArrayList<Item>();
+    List<Item> comp2 = new ArrayList<Item>();    
     for (int i=0; i<ranking1.size(); i++) {
-      Element e1 = ranking1.get(i);
+      Item e1 = ranking1.get(i);
       if (ranking2.contains(e1)) comp1.add(e1);      
     }
     for (int i=0; i<ranking2.size(); i++) {
-      Element i2 = ranking2.get(i);
+      Item i2 = ranking2.get(i);
       if (ranking1.contains(i2)) comp2.add(i2);
     }    
     assert(comp1.size() == comp2.size());
@@ -52,7 +54,7 @@ public class KendallTauDistance implements RankingDistance {
     if (common < threshold) return Double.POSITIVE_INFINITY;
     int[] array = new int[common];
     for (int i=0; i<common; i++) {
-      Element i2 = comp2.get(i);
+      Item i2 = comp2.get(i);
       array[i] = comp1.indexOf(i2);
     }
     
@@ -78,23 +80,23 @@ public class KendallTauDistance implements RankingDistance {
   }
 
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(10);
+    ItemSet items = new ItemSet(10);
     
-    Ranking r1 = new Ranking(elements);
-    r1.add(elements.getElement(0));
-    r1.add(elements.getElement(1));
-    r1.add(elements.getElement(2));
-    r1.add(elements.getElement(3));
-    r1.add(elements.getElement(4));
-    r1.add(elements.getElement(5));
+    Ranking r1 = new Ranking(items);
+    r1.add(items.getItemById(0));
+    r1.add(items.getItemById(1));
+    r1.add(items.getItemById(2));
+    r1.add(items.getItemById(3));
+    r1.add(items.getItemById(4));
+    r1.add(items.getItemById(5));
     
-    Ranking r2 = new Ranking(elements);
-    r2.add(elements.getElement(0));
-    r2.add(elements.getElement(2));
-    r2.add(elements.getElement(3));
-    r2.add(elements.getElement(1));
-    r2.add(elements.getElement(4));
-    r2.add(elements.getElement(5));
+    Ranking r2 = new Ranking(items);
+    r2.add(items.getItemById(0));
+    r2.add(items.getItemById(2));
+    r2.add(items.getItemById(3));
+    r2.add(items.getItemById(1));
+    r2.add(items.getItemById(4));
+    r2.add(items.getItemById(5));
     
     KendallTauDistance dist = new KendallTauDistance();
     System.out.println(dist.distance(r1, r2));

@@ -2,12 +2,12 @@ package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.distance.RankingSimilarity;
 import edu.drexel.cs.db.rank.distance.RatingsSimilarity;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Ratings;
-import edu.drexel.cs.db.rank.entity.RatingsSample;
-import edu.drexel.cs.db.rank.entity.Sample;
-import edu.drexel.cs.db.rank.histogram.Histogram;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.rating.Ratings;
+import edu.drexel.cs.db.rank.rating.RatingsSample;
+import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -112,15 +112,15 @@ public class MallowsMixtureReconstructor {
       // put it in the sample      
       Sample s = samples.get(exemplar);
       if (s == null) {
-        s = new Sample(sample.getElements());
+        s = new Sample(sample.getItemSet());
         samples.put(exemplar, s);
       }
       s.add(r, weights.get(r));      
     }
     
     /* If there are too much clusters, do it again */
-    if (samples.size() > maxClusters) { // && samples.size() < sample.size()) {      
-      Sample more = new Sample(sample.getElements());
+    if (samples.size() > maxClusters && maxSim > 0) { // && samples.size() < sample.size()) {      
+      Sample more = new Sample(sample.getItemSet());
       // alpha = 0.3 * Math.random();
       Logger.info("%d exemplars. Compacting more with alpha = %.3f...", samples.size(), alpha);
       for (Ranking r: samples.keySet()) {
@@ -138,7 +138,7 @@ public class MallowsMixtureReconstructor {
         
         Sample s = newSamps.get(ex2);
         if (s == null) {
-          s = new Sample(sample.getElements());
+          s = new Sample(sample.getItemSet());
           newSamps.put(ex2, s);
         }
         s.add(r, weights.get(r));
@@ -160,7 +160,7 @@ public class MallowsMixtureReconstructor {
   
   /** Now reconstruct each model from ClusteringResult */
   private MallowsMixtureModel model(ClusteringResult clustering) throws Exception {
-    MallowsMixtureModel model = new MallowsMixtureModel(clustering.getElements());
+    MallowsMixtureModel model = new MallowsMixtureModel(clustering.getItemSet());
     BubbleTableKemenizator kemenizator = new BubbleTableKemenizator();    
     int m = 0;
     for (Ranking exemplar: clustering.samples.keySet()) {
@@ -193,9 +193,9 @@ public class MallowsMixtureReconstructor {
       this.samples = samples;
     }
     
-    public ElementSet getElements() {
-      for (Ranking r: exemplars.keySet()) return r.getElementSet();
-      for (Ranking r: samples.keySet()) return r.getElementSet();
+    public ItemSet getItemSet() {
+      for (Ranking r: exemplars.keySet()) return r.getItemSet();
+      for (Ranking r: samples.keySet()) return r.getItemSet();
       return null;
     }
     

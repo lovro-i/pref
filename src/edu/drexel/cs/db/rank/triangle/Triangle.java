@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.triangle;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -16,15 +16,15 @@ public abstract class Triangle {
     this.reference = reference;    
   }
   
-  public ElementSet getElements() {
-    return this.reference.getElementSet();
+  public ItemSet getItemSet() {
+    return this.reference.getItemSet();
   }
 
   public Ranking getReference() {
     return reference;
   } 
   
-  /** Get random position for the element e from the triangle */
+  /** Get random position for the item e from the triangle */
   public abstract int randomPosition(int e);
   
   

@@ -1,19 +1,18 @@
 package edu.drexel.cs.db.rank.incomplete;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import static edu.drexel.cs.db.rank.incomplete.QuickIncompleteAttributes.ATTRIBUTES;
-import edu.drexel.cs.db.rank.ml.TrainUtils;
+import edu.drexel.cs.db.rank.util.TrainUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.rank.sample.SampleCompleter;
+import edu.drexel.cs.db.rank.filter.SampleCompleter;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import edu.drexel.cs.db.rank.util.SystemOut;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +31,7 @@ public class QuickIncompleteGenerator {
   
   private File arff;
   private Instances data;
+  private int boots = IncompleteAttributes.BOOTSTRAPS;
   
   double[] phis = TrainUtils.step(0, 0.95, 0.05);
   
@@ -40,7 +40,7 @@ public class QuickIncompleteGenerator {
   
   public QuickIncompleteGenerator(File arff) throws Exception {
     this.arff = arff;
-    if (arff.exists()) {
+    if (arff.exists() && arff.length() > 0) {
       Logger.info("Loading existing dataset");
       InputStream is = new FileInputStream(arff);
       ConverterUtils.DataSource source = new ConverterUtils.DataSource(is);
@@ -52,6 +52,11 @@ public class QuickIncompleteGenerator {
     }
   }
 
+  
+  public void setBootstraps(int bootstraps) {
+    this.boots = bootstraps;
+  }
+  
   
   private long lastSave = 0;
   
@@ -70,16 +75,16 @@ public class QuickIncompleteGenerator {
 
   
   
-  public Instance generateInstance(ElementSet elements, int sampleSize, double phi, double missing) {
+  public Instance generateInstance(ItemSet items, int sampleSize, double phi, double missing) {
     Instance instance = new DenseInstance(ATTRIBUTES.size());
-    instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_ELEMENTS), elements.size());
+    instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_ITEMS), items.size());
     instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_SAMPLE_SIZE), sampleSize);
     instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_REAL_PHI), phi);
     instance.setValue(ATTRIBUTES.indexOf(QuickIncompleteAttributes.ATTRIBUTE_MISSING), missing);
 
 
     // Sample
-    Ranking center = elements.getReferenceRanking();
+    Ranking center = items.getReferenceRanking();
     MallowsModel model = new MallowsModel(center, phi);
     MallowsTriangle triangle = new MallowsTriangle(model);
     RIMRSampler sampler = new RIMRSampler(triangle);
@@ -91,7 +96,8 @@ public class QuickIncompleteGenerator {
 
     // Completer
     long start = System.currentTimeMillis();
-    double[] bootstraps = new double[QuickIncompleteAttributes.BOOTSTRAPS];
+    double[] bootstraps = new double[boots];
+    System.out.println(boots);
     for (int j = 0; j < bootstraps.length; j++) {
       SampleCompleter completer = new SampleCompleter(sample);
       Sample resample = completer.complete(1);
@@ -110,7 +116,7 @@ public class QuickIncompleteGenerator {
     data.add(instance);
   }
   
-  /** Generates training examples with parameters from the sample: sampleSize, number of elements, missing rate
+  /** Generates training examples with parameters from the sample: sampleSize, number of items, missing rate
    * Iterates through <i>phi</i>s, and repeats it <i>reps</i> times for every <i>phi</i>
    * 
    * @param sample Sample to generate similar ones
@@ -122,14 +128,14 @@ public class QuickIncompleteGenerator {
     double missing = IncompleteUtils.getMissingRate(sample);    
     for (int i = 0; i < reps; i++) {
       for (double phi: phis) {
-        SystemOut.println("Training pass %d, phi %.2f", i, phi);
-        Instance instance = generateInstance(sample.getElements(), sample.size(), phi, missing);
+        Logger.info("Training pass %d, phi %.2f", i, phi);
+        Instance instance = generateInstance(sample.getItemSet(), sample.size(), phi, missing);
         add(instance);
         count++;
       }
       write();
     }
-    SystemOut.println("%d instances generated in %d sec", count, (System.currentTimeMillis() - start) / 1000);
+    Logger.info("%d instances generated in %d sec", count, (System.currentTimeMillis() - start) / 1000);
   }
   
   
@@ -137,11 +143,11 @@ public class QuickIncompleteGenerator {
   
   /** Parallel implementation of method generate, with <code>reps</code> number of threads
    * 
-   * @param sample Sample to generate similar ones (size, number of elements, missing rate)
+   * @param sample Sample to generate similar ones (size, number of items, missing rate)
    * @param reps Number of threads per phi
    */
   public void generateParallel(Sample sample, int reps) throws Exception {
-    Logger.info("QuickGenerating regression training samples: %d elements, %d rankings, %.3f missing rate", sample.getElements().size(), sample.size(), IncompleteUtils.getMissingRate(sample));
+    Logger.info("QuickGenerating regression training samples: %d items, %d rankings, %.3f missing rate", sample.getItemSet().size(), sample.size(), IncompleteUtils.getMissingRate(sample));
     long start = System.currentTimeMillis();
     
     //SystemOut.mute();
@@ -176,7 +182,7 @@ public class QuickIncompleteGenerator {
       double missing = IncompleteUtils.getMissingRate(sample);
       for (double phi: phis) {
         if (id == 1) Logger.info("Trainer #%d, phi %.2f", id, phi);
-        Instance instance = generateInstance(sample.getElements(), sample.size(), phi, missing);
+        Instance instance = generateInstance(sample.getItemSet(), sample.size(), phi, missing);
         add(instance);
         try { checkWrite(5000); } 
         catch (IOException ex) { }

@@ -1,23 +1,22 @@
 package edu.drexel.cs.db.rank.incomplete;
 
 import edu.drexel.cs.db.rank.filter.Filter;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import static edu.drexel.cs.db.rank.incomplete.IncompleteAttributes.ATTRIBUTES;
-import edu.drexel.cs.db.rank.ml.TrainUtils;
+import edu.drexel.cs.db.rank.util.TrainUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CenterReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.rank.sample.SampleCompleter;
+import edu.drexel.cs.db.rank.filter.SampleCompleter;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import edu.drexel.cs.db.rank.triangle.SampleTriangle;
 import edu.drexel.cs.db.rank.triangle.SampleTriangleByRow;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import edu.drexel.cs.db.rank.util.SystemOut;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -35,7 +34,9 @@ public class IncompleteReconstructor implements MallowsReconstructor {
   private File arff;
   private M5P classifier;
   private int trains;
+  private int boots = IncompleteAttributes.BOOTSTRAPS;
   
+  /** Use arff file without training new examples */
   public IncompleteReconstructor(File arff) throws Exception {    
     this(arff, 0);
   }  
@@ -49,7 +50,19 @@ public class IncompleteReconstructor implements MallowsReconstructor {
   public IncompleteReconstructor(File arff, int trains) throws Exception {    
     this.arff = arff;
     this.trains = trains;
-    // load();
+  }
+  
+  /** Use temp file for training instances just for this particular case */
+  public IncompleteReconstructor(int trains) throws Exception {
+    if (trains <= 1) throw new IllegalArgumentException("Number of train instances must be greater than zero");
+    this.arff = File.createTempFile("train.", ".arff");
+    this.arff.deleteOnExit();
+    this.trains = trains;
+  }
+  
+  
+  public void setBootstraps(int bootstraps) {
+    this.boots = bootstraps;
   }
   
   public void load() throws Exception {
@@ -76,9 +89,10 @@ public class IncompleteReconstructor implements MallowsReconstructor {
   
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
-    Logger.info("IncompleteReconstructor: %d elements, %d rankings, %.3f missing rate", sample.getElements().size(), sample.size(), IncompleteUtils.getMissingRate(sample));
+    Logger.info("IncompleteReconstructor: %d items, %d rankings, %.3f missing rate", sample.getItemSet().size(), sample.size(), IncompleteUtils.getMissingRate(sample));
     if (trains > 0) {
       IncompleteGenerator generator = new IncompleteGenerator(arff);
+      generator.setBootstraps(boots);
       generator.generateParallel(sample, trains);
       classifier = null;
     }
@@ -89,7 +103,7 @@ public class IncompleteReconstructor implements MallowsReconstructor {
     int resampleSize = IncompleteAttributes.RESAMPLE_SIZE;
     
     Instance instance = new DenseInstance(ATTRIBUTES.size()); 
-    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_ELEMENTS), sample.getElements().size());
+    instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_ITEMS), sample.getItemSet().size());
     instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_SAMPLE_SIZE), sample.size());
     instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_RESAMPLE_SIZE), resampleSize);
     instance.setValue(ATTRIBUTES.indexOf(IncompleteAttributes.ATTRIBUTE_MISSING), IncompleteUtils.getMissingRate(sample));
@@ -119,7 +133,7 @@ public class IncompleteReconstructor implements MallowsReconstructor {
 
     
     // Completer
-    double[] bootstraps = new double[IncompleteAttributes.BOOTSTRAPS];
+    double[] bootstraps = new double[boots];
     for (int j = 0; j < bootstraps.length; j++) {
       SampleCompleter completer = new SampleCompleter(sample);
       Sample resample = completer.complete(1);
@@ -135,25 +149,23 @@ public class IncompleteReconstructor implements MallowsReconstructor {
   }
   
   public static void main(String[] args) throws Exception {
-    File folder = new File("C:\\Projects\\Rankst\\Results.3");
-    File arff = new File(folder, "incomplete.train.arff");
     
-    IncompleteReconstructor reconstructor = new IncompleteReconstructor(arff);
     
-    int n = 15;
-    ElementSet elements = new ElementSet(n);    
+    int n = 25;
+    ItemSet items = new ItemSet(n);    
     double phi = 0.32;
     double missing = 0.55;
     int sampleSize = 3000;
     
-    MallowsModel original = new MallowsModel(elements.getRandomRanking(), phi);
+    MallowsModel original = new MallowsModel(items.getRandomRanking(), phi);
     
     MallowsTriangle triangle = new MallowsTriangle(original);
     RIMRSampler sampler = new RIMRSampler(triangle);
     Sample sample = sampler.generate(sampleSize);
     Filter.remove(sample, missing);
     
-    //reconstructor.trainParallel(sample, 6);
+    IncompleteReconstructor reconstructor = new IncompleteReconstructor(2);
+    reconstructor.setBootstraps(5);
     MallowsModel model = reconstructor.reconstruct(sample);
     System.out.println();
     System.out.println("     Original Mallows Model: " + original);

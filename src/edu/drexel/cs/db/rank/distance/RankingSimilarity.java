@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.distance;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
 
 
 public class RankingSimilarity {
@@ -21,7 +21,7 @@ public class RankingSimilarity {
   
   
   public static int[][] table(Ranking r) {
-    int n = r.getElementSet().size();
+    int n = r.getItemSet().size();
     int[][] table = new int[n][n];
     
     for (int i = 0; i < r.size()-1; i++) {
@@ -35,9 +35,9 @@ public class RankingSimilarity {
   }
   
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(5);
-    Ranking r1 = elements.getRandomRanking(4);
-    Ranking r2 = elements.getRandomRanking(4);
+    ItemSet items = new ItemSet(5);
+    Ranking r1 = items.getRandomRanking(4);
+    Ranking r2 = items.getRandomRanking(4);
     System.out.println(r1);
     System.out.println(r2);
     System.out.println(RankingSimilarity.similarity(r1, r2));

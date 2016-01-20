@@ -8,7 +8,7 @@ public class QuickIncompleteAttributes {
 
   public static final int BOOTSTRAPS = 10;
   
-  public static final Attribute ATTRIBUTE_ELEMENTS = new Attribute("elements"); // number of elements
+  public static final Attribute ATTRIBUTE_ITEMS = new Attribute("items"); // number of items
   public static final Attribute ATTRIBUTE_SAMPLE_SIZE = new Attribute("sample_size"); // number of rankings in the sample
   public static final Attribute ATTRIBUTE_MISSING = new Attribute("missing"); // percentage of missing elemenets (0..1)
   public static final Attribute ATTRIBUTE_COMPLETER_MEAN = new Attribute("completer_mean");
@@ -18,7 +18,7 @@ public class QuickIncompleteAttributes {
   public static final ArrayList<Attribute> ATTRIBUTES = new ArrayList<Attribute>();
   
   static {
-    ATTRIBUTES.add(ATTRIBUTE_ELEMENTS);
+    ATTRIBUTES.add(ATTRIBUTE_ITEMS);
     ATTRIBUTES.add(ATTRIBUTE_SAMPLE_SIZE);
     ATTRIBUTES.add(ATTRIBUTE_MISSING);
     ATTRIBUTES.add(ATTRIBUTE_COMPLETER_MEAN);

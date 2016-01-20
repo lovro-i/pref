@@ -1,10 +1,14 @@
 package edu.drexel.cs.db.rank.generator;
 
-import edu.drexel.cs.db.rank.entity.*;
+import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.triangle.Triangle;
 import java.util.List;
 
-
+/** Creates sample using RIMR, with the insertion probabilities from the given triangle. 
+ * Triangle can be created from Mallows model (MallowsTriangle), or from a sample (SampleTriangle)
+ */ 
 public class RIMRSampler {
 
   protected Triangle triangle;
@@ -14,12 +18,12 @@ public class RIMRSampler {
   }
   
   public Ranking generate() {
-    Ranking r = new Ranking(triangle.getElements());
-    List<Element> elements = triangle.getReference().getElements();
+    Ranking r = new Ranking(triangle.getItemSet());
+    List<Item> items = triangle.getReference().getItems();
     
-    r.add(elements.get(0));
-    for (int i=1; i<elements.size(); i++) {
-      Element e = elements.get(i);
+    r.add(items.get(0));
+    for (int i=1; i<items.size(); i++) {
+      Item e = items.get(i);
       int pos = triangle.randomPosition(i);      
       r.addAt(pos, e);
     }
@@ -27,7 +31,7 @@ public class RIMRSampler {
   }
   
   public Sample generate(int count) {
-    Sample sample = new Sample(triangle.getElements());
+    Sample sample = new Sample(triangle.getItemSet());
     for (int i=0; i<count; i++) {
       Ranking ranking = this.generate();
       sample.add(ranking);

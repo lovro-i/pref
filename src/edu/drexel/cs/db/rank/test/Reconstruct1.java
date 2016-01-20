@@ -3,9 +3,9 @@ package edu.drexel.cs.db.rank.test;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.RankingDistance;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
@@ -40,14 +40,14 @@ public class Reconstruct1 {
   
   public static void whiskers() throws IOException {
     int n = 10;
-    ElementSet elements = new ElementSet(n);
-    Ranking center = elements.getReferenceRanking();
+    ItemSet items = new ItemSet(n);
+    Ranking center = items.getReferenceRanking();
     RankingDistance dist = new KendallTauDistance();
     int sampleSize = 1000;
     int tests = 500;
     int models = 5;
     double[] perts = { 0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6};
-    File folder = new File("D:\\Projects\\Rankst\\Results");
+    File folder = new File("C:\\Projects\\Rank\\Results");
     
     for (double phi=0.5; phi<=0.8; phi += 0.1) {
       File out = new File(folder, "values-combined-phi-"+phi+".csv");
@@ -99,7 +99,7 @@ public class Reconstruct1 {
 //    int n = 10;
 //    
 //    
-//    File folder = new File("D:\\Projects\\Rankst\\Results");
+//    File folder = new File("C:\\Projects\\Rank\\Results");
 //    File out = new File(folder, "values.csv");
 //    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(out)));
 //    
@@ -122,7 +122,7 @@ public class Reconstruct1 {
   }
   
   private static Sample perturb(Sample sample, double p) {
-    Sample s = new Sample(sample.getElements());
+    Sample s = new Sample(sample.getItemSet());
     for (Ranking r: sample) {
       Ranking r1 = perturb(r, p);
       s.add(r1);
@@ -131,8 +131,8 @@ public class Reconstruct1 {
   }
   
   public static void testPhi(int n, int samps, int tests, PrintWriter writer) throws IOException {    
-    ElementSet elements = new ElementSet(n);
-    Ranking center = elements.getReferenceRanking();
+    ItemSet items = new ItemSet(n);
+    Ranking center = items.getReferenceRanking();
     RankingDistance dist = new KendallTauDistance();
     
     for (double phi = 0.025; phi < 1; phi += 0.025) {
@@ -164,8 +164,8 @@ public class Reconstruct1 {
   }
   
   public static void test(int n, double phi, int samps, int tests, PrintWriter writer, double[] perts, int ns) throws IOException {    
-    ElementSet elements = new ElementSet(n);
-    Ranking center = elements.getReferenceRanking();
+    ItemSet items = new ItemSet(n);
+    Ranking center = items.getReferenceRanking();
     RankingDistance dist = new KendallTauDistance();
     
     
@@ -300,9 +300,9 @@ public class Reconstruct1 {
   /** Graphs for reconstruction errors depending on sample size ***/
   public static void errorDist() throws IOException {
     int n = 10;
-    File folder = new File("D:\\Projects\\Rankst\\Results");
-    ElementSet elements = new ElementSet(n);
-    Ranking center = elements.getReferenceRanking();
+    File folder = new File("C:\\Projects\\Rank\\Results");
+    ItemSet items = new ItemSet(n);
+    Ranking center = items.getReferenceRanking();
     RankingDistance dist = new KendallTauDistance();
 
     int[] samples = { 50, 1000, 5000, 10000, 20000};
@@ -375,9 +375,9 @@ public class Reconstruct1 {
   /** Graphs for reconstruction errors depending on sample size ***/
   public static void errors() throws IOException {
     int n = 10;
-    File folder = new File("D:\\Projects\\Rankst\\Results");
-    ElementSet elements = new ElementSet(n);
-    Ranking center = elements.getReferenceRanking();
+    File folder = new File("C:\\Projects\\Rank\\Results");
+    ItemSet items = new ItemSet(n);
+    Ranking center = items.getReferenceRanking();
     RankingDistance dist = new KendallTauDistance();
 
     int[] samples = {10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000};

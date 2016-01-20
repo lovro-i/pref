@@ -1,9 +1,9 @@
 package edu.drexel.cs.db.rank.triangle;
 
-import edu.drexel.cs.db.rank.entity.Element;
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import edu.drexel.cs.db.rank.util.Utils;
@@ -40,12 +40,12 @@ public class SampleTriangle extends Triangle {
     return rows.get(i);
   }
   
-  public TriangleRow getRow(Element e) {
+  public TriangleRow getRow(Item e) {
     int index = reference.indexOf(e);
     return rows.get(index);
   }
   
-  /** Get random position for the element based on added rankings */
+  /** Get random position for the item based on added rankings */
   @Override
   public int randomPosition(int e) {
     return rows.get(e).random();
@@ -59,7 +59,7 @@ public class SampleTriangle extends Triangle {
     
     for (int i = 0; i < reference.size(); i++) {
       TriangleRow row = rows.get(i); // Triangle row to be updated
-      Element e = reference.get(i);
+      Item e = reference.get(i);
       
       // Ranking mini = upTo(ranking, i);      //old
       // int pos = mini.indexOf(e);            //old
@@ -74,7 +74,7 @@ public class SampleTriangle extends Triangle {
         continue;
       }
                   
-      // Element previous = null; //old
+      // Item previous = null; //old
       // if (pos > 0) previous = mini.get(pos - 1); //old
       // expands = expands.insert(e, previous); //old
       
@@ -102,21 +102,21 @@ public class SampleTriangle extends Triangle {
     return p;
   }
   
-  private Map<Element, Integer> referenceIndex = new HashMap<Element, Integer>();
+  private Map<Item, Integer> referenceIndex = new HashMap<Item, Integer>();
   
   private void buildReferenceIndexMap() {
     referenceIndex.clear();
     for (int i = 0; i < reference.size(); i++) {
-      Element e = reference.get(i);
+      Item e = reference.get(i);
       referenceIndex.put(e, i);
     }    
   }
   
-  /** Return the ranking containing only the elements up to (and including) max */
+  /** Return the ranking containing only the items up to (and including) max */
   private Ranking upTo(Ranking ranking, int max) {
-    Ranking r = new Ranking(ranking.getElementSet());
+    Ranking r = new Ranking(ranking.getItemSet());
     for (int i=0; i<ranking.size(); i++) {
-      Element e = ranking.get(i);
+      Item e = ranking.get(i);
       int index = referenceIndex.get(e);
       if (index <= max) r.add(e);
     }
@@ -127,7 +127,7 @@ public class SampleTriangle extends Triangle {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < getElements().size(); i++) {
+    for (int i = 0; i < getItemSet().size(); i++) {
       sb.append(rows.get(i)).append("\n");
     }  
     return sb.toString();

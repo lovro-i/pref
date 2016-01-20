@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.generator;
 
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;

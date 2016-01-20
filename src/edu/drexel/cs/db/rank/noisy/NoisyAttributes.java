@@ -8,7 +8,7 @@ public class NoisyAttributes {
 
   public static final int BOOTSTRAPS = 100;
   
-  public static final Attribute ATTRIBUTE_ELEMENTS = new Attribute("elements");
+  public static final Attribute ATTRIBUTE_ITEMS = new Attribute("items");
   public static final Attribute ATTRIBUTE_SAMPLE_SIZE = new Attribute("sample_size");
   public static final Attribute ATTRIBUTE_DIRECT_PHI = new Attribute("direct_phi");
   public static final Attribute ATTRIBUTE_BOOTSTRAP_PHI = new Attribute("bootstrap_phi");
@@ -18,7 +18,7 @@ public class NoisyAttributes {
   public static final ArrayList<Attribute> ATTRIBUTES = new ArrayList<Attribute>();
   
   static {
-    ATTRIBUTES.add(ATTRIBUTE_ELEMENTS);
+    ATTRIBUTES.add(ATTRIBUTE_ITEMS);
     ATTRIBUTES.add(ATTRIBUTE_SAMPLE_SIZE);
     ATTRIBUTES.add(ATTRIBUTE_DIRECT_PHI);
     ATTRIBUTES.add(ATTRIBUTE_BOOTSTRAP_PHI);

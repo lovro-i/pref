@@ -1,11 +1,11 @@
 package edu.drexel.cs.db.rank.test;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.plot.ScatterPlot;
-import edu.drexel.cs.db.rank.ppm.PPMDistance;
+import edu.drexel.cs.db.rank.preference.PPMDistance;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.File;
@@ -27,16 +27,16 @@ public class LogLikelihoodAndPPM {
   }
   
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(10);
+    ItemSet items = new ItemSet(10);
     double phi = 0.2;
-    MallowsModel model = new MallowsModel(elements.getReferenceRanking(), phi);    
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);    
     Sample sample = MallowsUtils.sample(model, 5000);
     
     // System.out.println(model.getLogLikelihood(sample));
     
     double[] phis = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 };
     for (double ph: phis) {
-      MallowsModel m = new MallowsModel(elements.getReferenceRanking(), ph);    
+      MallowsModel m = new MallowsModel(items.getReferenceRanking(), ph);    
       Logger.info("%.2f\t%.2f", ph, m.getLogLikelihood(sample));
     }
     
@@ -52,13 +52,13 @@ public class LogLikelihoodAndPPM {
     PrintWriter out = FileUtils.append(file);
     
     int n = 50;
-    ElementSet elements = new ElementSet(n);
+    ItemSet items = new ItemSet(n);
     int N = 10000;
     
     for (int i = 1; i <= 1000; i++) {
       Logger.info("Test #%d", i);
       double phi1 = 0.1 + 0.7 * Math.random();
-      MallowsModel model1 = new MallowsModel(elements.getRandomRanking(), phi1);
+      MallowsModel model1 = new MallowsModel(items.getRandomRanking(), phi1);
       Sample sample1 = MallowsUtils.sample(model1, N);
       
       double phi2 = 0.1 + 0.7 * Math.random();
@@ -66,11 +66,11 @@ public class LogLikelihoodAndPPM {
       Sample sample2 = MallowsUtils.sample(model2, N);
       
       double phi3 = phi2;
-      MallowsModel model3 = new MallowsModel(elements.getRandomRanking(), phi3);
+      MallowsModel model3 = new MallowsModel(items.getRandomRanking(), phi3);
       Sample sample3 = MallowsUtils.sample(model3, N);
       
       double phi4 = 0.1 + 0.7 * Math.random();
-      MallowsModel model4 = new MallowsModel(elements.getRandomRanking(), phi4);
+      MallowsModel model4 = new MallowsModel(items.getRandomRanking(), phi4);
       Sample sample4 = MallowsUtils.sample(model4, N);
       
       

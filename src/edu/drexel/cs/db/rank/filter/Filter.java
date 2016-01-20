@@ -1,18 +1,18 @@
 package edu.drexel.cs.db.rank.filter;
 
-import edu.drexel.cs.db.rank.entity.ElementSet;
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import java.security.SecureRandom;
 import java.util.Random;
 
-/** For removing elements from rankings and samples */
+/** For removing items from rankings and samples */
 public class Filter {
   
   private static Random random = new SecureRandom();
 
-  /** Remove elements from the ranking with probability p for removing each one. Destructive on ranking, changes the actual ranking */
+  /** Remove items from the ranking with probability p for removing each one. Destructive on ranking, changes the actual ranking */
   public static void remove(Ranking ranking, double p) {
     for (int i = ranking.size()-1; i >= 0; i--) {
       double flip = random.nextDouble();
@@ -20,7 +20,7 @@ public class Filter {
     }
   }
   
-  /** Remove elements from all rankings with probability p for removing each one. Destructive, changes the actual sample and its rankings */
+  /** Remove items from all rankings with probability p for removing each one. Destructive, changes the actual sample and its rankings */
   public static void remove(Sample sample, double p) {
     for (Ranking r: sample) {
       Filter.remove(r, p);
@@ -35,7 +35,7 @@ public class Filter {
     }
   }
   
-  /** Uniformly randomizes the elements of the ranking. Destructive, changes the actual ranking */
+  /** Uniformly randomizes the items of the ranking. Destructive, changes the actual ranking */
   public static void randomize(Ranking ranking) {
     for (int i = 0; i < ranking.size() - 1; i++) {
       int j = i + random.nextInt(ranking.size() - i);
@@ -45,9 +45,9 @@ public class Filter {
 
   
   public static void main(String[] args) {
-    ElementSet elements = new ElementSet(10);
+    ItemSet items = new ItemSet(10);
     
-    Sample sample = MallowsUtils.sample(elements.getRandomRanking(), 0.3, 100);
+    Sample sample = MallowsUtils.sample(items.getRandomRanking(), 0.3, 100);
     System.out.println(sample);
     
     Sample noisy = new Sample(sample);

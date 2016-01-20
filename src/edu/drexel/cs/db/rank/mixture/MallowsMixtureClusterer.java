@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.mixture;
 
-import edu.drexel.cs.db.rank.entity.Ranking;
-import edu.drexel.cs.db.rank.entity.Sample;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.Sample;
 import java.util.List;
 
 

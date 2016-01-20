@@ -26,8 +26,10 @@ public class CrowdRank {
   private Map<Integer, Sample> hits;
   private Sample fullSample;
   
-  public CrowdRank(File data) {
+  public CrowdRank(File data) throws IOException {
     this.data = data;
+    loadHitSamples();
+    loadFullSample();
   }
   
   private void loadHitSamples() throws IOException {
@@ -42,9 +44,13 @@ public class CrowdRank {
     }
   }
   
-  public Sample getSample(int hit) throws IOException {
+  public Sample getHitSample(int hit) throws IOException {
     if (hits == null) loadHitSamples();
     return hits.get(hit);
+  }
+  
+  public int getHitCount() {
+    return hits.size();
   }
   
   
@@ -151,7 +157,7 @@ public class CrowdRank {
   
   /** Model the whole hit with a mixture of mallows */
   public MallowsMixtureModel reconstructFull(int hit) throws Exception {
-    Sample sample = getSample(hit);
+    Sample sample = getHitSample(hit);
     File folder = new File("C:\\Projects\\Rank\\Results.3");
     File arff = new File(folder, "hit." + hit + ".train.arff");
     MallowsReconstructor single = new IncompleteReconstructor(arff, 3);

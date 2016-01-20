@@ -95,8 +95,8 @@ public class Sushi {
     Logger.info("[KL Divergence] True: test sample (1500 rankings); Model: GRIM model: %.4f", KullbackLeibler.divergence(testPPM, new PairwisePreferenceMatrix(MallowsUtils.sample(getGrimModel(), 50000))));
     Logger.info("(lower is better)");
     
-    Logger.info("Log Likelihood of test sample being created with our model: %.4f", model.getLogLikelihood(splits.get(1)));
-    Logger.info("Log Likelihood of test sample being created with GRIM model: %.4f", getGrimModel().getLogLikelihood(splits.get(1)));
+    Logger.info("Log Likelihood of test sample being created with our model: %.4f", model.getLogLikelihoodMean(splits.get(1)));
+    Logger.info("Log Likelihood of test sample being created with GRIM model: %.4f", getGrimModel().getLogLikelihoodMean(splits.get(1)));
     Logger.info("(higher is better)");
   }
   

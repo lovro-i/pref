@@ -117,11 +117,28 @@ public class MallowsMixtureModel {
     return p;
   }
   
+  public double getProbabilityMax(Ranking r) {
+    double p = 0;
+    for (int i = 0; i < this.size(); i++) {
+      p = Math.max(p, models.get(i).getProbability(r));
+    }
+    return p;
+  }
   
-  public double getLogLikelihood(Sample sample) {
+  
+  public double getLogLikelihoodMean(Sample sample) {
     double ll = 0;
     for (Sample.RW rw: sample.enumerate()) {
       double p = getProbability(rw.r);
+      ll += rw.w * Math.log(p);
+    }
+    return ll / sample.sumWeights();
+  }
+  
+  public double getLogLikelihoodMax(Sample sample) {
+    double ll = 0;
+    for (Sample.RW rw: sample.enumerate()) {
+      double p = getProbabilityMax(rw.r);
       ll += rw.w * Math.log(p);
     }
     return ll / sample.sumWeights();
@@ -149,7 +166,7 @@ public class MallowsMixtureModel {
     
     Sample sample = MallowsUtils.sample(mix, 1000);
     
-    System.out.println(mix.getLogLikelihood(sample));
+    System.out.println(mix.getLogLikelihoodMean(sample));
   }
   
 }

@@ -28,6 +28,10 @@ public class Sushi {
 
   private Sample sample;
   
+  public Sushi(String filename) throws IOException {    
+    this(new File(filename));
+  }
+  
   public Sushi(File file) throws IOException {    
     this.sample = new SampleLoader(file, false).getSample();
   }

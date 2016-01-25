@@ -1,9 +1,11 @@
 package edu.drexel.cs.db.rank.filter;
 
+import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.incomplete.Missing;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -20,12 +22,24 @@ public class Filter {
     }
   }
   
+  /** Remove items from the ranking with probabilities specified in Missing. Destructive on ranking, changes the actual ranking */
+  public static void remove(Ranking ranking, Missing m) {
+    m.remove(ranking);
+  }
+  
   /** Remove items from all rankings with probability p for removing each one. Destructive, changes the actual sample and its rankings */
   public static void remove(Sample sample, double p) {
     for (Ranking r: sample) {
       Filter.remove(r, p);
     }
   }
+  
+  
+  /** Remove items from all rankings with probabilities specified in Missing. Destructive, changes the actual sample and its rankings */
+  public static void remove(Sample sample, Missing m) {
+    m.remove(sample);
+  }
+  
   
   /** Replaces a ranking with a uniformly random one with probability p */
   public static void noise(Sample sample, double p) {

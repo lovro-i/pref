@@ -54,7 +54,7 @@ public class IncompleteReconstructor implements MallowsReconstructor {
   
   /** Use temp file for training instances just for this particular case */
   public IncompleteReconstructor(int trains) throws Exception {
-    if (trains <= 1) throw new IllegalArgumentException("Number of train instances must be greater than zero");
+    if (trains < 1) throw new IllegalArgumentException("Number of train instances must be greater than zero");
     this.arff = File.createTempFile("train.", ".arff");
     this.arff.deleteOnExit();
     this.trains = trains;

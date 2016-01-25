@@ -1,7 +1,6 @@
 package edu.drexel.cs.db.rank.triangle;
 
 import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -39,6 +38,10 @@ public class Expands extends HashMap<Expand, Double> {
   
   public static void setThreshold(double value) {
     Expands.threshold = value;
+  }
+  
+  public static double getThreshold() {
+    return threshold;
   }
   
   

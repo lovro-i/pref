@@ -26,7 +26,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 
-
+@Deprecated
 public class QuickIncompleteGenerator {
   
   private File arff;

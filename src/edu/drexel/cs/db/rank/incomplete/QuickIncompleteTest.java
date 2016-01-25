@@ -7,6 +7,7 @@ import edu.drexel.cs.db.rank.generator.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import java.io.File;
 
+@Deprecated
 public class QuickIncompleteTest {
 
   public static void main(String[] args) throws Exception {

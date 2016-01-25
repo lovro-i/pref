@@ -20,6 +20,7 @@ import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 
 /** Like IncompleteReconstructor, but it only uses bootstrapping with completer */
+@Deprecated
 public class QuickIncompleteReconstructor implements MallowsReconstructor {
 
   private File arff;

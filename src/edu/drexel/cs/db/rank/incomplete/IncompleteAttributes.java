@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.incomplete;
 import java.util.ArrayList;
 import weka.core.Attribute;
 
-
+@Deprecated
 public class IncompleteAttributes {
   
   public static final int BOOTSTRAPS = 6;

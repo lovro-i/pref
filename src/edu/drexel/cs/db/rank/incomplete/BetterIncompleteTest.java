@@ -17,14 +17,14 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
-import weka.core.Instances;
 
 
 public class BetterIncompleteTest {
 
   /** See accuracy by different combinations of parameters  */
   private static void testOne() throws Exception {
-    File folder = new File("C:\\Projects\\Rank\\Results.3");
+    // File folder = new File("C:\\Projects\\Rank\\Results.3");
+    File folder = new File("/home/lovro/rank/results");
     File file = new File(folder, "incomplete.reconstruction.tsv");
     
     boolean header = !file.exists();
@@ -101,7 +101,7 @@ public class BetterIncompleteTest {
     PrintWriter out = FileUtils.append(file);
     if (header) {
       out.println("# See how sushi model reconstruction depends on percentage of missing elements");
-      out.println("# train_size, test_size, resample_size, train_series, triangle_threshold, bootstraps, missing_rate, clusters, ll_weight_train, ll_weight_test, ll_max_train, ll_max_test, kl_train, kl_test");      
+      out.println("# train_size, test_size, resample_size, train_series, triangle_threshold, bootstraps, missing_rate, clusters, ll_weight_test, ll_max_test, kl_train, kl_test");      
       out.println("# Created by edu.drexel.cs.db.rank.incomplete.BetterIncompleteTest.testSushi()");
       out.println("# " + new Date());
       out.println();
@@ -113,9 +113,8 @@ public class BetterIncompleteTest {
 
     double[] misses = TrainUtils.step(0, 0.9, 0.1);
     for (double miss: misses) {
-      Sample sample = NonDesctructiveFilter.remove(sushi.getSample(), miss);
-      List<Sample> samples = Split.twoFold(sample, 0.7);
-      Sample trainSample = samples.get(0);
+      List<Sample> samples = Split.twoFold(sushi.getSample(), 0.7);
+      Sample trainSample = NonDesctructiveFilter.remove(samples.get(0), miss);
       Sample testSample = samples.get(1);
       
       int series = 3;
@@ -126,12 +125,12 @@ public class BetterIncompleteTest {
       BetterIncompleteReconstructor rec1 = new BetterIncompleteReconstructor(true, true, bootstraps, series);
       rec1.setResampleSize(resampleSize);
       MallowsMixtureReconstructor mmr1 = new MallowsMixtureReconstructor(rec1, 10);
-      MallowsMixtureModel model = mmr1.reconstruct(sample);
+      MallowsMixtureModel model = mmr1.reconstruct(trainSample);
       
 
-      double llwTrain = model.getLogLikelihoodMean(trainSample);
+      // double llwTrain = model.getLogLikelihoodMean(trainSample);
       double llwTest = model.getLogLikelihoodMean(testSample);
-      double llmTrain = model.getLogLikelihoodMax(trainSample);
+      // double llmTrain = model.getLogLikelihoodMax(trainSample);
       double llmTest = model.getLogLikelihoodMax(testSample);
       
       Sample modelSample = MallowsUtils.sample(model, 100000);
@@ -139,7 +138,7 @@ public class BetterIncompleteTest {
       double klTest = edu.drexel.cs.db.rank.measure.KullbackLeibler.divergence(testSample, modelSample);
 
       String line = String.format("%d\t%d\t%d\t%d\t%f\t%d\t%.2f\t%d", trainSample.size(), testSample.size(), resampleSize, series, Expands.getThreshold(), bootstraps, miss, model.size());
-      line += String.format("\t%f\t%f\t%f\t%f\t%f\t%f", llwTrain, llwTest, llmTrain, llmTest, klTrain, klTest);
+      line += String.format("\t%f\t%f\t%f\t%f", llwTest, llmTest, klTrain, klTest);
       out.println(line);
       out.flush();
     }
@@ -151,7 +150,7 @@ public class BetterIncompleteTest {
   
   public static void main(String[] args) throws Exception {
     for (int i = 0; i < 10; i++) {
-      testSushi();
+      testOne();
     }    
   }
 }

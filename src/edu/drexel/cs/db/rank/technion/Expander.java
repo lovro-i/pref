@@ -1,13 +1,11 @@
 package edu.drexel.cs.db.rank.technion;
 
 import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.UpTo;
-import edu.drexel.cs.db.rank.util.Logger;
-import edu.drexel.cs.db.rank.util.Utils;
-import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,8 +47,6 @@ public class Expander {
       
       if (pos == -1) expands = expands.insertMissing(e);
       else expands = expands.insert(e, upto.previous);      
-      
-      // Logger.waitKey(expands);
     }
     
     System.out.println(expands);
@@ -59,11 +55,11 @@ public class Expander {
   
   public double getProbability(Sequence seq) {    
     MallowsExpand ex = new MallowsExpand(seq);
-    System.out.println(ex);
     return expands.get(ex);
   } 
 
   public MallowsModel getModel() {
     return model;
   }
+  
 }

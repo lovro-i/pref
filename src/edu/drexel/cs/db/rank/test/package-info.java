@@ -1,4 +1,4 @@
 /**
- * Different test. Temporary junk
+ * Various test. Mostly temporary junk
  */
 package edu.drexel.cs.db.rank.test;

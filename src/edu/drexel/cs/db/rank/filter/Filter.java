@@ -41,6 +41,21 @@ public class Filter {
   }
   
   
+  /** Leave only top K items in each ranking */
+  public static void top(Sample sample, int k) {
+    for (Ranking r: sample) {
+      while (r.size() > k) r.remove(r.size() - 1);
+    }
+  }
+  
+  /** Leave between min and max (both inclusive) items in the ranking. Uniform distribution */
+  public static void top(Sample sample, int min, int max) {
+    for (Ranking r: sample) {
+      int k = min + random.nextInt(max - min + 1);
+      while (r.size() > k) r.remove(r.size() - 1);
+    }
+  }
+  
   /** Replaces a ranking with a uniformly random one with probability p */
   public static void noise(Sample sample, double p) {
     for (Ranking r: sample) {

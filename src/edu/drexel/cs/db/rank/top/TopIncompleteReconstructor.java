@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.rank.incomplete;
+package edu.drexel.cs.db.rank.top;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
@@ -22,7 +22,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 
-public class BetterIncompleteReconstructor implements MallowsReconstructor {
+public class TopIncompleteReconstructor implements MallowsReconstructor {
 
   private final boolean triangle;
   private final boolean triangleByRow;
@@ -35,7 +35,7 @@ public class BetterIncompleteReconstructor implements MallowsReconstructor {
   private int completions = 1;
 
   /** Use temp file for training instances just for this particular case */
-  public BetterIncompleteReconstructor(boolean triangle, boolean triangleByRow, int bootstraps, int trainSeries) throws Exception {
+  public TopIncompleteReconstructor(boolean triangle, boolean triangleByRow, int bootstraps, int trainSeries) throws Exception {
     if (trainSeries < 1) throw new IllegalArgumentException("Number of train instances must be greater than zero");    
     if (!triangle && !triangleByRow && bootstraps == 0) throw new IllegalArgumentException("You must set at least one learner");
     
@@ -61,7 +61,7 @@ public class BetterIncompleteReconstructor implements MallowsReconstructor {
   }
   
   /** Get the number of regression training threads */
-  public int getTrainThreads() {
+  public int setTrainThreads() {
     return threads;
   }
   
@@ -83,10 +83,8 @@ public class BetterIncompleteReconstructor implements MallowsReconstructor {
   
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
-    // File arff = File.createTempFile("train.", ".arff");
-    // arff.deleteOnExit();    
-    
-    BetterIncompleteGenerator generator = new BetterIncompleteGenerator(triangle, triangleByRow, boots);
+
+    TopIncompleteGenerator generator = new TopIncompleteGenerator(triangle, triangleByRow, boots);
     generator.setTrainPhiStep(phiStep);
     generator.setResampleSize(resampleSize);
     Instances data = generator.generate(sample, trainSeries, threads);
@@ -106,7 +104,7 @@ public class BetterIncompleteReconstructor implements MallowsReconstructor {
       RIMRSampler resampler = new RIMRSampler(st);
       Sample resample = resampler.generate(resampleSize);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
-      instance.setValue(attributes.indexOf(BetterIncompleteAttributes.ATTRIBUTE_TRIANGLE_NO_ROW), mallows.getPhi());
+      instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_TRIANGLE_NO_ROW), mallows.getPhi());
     }
 
 
@@ -116,7 +114,7 @@ public class BetterIncompleteReconstructor implements MallowsReconstructor {
       RIMRSampler resampler = new RIMRSampler(st);
       Sample resample = resampler.generate(resampleSize);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
-      instance.setValue(attributes.indexOf(BetterIncompleteAttributes.ATTRIBUTE_TRIANGLE_BY_ROW), mallows.getPhi());
+      instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_TRIANGLE_BY_ROW), mallows.getPhi());
     }
 
     
@@ -124,13 +122,13 @@ public class BetterIncompleteReconstructor implements MallowsReconstructor {
     if (boots > 0) {
     double[] bootstraps = new double[boots];
       for (int j = 0; j < bootstraps.length; j++) {
-        SampleCompleter completer = new SampleCompleter(sample);
+        TopSampleCompleter completer = new TopSampleCompleter(sample);
         Sample resample = completer.complete(completions);
         MallowsModel mallows = reconstructor.reconstruct(resample, center);
         bootstraps[j] = mallows.getPhi();
       }
-      instance.setValue(attributes.indexOf(BetterIncompleteAttributes.ATTRIBUTE_COMPLETER_MEAN), MathUtils.mean(bootstraps));
-      instance.setValue(attributes.indexOf(BetterIncompleteAttributes.ATTRIBUTE_COMPLETER_VAR), MathUtils.variance(bootstraps));
+      instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_COMPLETER_MEAN), MathUtils.mean(bootstraps));
+      instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_COMPLETER_VAR), MathUtils.variance(bootstraps));
     }
     
     double regressionPhi = classifier.classifyInstance(instance);
@@ -150,7 +148,7 @@ public class BetterIncompleteReconstructor implements MallowsReconstructor {
     Sample sample = MallowsUtils.sample(items.getReferenceRanking(), 0.3, 5000);
     Filter.remove(sample, 0.6);
     
-    BetterIncompleteReconstructor rec1 = new BetterIncompleteReconstructor(false, false, 10, 3);
+    TopIncompleteReconstructor rec1 = new TopIncompleteReconstructor(false, false, 10, 3);
     MallowsModel m1 = rec1.reconstruct(sample);
     System.out.println(m1);
   }

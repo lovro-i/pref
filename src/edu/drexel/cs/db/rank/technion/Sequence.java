@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.technion;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
 
 /** Defines a sequence where some items are at specific places (set using Sequence.set method)
  * Items at other positions are undefined
@@ -35,6 +36,15 @@ public class Sequence {
   public Item[] getItems() {
     return sequence;
   }
+  
+  public Ranking getRanking() {
+    Ranking r = new Ranking(itemSet);
+    for (Item item: sequence) {
+      if (item != null) r.add(item);
+    }
+    return r;
+  }
+  
   
   public int size() {
     int size = 0;

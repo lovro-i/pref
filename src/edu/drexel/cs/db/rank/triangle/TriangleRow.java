@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.triangle;
 
 
-class TriangleRow {
+public class TriangleRow {
   
   private final double[] counts;
   private double sum;

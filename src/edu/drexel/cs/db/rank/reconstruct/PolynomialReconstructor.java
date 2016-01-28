@@ -7,9 +7,9 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.math.Polynomial;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
-import flanagan.math.Polynomial;
 import java.util.Arrays;
 
 /** Reconstructs phi from the known (reconstructed) center and the sample finding the root of the polynomial
@@ -24,7 +24,7 @@ public class PolynomialReconstructor implements MallowsReconstructor {
       double[] a = new double[i+1];
       Arrays.fill(a, 1d);
       Polynomial f = new Polynomial(a);
-      z = z.times(f);
+      z = z.mul(f);
     }
     return z;
   }
@@ -57,15 +57,11 @@ public class PolynomialReconstructor implements MallowsReconstructor {
     double meand = sumd / sample.sumWeights();
     
     int n = sample.getItemSet().size();
-    Polynomial left = z(n).times(meand);
+    Polynomial left = z(n).mul(meand);
     Polynomial right = c(n);
     
-    Polynomial solve = left.minus(right);
-    
-    double[] a = solve.coefficientsReference();
-    
-    edu.drexel.cs.db.rank.math.Polynomial solverson = new edu.drexel.cs.db.rank.math.Polynomial(a);
-    double phi = solverson.root(0d, 1d, 0.00001d);
+    Polynomial solve = left.sub(right);
+    double phi = solve.root(0d, 1d, 0.00001d);
     return new MallowsModel(center, phi);
   }
   

@@ -171,6 +171,7 @@ public class MallowsMixtureReconstructor {
       center = kemenizator.kemenize(s, center);
       MallowsModel mm = reconstructor.reconstruct(s, center);
       model.add(mm, s.sumWeights());
+      Logger.info("Model %d of %d: %s", m, clustering.samples.size(), mm);
     }
     return model;
   }

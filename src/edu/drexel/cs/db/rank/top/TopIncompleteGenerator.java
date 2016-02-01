@@ -31,19 +31,29 @@ public class TopIncompleteGenerator {
   private final Instances data;
   private final boolean triangle;
   private final boolean triangleByRow;
+  private final boolean triangleTop;
   private final int boots;
   private int resampleSize = 10000;
   private double[] phis = TrainUtils.step(0, 1, 0.05);
   
-  public TopIncompleteGenerator(boolean triangle, boolean triangleByRow, int bootstraps) throws Exception {
-    if (!triangle && !triangleByRow && bootstraps == 0) throw new IllegalArgumentException("You must set at least one learner");
+  public TopIncompleteGenerator(boolean triangle, boolean triangleByRow, boolean triangleTop, int bootstraps) throws Exception {
+    if (!triangle && !triangleByRow && !triangleTop && bootstraps == 0) throw new IllegalArgumentException("You must set at least one learner");
     
     this.triangle = triangle;
     this.triangleByRow = triangleByRow;
+    this.triangleTop = triangleTop;
     this.boots = bootstraps;
-    this.attributes = TopIncompleteAttributes.getAttributes(triangle, triangleByRow, boots);
+    this.attributes = TopIncompleteAttributes.getAttributes(triangle, triangleByRow, triangleTop, boots);
     this.data = new Instances("Train Top Incomplete", attributes, 1);
   }
+  
+//  public TopIncompleteGenerator(boolean triangle, boolean triangleByRow, boolean triangleTop) throws Exception {
+//    this(triangle, triangleByRow, triangleTop, 0);
+//  }
+//  
+//  public TopIncompleteGenerator(boolean triangle, boolean triangleByRow, int bootstraps) throws Exception {
+//    this(triangle, triangleByRow, false, bootstraps);
+//  }
   
   public void setResampleSize(int size) {
     this.resampleSize = size;
@@ -87,7 +97,7 @@ public class TopIncompleteGenerator {
       RIMRSampler resampler = new RIMRSampler(st);
       Sample resample = resampler.generate(resampleSize);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
-      Logger.info("SampleTriangle reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
+      // Logger.info("SampleTriangle reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
       instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_TRIANGLE_NO_ROW), mallows.getPhi());
     }
 
@@ -99,8 +109,19 @@ public class TopIncompleteGenerator {
       RIMRSampler resampler = new RIMRSampler(st);
       Sample resample = resampler.generate(resampleSize);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
-      Logger.info("SampleTriangleByRow reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
+      // Logger.info("SampleTriangleByRow reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
       instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_TRIANGLE_BY_ROW), mallows.getPhi());
+    }
+    
+    // triangle by row
+    if (triangleTop) {
+      long start = System.currentTimeMillis();
+      TopSampleTriangle st = new TopSampleTriangle(model.getCenter(), sample);
+      RIMRSampler resampler = new RIMRSampler(st);
+      Sample resample = resampler.generate(resampleSize);
+      MallowsModel mallows = reconstructor.reconstruct(resample, center);
+      // Logger.info("TopSampleTriangle reconstructed phi %.3f as %.3f in %.1f sec", phi, mallows.getPhi(), 0.001d * (System.currentTimeMillis() - start));
+      instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_TRIANGLE_TOP), mallows.getPhi());
     }
 
     // Completer

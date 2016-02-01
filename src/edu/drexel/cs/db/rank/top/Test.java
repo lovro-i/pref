@@ -46,7 +46,7 @@ public class Test {
 //     Tops tops2 = new Tops(sample2);
 //     System.out.println(tops2);
 
-    TopIncompleteReconstructor rec = new TopIncompleteReconstructor(true, false, 20, 4);
+    TopIncompleteReconstructor rec = new TopIncompleteReconstructor(true, false, false, 20, 4);
     MallowsModel old = rec.reconstruct(sample);
     System.out.println(old);
 

@@ -55,6 +55,7 @@ public class TopSampleTriangle extends Triangle {
     TopExpands expands = new TopExpands();
     expands.nullify();
     
+    int seen = 0;
     for (int i = 0; i < reference.size(); i++) {
       TriangleRow row = rows.get(i); // Triangle row to be updated
       Item e = reference.get(i);
@@ -62,11 +63,14 @@ public class TopSampleTriangle extends Triangle {
       UpTo upto = new UpTo(ranking, i, referenceIndex);
       int pos = upto.position;
       
-      if (pos == -1) { // This one is missing. Distribute evenly its probability
+      if (pos == -1) {
         expands = expands.insertMissing();
+        double w = weight / (row.size() - seen);
+        for (int j = seen; j < row.size(); j++) row.inc(j, w);
         continue;
       }
                   
+      seen++;
       expands = expands.insert(e, upto.previous); //new 
       
       double[] displacements = expands.getDistribution(e);

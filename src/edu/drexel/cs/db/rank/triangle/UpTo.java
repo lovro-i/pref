@@ -11,7 +11,10 @@ import java.util.Map;
  */
 public class UpTo {
 
+  /** Previous item in projection before the looked up one. Null if the looked up is first, or the looked up was not found in the incomplete ranking */
   public final Item previous;
+  
+  /** position of the looked up item in the projection ranking, -1 if not found */
   public final int position;
   
   public UpTo(Ranking ranking, int max, Map<Item, Integer> referenceIndex) {

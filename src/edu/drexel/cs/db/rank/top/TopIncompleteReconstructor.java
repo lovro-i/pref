@@ -26,6 +26,7 @@ public class TopIncompleteReconstructor implements MallowsReconstructor {
 
   private final boolean triangle;
   private final boolean triangleByRow;
+  private final boolean triangleTop;
   private final int boots;
   
   private int trainSeries = 3;
@@ -35,15 +36,24 @@ public class TopIncompleteReconstructor implements MallowsReconstructor {
   private int completions = 1;
 
   /** Use temp file for training instances just for this particular case */
-  public TopIncompleteReconstructor(boolean triangle, boolean triangleByRow, int bootstraps, int trainSeries) throws Exception {
-    if (trainSeries < 1) throw new IllegalArgumentException("Number of train instances must be greater than zero");    
-    if (!triangle && !triangleByRow && bootstraps == 0) throw new IllegalArgumentException("You must set at least one learner");
+  public TopIncompleteReconstructor(boolean triangle, boolean triangleByRow, boolean triangleTop, int bootstraps, int trainSeries) throws Exception {
+    if (trainSeries < 1) throw new IllegalArgumentException("Number of train instances must be greater than zero: " + trainSeries);    
+    if (!triangle && !triangleByRow && !triangleTop && bootstraps == 0) throw new IllegalArgumentException("You must set at least one learner");
     
     this.triangle = triangle;
     this.triangleByRow = triangleByRow;
+    this.triangleTop = triangleTop;
     this.boots = bootstraps;
     this.trainSeries = trainSeries;
   }
+  
+//  public TopIncompleteReconstructor(boolean triangle, boolean triangleByRow, int bootstraps, int trainSeries) throws Exception {
+//    this(triangle, triangleByRow, false, bootstraps, trainSeries);
+//  }
+//  
+//  public TopIncompleteReconstructor(boolean triangle, boolean triangleByRow, boolean triangleTop, int trainSeries) throws Exception {
+//    this(triangle, triangleByRow, triangleTop, 0, trainSeries);
+//  }
   
   /** Set the number of training series (phi from 0 to 1) to generate for regression learner */
   public void setTrainSeries(int series) {
@@ -84,7 +94,7 @@ public class TopIncompleteReconstructor implements MallowsReconstructor {
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
 
-    TopIncompleteGenerator generator = new TopIncompleteGenerator(triangle, triangleByRow, boots);
+    TopIncompleteGenerator generator = new TopIncompleteGenerator(triangle, triangleByRow, triangleTop, boots);
     generator.setTrainPhiStep(phiStep);
     generator.setResampleSize(resampleSize);
     Instances data = generator.generate(sample, trainSeries, threads);
@@ -115,6 +125,15 @@ public class TopIncompleteReconstructor implements MallowsReconstructor {
       Sample resample = resampler.generate(resampleSize);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
       instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_TRIANGLE_BY_ROW), mallows.getPhi());
+    }
+    
+    // triangle by row
+    if (triangleTop) {
+      TopSampleTriangle st = new TopSampleTriangle(center, sample);
+      RIMRSampler resampler = new RIMRSampler(st);
+      Sample resample = resampler.generate(resampleSize);
+      MallowsModel mallows = reconstructor.reconstruct(resample, center);
+      instance.setValue(attributes.indexOf(TopIncompleteAttributes.ATTRIBUTE_TRIANGLE_TOP), mallows.getPhi());
     }
 
     
@@ -148,7 +167,7 @@ public class TopIncompleteReconstructor implements MallowsReconstructor {
     Sample sample = MallowsUtils.sample(items.getReferenceRanking(), 0.3, 5000);
     Filter.remove(sample, 0.6);
     
-    TopIncompleteReconstructor rec1 = new TopIncompleteReconstructor(false, false, 10, 3);
+    TopIncompleteReconstructor rec1 = new TopIncompleteReconstructor(false, false, false, 10, 3);
     MallowsModel m1 = rec1.reconstruct(sample);
     System.out.println(m1);
   }

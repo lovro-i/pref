@@ -11,6 +11,7 @@ import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.Expands;
+import edu.drexel.cs.db.rank.util.Config;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.TrainUtils;
 import java.io.File;
@@ -22,10 +23,10 @@ import java.util.List;
 public class BetterIncompleteTest {
 
   /** See accuracy by different combinations of parameters  */
-  private static void testOne() throws Exception {
+  public static void testOne(double phi) throws Exception {
     // File folder = new File("C:\\Projects\\Rank\\Results.3");
-    File folder = new File("/home/lovro/rank/results");
-    File file = new File(folder, "incomplete.reconstruction.tsv");
+    // File folder = new File("/home/lovro/rank/results");
+    File file = new File(Config.RESULTS_FOLDER, "incomplete.reconstruction.tsv");
     
     boolean header = !file.exists();
     PrintWriter out = FileUtils.append(file);
@@ -40,7 +41,7 @@ public class BetterIncompleteTest {
     
     
     ItemSet items = new ItemSet(15);
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.5);
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
     Expands.setThreshold(0.001);
 
     double[] misses = TrainUtils.step(0.1, 0.9, 0.1);
@@ -150,7 +151,8 @@ public class BetterIncompleteTest {
   
   public static void main(String[] args) throws Exception {
     for (int i = 0; i < 10; i++) {
-      testOne();
+      testOne(0.2);
+      testOne(0.8);
     }    
   }
 }

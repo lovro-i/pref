@@ -17,7 +17,7 @@ public class APA {
   }
   
   public APA(File data) throws IOException {
-    SampleLoader loader = new SampleLoader(false, true, false);
+    SampleLoader loader = new SampleLoader(false, true, true, false);
     this.sample = loader.loadSample(data);
   }
   

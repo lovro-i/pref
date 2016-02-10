@@ -19,7 +19,7 @@ public class Irish {
   }
   
   public Irish(File data) throws IOException {
-    SampleLoader loader = new SampleLoader(false, false);
+    SampleLoader loader = new SampleLoader(false, false, true);
     this.sample = loader.loadSample(data);
   }
   

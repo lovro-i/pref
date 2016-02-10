@@ -4,6 +4,7 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.TopRanking;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.BufferedReader;
@@ -24,26 +25,29 @@ public class SampleLoader {
   private final boolean ids;
   private final String delimiters;
   private final boolean pack;
+  private final boolean top;
   
   
   /** 
    * @param ids Does the file contain numeric ids, or tags
    * @param weighted If true, the last value in the line is ranking weight
+   * @param top Are rankings top-k or not
    */ 
-  public SampleLoader(boolean ids, boolean weighted) {
-    this(ids, weighted, false);
-    System.out.println(weighted);
+  public SampleLoader(boolean ids, boolean weighted, boolean top) {
+    this(ids, weighted, top, false);
   }
   
   /** 
    * @param ids Does the file contain numeric ids, or tags
    * @param weighted If true, the last value in the line is ranking weight
+   * @param top Are rankings top-k or not
    * @param pack Should same ratings be represented by weights, or by multiple instances
    * @param delimiters Commas, tabs, semi-colons...
    */
-  public SampleLoader(boolean ids, boolean weighted, boolean pack, String delimiters) {
+  public SampleLoader(boolean ids, boolean weighted, boolean top, boolean pack, String delimiters) {
     this.ids = ids;
-    this.weighted = weighted;    
+    this.weighted = weighted;
+    this.top = top;
     this.pack = pack;
     this.delimiters = delimiters;
     
@@ -52,10 +56,11 @@ public class SampleLoader {
   /** 
    * @param ids Does the file contain numeric ids, or tags
    * @param weighted If true, the last value in the line is ranking weight
+   * @param top Are rankings top-k or not
    * @param pack Should same ratings be represented by weights, or by multiple instances
    */
-  public SampleLoader(boolean ids, boolean weighted, boolean pack) {
-    this(ids, weighted, pack, ", \t;");
+  public SampleLoader(boolean ids, boolean weighted, boolean top, boolean pack) {
+    this(ids, weighted, top, pack, ", \t;");
   }
   
   public Sample loadSample(File file) throws IOException {
@@ -105,10 +110,15 @@ public class SampleLoader {
     else return getSampleByTag(lines, itemSet);
   }
   
+  private Ranking newRanking(ItemSet itemSet) {
+    if (top) return new TopRanking(itemSet);
+    else return new Ranking(itemSet);
+  }
+  
   private Sample getSampleById(List<String> lines, ItemSet itemSet) {
     Sample sample = new Sample(itemSet);
     for (String line: lines) {
-      Ranking r = new Ranking(itemSet);
+      Ranking r = newRanking(itemSet);
       StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
       double w = 1;
       while (tokenizer.hasMoreTokens()) {
@@ -127,6 +137,30 @@ public class SampleLoader {
     return sample;
   }
 
+  
+
+  
+  private Sample getSampleByTag(List<String> lines, ItemSet itemSet) {
+    Sample sample = new Sample(itemSet);
+    for (String line: lines) {
+      Ranking r = newRanking(itemSet);
+      StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
+      double w = 1;
+      while (tokenizer.hasMoreTokens()) {
+        String t = tokenizer.nextToken();        
+        if (weighted && !tokenizer.hasMoreTokens()) {
+          w = Double.parseDouble(t);
+        }
+        else {          
+          Item e = itemSet.getItemByTag(t);
+          r.add(e);
+        }
+      }
+      add(sample, r, w);
+    }
+    return sample;
+  }
+  
   private void add(Sample sample, Ranking r, double w) {
     if (!weighted && !pack) {
       sample.add(r);
@@ -153,34 +187,12 @@ public class SampleLoader {
       }
     }
   }
-
-  
-  private Sample getSampleByTag(List<String> lines, ItemSet itemSet) {
-    Sample sample = new Sample(itemSet);
-    for (String line: lines) {
-      Ranking r = new Ranking(itemSet);
-      StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
-      double w = 1;
-      while (tokenizer.hasMoreTokens()) {
-        String t = tokenizer.nextToken();        
-        if (weighted && !tokenizer.hasMoreTokens()) {
-          w = Double.parseDouble(t);
-        }
-        else {          
-          Item e = itemSet.getItemByTag(t);
-          r.add(e);
-        }
-      }
-      add(sample, r, w);
-    }
-    return sample;
-  }
   
   public static void main(String[] args) throws IOException {
     File folder = new File("C:\\Projects\\Rank\\Data\\sushi");
     File file = new File(folder, "sushi3a.csv");
     
-    SampleLoader loader = new SampleLoader(true, false);
+    SampleLoader loader = new SampleLoader(true, false, false);
     Sample sample = loader.loadSample(file);
     System.out.println(sample);
   }

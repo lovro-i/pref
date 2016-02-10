@@ -33,7 +33,7 @@ public class Sushi {
   }
   
   public Sushi(File file) throws IOException {   
-    SampleLoader loader = new SampleLoader(true, false);
+    SampleLoader loader = new SampleLoader(true, false, false);
     this.sample = loader.loadSample(file);
   }
   

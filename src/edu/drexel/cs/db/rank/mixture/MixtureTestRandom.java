@@ -147,7 +147,7 @@ public class MixtureTestRandom {
   private static Sample loadSample(File folder, int id) throws IOException {
     File file = new File(folder, "sample." + id + ".tsv");
     if (!file.exists()) return null;
-    Sample sample = new SampleLoader(true, false).loadSample(file);
+    Sample sample = new SampleLoader(true, false, false).loadSample(file);
     return sample;
   }
   

@@ -12,8 +12,8 @@ public class Ranking implements Comparable, PreferenceSet {
   private static final String DELIMITER = "-";
   private static final String DELIMITERS = "-, >;\t";
   
-  private ItemSet itemSet;
-  private List<Item> items = new ArrayList<Item>();
+  protected ItemSet itemSet;
+  protected List<Item> items = new ArrayList<Item>();
   
   public Ranking(ItemSet itemSet) {
     this.itemSet = itemSet;

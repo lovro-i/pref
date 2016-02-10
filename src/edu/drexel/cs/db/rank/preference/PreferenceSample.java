@@ -50,7 +50,7 @@ public class PreferenceSample extends ArrayList<PW> {
       public final PreferenceSet p;
       public final double w;
 
-      private PW(PreferenceSet p, double w) {
+      public PW(PreferenceSet p, double w) {
         this.p = p;
         this.w = w;
       }

@@ -16,7 +16,7 @@ public interface PreferenceSet {
   /** Returns true if contains this preference, false if contains the opposite, and null if it doesn't contain the information on this pair */
   public Boolean isHigher(int higher, int lower);
   
-  /** Returns the transitive closure of this preference set, as DenscePreferenceSet */
+  /** Returns the transitive closure of this preference set, as DensePreferenceSet */
   public DensePreferenceSet transitiveClosure();
   
   /** Returns the list of items with higher preference than this one */
@@ -25,7 +25,7 @@ public interface PreferenceSet {
   /** Returns the list of items with lower preference than this one */
   public Set<Item> getLower(Item i);
 
-    
+  
   // public void add(Item higher, Item lower);
   
   // public Sample toSample();

@@ -39,6 +39,10 @@ public class MallowsMixtureReconstructor {
   }
   
   
+  public ClusteringResult cluster(Sample sample) {
+    return cluster(sample, 1d);
+  }
+  
   private ClusteringResult cluster(Sample sample, double alpha) {
     Histogram<Ranking> hist = new Histogram<Ranking>();
     hist.add(sample.rankings(), sample.weights());
@@ -157,9 +161,10 @@ public class MallowsMixtureReconstructor {
   
   
   public MallowsMixtureModel reconstruct(Sample sample) throws Exception {  
-    ClusteringResult clustering = cluster(sample, 1d);
+    ClusteringResult clustering = cluster(sample);
     return model(clustering);
   }
+  
   
   
   /** Now reconstruct each model from ClusteringResult */
@@ -188,10 +193,10 @@ public class MallowsMixtureReconstructor {
   
   
 
-  private class ClusteringResult {
+  public class ClusteringResult {
     
-    private final Map<Ranking, Ranking> exemplars;
-    private final Map<Ranking, Sample> samples;
+    public final Map<Ranking, Ranking> exemplars;
+    public final Map<Ranking, Sample> samples;
     
     private ClusteringResult(Map<Ranking, Ranking> exemplars, Map<Ranking, Sample> samples) {
       this.exemplars = exemplars;

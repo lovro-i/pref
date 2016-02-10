@@ -86,6 +86,15 @@ public class Ranking implements Comparable, PreferenceSet {
     return r;
   }
   
+  public Ranking top(int k) {
+    if (k >= this.size()) return new Ranking(this);
+    Ranking top = new Ranking(this.itemSet);
+    for (int i = 0; i < k; i++) {
+      top.add(this.get(i));
+    }
+    return top;
+  }
+  
   public Ranking remove(int index) {
     items.remove(index);
     return this;

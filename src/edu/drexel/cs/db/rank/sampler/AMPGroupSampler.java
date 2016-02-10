@@ -98,7 +98,7 @@ public class AMPGroupSampler {
         
         
         if (s.size() < 100000) {
-          // just finish this ones
+          // just finish these ones
           
           long t1 = System.currentTimeMillis();
           for (PW pw: s) {

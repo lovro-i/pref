@@ -4,7 +4,7 @@ import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import static edu.drexel.cs.db.rank.incomplete.IncompleteAttributes.ATTRIBUTES;
 import edu.drexel.cs.db.rank.util.TrainUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;

@@ -17,7 +17,7 @@ public class Split {
     samples.add(new Sample(sample.getItemSet()));
     samples.add(new Sample(sample.getItemSet()));
     for (int i = 0; i < sample.size(); i++) {
-      Ranking r = sample.get(i);
+      Ranking r = sample.get(i).r;
       double w = sample.getWeight(i);
       double flip = MathUtils.RANDOM.nextDouble();
       if (flip < first) samples.get(0).add(r, w);
@@ -50,7 +50,7 @@ public class Split {
       samples.add(new Sample(sample.getItemSet()));      
     
     for (int i = 0; i < sample.size(); i++) {
-      Ranking r = sample.get(i);
+      Ranking r = sample.get(i).r;
       double w = sample.getWeight(i);
       int index = MathUtils.RANDOM.nextInt(n);
       samples.get(index).add(r, w);

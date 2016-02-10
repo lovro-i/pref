@@ -25,6 +25,11 @@ public class Polynomial {
     return s;
   }
   
+  /** Coefficient at degree i */
+  public double coef(int i) {
+    return a[i];
+  }
+  
   public double root(double min, double max, double epsilon) {
     double v1 = eval(min);
     double v2 = eval(max);

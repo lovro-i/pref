@@ -20,7 +20,7 @@ public class Expand {
     miss = new int[items.length + 1];
   }
   
-  private Expand(Expand e) {
+  Expand(Expand e) {
     this.items = new Item[e.items.length];
     System.arraycopy(e.items, 0, this.items, 0, items.length);    
     this.miss = new int[e.miss.length];

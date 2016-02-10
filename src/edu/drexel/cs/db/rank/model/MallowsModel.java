@@ -4,7 +4,7 @@ import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 
 
 public class MallowsModel {
@@ -80,7 +80,7 @@ public class MallowsModel {
     double ll = 0;
     double lnZ = Math.log(z());
     double lnPhi = Math.log(phi);
-    for (Sample.RW rw: sample.enumerate()) {
+    for (Sample.RW rw: sample) {
       ll += rw.w * (KendallTauDistance.between(center, rw.r) * lnPhi - lnZ);
     }
     return ll / sample.sumWeights();

@@ -1,7 +1,8 @@
-package edu.drexel.cs.db.rank.generator;
+package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.RW;
 import edu.drexel.cs.db.rank.util.MathUtils;
 
 /** Creates new sample by sampling from the current one, with replacement */
@@ -18,8 +19,8 @@ public class Resampler {
     Sample resample = new Sample(sample.getItemSet());
     for (int i = 0; i < size; i++) {
       int index = MathUtils.RANDOM.nextInt(sample.size());
-      Ranking r = sample.get(index);
-      resample.add(r, sample.getWeight(index));
+      RW rw = sample.get(index);
+      resample.add(rw);
     }
     return resample;
   }

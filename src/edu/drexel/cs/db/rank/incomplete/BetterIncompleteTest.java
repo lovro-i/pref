@@ -6,7 +6,7 @@ import edu.drexel.cs.db.rank.datasets.Sushi;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.filter.NonDesctructiveFilter;
 import edu.drexel.cs.db.rank.filter.Split;
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
 import edu.drexel.cs.db.rank.model.MallowsModel;

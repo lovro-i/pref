@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.top;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.RW;
 import edu.drexel.cs.db.rank.triangle.Triangle;
 import edu.drexel.cs.db.rank.triangle.TriangleRow;
 import edu.drexel.cs.db.rank.triangle.UpTo;
@@ -26,14 +27,16 @@ public class TopSampleTriangle extends Triangle {
   
   public TopSampleTriangle(Ranking reference, Sample sample) {
     this(reference);
-    for (int index = 0; index < sample.size(); index++) {
-      Ranking ranking = sample.get(index);
-      double weight = sample.getWeight(index);
-      this.add(ranking, weight);
+    for (RW rw: sample) {
+      this.add(rw.r, rw.w);
     }
     
   }
   
+  public double get(int item, int pos) {
+    return rows.get(item).getProbability(pos);
+  }
+    
   public TriangleRow getRow(int i) {
     return rows.get(i);
   }
@@ -46,7 +49,7 @@ public class TopSampleTriangle extends Triangle {
   /** Get random position for the item based on added rankings */
   @Override
   public int randomPosition(int e) {
-    return rows.get(e).random();
+    return rows.get(e).getRandomPosition();
   }
   
   /** Adds ranking to the triangle with specified weight. Returns true if added, false otherwise */

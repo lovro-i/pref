@@ -4,7 +4,7 @@ import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import edu.drexel.cs.db.rank.util.Utils;
@@ -128,7 +128,7 @@ public class MallowsMixtureModel {
   
   public double getLogLikelihoodMean(Sample sample) {
     double ll = 0;
-    for (Sample.RW rw: sample.enumerate()) {
+    for (Sample.RW rw: sample) {
       double p = getProbability(rw.r);
       ll += rw.w * Math.log(p);
     }
@@ -137,7 +137,7 @@ public class MallowsMixtureModel {
   
   public double getLogLikelihoodMax(Sample sample) {
     double ll = 0;
-    for (Sample.RW rw: sample.enumerate()) {
+    for (Sample.RW rw: sample) {
       double p = getProbabilityMax(rw.r);
       ll += rw.w * Math.log(p);
     }

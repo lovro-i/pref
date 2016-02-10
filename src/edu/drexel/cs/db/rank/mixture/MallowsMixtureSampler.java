@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import java.util.ArrayList;

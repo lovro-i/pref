@@ -6,7 +6,7 @@ import edu.drexel.cs.db.rank.distance.KendallTauUtils;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.math.Polynomial;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
@@ -18,7 +18,7 @@ public class PolynomialReconstructor implements MallowsReconstructor {
 
   
   /** Normalization factor for n items */
-  private static Polynomial z(int n) {
+  public static Polynomial z(int n) {
     Polynomial z = new Polynomial(1d);
     for (int i = 1; i < n; i++) {
       double[] a = new double[i+1];
@@ -51,7 +51,7 @@ public class PolynomialReconstructor implements MallowsReconstructor {
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) {
     double sumd = 0;
-    for (Sample.RW rw: sample.enumerate()) {
+    for (Sample.RW rw: sample) {
       sumd += rw.w * KendallTauDistance.getInstance().distance(center, rw.r);
     }
     double meand = sumd / sample.sumWeights();

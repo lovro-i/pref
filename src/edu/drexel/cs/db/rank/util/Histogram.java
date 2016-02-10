@@ -43,6 +43,12 @@ public class Histogram<T> {
     }
   }
   
+  public void add(T[] items, double[] weights) {
+    for (int i = 0; i < items.length; i++) {
+      this.add(items[i], weights[i]);
+    }
+  }
+  
   public Double get(T key) {
     return map.get(key);
   }

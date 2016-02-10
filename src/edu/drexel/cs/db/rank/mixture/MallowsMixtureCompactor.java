@@ -85,7 +85,7 @@ public class MallowsMixtureCompactor {
       }
       else {
         Sample centers = cluster.getCenterSample();
-        Ranking newCenter = kemenizator.kemenize(centers, centers.get(0));
+        Ranking newCenter = kemenizator.kemenize(centers, centers.get(0).r);
         double phi = weightedPhi(cluster);
         MallowsModel newModel = new MallowsModel(newCenter, phi);
         compacted.add(newModel, weights.get(i));

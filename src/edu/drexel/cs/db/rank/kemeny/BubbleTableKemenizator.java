@@ -5,7 +5,7 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.rating.RatingsSample;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
@@ -17,7 +17,7 @@ public class BubbleTableKemenizator implements Kemenizator {
   
   @Override
   public Ranking kemenize(Sample sample, Ranking start) {
-    if (start == null) start = sample.get(MathUtils.RANDOM.nextInt(sample.size()));
+    if (start == null) start = sample.get(MathUtils.RANDOM.nextInt(sample.size())).r;
     
     double[][] before = new PairwisePreferenceMatrix(sample).getMatrix();
     Ranking kemeny = new Ranking(start);

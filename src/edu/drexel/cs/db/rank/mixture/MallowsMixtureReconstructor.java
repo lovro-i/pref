@@ -40,7 +40,7 @@ public class MallowsMixtureReconstructor {
   
   private ClusteringResult cluster(Sample sample, double alpha) {
     Histogram<Ranking> hist = new Histogram<Ranking>();
-    hist.add(sample, sample.getWeights());
+    hist.add(sample.rankings(), sample.weights());
     Map<Ranking, Double> weights = hist.getMap();
     List<Ranking> rankings = new ArrayList<Ranking>();
     rankings.addAll(weights.keySet());

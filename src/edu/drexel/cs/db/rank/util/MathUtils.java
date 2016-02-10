@@ -48,12 +48,24 @@ public class MathUtils {
     return var;
   }
   
-  public static double mean(double[] a) {
+  public static double mean(double[] a) {    
+    return sum(a) / a.length;
+  }
+  
+  public static double sum(double[] a) {
     double s = 0;
     for (int i = 0; i < a.length; i++) {
       s += a[i];      
     }
-    return s / a.length;
+    return s;
+  }
+  
+  public static double min(double[] a) {
+    double min = a[0];
+    for (int i = 1; i < a.length; i++) {
+      min = Math.min(min, a[i]);
+    }
+    return min;
   }
     
     
@@ -63,9 +75,9 @@ public class MathUtils {
     BigInteger cbi = choose(n, k);
     System.out.println(cbi);
     System.out.println(String.format("%f", cbi.doubleValue()));
-    
     System.out.println(mixes(1, 1));
-    
     System.out.println(factorial(6));
   }
+
+  
 }

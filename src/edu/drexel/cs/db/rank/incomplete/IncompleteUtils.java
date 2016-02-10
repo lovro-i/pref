@@ -10,7 +10,7 @@ public class IncompleteUtils {
     ItemSet items = sample.getItemSet();    
     double count = 0;
     double total = 0;    
-    for (Sample.RW rw: sample.enumerate()) {
+    for (Sample.RW rw: sample) {
       count += rw.w * rw.r.size();
       total += rw.w * items.size();
     }

@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.triangle;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
+import java.util.HashMap;
 import java.util.Map;
 
 /** Returns info on ranking projection up to item max:
@@ -34,5 +35,5 @@ public class UpTo {
     this.previous = found ? prev : null;
     this.position = found ? pos : -1;
   }
-  
+    
 }

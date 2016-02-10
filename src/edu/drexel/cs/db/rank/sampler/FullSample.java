@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.rank.generator;
+package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;

@@ -4,8 +4,9 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.RW;
 import edu.drexel.cs.db.rank.filter.Filter;
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import java.util.Random;
 
 /** Class that stores information for each item in the ItemSet about its missing probability */
@@ -23,9 +24,9 @@ public class Missing {
     this.miss = new double[items.size()];
     
     int[] counts = new int[items.size()];
-    for (Ranking r: sample) {
-      for (Item e: r.getItems()) {
-        counts[e.getId()]++;
+    for (RW rw: sample) {
+      for (Item e: rw.r.getItems()) {
+        counts[e.getId()] += rw.w;
       }
     }
     
@@ -56,7 +57,7 @@ public class Missing {
     
   /** Remove items randomly from the sample with specified probabilities */
   public void remove(Sample sample) {
-    for (Ranking r: sample) {
+    for (Ranking r: sample.rankings()) {
       remove(r);
     }
   }

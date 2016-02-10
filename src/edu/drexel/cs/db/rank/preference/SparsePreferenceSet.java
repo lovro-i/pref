@@ -2,24 +2,37 @@ package edu.drexel.cs.db.rank.preference;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.preference.Preference;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.HashSet;
+import java.util.Set;
 
 
 public class SparsePreferenceSet extends HashSet<Preference> implements PreferenceSet {
 
-  private final ItemSet itemSet;
+  private final ItemSet items;
 
   public SparsePreferenceSet(ItemSet itemSet) {
-    this.itemSet = itemSet;
+    this.items = itemSet;
   }
 
+  @Override
+  public ItemSet getItemSet() {
+    return items;
+  }
+  
+  public Boolean isHigher(Item higher, Item lower) {
+    if (this.contains(new Preference(higher, lower))) return true;
+    if (this.contains(new Preference(lower, higher))) return false;
+    return null;
+  }
+  
+    @Override
+  public Boolean isHigher(int hid, int lid) {
+    return isHigher(items.get(hid), items.get(lid));
+  }
+  
   public void add(Item higher, Item lower) {
-    if (!itemSet.contains(higher)) throw new IllegalArgumentException("Item " + higher + " not in the set");
-    if (!itemSet.contains(lower)) throw new IllegalArgumentException("Item " + lower + " not in the set");
+    if (!items.contains(higher)) throw new IllegalArgumentException("Item " + higher + " not in the set");
+    if (!items.contains(lower)) throw new IllegalArgumentException("Item " + lower + " not in the set");
     
     Preference pref = new Preference(higher, lower);
     this.add(pref);
@@ -35,16 +48,36 @@ public class SparsePreferenceSet extends HashSet<Preference> implements Preferen
     return sb.toString();
   }
   
-  @Override
-  public Sample toSample() {
-    Sample sample = new Sample(itemSet);
+ 
+  public DensePreferenceSet toDense() {
+    DensePreferenceSet dense = new DensePreferenceSet(items);
     for (Preference pref: this) {
-      Ranking r = new Ranking(itemSet);
-      r.add(pref.higher);
-      r.add(pref.lower);
-      sample.add(r);
+      dense.add(pref.higher, pref.lower);
     }
-    return sample;
+    return dense;
+  }
+  
+  @Override
+  public DensePreferenceSet transitiveClosure() {
+    return this.toDense().transitiveClosure();
+  }
+
+  @Override
+  public Set<Item> getHigher(Item i) {
+    Set<Item> set = new HashSet<Item>();
+    for (Preference pref: this) {
+      if (pref.lower.equals(i)) set.add(pref.higher);
+    }
+    return set;
+  }
+
+  @Override
+  public Set<Item> getLower(Item i) {
+    Set<Item> set = new HashSet<Item>();
+    for (Preference pref: this) {
+      if (pref.higher.equals(i)) set.add(pref.lower);
+    }
+    return set;
   }
   
 }

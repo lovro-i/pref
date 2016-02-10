@@ -22,5 +22,4 @@ public class Utils {
     return obj1.equals(obj2);
   }
  
-    
 }

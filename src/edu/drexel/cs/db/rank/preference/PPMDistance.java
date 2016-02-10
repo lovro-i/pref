@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.preference;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 
 /** Simple distance between two samples / PPMs by averaging the difference on each field */

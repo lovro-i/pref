@@ -14,7 +14,7 @@ public class KemenyCandidate {
     Ranking longest = null;
     Histogram<Ranking> rankHist = new Histogram();
     for (int i = 0; i < sample.size(); i++) {
-      Ranking r = sample.get(i);
+      Ranking r = sample.get(i).r;
       if (longest == null || r.size() > longest.size()) longest = r;
       if (r.size() == n) rankHist.add(r, sample.getWeight(i));
     }

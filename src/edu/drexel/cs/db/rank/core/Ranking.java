@@ -1,10 +1,12 @@
 package edu.drexel.cs.db.rank.core;
 
+import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.*;
 
 
-public class Ranking implements Comparable {
+public class Ranking implements Comparable, PreferenceSet {
 
   private static final Random random = new Random();
   private static final String DELIMITER = "-";
@@ -34,7 +36,16 @@ public class Ranking implements Comparable {
     return missing;
   }
   
-  
+  /** Returns map of Item to index (position in the ranking */
+  public Map<Item, Integer> getIndexMap() {
+    Map<Item, Integer> map = new HashMap<Item, Integer>();
+    for (int i = 0; i < this.size(); i++) {
+      Item e = this.get(i);
+      map.put(e, i);
+    }    
+    return map;
+  }
+    
   /** Shuffles the items in this ranking */
   public void randomize() {
     for (int i = 0; i < this.size() - 1; i++) {
@@ -60,11 +71,21 @@ public class Ranking implements Comparable {
   
   /** Add Item e at the specified position in the ranking (shifting the ones on the right). If index >= size of the item, add at the end */
   public Ranking addAt(int index, Item e) {
+    if (this.contains(e)) throw new IllegalArgumentException(String.format("Item %s already in %s", e, this));
     if (index >= items.size()) items.add(e);
     else items.add(index, e);
     return this;
   }
 
+  /** Return the ranking containing only the items from the collection, in the same order as this ranking */
+  public Ranking project(Collection<Item> items) {
+    Ranking r = new Ranking(this.getItemSet());
+    for (Item i: this.items) {
+      if (items.contains(i)) r.add(i);
+    }
+    return r;
+  }
+  
   public Ranking remove(int index) {
     items.remove(index);
     return this;
@@ -162,7 +183,87 @@ public class Ranking implements Comparable {
   public int compareTo(Object o) {
     return this.toString().compareTo(o.toString());
   }
+
+  @Override
+  public Boolean isHigher(Item higher, Item lower) {
+    Integer ih = null;
+    Integer il = null;
+    for (int i = 0; i < items.size(); i++) {
+      if (items.get(i).equals(higher)) {
+        ih = i;
+        if (il != null) return ih < il;
+      }
+      else if (items.get(i).equals(lower)) {
+        il = i;
+        if (ih != null) return ih < il;
+      }
+    }
+    return null;
+  }
   
+  @Override
+  public Boolean isHigher(int higher, int lower) {
+    Integer ih = null;
+    Integer il = null;
+    for (int i = 0; i < items.size(); i++) {
+      int id = items.get(i).getId();
+      if (id == higher) {
+        ih = id;
+        if (il != null) return ih < il;
+      }
+      else if (id == lower) {
+        il = id;
+        if (ih != null) return ih < il;
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public DensePreferenceSet transitiveClosure() {
+    DensePreferenceSet tc = new DensePreferenceSet(this.itemSet);
+    for (int i = 0; i < size()-1; i++) {
+      for (int j = i+1; j < size(); j++) {
+        tc.add(i, j);
+      }
+    }
+    return tc;
+  }
+
+  @Override
+  public Set<Item> getHigher(Item item) {
+    Set<Item> higher = new HashSet<Item>();
+    if (this.contains(item)) {
+      for (Item it: this.items) {
+        if (item.equals(it)) return higher;
+        else higher.add(it);
+      }
+    }
+    return higher;
+  }
+
+  @Override
+  public Set<Item> getLower(Item item) {
+    Set<Item> lower = new HashSet<Item>();
+    if (this.contains(item)) {
+      for (int i = size()-1; i > 0; i--) {
+        Item it = this.items.get(i);
+        if (item.equals(it)) return lower;
+        else lower.add(it);
+      }
+    }
+    return lower;
+  }
+  
+  public boolean isConsistent(PreferenceSet v) {
+    for (int i = 0; i < size()-1; i++) {
+      for (int j = i+1; j < size(); j++) {
+         Boolean p = v.isHigher(i, j);
+         if (p != null && p == false) return false;
+      }
+    }
+    return true;
+  }
   
 }
  

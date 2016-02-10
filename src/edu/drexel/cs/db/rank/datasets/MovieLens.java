@@ -5,7 +5,7 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.rating.RatingsSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Split;
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.incomplete.QuickIncompleteReconstructor;
 import edu.drexel.cs.db.rank.loader.RatingsLoader;
 import edu.drexel.cs.db.rank.measure.KullbackLeibler;

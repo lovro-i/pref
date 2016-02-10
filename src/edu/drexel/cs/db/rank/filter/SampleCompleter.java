@@ -5,7 +5,7 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import edu.drexel.cs.db.rank.triangle.SampleTriangle;
@@ -33,7 +33,7 @@ public class SampleCompleter {
     ItemSet items = sample.getItemSet();
     Sample complete = new Sample(items);
     for (int index = 0; index < sample.size(); index++) {
-      Ranking r = sample.get(index);
+      Ranking r = sample.get(index).r;
       double weight = sample.getWeight(index);
 
       int m = items.size() - r.size();

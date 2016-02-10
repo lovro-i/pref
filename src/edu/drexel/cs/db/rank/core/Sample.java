@@ -1,23 +1,21 @@
 package edu.drexel.cs.db.rank.core;
 
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.StringTokenizer;
 
 /** Sample of rankings. Can be weighted if rankings are added through add(Ranking ranking, double weight)
  * 
  */
-public class Sample extends ArrayList<Ranking> {
+public class Sample extends ArrayList<RW> {
 
   private final ItemSet itemSet;
   
-  private ArrayList<Double> weights;
   
   public Sample(ItemSet itemSet) {    
     this.itemSet = itemSet;
@@ -25,13 +23,7 @@ public class Sample extends ArrayList<Ranking> {
   
   public Sample(Sample sample) {
     this.itemSet = sample.itemSet;
-    if (sample.weights != null) initWeights();
-    for (int i = 0; i < sample.size(); i++) {
-      Ranking r = sample.get(i);
-      Ranking rc = new Ranking(r);
-      if (sample.weights == null) this.add(rc);
-      else this.add(rc, sample.getWeight(i));
-    }
+    addAll(sample);
   }
   
 
@@ -39,76 +31,76 @@ public class Sample extends ArrayList<Ranking> {
     return itemSet;
   }
   
-  @Override
   public boolean add(Ranking ranking) {
-    if (weights != null) weights.add(1d);    
-    return super.add(ranking);
+    return this.add(ranking, 1d);
   }
   
-  /** Initializes weights array if needed. Returns true if initalized, false if it was previously initialized */
-  private boolean initWeights() {
-    if (weights != null) return false;
-    weights = new ArrayList<Double>();
-    for (int i = 0; i < this.size(); i++) weights.add(1d);
-    return true;
-  }
   
   public boolean add(Ranking ranking, double weight) {
-    initWeights();
-    weights.add(weight);
-    return super.add(ranking);
+    return this.add(new RW(ranking, weight));
+  }
+  
+  public boolean addWeight(Ranking ranking, double weight) {
+    for (int i = 0; i < size(); i++) {
+      RW rw = this.get(i);
+      if (rw.r.equals(ranking)) {
+        this.set(i, new RW(ranking, rw.w + weight));
+        return true;
+      }
+    }
+    
+    add(ranking, weight);
+    return false;
   }
   
   public void addAll(Sample sample) {
-    if (!this.itemSet.equals(sample.itemSet)) throw new IllegalArgumentException("ItemSets do not match");
-    
-    if (this.weights == null && sample.weights == null) {
-      super.addAll(sample);
-      return;
-    }
-    
-    for (RW rw: sample.enumerate()) {
-      this.add(rw.r, rw.w);
+    for (RW rw: sample) {
+      this.add(new Ranking(rw.r), rw.w);
     }
   }
   
   public void addAll(Sample sample, double weight) {
-    if (!this.itemSet.equals(sample.itemSet)) {
-      throw new IllegalArgumentException("ItemSets do not match");
-    }
-    
-    for (RW rw: sample.enumerate()) {
-      this.add(rw.r, rw.w * weight);
+    for (RW rw: sample) {
+      this.add(new Ranking(rw.r), weight * rw.w);
     }
   }
   
   public double getWeight(int index) {
-    if (weights == null) return 1d;
-    return weights.get(index);
+    return this.get(index).w;
   }
   
-  public ArrayList<Double> getWeights() {
-    initWeights();
-    return this.weights;
+  public Ranking[] rankings() {
+    Ranking[] rankings = new Ranking[this.size()];
+    for (int i = 0; i < rankings.length; i++) {
+      rankings[i] = this.get(i).r;      
+    }
+    return rankings;
+  }
+  
+  public double[] weights() {
+    double[] weights = new double[this.size()];
+    for (int i = 0; i < weights.length; i++) {
+      weights[i] = this.getWeight(i);      
+    }
+    return weights;
   }
   
   /** @return Sum of weights of all appearances of the ranking. Returns the number of occurrences of the ranking if the sample is not weighted
    */
   public double getWeight(Ranking ranking) {
-    if (weights == null) return count(ranking);
     double w = 0d;
     for (int index = 0; index < size(); index++) {
-      Ranking r = this.get(index);
-      if (ranking.equals(r)) w += weights.get(index);     
+      RW rw = this.get(index);
+      if (ranking.equals(rw.r)) w += rw.w;
     }
     return w;
   }
   
-  /** @return number of specified rankings in the sample */
+  /** @return number of ranking instances in the sample (not weighted) */
   public int count(Ranking ranking) {
     int count = 0;
-    for (Ranking r: this) {
-      if (ranking.equals(r)) count++;     
+    for (RW rw: this) {
+      if (ranking.equals(rw.r)) count++;     
     }
     return count;
   }
@@ -118,8 +110,6 @@ public class Sample extends ArrayList<Ranking> {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < this.size(); i++) {
       sb.append(this.get(i));
-      if (weights != null)
-        sb.append(" (").append(weights.get(i)).append(")");
       sb.append("\n");      
     }
     sb.append("=== ").append(this.itemSet.size()).append(" items, ").append(this.size()).append(" rankings ===");
@@ -127,46 +117,25 @@ public class Sample extends ArrayList<Ranking> {
   }
   
   
-  public List<RW> enumerate() {
-    List<RW> list = new ArrayList<RW>();
-    for (int i = 0; i < size(); i++) {
-      Ranking r = this.get(i);
-      double w = this.getWeight(i);
-      list.add(new RW(r, w));
-    }
-    return list;
-  }
-
   public double sumWeights() {
-    if (weights == null) return size();
     double sum = 0;
-    for (double w: weights) sum += w;
+    for (RW rw: this) sum += rw.w;
     return sum;
   }
 
   /** Creates a sample of cartesian products; the first half of each ranking is from this sample, the second if from Sample s */
   public Sample multiply(Sample s) {
     Sample sample = new Sample(this.itemSet);
-    for (Ranking r1: this) {
-      double w1 = this.getWeight(r1);
-      for (Ranking r2: s) {
-        Ranking r = new Ranking(r1);
-        r.add(r2);
-        sample.add(r, w1 * s.getWeight(r2));
+    for (RW rw1: this) {
+      for (RW rw2: s) {
+        Ranking r = new Ranking(rw1.r);
+        r.add(rw2.r);
+        sample.add(r, rw1.w * rw2.w);
       }
     }
     return sample;
   }
 
-  public void setWeights(double d) {
-    if (weights == null) weights = new ArrayList<Double>();
-    else weights.clear();
-    for (int i = 0; i < size(); i++) {
-      weights.add(d);
-    }
-  }
- 
-  
   /** Class that represents Ranking - Weight pair */
   public static class RW {
     
@@ -178,18 +147,22 @@ public class Sample extends ArrayList<Ranking> {
       this.w = w;
     }
     
+    @Override
+    public String toString() {
+      if (w == 1d) return r.toString();
+      return r + " (" + w + ")";
+    }
+    
   }
   
   
   public void save(PrintWriter out) {
     out.println(this.itemSet.size());
     for (int i = 0; i < this.size(); i++) {
-      Ranking r = this.get(i);
-      out.print(r);
-      if (this.weights != null) {
-        out.print("\t");
-        out.print(this.weights.get(i));
-      }
+      RW rw = this.get(i);
+      out.print(rw.r);
+      out.print("\t");
+      out.print(rw.w);
       out.println();
     }    
   }

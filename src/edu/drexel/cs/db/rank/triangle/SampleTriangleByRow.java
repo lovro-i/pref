@@ -1,10 +1,13 @@
-
 package edu.drexel.cs.db.rank.triangle;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.filter.Filter;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,16 +30,26 @@ public class SampleTriangleByRow extends Triangle {
   public SampleTriangleByRow(Ranking reference, Sample sample) {
     this(reference);
     
-    for (int item = 1; item < reference.size(); item++) {                          
+    long start = System.currentTimeMillis();
+    for (int item = 1; item < reference.size(); item++) {
+      Logger.info("Item %d of %d, %d sec", item, reference.size(), System.currentTimeMillis() - start);
       for (int index = 0; index < sample.size(); index++) {
-        Ranking ranking = sample.get(index);
-        double weight = sample.getWeight(index);
-        this.add(ranking, weight, item);
+        RW rw = sample.get(index);
+        this.add(rw.r, rw.w, item);
       }
     }
     
   }
   
+
+  @Override
+  public TriangleRow getRow(int i) {
+    return rows.get(i);
+  }
+  
+  public double get(int item, int pos) {
+    return rows.get(item).getProbability(pos);
+  }
   
   private void add(Ranking ranking, double weight, int item) {
     Item el = reference.get(item);
@@ -104,7 +117,7 @@ public class SampleTriangleByRow extends Triangle {
   
   @Override
   public int randomPosition(int e) {
-    return rows.get(e).random();
+    return rows.get(e).getRandomPosition();
   }
   
     
@@ -116,4 +129,18 @@ public class SampleTriangleByRow extends Triangle {
     }  
     return sb.toString();
   }
+  
+  public static void main(String[] args) {
+    ItemSet items = new ItemSet(10);
+    Ranking ref = items.getRandomRanking();
+    Sample sample = MallowsUtils.sample(ref, 0.2, 1000);
+    Filter.remove(sample, 0.1);
+    
+    SampleTriangleByRow t = new SampleTriangleByRow(ref, sample);
+    System.out.println(t.equals(t));
+    
+    SampleTriangle t2 = new SampleTriangle(ref, sample);
+    System.out.println(t.equals(t2));
+  }
+  
 }

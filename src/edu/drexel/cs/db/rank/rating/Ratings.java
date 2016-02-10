@@ -4,9 +4,10 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.RW;
 import edu.drexel.cs.db.rank.preference.SparsePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.generator.FullSample;
+import edu.drexel.cs.db.rank.sampler.FullSample;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -67,8 +68,12 @@ public class Ratings extends HashMap<Item, Float> {
       else sample = sample.multiply(s);
     }
     
-    sample.setWeights(1d / sample.size());
-    return sample;
+    double w = 1d / sample.size();
+    Sample wd = new Sample(items);
+    for (RW rw: sample) {
+      wd.add(rw.r, w);
+    }
+    return wd;
   }
   
   private long getSampleSize(List<List<Item>> groups) throws ArithmeticException {
@@ -130,7 +135,7 @@ public class Ratings extends HashMap<Item, Float> {
   
   public PreferenceSet toPreferences() {
     List<List<Item>> groups = getGroups();
-    PreferenceSet preferences = new SparsePreferenceSet(items);
+    SparsePreferenceSet preferences = new SparsePreferenceSet(items);
     for (int i = 0; i < groups.size()-1; i++) {
       for (Item e1: groups.get(i)) {
         for (int j = i+1; j < groups.size(); j++) {

@@ -4,7 +4,7 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.SampleCompleter;
-import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.incomplete.Missing;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
@@ -35,6 +35,7 @@ public class TopIncompleteGenerator {
   private final int boots;
   private int resampleSize = 10000;
   private double[] phis = TrainUtils.step(0, 1, 0.05);
+  private int threads;
   
   public TopIncompleteGenerator(boolean triangle, boolean triangleByRow, boolean triangleTop, int bootstraps) throws Exception {
     if (!triangle && !triangleByRow && !triangleTop && bootstraps == 0) throw new IllegalArgumentException("You must set at least one learner");
@@ -70,6 +71,16 @@ public class TopIncompleteGenerator {
   
   public void setTrainPhiStep(double phiStep) {
     this.phis = TrainUtils.step(0, 1, phiStep);
+  }
+  
+  /** Number of worker threads for regression training. Default is the number of cores */
+  public void setTrainThreads(int threads) {
+    this.threads = threads;
+  }
+  
+  /** Get the number of regression training threads */
+  public int getTrainThreads() {
+    return threads;
   }
   
   public ArrayList<Attribute> getAttributes() {

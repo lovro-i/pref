@@ -1,5 +1,7 @@
 package edu.drexel.cs.db.rank.triangle;
 
+import edu.drexel.cs.db.rank.util.MathUtils;
+
 
 public class TriangleRow {
   
@@ -11,6 +13,12 @@ public class TriangleRow {
     counts = new double[n+1];
     sum = 0;
     empty = true;
+  }
+  
+  public TriangleRow(double[] p) {
+    counts = p;
+    sum = MathUtils.sum(p);
+    empty = false;
   }
   
   public void inc(int pos, double add) {
@@ -50,12 +58,12 @@ public class TriangleRow {
     return counts;
   }
   
-  double getSum() {
+  public double getSum() {
     return sum;
   }
   
-  /** @return random weighted position [0..n) */
-  public int random() {
+  /** Returns random position with calculated probabilities */
+  public int getRandomPosition() {
     if (empty) return SampleTriangle.random.nextInt(counts.length);
     
     double p = SampleTriangle.random.nextDouble() * sum;

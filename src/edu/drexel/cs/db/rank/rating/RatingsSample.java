@@ -2,7 +2,6 @@ package edu.drexel.cs.db.rank.rating;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.rating.Ratings;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

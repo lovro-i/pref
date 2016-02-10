@@ -4,8 +4,10 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.incomplete.Missing;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -29,8 +31,8 @@ public class Filter {
   
   /** Remove items from all rankings with probability p for removing each one. Destructive, changes the actual sample and its rankings */
   public static void remove(Sample sample, double p) {
-    for (Ranking r: sample) {
-      Filter.remove(r, p);
+    for (RW rw: sample) {
+      Filter.remove(rw.r, p);
     }
   }
   
@@ -43,14 +45,14 @@ public class Filter {
   
   /** Leave only top K items in each ranking */
   public static void top(Sample sample, int k) {
-    for (Ranking r: sample) {
+    for (Ranking r: sample.rankings()) {
       while (r.size() > k) r.remove(r.size() - 1);
     }
   }
   
   /** Leave between min and max (both inclusive) items in the ranking. Uniform distribution */
   public static void top(Sample sample, int min, int max) {
-    for (Ranking r: sample) {
+    for (Ranking r: sample.rankings()) {
       int k = min + random.nextInt(max - min + 1);
       while (r.size() > k) r.remove(r.size() - 1);
     }
@@ -58,7 +60,7 @@ public class Filter {
   
   /** Replaces a ranking with a uniformly random one with probability p */
   public static void noise(Sample sample, double p) {
-    for (Ranking r: sample) {
+    for (Ranking r: sample.rankings()) {
       double flip = random.nextDouble();
       if (flip < p) randomize(r);
     }
@@ -89,4 +91,5 @@ public class Filter {
     }
     System.out.println(c);
   }
+
 }

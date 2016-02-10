@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.triangle;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.RW;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,27 +25,32 @@ public class SampleTriangle extends Triangle {
   
   public SampleTriangle(Ranking reference, Sample sample) {
     this(reference);
+    double per = 0;
     for (int index = 0; index < sample.size(); index++) {
-      Ranking ranking = sample.get(index);
-      double weight = sample.getWeight(index);
-      this.add(ranking, weight);
+      double p = 100d * index / sample.size();
+      if (p - per > 10) {
+        per = p;
+        System.out.print(p + "% ");
+      }
+      RW rw = sample.get(index);
+      this.add(rw.r, rw.w);
     }
     
   }
   
+  public double get(int item, int pos) {
+    return rows.get(item).getProbability(pos);
+  }
+  
+  @Override
   public TriangleRow getRow(int i) {
     return rows.get(i);
   }
-  
-  public TriangleRow getRow(Item e) {
-    int index = reference.indexOf(e);
-    return rows.get(index);
-  }
-  
+    
   /** Get random position for the item based on added rankings */
   @Override
   public int randomPosition(int e) {
-    return rows.get(e).random();
+    return rows.get(e).getRandomPosition();
   }
   
   /** Adds ranking to the triangle with specified weight. Returns true if added, false otherwise */
@@ -128,6 +134,7 @@ public class SampleTriangle extends Triangle {
     }  
     return sb.toString();
   }
+
   
 }
 

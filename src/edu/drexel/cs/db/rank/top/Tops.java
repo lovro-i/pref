@@ -17,7 +17,7 @@ public class Tops {
     this.items = sample.getItemSet();
     lengths = new double[items.size() + 1];
     double sum = 0;
-    for (RW rw: sample.enumerate()) {
+    for (RW rw: sample) {
       int i = rw.r.size();
       lengths[i] += rw.w;
       sum += rw.w;
@@ -47,7 +47,7 @@ public class Tops {
     
   /** Remove items randomly from the sample with specified probabilities */
   public void remove(Sample sample) {
-    for (Ranking r: sample) {
+    for (Ranking r: sample.rankings()) {
       remove(r);
     }
   }

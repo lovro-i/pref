@@ -6,6 +6,7 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.rating.Ratings;
 import edu.drexel.cs.db.rank.rating.RatingsSample;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.RW;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -21,14 +22,12 @@ public class PairwisePreferenceMatrix {
     int n = itemSet.size();
     ppm = new double[n][n];
     
-    for (int ri = 0; ri < sample.size(); ri++) {
-      Ranking r = sample.get(ri);
-      double w = sample.getWeight(ri);
-      for (int i = 0; i < r.size()-1; i++) {
-        int e1 = r.get(i).getId();
-        for (int j = i+1; j < r.size(); j++) {
-          int e2 = r.get(j).getId();
-          ppm[e1][e2] += w;
+    for (RW rw: sample) {
+      for (int i = 0; i < rw.r.size()-1; i++) {
+        int e1 = rw.r.get(i).getId();
+        for (int j = i+1; j < rw.r.size(); j++) {
+          int e2 = rw.r.get(j).getId();
+          ppm[e1][e2] += rw.w;
         }
       }
     }

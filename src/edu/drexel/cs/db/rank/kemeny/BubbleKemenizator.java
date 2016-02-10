@@ -6,7 +6,7 @@ import edu.drexel.cs.db.rank.distance.RankingDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import edu.drexel.cs.db.rank.util.MathUtils;
 
@@ -26,7 +26,7 @@ public class BubbleKemenizator implements Kemenizator {
   
   @Override
   public Ranking kemenize(Sample sample, Ranking start) {
-    if (start == null) start = sample.get(MathUtils.RANDOM.nextInt(sample.size()));
+    if (start == null) start = sample.get(MathUtils.RANDOM.nextInt(sample.size())).r;
     Ranking kemeny = new Ranking(start);
     
     boolean foundBetter = true;
@@ -53,7 +53,7 @@ public class BubbleKemenizator implements Kemenizator {
   /** Sum of distances from the given ranking to each one in the sample */
   private double getDistance(Ranking from, Sample sample) {
     double dist = 0;
-    for (Sample.RW rw: sample.enumerate()) {
+    for (Sample.RW rw: sample) {
       double d = distance.distance(from, rw.r);
       dist += rw.w * d;
     }
@@ -73,7 +73,7 @@ public class BubbleKemenizator implements Kemenizator {
     
     
     BubbleKemenizator kemen = new BubbleKemenizator();
-    Ranking before = sample.get(MathUtils.RANDOM.nextInt(sampleSize));
+    Ranking before = sample.get(MathUtils.RANDOM.nextInt(sampleSize)).r;
     Ranking after = kemen.kemenize(sample, before);
     System.out.println("before = " + before);
     System.out.println("after = " + after);

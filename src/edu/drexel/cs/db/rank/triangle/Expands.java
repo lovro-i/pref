@@ -9,6 +9,20 @@ public class Expands extends HashMap<Expand, Double> {
   
   private static double threshold = 0.0001;
   
+  
+  public Expands() {
+    super();
+  }
+  
+  public Expands(Expands expands) {
+    this();
+    for (Expand e: expands.keySet()) {
+      double p = expands.get(e);
+      Expand e1 = new Expand(e);
+      this.add(e1, p);
+    }
+  }
+  
   /** Clear this Expands so that it contains only null (empty) expansion */
   public void nullify() {
     this.clear();

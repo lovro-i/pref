@@ -16,6 +16,10 @@ public class ItemSet implements List<Item> {
     for (int i=0; i<n; i++) items.add(new Item(i));
   }
   
+  public ItemSet(Collection objects) {
+    this(objects.toArray());
+  }
+  
   public ItemSet(Object[] objects) {
     for (int i = 0; i < objects.length; i++) {
       Item e = new Item(i, objects[i]);

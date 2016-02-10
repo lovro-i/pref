@@ -5,7 +5,8 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.generator.RIMRSampler;
+import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import edu.drexel.cs.db.rank.triangle.SampleTriangle;
@@ -32,23 +33,20 @@ public class TopSampleCompleter {
   public Sample complete(int num) {
     ItemSet items = sample.getItemSet();
     Sample complete = new Sample(items);
-    for (int index = 0; index < sample.size(); index++) {
-      Ranking r = sample.get(index);
-      double weight = sample.getWeight(index);
-
+    for (RW rw: sample) {
       
-      if (r.size() == items.size()) {
-        complete.add(r, weight);
+      if (rw.r.size() == items.size()) {
+        complete.add(rw.r, rw.w);
         continue;
       }
       
-      Set<Item> missingItems = r.getMissingItems();
+      Set<Item> missingItems = rw.r.getMissingItems();
       Ranking missing = new Ranking(items);
       for (Item i: missingItems) missing.add(i);
       
-      double w = weight / num;
+      double w = rw.w / num;
       for (int i = 0; i < num; i++) {
-        Ranking newRanking = new Ranking(r);
+        Ranking newRanking = new Ranking(rw.r);
         missing.randomize();
         newRanking.add(missing);
         complete.add(newRanking, w);

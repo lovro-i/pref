@@ -4,7 +4,7 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Split;
-import edu.drexel.cs.db.rank.generator.MallowsUtils;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
 import edu.drexel.cs.db.rank.measure.KullbackLeibler;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureCompactor;
@@ -32,8 +32,9 @@ public class Sushi {
     this(new File(filename));
   }
   
-  public Sushi(File file) throws IOException {    
-    this.sample = new SampleLoader(file, false).getSample();
+  public Sushi(File file) throws IOException {   
+    SampleLoader loader = new SampleLoader(true, false);
+    this.sample = loader.loadSample(file);
   }
   
   public Sample getSample() {

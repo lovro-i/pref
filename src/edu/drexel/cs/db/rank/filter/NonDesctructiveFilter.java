@@ -26,7 +26,7 @@ public class NonDesctructiveFilter {
   public static Sample remove(Sample sample, double p) {
     Sample result = new Sample(sample.getItemSet());
     for (int i = 0; i < sample.size(); i++) {
-      Ranking r = sample.get(i);
+      Ranking r = sample.get(i).r;
       Ranking r1 = remove(r, p);
       double w = sample.getWeight(i);
       result.add(r1, w);
@@ -38,7 +38,7 @@ public class NonDesctructiveFilter {
   public static Sample noise(Sample sample, double p) {
     Sample result = new Sample(sample.getItemSet());
     for (int i = 0; i < sample.size(); i++) {
-      Ranking r = sample.get(i);
+      Ranking r = sample.get(i).r;
       double w = sample.getWeight(i);
       double flip = random.nextDouble();
       if (flip < p) r = randomize(r);

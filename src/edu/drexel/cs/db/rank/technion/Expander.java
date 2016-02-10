@@ -21,18 +21,10 @@ public class Expander {
   public Expander(MallowsModel model, Ranking ranking) {
     this.model = model;
     this.ranking = ranking;
-    buildReferenceIndexMap();
+    this.referenceIndex = ranking.getIndexMap();
     expand();
   }
-  
-  private void buildReferenceIndexMap() {
-    Ranking reference = model.getCenter();
-    referenceIndex.clear();
-    for (int i = 0; i < reference.size(); i++) {
-      Item e = reference.get(i);
-      referenceIndex.put(e, i);
-    }    
-  }
+    
   
   private void expand() {
     expands = new MallowsExpands(this);

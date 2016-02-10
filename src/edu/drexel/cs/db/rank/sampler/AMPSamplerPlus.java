@@ -16,8 +16,8 @@ import java.util.Set;
 
 public class AMPSamplerPlus extends AMPSampler {
 
-  private final ConfidentTriangle triangle;
-  private final double rate;
+  private ConfidentTriangle triangle;
+  private double rate;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -27,9 +27,30 @@ public class AMPSamplerPlus extends AMPSampler {
    * @param rate 
    */
   public AMPSamplerPlus(MallowsModel model, Sample sample, double rate) {
+    this(model, rate);
+    this.setTrainingSample(sample);
+  }
+  
+  public AMPSamplerPlus(MallowsModel model, double rate) {
     super(model);
+    if (rate < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
+    this.rate = rate;
+  }
+
+  /** Creates an ordinary AMP (no sample, just the model) */
+  public AMPSamplerPlus(MallowsModel model) {
+    this(model, 0);
+  }
+  
+  public boolean isPlus() {
+    return rate > 0;
+  }
+  
+  public void setTrainingSample(Sample sample) {
     this.triangle = new ConfidentTriangle(model.getCenter(), sample);
-    if (rate <= 0) throw new IllegalArgumentException("Rate must be greater than zero");
+  }
+  
+  public void setRate(double rate) {
     this.rate = rate;
   }
   
@@ -63,11 +84,15 @@ public class AMPSamplerPlus extends AMPSampler {
       else {        
         double sum = 0;
         double[] p = new double[high+1];
-        TriangleRow row = triangle.getRow(i);
-        double alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
+        double alpha = 0;
+        TriangleRow row = null;
+        if (isPlus() && triangle != null) {
+          row = triangle.getRow(i);
+          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
+        }
         for (int j = low; j <= high; j++) {
           p[j] = Math.pow(model.getPhi(), i - j);
-          if (alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
+          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
           sum += p[j];
         }
         
@@ -128,11 +153,15 @@ public class AMPSamplerPlus extends AMPSampler {
       else {        
         double sum = 0;
         double[] p = new double[high+1];      
-        TriangleRow row = triangle.getRow(i);
-        double alpha = row.getSum() / (4 + row.getSum()); // how much should the sample be favored
+        TriangleRow row = null;
+        double alpha = 0;
+        if (isPlus() && triangle != null) {
+          row = triangle.getRow(i);
+          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
+        }
         for (int j = low; j <= high; j++) {
           p[j] = Math.pow(model.getPhi(), i - j);
-          if (alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
+          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
           sum += p[j];
         }
         

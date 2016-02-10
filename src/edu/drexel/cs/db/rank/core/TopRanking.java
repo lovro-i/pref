@@ -15,6 +15,16 @@ public class TopRanking extends Ranking {
   }
   
   @Override
+  public Boolean isHigher(Item higher, Item lower) {
+    throw new IllegalArgumentException("ToDo");
+  }
+  
+  @Override
+  public Boolean isHigher(int higher, int lower) {
+    throw new IllegalArgumentException("ToDo");
+  }
+  
+  @Override
   public DensePreferenceSet transitiveClosure() {
     DensePreferenceSet tc = super.transitiveClosure();    
     

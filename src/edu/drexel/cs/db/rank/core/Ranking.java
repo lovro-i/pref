@@ -208,11 +208,11 @@ public class Ranking implements Comparable, PreferenceSet {
     for (int i = 0; i < items.size(); i++) {
       int id = items.get(i).getId();
       if (id == higher) {
-        ih = id;
+        ih = i;
         if (il != null) return ih < il;
       }
       else if (id == lower) {
-        il = id;
+        il = i;
         if (ih != null) return ih < il;
       }
     }
@@ -224,7 +224,7 @@ public class Ranking implements Comparable, PreferenceSet {
     DensePreferenceSet tc = new DensePreferenceSet(this.itemSet);
     for (int i = 0; i < size()-1; i++) {
       for (int j = i+1; j < size(); j++) {
-        tc.add(i, j);
+        tc.add(get(i), get(j));
       }
     }
     return tc;

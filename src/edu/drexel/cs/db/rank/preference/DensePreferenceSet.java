@@ -4,7 +4,6 @@ import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +26,10 @@ public class DensePreferenceSet implements PreferenceSet {
   @Override
   public ItemSet getItemSet() {
     return items;
+  }
+  
+  public boolean[][] getMatrix() {
+    return higher;
   }
   
   public void add(int higher, int lower) {

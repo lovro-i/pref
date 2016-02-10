@@ -1,6 +1,6 @@
 package edu.drexel.cs.db.rank.mixture;
 
-import edu.drexel.cs.db.rank.distance.RankingSimilarity;
+import edu.drexel.cs.db.rank.distance.PreferenceSimilarity;
 import edu.drexel.cs.db.rank.distance.RatingsSimilarity;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
@@ -11,6 +11,7 @@ import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.util.Logger;
 import fr.lri.tao.apro.ap.Apro;
@@ -55,6 +56,9 @@ public class MallowsMixtureReconstructor {
     long start = System.currentTimeMillis();
     double[][] matrix = new double[rankings.size()][rankings.size()];
     
+    Map<PreferenceSet, PreferenceSet> transitiveClosures = new HashMap<PreferenceSet, PreferenceSet>();
+    for (Ranking r: rankings) transitiveClosures.put(r, r.transitiveClosure());
+    
     double lastPercent = -20;
     int done = 0;
     double nsquare100 = 200d / (matrix.length * (matrix.length - 1));
@@ -74,7 +78,7 @@ public class MallowsMixtureReconstructor {
 
       // Similarities
       for (int j = i+1; j < matrix.length; j++) {
-        double s = RankingSimilarity.similarity(ranking, rankings.get(j));
+        double s = PreferenceSimilarity.similarity(transitiveClosures.get(ranking), transitiveClosures.get(rankings.get(j)));
         maxSim = Math.max(maxSim, s);
         minSim = Math.min(minSim, s);
         matrix[i][j] = matrix[j][i] = s;

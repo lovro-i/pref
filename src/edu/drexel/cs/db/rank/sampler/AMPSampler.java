@@ -22,6 +22,10 @@ public class AMPSampler {
     this.model = model;
   }
   
+  public void setModel(MallowsModel model) {
+    this.model = model;
+  }
+  
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(model.getItemSet());

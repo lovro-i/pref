@@ -8,8 +8,6 @@ import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import static java.lang.System.in;
 import java.util.List;
-import static sun.nio.cs.Surrogate.high;
-import static sun.nio.cs.Surrogate.low;
 
 public class AMPGSampler {
 
@@ -50,6 +48,7 @@ public class AMPGSampler {
         }
       }
     }
+    return null;
   }
   
   

@@ -1,13 +1,13 @@
 package edu.drexel.cs.db.rank.core;
 
 import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.preference.PreferenceSample;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 /** Sample of rankings. Can be weighted if rankings are added through add(Ranking ranking, double weight)
  * 
@@ -132,6 +132,14 @@ public class Sample extends ArrayList<RW> {
         r.add(rw2.r);
         sample.add(r, rw1.w * rw2.w);
       }
+    }
+    return sample;
+  }
+  
+  public PreferenceSample transitiveClosure() {
+    PreferenceSample sample = new PreferenceSample(itemSet);
+    for (RW rw: this) {
+      sample.add(rw.r.transitiveClosure(), rw.w);
     }
     return sample;
   }

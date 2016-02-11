@@ -18,7 +18,6 @@ public class PreferenceSimilarity {
         if (b1 != null) {
           Boolean b2 = pref2.isHigher(i, j);
           if (b2 != null && b1.equals(b2)) {
-            Logger.info("%s %s", b1, b2);
             similarity++;
           }
         }

@@ -4,7 +4,6 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.ArrayList;
-import java.util.Set;
 
 /** Represents constraints of item at index position in the reference ranking, with only the previous ones */
 class PreferenceConstraint extends ArrayList<Boolean> {

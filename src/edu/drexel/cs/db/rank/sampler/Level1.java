@@ -3,37 +3,60 @@ package edu.drexel.cs.db.rank.sampler;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.preference.PreferenceSample;
 import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/** Maps from index to Level2 */
-public class Level1 {
+/** Map from constraints of index to Level3 (which then contains prefixes) */
+class Level1 {
 
   private final Ranking reference;
-  private final Map<Integer, Level2> map = new HashMap<Integer, Level2>();
+  private final int index;
+  private final Map<PreferenceConstraint, Level2> map = new HashMap<PreferenceConstraint, Level2>(); 
+  private final Map<PW, PreferenceConstraint> users = new HashMap<PW, PreferenceConstraint>();
   
-  
-  public Level1(Ranking reference, Sample sample) {
+  Level1(Ranking reference, PreferenceSample sample, int index) {
     this.reference = reference;
+    this.index = index;
     build(sample);
   }
-  
-  private void build(Sample sample) {
-    for (int i = 0; i < reference.size(); i++) {
-      Level2 level2 = new Level2(reference, sample, i); 
-      map.put(i, level2);
-    }
-    
-    Level2 zero = map.get(0);
-    Ranking first = new Ranking(reference.getItemSet());
-    first.add(reference.get(0));
-    for (RW rw: sample) {
-      zero.add(new PW(rw.r, rw.w), first);
+
+  private void build(PreferenceSample sample) {
+    for (PW pw: sample) {
+      PreferenceConstraint cons = new PreferenceConstraint(pw.p, reference, index);
+      Level2 level2 = map.get(cons);
+      if (level2 == null) {
+        level2 = new Level2(reference, cons, index);
+        map.put(cons, level2);
+      }
+      users.put(pw, cons);
     }
   }
+
+  void add(PW pw, Ranking prefix) {
+    PreferenceConstraint cons = users.get(pw);
+    Level2 level3 = map.get(cons);
+    level3.add(pw, prefix);
+  }
+
+  public List<Users> getGroups() {
+    List<Users> groups = new ArrayList<Users>();
+    for (Level2 level3: map.values()) {
+      groups.addAll(level3.getUsers());
+    }
+    return groups;
+  }
   
-  public Level2 getLevel2(int index) {
-    return map.get(index);
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Level2 for index ").append(index).append("\n");
+    for (Level2 l3: map.values()) {
+      sb.append("   ").append(l3).append("\n");
+    }
+    return sb.toString();
   }
 }

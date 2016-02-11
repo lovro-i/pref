@@ -31,8 +31,8 @@ public class AMPGSampler {
       Item item = reference.get(i);
       Level1 prev = level1.getLevel2(i-1);
       Level1 next = level1.getLevel2(i);
-      Logger.info("[Item %d]\n%s", i, prev);
-      try { System.in.read(); } catch (IOException ex) { }
+//      Logger.info("[Item %d]\n%s", i, prev);
+//      try { System.in.read(); } catch (IOException ex) { }
       List<Users> groups = prev.getGroups();
       for (Users users: groups) {
         for (PW pw: users) {
@@ -52,7 +52,7 @@ public class AMPGSampler {
             }
           }
           
-          if (r.size() == reference.size()) out.add(r, pw.w);
+          if (r.size() == reference.size()) { out.add(r, pw.w); System.out.println(next); }
           else next.add(pw, r);
         }
       }
@@ -61,18 +61,19 @@ public class AMPGSampler {
   }
   
   public static void main(String[] args) {
-    ItemSet items = new ItemSet(2);
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.02);
+    ItemSet items = new ItemSet(10);
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     Sample sample = MallowsUtils.sample(model, 10);
     Filter.remove(sample, 0.3);
+    System.out.println(sample);
     
-    {      
-      long start = System.currentTimeMillis();
-      AMPSampler sampler = new AMPSampler(model);
-      Sample out = sampler.sample(sample);      
-      System.out.println(out);
-      Logger.info("Done %d in %d ms", out.size(), System.currentTimeMillis() - start);
-    }
+//    {      
+//      long start = System.currentTimeMillis();
+//      AMPSampler sampler = new AMPSampler(model);
+//      Sample out = sampler.sample(sample);      
+//      System.out.println(out);
+//      Logger.info("Done %d in %d ms", out.size(), System.currentTimeMillis() - start);
+//    }
     
     {
       long start = System.currentTimeMillis();

@@ -1,10 +1,13 @@
 package edu.drexel.cs.db.rank.distance;
 
-import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /** Simple Kendall tau distance between the intersection of two rankings */
@@ -34,8 +37,66 @@ public class KendallTauDistance implements RankingDistance {
     return distance.distance(ranking1, ranking2);
   }
   
+  public double distance(PreferenceSet pref1, PreferenceSet pref2) {
+//    ItemSet items = pref1.getItemSet();
+//    int n = items.size();
+//    int similarity = 0;
+//    Set<Integer> set = new HashSet<Integer>();
+//    for (int i = 0; i < n-1; i++) {
+//      for (int j = i+1; j < n; j++) {
+//        Boolean b1 = pref1.isHigher(i, j);
+//        Boolean b2 = pref2.isHigher(i, j);
+//        if (b1 != null && b2 != null && b1.equals(b2)) {
+//          similarity++;
+//        }
+//        if (b1 != null || b2 != null) {
+//          set.add(i);
+//          set.add(j);
+//        }
+//      }      
+//    }
+//    return set.size() * (set.size() - 1) / 2 - similarity;
+    
+    
+//    ItemSet items = pref1.getItemSet();
+//    int n = items.size();
+//    int similarity = 0;
+//    for (int i = 0; i < n-1; i++) {
+//      for (int j = i+1; j < n; j++) {
+//        Boolean b1 = pref1.isHigher(i, j);
+//        if (b1 != null) {
+//          Boolean b2 = pref2.isHigher(i, j);
+//          if (b2 != null && b1.equals(b2)) {
+//            similarity++;
+//          }
+//        }
+//      }      
+//    }
+//    return n * (n-1) / 2 - similarity;
+//    
+//    
+    ItemSet items = pref1.getItemSet();
+    double distance = 0;
+    for (int i = 0; i < items.size()-1; i++) {
+      Item it1 = items.get(i);
+      for (int j = i+1; j < items.size(); j++) {
+        Item it2 = items.get(j);
+        Boolean b1 = pref1.isHigher(it1, it2);
+        Boolean b2 = pref2.isHigher(it1, it2);
+        if (b1 != null && b2 != null && !b1.equals(b2)) distance++;
+      }
+      
+    }
+    return distance;
+  }
+  
   @Override
-  public double distance(Ranking ranking1, Ranking ranking2) {
+  public double distance(Ranking r1, Ranking r2) {
+    return distance(r1.transitiveClosure(), r2.transitiveClosure());
+  }
+  
+
+  public double distanceOld(Ranking ranking1, Ranking ranking2) {
     // find intersection
     List<Item> comp1 = new ArrayList<Item>();
     List<Item> comp2 = new ArrayList<Item>();    
@@ -84,21 +145,30 @@ public class KendallTauDistance implements RankingDistance {
     
     Ranking r1 = new Ranking(items);
     r1.add(items.getItemById(0));
-    r1.add(items.getItemById(1));
-    r1.add(items.getItemById(2));
     r1.add(items.getItemById(3));
     r1.add(items.getItemById(4));
+    r1.add(items.getItemById(1));
+    r1.add(items.getItemById(2));
+    
     r1.add(items.getItemById(5));
     
-    Ranking r2 = new Ranking(items);
-    r2.add(items.getItemById(0));
-    r2.add(items.getItemById(2));
-    r2.add(items.getItemById(3));
-    r2.add(items.getItemById(1));
-    r2.add(items.getItemById(4));
-    r2.add(items.getItemById(5));
+//    Ranking r2 = new Ranking(r1);
+//    r2.randomize();
+    Ranking r2 = items.getReferenceRanking();
+    //Ranking r2 = new Ranking(items);
+//    r2.add(items.getItemById(5));
+//    r2.add(items.getItemById(6));
+//    r2.add(items.getItemById(7));
+//    r2.add(items.getItemById(8));
+//    r2.add(items.getItemById(1));
+//    r2.add(items.getItemById(4));
+//    r2.add(items.getItemById(5));
     
+    System.out.println("Distance between");
+    System.out.println(r1);
+    System.out.println(r2);
     KendallTauDistance dist = new KendallTauDistance();
     System.out.println(dist.distance(r1, r2));
+    System.out.println(dist.distanceOld(r1, r2));
   }
 }

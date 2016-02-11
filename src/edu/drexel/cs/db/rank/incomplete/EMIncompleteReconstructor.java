@@ -20,7 +20,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
   
   private double rate;
   private final boolean useCompleteSample;
-  private IterationListener listener;
+  private OnIterationListener listener;
   
   /** Construct EM reconstructor with rate between model and sample information.
    * If zero or negative, only model is used
@@ -47,6 +47,10 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
   
   public void setIterations(int iters) {
     this.iterations = iters;
+  }
+  
+  public void setOnIterationListener(OnIterationListener listener) {
+    this.listener = listener;
   }
   
   public void setInitialPhi(double phi) {
@@ -94,7 +98,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
   }
 
   
-  public static interface IterationListener {
+  public static interface OnIterationListener {
     
     public void onIterationStart(int iteration, MallowsModel estimate, Sample trainingSample);
     public void onIterationEnd(int iteration, MallowsModel estimate, Sample resample);

@@ -18,6 +18,7 @@ public class AMPSamplerPlus extends AMPSampler {
 
   private ConfidentTriangle triangle;
   private double rate;
+  private Sample sample;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -46,7 +47,12 @@ public class AMPSamplerPlus extends AMPSampler {
     return rate > 0;
   }
   
+  public Sample getTrainingSample() {
+    return sample;
+  }
+  
   public void setTrainingSample(Sample sample) {
+    this.sample = sample;
     this.triangle = new ConfidentTriangle(model.getCenter(), sample);
   }
   

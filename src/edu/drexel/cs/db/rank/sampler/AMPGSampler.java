@@ -6,7 +6,6 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import static java.lang.System.in;
 import java.util.List;
 
 public class AMPGSampler {
@@ -15,6 +14,7 @@ public class AMPGSampler {
 
   public AMPGSampler(MallowsModel model) {
     this.model = model;
+    Users.model = model;
   }
 
   public Sample sample(Sample sample) {
@@ -44,7 +44,7 @@ public class AMPGSampler {
           }
           
           // dodaj r u slede'i nivo'
-          
+          next.add(pw, r);
         }
       }
     }

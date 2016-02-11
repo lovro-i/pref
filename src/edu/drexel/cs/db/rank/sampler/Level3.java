@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,13 +56,13 @@ class Level3 {
     return top;
   }
 
-  void add(PreferenceSet pref, double w, Ranking prefix) {
+  void add(PW pw, Ranking prefix) {
     Users users = map.get(prefix);
     if (users == null) {
-      users = new Users(prefix, pref, cons, reference);
+      users = new Users(prefix, pw.p, cons, reference);
       map.put(prefix, users);
     }
-    users.add(pref, w);
+    users.add(pw);
   }
   
   public Collection<Users> getUsers() {

@@ -49,7 +49,4 @@ public class Users extends ArrayList<PW> {
     }
   }
   
-  public void add(PreferenceSet p, double w) {
-    this.add(new PW(p, w));
-  }
 }

@@ -20,6 +20,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
   
   private double rate;
   private final boolean useCompleteSample;
+  private IterationListener listener;
   
   /** Construct EM reconstructor with rate between model and sample information.
    * If zero or negative, only model is used
@@ -71,6 +72,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     for (int i = 0; i < iterations; i++) {
       if (isPlusPlus()) amp.setTrainingSample(resample);
       amp.setModel(estimate);
+      if (listener != null) listener.onIterationStart(i, estimate, amp.getTrainingSample());
       
       resample = new Sample(items);
       for (int j = 0; j < sample.size(); j++) {
@@ -85,12 +87,19 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
         resample.add(complete, w);
       }
       estimate = reconstructor.reconstruct(resample, center);
-      Logger.info(estimate);
+      if (listener != null) listener.onIterationEnd(i, estimate, resample);
     }
     
     return estimate;
   }
 
+  
+  public static interface IterationListener {
+    
+    public void onIterationStart(int iteration, MallowsModel estimate, Sample trainingSample);
+    public void onIterationEnd(int iteration, MallowsModel estimate, Sample resample);
+  }
+  
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getReferenceRanking();

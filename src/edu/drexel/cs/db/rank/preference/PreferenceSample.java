@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.preference;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class PreferenceSample extends ArrayList<PW> {
@@ -59,5 +60,29 @@ public class PreferenceSample extends ArrayList<PW> {
         if (w == 1) return p.toString();
         else return p.toString() + " (" + w + ")";
       }
+
+      @Override
+      public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.p);
+        hash = 89 * hash + (int) (Double.doubleToLongBits(this.w) ^ (Double.doubleToLongBits(this.w) >>> 32));
+        return hash;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+        if (this == obj) {
+          return true;
+        }
+        if (obj == null) {
+          return false;
+        }
+        if (getClass() != obj.getClass()) {
+          return false;
+        }
+        final PW other = (PW) obj;
+        return true;
+      }
+      
     }
 }

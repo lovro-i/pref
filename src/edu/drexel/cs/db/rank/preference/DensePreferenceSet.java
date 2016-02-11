@@ -185,6 +185,13 @@ public class DensePreferenceSet implements PreferenceSet {
     }
   }
 
+  @Override
+  public int hashCode() {
+    int hash = 3;
+    hash = 79 * hash + java.util.Arrays.deepHashCode(this.higher);
+    return hash;
+  }
+
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(4);

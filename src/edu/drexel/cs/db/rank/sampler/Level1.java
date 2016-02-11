@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.sampler;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class Level1 {
     Ranking first = new Ranking(reference.getItemSet());
     first.add(reference.get(0));
     for (RW rw: sample) {
-      zero.add(rw.r, rw.w, first);
+      zero.add(new PW(rw.r, rw.w), first);
     }
   }
   

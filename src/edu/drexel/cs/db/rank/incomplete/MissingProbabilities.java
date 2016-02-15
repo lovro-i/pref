@@ -7,6 +7,7 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.filter.Filter;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import java.util.Random;
 
@@ -67,12 +68,23 @@ public class MissingProbabilities {
     }
   }
     
-  /** Remove items randomly from the sample with specified probabilities */
-  public void remove(Sample<Ranking> sample) {
-    for (Ranking r: sample.preferenceSets()) {
-      remove(r);
+  
+  /** Remove preferences randomly from this PreferenceSet 
+   * Each preference should be removed with probability that either item1 or item2 is removed 
+   */
+  public void remove(PreferenceSet prefs) {
+    // @todo Haoyue
+  }
+  
+  
+  /** Remove preferences randomly from the sample with specified probabilities
+   * @param sample */
+  public void remove(Sample<? extends PreferenceSet> sample) {
+    for (PreferenceSet ps: sample.preferenceSets()) {
+      remove(ps);
     }
   }
+  
   
   public double get(Item e) {
     return miss[e.getId()];

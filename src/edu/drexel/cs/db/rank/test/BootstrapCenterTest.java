@@ -4,7 +4,7 @@ package edu.drexel.cs.db.rank.test;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
@@ -27,7 +27,7 @@ public class BootstrapCenterTest {
       Ranking center = items.getRandomRanking();
       MallowsTriangle triangle = new MallowsTriangle(center, 0.92);
       RIMRSampler sampler = new RIMRSampler(triangle);
-      Sample sample = sampler.generate(150);
+      RankingSample sample = sampler.generate(150);
 
       
       Ranking candidate = KemenyCandidate.find(sample);
@@ -41,7 +41,7 @@ public class BootstrapCenterTest {
       
       SampleTriangle triangle1 = new SampleTriangle(c1, sample);
       RIMRSampler resampler1 = new RIMRSampler(triangle1);
-      Sample resample1 = resampler1.generate(10000);
+      RankingSample resample1 = resampler1.generate(10000);
       Ranking c2 = kemenizator.kemenize(resample1, c1);
       double d2 = KendallTauDistance.between(center, c2);
       sum2 += d2;

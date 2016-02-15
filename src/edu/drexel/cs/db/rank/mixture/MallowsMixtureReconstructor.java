@@ -6,7 +6,7 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.rating.Ratings;
 import edu.drexel.cs.db.rank.rating.RatingsSample;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
@@ -39,11 +39,11 @@ public class MallowsMixtureReconstructor {
   }
   
   
-  public ClusteringResult cluster(Sample sample) {
+  public ClusteringResult cluster(RankingSample sample) {
     return cluster(sample, 1d);
   }
   
-  private ClusteringResult cluster(Sample sample, double alpha) {
+  private ClusteringResult cluster(RankingSample sample, double alpha) {
     Histogram<Ranking> hist = new Histogram<Ranking>();
     hist.add(sample.rankings(), sample.weights());
     Map<Ranking, Double> weights = hist.getMap();
@@ -110,7 +110,7 @@ public class MallowsMixtureReconstructor {
     
     /* Get exemplars for each ranking */
     Map<Ranking, Ranking> exemplars = new HashMap<Ranking, Ranking>();
-    Map<Ranking, Sample> samples = new HashMap<Ranking, Sample>(); // a sample for each exemplar
+    Map<Ranking, RankingSample> samples = new HashMap<Ranking, RankingSample>(); // a sample for each exemplar
     for (int i = 0; i < rankings.size(); i++) {
       Ranking r = rankings.get(i);
       int exi = apro.getExemplar(i);
@@ -118,9 +118,9 @@ public class MallowsMixtureReconstructor {
       exemplars.put(r, exemplar);
       
       // put it in the sample      
-      Sample s = samples.get(exemplar);
+      RankingSample s = samples.get(exemplar);
       if (s == null) {
-        s = new Sample(sample.getItemSet());
+        s = new RankingSample(sample.getItemSet());
         samples.put(exemplar, s);
       }
       s.add(r, weights.get(r));      
@@ -128,7 +128,7 @@ public class MallowsMixtureReconstructor {
     
     /* If there are too much clusters, do it again */
     if (samples.size() > maxClusters && maxSim > 0) { // && samples.size() < sample.size()) {      
-      Sample more = new Sample(sample.getItemSet());
+      RankingSample more = new RankingSample(sample.getItemSet());
       // alpha = 0.3 * Math.random();
       Logger.info("%d exemplars. Compacting more with alpha = %.3f...", samples.size(), alpha);
       for (Ranking r: samples.keySet()) {
@@ -138,15 +138,15 @@ public class MallowsMixtureReconstructor {
       
       ClusteringResult sub = cluster(more, alphaDecay * alpha);
       Map<Ranking, Ranking> newExs = new HashMap<Ranking, Ranking>();
-      Map<Ranking, Sample> newSamps = new HashMap<Ranking, Sample>();
+      Map<Ranking, RankingSample> newSamps = new HashMap<Ranking, RankingSample>();
       for (Ranking r: rankings) {
         Ranking ex1 = exemplars.get(r);
         Ranking ex2 = sub.exemplars.get(ex1);
         newExs.put(r, ex2);
         
-        Sample s = newSamps.get(ex2);
+        RankingSample s = newSamps.get(ex2);
         if (s == null) {
-          s = new Sample(sample.getItemSet());
+          s = new RankingSample(sample.getItemSet());
           newSamps.put(ex2, s);
         }
         s.add(r, weights.get(r));
@@ -160,7 +160,7 @@ public class MallowsMixtureReconstructor {
   }
   
   
-  public MallowsMixtureModel reconstruct(Sample sample) throws Exception {  
+  public MallowsMixtureModel reconstruct(RankingSample sample) throws Exception {  
     ClusteringResult clustering = cluster(sample);
     return model(clustering);
   }
@@ -175,7 +175,7 @@ public class MallowsMixtureReconstructor {
     for (Ranking exemplar: clustering.samples.keySet()) {
       m++;
       Logger.info("Reconstructing model %d of %d", m, clustering.samples.size());
-      Sample s = clustering.samples.get(exemplar);
+      RankingSample s = clustering.samples.get(exemplar);
       Ranking center = KemenyCandidate.complete(exemplar);
       center = kemenizator.kemenize(s, center);
       MallowsModel mm = reconstructor.reconstruct(s, center);
@@ -196,9 +196,9 @@ public class MallowsMixtureReconstructor {
   public class ClusteringResult {
     
     public final Map<Ranking, Ranking> exemplars;
-    public final Map<Ranking, Sample> samples;
+    public final Map<Ranking, RankingSample> samples;
     
-    private ClusteringResult(Map<Ranking, Ranking> exemplars, Map<Ranking, Sample> samples) {
+    private ClusteringResult(Map<Ranking, Ranking> exemplars, Map<Ranking, RankingSample> samples) {
       this.exemplars = exemplars;
       this.samples = samples;
     }

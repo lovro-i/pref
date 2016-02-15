@@ -1,10 +1,9 @@
 package edu.drexel.cs.db.rank.datasets;
 
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
-import edu.drexel.cs.db.rank.preference.PreferenceSample;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.io.IOException;
 
 public class Irish {
 
-  private Sample sample;
+  private RankingSample sample;
   
   public Irish(String filename) throws IOException {
     this(new File(filename));
@@ -23,22 +22,19 @@ public class Irish {
     this.sample = loader.loadSample(data);
   }
   
-  public Sample getRankingSample() {
+  public RankingSample getRankingSample() {
     return sample;
   }
   
-  public PreferenceSample getPreferenceSample() {
-    PreferenceSample ps = new PreferenceSample(sample.getItemSet());
-    for (RW rw: sample) {
-      ps.add(DensePreferenceSet.fromTopKRanking(rw.r), rw.w);
-    }
-    return ps;
+  public Sample<DensePreferenceSet> transitiveClosure() {
+    return sample.transitiveClosure();
   }
+
 
   
   public static void main(String[] args) throws IOException {
     String data = "C:\\Projects\\Rank\\Data\\irish\\ranking\\dnorth.txt";
     Irish irish = new Irish(data);
-    System.out.println(irish.getPreferenceSample());
+    System.out.println(irish.transitiveClosure());
   }
 }

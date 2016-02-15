@@ -5,8 +5,9 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.rating.Ratings;
 import edu.drexel.cs.db.rank.rating.RatingsSample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -17,17 +18,33 @@ public class PairwisePreferenceMatrix {
   private double[][] ppm;
   
   
-  public PairwisePreferenceMatrix(Sample sample) {
+  public PairwisePreferenceMatrix(RankingSample sample) {
     this.itemSet = sample.getItemSet();
     int n = itemSet.size();
     ppm = new double[n][n];
     
-    for (RW rw: sample) {
-      for (int i = 0; i < rw.r.size()-1; i++) {
-        int e1 = rw.r.get(i).getId();
-        for (int j = i+1; j < rw.r.size(); j++) {
-          int e2 = rw.r.get(j).getId();
-          ppm[e1][e2] += rw.w;
+    for (PW<Ranking> pw: sample) {
+      for (int i = 0; i < pw.p.size()-1; i++) {
+        int e1 = pw.p.get(i).getId();
+        for (int j = i+1; j < pw.p.size(); j++) {
+          int e2 = pw.p.get(j).getId();
+          ppm[e1][e2] += pw.w;
+        }
+      }
+    }
+  }
+  
+  public PairwisePreferenceMatrix(Sample<? extends PreferenceSet> sample) {
+    this.itemSet = sample.getItemSet();
+    int n = itemSet.size();
+    ppm = new double[n][n];
+    
+    for (PW pw: sample) {
+      DensePreferenceSet tc = pw.p.transitiveClosure();
+      boolean[][] mat = tc.getMatrix();
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+          if (mat[i][j]) ppm[i][j] += pw.w;
         }
       }
     }

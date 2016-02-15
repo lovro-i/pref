@@ -1,10 +1,10 @@
 package edu.drexel.cs.db.rank.test;
 
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.datasets.Sushi;
 import edu.drexel.cs.db.rank.filter.Split;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
-import edu.drexel.cs.db.rank.measure.KullbackLeibler;
+import edu.drexel.cs.db.rank.distance.KL;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
@@ -49,9 +49,9 @@ public class SushiTests {
         Logger.info("Rep %d, maxClusters %d", rep, max);
         
         // split
-        List<Sample> split = Split.twoFold(sushi.getSample(), 0.7);        
-        Sample trainSample = split.get(0);
-        Sample testSample = split.get(1);
+        List<RankingSample> split = Split.twoFold(sushi.getSample(), 0.7);        
+        RankingSample trainSample = split.get(0);
+        RankingSample testSample = split.get(1);
         Logger.info("Sushi dataset split into %d train and %d test rankings", trainSample.size(), testSample.size());
 
         // reconstruct
@@ -61,15 +61,15 @@ public class SushiTests {
         
         // measure
         PairwisePreferenceMatrix testPPM = new PairwisePreferenceMatrix(testSample);
-        Sample modelSample = MallowsUtils.sample(model, 50000);
+        RankingSample modelSample = MallowsUtils.sample(model, 50000);
         PairwisePreferenceMatrix modelPPM = new PairwisePreferenceMatrix(modelSample);
-        double kl = KullbackLeibler.divergence(testPPM, modelPPM);
+        double kl = KL.divergence(testPPM, modelPPM);
         double llw = model.getLogLikelihoodMean(testSample);
         double llm = model.getLogLikelihoodMax(testSample);
         
         
         // ideal
-        double idealKL = KullbackLeibler.divergence(modelPPM, modelPPM);
+        double idealKL = KL.divergence(modelPPM, modelPPM);
         double idealLLW = model.getLogLikelihoodMean(modelSample);
         double idealLLM = model.getLogLikelihoodMax(modelSample);
         

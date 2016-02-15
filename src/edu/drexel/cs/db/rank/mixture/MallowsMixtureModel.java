@@ -3,7 +3,8 @@ package edu.drexel.cs.db.rank.mixture;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.util.MathUtils;
@@ -63,8 +64,8 @@ public class MallowsMixtureModel {
     }
   }
   
-  public Sample getCenterSample() {
-    Sample sample = new Sample(itemSet);
+  public RankingSample getCenterSample() {
+    RankingSample sample = new RankingSample(itemSet);
     for (int i = 0; i < this.size(); i++) {
       Ranking r = this.getModel(i).getCenter();
       double w = this.getWeight(i);
@@ -126,19 +127,19 @@ public class MallowsMixtureModel {
   }
   
   
-  public double getLogLikelihoodMean(Sample sample) {
+  public double getLogLikelihoodMean(RankingSample sample) {
     double ll = 0;
-    for (Sample.RW rw: sample) {
-      double p = getProbability(rw.r);
+    for (PW<Ranking> rw: sample) {
+      double p = getProbability(rw.p);
       ll += rw.w * Math.log(p);
     }
     return ll / sample.sumWeights();
   }
   
-  public double getLogLikelihoodMax(Sample sample) {
+  public double getLogLikelihoodMax(RankingSample sample) {
     double ll = 0;
-    for (Sample.RW rw: sample) {
-      double p = getProbabilityMax(rw.r);
+    for (PW<Ranking> rw: sample) {
+      double p = getProbabilityMax(rw.p);
       ll += rw.w * Math.log(p);
     }
     return ll / sample.sumWeights();
@@ -164,7 +165,7 @@ public class MallowsMixtureModel {
     mix.add(model1, 0.3);
     mix.add(model2, 0.7);
     
-    Sample sample = MallowsUtils.sample(mix, 1000);
+    RankingSample sample = MallowsUtils.sample(mix, 1000);
     
     System.out.println(mix.getLogLikelihoodMean(sample));
   }

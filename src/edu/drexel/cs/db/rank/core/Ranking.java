@@ -24,6 +24,13 @@ public class Ranking implements Comparable, PreferenceSet {
     this.items.addAll(ranking.items);
   }
 
+  @Override
+  public Ranking clone() {
+    return new Ranking(this);
+  }
+
+  
+  @Override
   public ItemSet getItemSet() {
     return itemSet;
   }
@@ -58,6 +65,7 @@ public class Ranking implements Comparable, PreferenceSet {
   public void add(Item e) {
     if (this.contains(e)) throw new IllegalArgumentException("Item " + e + " already in the sample: " + this.toString());
     items.add(e);
+    clearHash();
   }
   
   /** Append ranking r to the end of the ranking */
@@ -66,15 +74,16 @@ public class Ranking implements Comparable, PreferenceSet {
   }
   
   public Item set(int index, Item e) {
+    clearHash();
     return items.set(index, e);
   }
   
   /** Add Item e at the specified position in the ranking (shifting the ones on the right). If index >= size of the item, add at the end */
-  public Ranking addAt(int index, Item e) {
+  public void addAt(int index, Item e) {
     if (this.contains(e)) throw new IllegalArgumentException(String.format("Item %s already in %s", e, this));
     if (index >= items.size()) items.add(e);
     else items.add(index, e);
-    return this;
+    clearHash();
   }
 
   /** Return the ranking containing only the items from the collection, in the same order as this ranking */
@@ -95,9 +104,9 @@ public class Ranking implements Comparable, PreferenceSet {
     return top;
   }
   
-  public Ranking remove(int index) {
+  public void remove(int index) {
     items.remove(index);
-    return this;
+    clearHash();
   }
   
   
@@ -136,6 +145,7 @@ public class Ranking implements Comparable, PreferenceSet {
     Item e2 = items.get(i2);
     items.set(i1, e2);
     items.set(i2, e1);
+    clearHash();
   }
 
   /** Return the item at i-th place in the ranking */
@@ -158,11 +168,19 @@ public class Ranking implements Comparable, PreferenceSet {
     return true;
   }
 
+  private Integer hash;
+  
   @Override
   public int hashCode() {
-    int hash = 7;
-    hash = 53 * hash + Objects.hashCode(this.items);
+    if (hash == null) {
+      hash = 7;
+      hash = 53 * hash + Objects.hashCode(this.items);
+    }
     return hash;
+  }
+  
+  private void clearHash() {
+    hash = null;
   }
   
   public static Ranking fromStringById(ItemSet itemSet, String s) {
@@ -272,6 +290,22 @@ public class Ranking implements Comparable, PreferenceSet {
       }
     }
     return true;
+  }
+
+  @Override
+  public boolean contains(Item higher, Item lower) {
+    Boolean h = isHigher(higher, lower);
+    if (h == null) return false;
+    return h;
+  }
+  
+  
+
+  @Override
+  public boolean contains(int higherId, int lowerId) {
+    Boolean h = isHigher(higherId, lowerId);
+    if (h == null) return false;
+    return h;
   }
   
 }

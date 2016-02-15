@@ -1,6 +1,6 @@
 package edu.drexel.cs.db.rank.sampler;
 
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.triangle.Triangle;
@@ -30,8 +30,8 @@ public class RIMRSampler {
     return r;
   }
   
-  public Sample generate(int count) {
-    Sample sample = new Sample(triangle.getItemSet());
+  public RankingSample generate(int count) {
+    RankingSample sample = new RankingSample(triangle.getItemSet());
     for (int i=0; i<count; i++) {
       Ranking ranking = this.generate();
       sample.add(ranking);

@@ -3,8 +3,8 @@ package edu.drexel.cs.db.rank.triangle;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
@@ -24,10 +24,10 @@ public class SampleTriangleByRowNew extends Triangle {
   private final List<Integer> pending = Collections.synchronizedList(new ArrayList<Integer>());
   private final List<Thread> workers = new ArrayList<Thread>();
   
-  private final Sample sample;
+  private final RankingSample sample;
   private int threads = Runtime.getRuntime().availableProcessors();
   
-  public SampleTriangleByRowNew(Ranking reference, Sample sample) throws InterruptedException {
+  public SampleTriangleByRowNew(Ranking reference, RankingSample sample) throws InterruptedException {
     super(reference); 
     this.sample = sample;
     this.buildReferenceIndexMap();
@@ -163,9 +163,9 @@ public class SampleTriangleByRowNew extends Triangle {
   }
   
   private void add(int index, int item) {
-    RW rw = sample.get(index);
+    PW<Ranking> pw = sample.get(index);
     Item element = reference.get(item);
-    if (!rw.r.contains(element)) {
+    if (!pw.p.contains(element)) {
       pending.add(index);
       return;
     }
@@ -194,7 +194,7 @@ public class SampleTriangleByRowNew extends Triangle {
 //      }
 //    }    
     
-    UpTo upto = new UpTo(rw.r, item, referenceIndex);
+    UpTo upto = new UpTo(pw.p, item, referenceIndex);
     expands = expands.insert(element, upto.previous);    
     expandsMap.put(index, expands);
     TriangleRow row = rows.get(item);
@@ -203,7 +203,7 @@ public class SampleTriangleByRowNew extends Triangle {
     
     synchronized (row) {
       for (int j = 0; j < displacements.length; j++) {      
-        row.inc(j, displacements[j] * rw.w);
+        row.inc(j, displacements[j] * pw.w);
       }
     }
     
@@ -241,7 +241,7 @@ public class SampleTriangleByRowNew extends Triangle {
     ItemSet items = new ItemSet(10);
     Expands.setThreshold(0.001);
     Ranking ref = items.getRandomRanking();
-    Sample sample = MallowsUtils.sample(ref, 0.2, 1000);
+    RankingSample sample = MallowsUtils.sample(ref, 0.2, 1000);
     Filter.remove(sample, 0.3);
     
     SampleTriangleByRow t = new SampleTriangleByRow(ref, sample);

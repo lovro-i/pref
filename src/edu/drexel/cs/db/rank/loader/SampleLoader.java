@@ -3,8 +3,8 @@ package edu.drexel.cs.db.rank.loader;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.TopRanking;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.top.TopRanking;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.BufferedReader;
@@ -63,12 +63,12 @@ public class SampleLoader {
     this(ids, weighted, top, pack, ", \t;");
   }
   
-  public Sample loadSample(File file) throws IOException {
+  public RankingSample loadSample(File file) throws IOException {
     BufferedReader reader = new BufferedReader(new FileReader(file));
     return loadSample(reader);
   }
   
-  public Sample loadSample(Reader reader) throws IOException {
+  public RankingSample loadSample(Reader reader) throws IOException {
     List<String> lines = FileUtils.readLines(reader);
     ItemSet itemSet = getItemSet(lines);
     return getSample(lines, itemSet);
@@ -105,7 +105,7 @@ public class SampleLoader {
     return new ItemSet(ids);
   }
   
-  private Sample getSample(List<String> lines, ItemSet itemSet) {
+  private RankingSample getSample(List<String> lines, ItemSet itemSet) {
     if (ids) return getSampleById(lines, itemSet);
     else return getSampleByTag(lines, itemSet);
   }
@@ -115,8 +115,8 @@ public class SampleLoader {
     else return new Ranking(itemSet);
   }
   
-  private Sample getSampleById(List<String> lines, ItemSet itemSet) {
-    Sample sample = new Sample(itemSet);
+  private RankingSample getSampleById(List<String> lines, ItemSet itemSet) {
+    RankingSample sample = new RankingSample(itemSet);
     for (String line: lines) {
       Ranking r = newRanking(itemSet);
       StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
@@ -140,8 +140,8 @@ public class SampleLoader {
   
 
   
-  private Sample getSampleByTag(List<String> lines, ItemSet itemSet) {
-    Sample sample = new Sample(itemSet);
+  private RankingSample getSampleByTag(List<String> lines, ItemSet itemSet) {
+    RankingSample sample = new RankingSample(itemSet);
     for (String line: lines) {
       Ranking r = newRanking(itemSet);
       StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
@@ -161,7 +161,7 @@ public class SampleLoader {
     return sample;
   }
   
-  private void add(Sample sample, Ranking r, double w) {
+  private void add(RankingSample sample, Ranking r, double w) {
     if (!weighted && !pack) {
       sample.add(r);
       return;
@@ -193,7 +193,7 @@ public class SampleLoader {
     File file = new File(folder, "sushi3a.csv");
     
     SampleLoader loader = new SampleLoader(true, false, false);
-    Sample sample = loader.loadSample(file);
+    RankingSample sample = loader.loadSample(file);
     System.out.println(sample);
   }
 }

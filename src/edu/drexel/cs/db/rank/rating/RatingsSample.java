@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.rating;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,10 +55,10 @@ public class RatingsSample extends HashMap<Ratings, Double> {
   /** Converts RatingsSample to rankings Sample
    * @param maxPerRatings Maximum number of rankings to add (for ratings that have multiple rankings)
    */
-  public Sample toSample(int maxPerRatings) {
-    Sample sample = new Sample(itemSet);
+  public RankingSample toSample(int maxPerRatings) {
+    RankingSample sample = new RankingSample(itemSet);
     for (Entry<Ratings, Double> entry: this.entrySet()) {
-      Sample s = entry.getKey().toSample(maxPerRatings);
+      RankingSample s = entry.getKey().toSample(maxPerRatings);
       sample.addAll(s, entry.getValue());
     }
     return sample;

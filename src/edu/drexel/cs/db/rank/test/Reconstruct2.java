@@ -4,7 +4,7 @@ import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.RankingDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
@@ -56,7 +56,7 @@ public class Reconstruct2 {
         MallowsTriangle triangle = new MallowsTriangle(center, phi);
         RIMRSampler sampler = new RIMRSampler(triangle);
         for (int samps: samples) {        
-          Sample sample = sampler.generate(samps);
+          RankingSample sample = sampler.generate(samps);
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           

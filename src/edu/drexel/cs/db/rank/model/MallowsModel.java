@@ -3,7 +3,8 @@ package edu.drexel.cs.db.rank.model;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 
 
@@ -76,12 +77,12 @@ public class MallowsModel {
     return Math.pow(phi, d) / z();
   }
   
-  public double getLogLikelihood(Sample sample) {
+  public double getLogLikelihood(RankingSample sample) {
     double ll = 0;
     double lnZ = Math.log(z());
     double lnPhi = Math.log(phi);
-    for (Sample.RW rw: sample) {
-      ll += rw.w * (KendallTauDistance.between(center, rw.r) * lnPhi - lnZ);
+    for (PW<Ranking> pw: sample) {
+      ll += pw.w * (KendallTauDistance.between(center, pw.p) * lnPhi - lnZ);
     }
     return ll / sample.sumWeights();
   }
@@ -89,7 +90,7 @@ public class MallowsModel {
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.3);
-    Sample sample = MallowsUtils.sample(model, 1000);
+    RankingSample sample = MallowsUtils.sample(model, 1000);
     System.out.println(model.getLogLikelihood(sample));
     
     

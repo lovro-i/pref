@@ -1,80 +1,108 @@
 package edu.drexel.cs.db.rank.core;
 
-import edu.drexel.cs.db.rank.core.Sample.RW;
-import edu.drexel.cs.db.rank.preference.PreferenceSample;
-import edu.drexel.cs.db.rank.sampler.MallowsUtils;
-import edu.drexel.cs.db.rank.util.FileUtils;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import edu.drexel.cs.db.rank.core.Sample.PW;
+import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Objects;
 
-/** Sample of rankings. Can be weighted if rankings are added through add(Ranking ranking, double weight)
- * 
- */
-public class Sample extends ArrayList<RW> {
 
-  private final ItemSet itemSet;
-  
-  
-  public Sample(ItemSet itemSet) {    
-    this.itemSet = itemSet;
+public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
+
+  protected final ItemSet itemSet;
+
+  public Sample(ItemSet items) {
+    this.itemSet = items;
   }
-  
-  public Sample(Sample sample) {
-    this.itemSet = sample.itemSet;
+
+  public Sample(Sample<PS> sample) {
+    this(sample.itemSet);
     addAll(sample);
   }
-  
+
 
   public ItemSet getItemSet() {
     return itemSet;
   }
-  
-  public boolean add(Ranking ranking) {
-    return this.add(ranking, 1d);
+
+  /** @return Sum of weights of all appearances of the PreferenceSet.
+   */
+  public double sumWeights(PS ps) {
+    double w = 0;
+    for (PW pw: this) {
+      if (ps.equals(pw.p)) w += pw.w;
+    }
+    return w;
   }
   
-  
-  public boolean add(Ranking ranking, double weight) {
-    return this.add(new RW(ranking, weight));
+  public double sumWeights() {
+    double s = 0;
+    for (PW pw: this) s += pw.w;
+    return s;
   }
-  
-  public boolean addWeight(Ranking ranking, double weight) {
-    for (int i = 0; i < size(); i++) {
-      RW rw = this.get(i);
-      if (rw.r.equals(ranking)) {
-        this.set(i, new RW(ranking, rw.w + weight));
-        return true;
+
+  public void add(PS pref) {
+    this.add(pref, 1);
+  }
+
+  public void add(PS pref, double weight) {
+    this.add(new PW(pref, weight));
+  }  
+
+    
+  /** Adds weight to the specified preferenceset. It also compresses all occurances of ps into a single one with the total weight 
+   * @return true if there were already entries of this ps, false otherwise
+   */
+  public boolean addWeight(PS ps, double weight) {
+    double w = weight;
+    boolean were = false;
+    Iterator<PW<PS>> it = this.iterator();
+    while (it.hasNext()) {
+      PW<PS> pw = it.next();
+      if (pw.p.equals(ps)) {
+        w += pw.w;
+        it.remove();
+        were = true;
       }
     }
+    add(ps, w);
+    return were;
+  }
+  
     
-    add(ranking, weight);
-    return false;
+  public PS getPreferenceSet(int index) {
+    return this.get(index).p;
   }
-  
-  public void addAll(Sample sample) {
-    for (RW rw: sample) {
-      this.add(new Ranking(rw.r), rw.w);
-    }
-  }
-  
-  public void addAll(Sample sample, double weight) {
-    for (RW rw: sample) {
-      this.add(new Ranking(rw.r), weight * rw.w);
-    }
-  }
-  
+
   public double getWeight(int index) {
     return this.get(index).w;
   }
+
+
+  public double getWeight(PS pref) {
+    double w = 0;
+    for (PW pw: this) w += pw.w;
+    return w;
+  }
+
   
-  public Ranking[] rankings() {
-    Ranking[] rankings = new Ranking[this.size()];
-    for (int i = 0; i < rankings.length; i++) {
-      rankings[i] = this.get(i).r;      
+  
+  /** @return number of ranking instances in the sample (not weighted) */
+  public int count(PS ps) {
+    int count = 0;
+    for (PW pw: this) {
+      if (ps.equals(pw.p)) count++;     
     }
-    return rankings;
+    return count;
+  }
+
+  public PS[] preferenceSets() {
+    PreferenceSet[] rankings = new PreferenceSet[this.size()];
+    for (int i = 0; i < rankings.length; i++) {
+      rankings[i] = this.get(i).p;      
+    }
+    return (PS[]) rankings;
   }
   
   public double[] weights() {
@@ -85,26 +113,27 @@ public class Sample extends ArrayList<RW> {
     return weights;
   }
   
-  /** @return Sum of weights of all appearances of the ranking. Returns the number of occurrences of the ranking if the sample is not weighted
-   */
-  public double getWeight(Ranking ranking) {
-    double w = 0d;
-    for (int index = 0; index < size(); index++) {
-      RW rw = this.get(index);
-      if (ranking.equals(rw.r)) w += rw.w;
+
+  public void addAll(Sample<PS> sample) {
+    for (PW pw: sample) {
+      this.add(pw.clone());
     }
-    return w;
   }
   
-  /** @return number of ranking instances in the sample (not weighted) */
-  public int count(Ranking ranking) {
-    int count = 0;
-    for (RW rw: this) {
-      if (ranking.equals(rw.r)) count++;     
+  public void addAll(RankingSample sample, double weight) {
+    for (PW pw: sample) {
+      this.add(new PW(pw.p.clone(), pw.w * weight));
     }
-    return count;
-  }
+  }  
   
+  public Sample<DensePreferenceSet> transitiveClosure() {
+    Sample sample = new Sample(itemSet);
+    for (PW pw: this) {
+      sample.add(pw.p.transitiveClosure(), pw.w);
+    }
+    return sample;
+  }
+    
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -112,86 +141,47 @@ public class Sample extends ArrayList<RW> {
       sb.append(this.get(i));
       sb.append("\n");      
     }
-    sb.append("=== ").append(this.itemSet.size()).append(" items, ").append(this.size()).append(" rankings ===");
+    sb.append("=== ").append(this.itemSet.size()).append(" items, ").append(this.size()).append(" preference sets ===");
     return sb.toString();
   }
   
   
-  public double sumWeights() {
-    double sum = 0;
-    for (RW rw: this) sum += rw.w;
-    return sum;
-  }
+  /** PreferenceSet - Weight pair */
+  public static class PW<P extends PreferenceSet> implements Cloneable {
+    
+      public final P p;
+      public final double w;
 
-  /** Creates a sample of cartesian products; the first half of each ranking is from this sample, the second if from Sample s */
-  public Sample multiply(Sample s) {
-    Sample sample = new Sample(this.itemSet);
-    for (RW rw1: this) {
-      for (RW rw2: s) {
-        Ranking r = new Ranking(rw1.r);
-        r.add(rw2.r);
-        sample.add(r, rw1.w * rw2.w);
+      public PW(P p, double w) {
+        this.p = p;
+        this.w = w;
       }
-    }
-    return sample;
-  }
-  
-  public PreferenceSample transitiveClosure() {
-    PreferenceSample sample = new PreferenceSample(itemSet);
-    for (RW rw: this) {
-      sample.add(rw.r.transitiveClosure(), rw.w);
-    }
-    return sample;
-  }
 
-  /** Class that represents Ranking - Weight pair */
-  public static class RW {
-    
-    public final Ranking r;
-    public final double w;
-    
-    private RW(Ranking r, double w) {
-      this.r = r;
-      this.w = w;
+      public PW<P> clone() {
+        return new PW(p.clone(), w);
+      }
+      
+      public String toString() {
+        if (w == 1) return p.toString();
+        else return p.toString() + " (" + w + ")";
+      }
+
+      @Override
+      public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.p);
+        hash = 89 * hash + (int) (Double.doubleToLongBits(this.w) ^ (Double.doubleToLongBits(this.w) >>> 32));
+        return hash;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        final PW other = (PW) obj;
+        return other.p.equals(p) && w == other.w;
+      }
+      
     }
-    
-    @Override
-    public String toString() {
-      if (w == 1d) return r.toString();
-      return r + " (" + w + ")";
-    }
-    
-  }
-  
-  
-  public void save(PrintWriter out) {
-    out.println(this.itemSet.size());
-    for (int i = 0; i < this.size(); i++) {
-      RW rw = this.get(i);
-      out.print(rw.r);
-      out.print("\t");
-      out.print(rw.w);
-      out.println();
-    }    
-  }
-  
-  public void save(File file) throws IOException {
-    PrintWriter out = FileUtils.write(file);
-    save(out);
-    out.close();
-  }
-
-
-  public static void main(String[] args) throws IOException {
-    File folder = new File("C:\\Projects\\Rank\\Results.3");
-    File file = new File(folder, "first.sample");
-    
-    ItemSet items = new ItemSet(15);
-    Ranking center = items.getRandomRanking();
-    Sample sample = MallowsUtils.sample(center, 0.5, 200);
-    sample.save(file);
-    System.out.println(sample);   
-    
-  }
-
 }

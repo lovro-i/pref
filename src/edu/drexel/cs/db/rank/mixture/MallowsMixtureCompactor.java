@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.mixture;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.Kemenizator;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -84,8 +84,8 @@ public class MallowsMixtureCompactor {
         compacted.add(cluster.getModel(0), weights.get(i));
       }
       else {
-        Sample centers = cluster.getCenterSample();
-        Ranking newCenter = kemenizator.kemenize(centers, centers.get(0).r);
+        RankingSample centers = cluster.getCenterSample();
+        Ranking newCenter = kemenizator.kemenize(centers, centers.get(0).p);
         double phi = weightedPhi(cluster);
         MallowsModel newModel = new MallowsModel(newCenter, phi);
         compacted.add(newModel, weights.get(i));

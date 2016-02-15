@@ -3,12 +3,12 @@ package edu.drexel.cs.db.rank.datasets;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.rating.RatingsSample;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.filter.Split;
+import edu.drexel.cs.db.rank.incomplete.EMIncompleteReconstructor;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
-import edu.drexel.cs.db.rank.incomplete.QuickIncompleteReconstructor;
 import edu.drexel.cs.db.rank.loader.RatingsLoader;
-import edu.drexel.cs.db.rank.measure.KullbackLeibler;
+import edu.drexel.cs.db.rank.distance.KL;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureRatingsReconstructor;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -36,7 +36,7 @@ public class MovieLens {
     return sample;
   }
   
-  public Sample getSample() throws IOException {
+  public RankingSample getSample() throws IOException {
     return getRatingsSample().toSample(1);
   }
 
@@ -76,9 +76,7 @@ public class MovieLens {
     Logger.info("Splitting the sample intro train (%.2f) and test (%.2f)", split, 1-split);
     
     // Reconstruct
-    File folder = new File("C:\\Projects\\Rank\\Results.3");
-    Expands.setThreshold(0.001);
-    MallowsReconstructor single = new QuickIncompleteReconstructor(new File(folder, "incomplete.quick.train.arff"), 3);
+    MallowsReconstructor single = new EMIncompleteReconstructor(10);
     MallowsMixtureRatingsReconstructor reconstructor = new MallowsMixtureRatingsReconstructor(single, 10);
     reconstructor.setMaxRankings(1);
     MallowsMixtureModel model = reconstructor.reconstruct(splits.get(0));    
@@ -93,7 +91,7 @@ public class MovieLens {
     Logger.info("----------[ Distances ]-----------------------------");
     PairwisePreferenceMatrix testPPM = new PairwisePreferenceMatrix(splits.get(1));
     
-    Logger.info("[KL Divergence] True: test sample (1500 rankings); Model: our model: %.4f", KullbackLeibler.divergence(testPPM, modelPPM));
+    Logger.info("[KL Divergence] True: test sample (1500 rankings); Model: our model: %.4f", KL.divergence(testPPM, modelPPM));
     // Logger.info("[KL Divergence] True: test sample (1500 rankings); Model: GRIM model: %.4f", KullbackLeibler.divergence(testPPM, new PairwisePreferenceMatrix(MallowsUtils.sample(getGrimModel(), 50000))));
     Logger.info("(lower is better)");
     

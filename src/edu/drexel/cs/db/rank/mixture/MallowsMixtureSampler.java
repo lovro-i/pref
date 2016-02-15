@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
@@ -20,8 +20,8 @@ public class MallowsMixtureSampler {
   
   
   /** @return Sample of specified size, sampled from the mixture of models */
-  public Sample generate(int size) {
-    Sample sample = new Sample(model.getItemSet());
+  public RankingSample generate(int size) {
+    RankingSample sample = new RankingSample(model.getItemSet());
     
     // Create samplers for each model
     final List<RIMRSampler> samplers = new ArrayList<RIMRSampler>();

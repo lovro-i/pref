@@ -3,14 +3,15 @@ package edu.drexel.cs.db.rank.incomplete;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import java.util.Random;
 
 /** Class that stores information for each item in the ItemSet about its missing probability */
-public class Missing {
+public class MissingProbabilities {
 
   private static Random random = new Random();
   
@@ -18,15 +19,33 @@ public class Missing {
   private double[] miss;
   
   
+  public MissingProbabilities(ItemSet items, double[] miss) {
+    this.items = items;
+    this.miss = new double[items.size()];
+    for (int i = 0; i < this.miss.length; i++) {
+      this.miss[i] = miss[i];
+    }
+  }
+  
+  
+  /** Uniform missing rate for all items */
+  public MissingProbabilities(ItemSet items, double p) {
+    this.items = items;
+    this.miss = new double[items.size()];
+    for (int i = 0; i < miss.length; i++) {
+      miss[i] = p;      
+    }
+  }
+  
   /** create the missing statistics from the sample */
-  public Missing(Sample sample) {
+  public MissingProbabilities(RankingSample sample) {
     this.items = sample.getItemSet();
     this.miss = new double[items.size()];
     
     int[] counts = new int[items.size()];
-    for (RW rw: sample) {
-      for (Item e: rw.r.getItems()) {
-        counts[e.getId()] += rw.w;
+    for (PW<Ranking> pw: sample) {
+      for (Item e: pw.p.getItems()) {
+        counts[e.getId()] += pw.w;
       }
     }
     
@@ -37,14 +56,7 @@ public class Missing {
     }    
   }
   
-  /** Uniform missing rate for all items */
-  public Missing(ItemSet items, double p) {
-    this.items = items;
-    this.miss = new double[items.size()];
-    for (int i = 0; i < miss.length; i++) {
-      miss[i] = p;      
-    }
-  }
+
   
   /** Remove items randomly from the ranking with specified probabilities */
   public void remove(Ranking ranking) {
@@ -56,8 +68,8 @@ public class Missing {
   }
     
   /** Remove items randomly from the sample with specified probabilities */
-  public void remove(Sample sample) {
-    for (Ranking r: sample.rankings()) {
+  public void remove(Sample<Ranking> sample) {
+    for (Ranking r: sample.preferenceSets()) {
       remove(r);
     }
   }
@@ -84,10 +96,10 @@ public class Missing {
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
-    Sample sample = MallowsUtils.sample(items.getRandomRanking(), 0.3, 2000);
+    RankingSample sample = MallowsUtils.sample(items.getRandomRanking(), 0.3, 2000);
     Filter.remove(sample, 0.3);
     
-    Missing m = new Missing(sample);
+    MissingProbabilities m = new MissingProbabilities(sample);
     System.out.println(m);
   }
   

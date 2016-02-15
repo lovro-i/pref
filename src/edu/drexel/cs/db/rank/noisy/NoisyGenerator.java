@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.noisy;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
@@ -75,7 +76,7 @@ public class NoisyGenerator {
     MallowsModel model = new MallowsModel(center, phi);
     MallowsTriangle mTriangle = new MallowsTriangle(model);
     RIMRSampler sampler = new RIMRSampler(mTriangle);
-    Sample sample = sampler.generate(sampleSize);
+    RankingSample sample = sampler.generate(sampleSize);
     Filter.noise(sample, noise);
     
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
@@ -89,10 +90,10 @@ public class NoisyGenerator {
     
     // Bootstrap
     if (boots > 0) {
-      Resampler resampler = new Resampler(sample);
+      Resampler<Ranking> resampler = new Resampler<Ranking>(sample);
       double bootstraps[] = new double[boots];
       for (int j = 0; j < bootstraps.length; j++) {
-        Sample resample = resampler.resample();
+        Sample<Ranking> resample = resampler.resample();
         MallowsModel m = reconstructor.reconstruct(resample, center);
         bootstraps[j] = m.getPhi();
       }
@@ -114,7 +115,7 @@ public class NoisyGenerator {
    * @param sample Sample to generate similar ones
    * @param reps Number of instances to generate per every phi
    */
-  public Instances generate(Sample sample, int reps) throws Exception {
+  public Instances generate(RankingSample sample, int reps) throws Exception {
     long start = System.currentTimeMillis();
     int count = 0;
     
@@ -142,7 +143,7 @@ public class NoisyGenerator {
    * @param sample Sample to generate similar ones (size, number of items, missing rate)
    * @param reps Number of threads per phi
    */
-  public Instances generate(Sample sample, int reps, int threads) throws Exception {
+  public Instances generate(Sample<Ranking> sample, int reps, int threads) throws Exception {
     long start = System.currentTimeMillis();
     
     this.items = sample.getItemSet();

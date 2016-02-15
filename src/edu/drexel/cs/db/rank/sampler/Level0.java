@@ -1,8 +1,9 @@
 package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.preference.PreferenceSample;
-import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
+import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,22 +14,21 @@ public class Level0 {
   private final Map<Integer, Level1> map = new HashMap<Integer, Level1>();
   
   
-  public Level0(Ranking reference, PreferenceSample sample) {
+  public Level0(Ranking reference, Sample<? extends PreferenceSet> sample) {
     this.reference = reference;
-    build(sample);
-  }
-  
-  private void build(PreferenceSample sample) {
-    for (int i = 0; i < reference.size(); i++) {
+
+    // initialize Level1s
+    for (int i = 0; i < reference.size()-1; i++) {
       Level1 level1 = new Level1(reference, sample, i); 
       map.put(i, level1);
     }
     
+    // initialize level1 zero
     Level1 zero = map.get(0);
-    Ranking first = new Ranking(reference.getItemSet());
-    first.add(reference.get(0));
+    Ranking firstItem = new Ranking(reference.getItemSet());
+    firstItem.add(reference.get(0));
     for (PW pw: sample) {
-      zero.add(pw, first);
+      zero.add(pw, firstItem);
     }
   }
   

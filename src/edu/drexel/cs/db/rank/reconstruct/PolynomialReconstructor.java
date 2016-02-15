@@ -5,7 +5,9 @@ import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.KendallTauUtils;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.math.Polynomial;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -42,17 +44,17 @@ public class PolynomialReconstructor implements MallowsReconstructor {
   
 
   @Override
-  public MallowsModel reconstruct(Sample sample) {
+  public MallowsModel reconstruct(Sample<Ranking> sample) {
     Ranking center = CenterReconstructor.reconstruct(sample);
     return this.reconstruct(sample, center);
   }
   
   
   @Override
-  public MallowsModel reconstruct(Sample sample, Ranking center) {
+  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) {
     double sumd = 0;
-    for (Sample.RW rw: sample) {
-      sumd += rw.w * KendallTauDistance.getInstance().distance(center, rw.r);
+    for (PW<Ranking> pw: sample) {
+      sumd += pw.w * KendallTauDistance.getInstance().distance(center, pw.p);
     }
     double meand = sumd / sample.sumWeights();
     
@@ -77,7 +79,7 @@ public class PolynomialReconstructor implements MallowsReconstructor {
     int sampleSize = 5000;
     MallowsTriangle triangle = new MallowsTriangle(model);
     RIMRSampler sampler = new RIMRSampler(triangle);
-    Sample sample = sampler.generate(sampleSize);
+    RankingSample sample = sampler.generate(sampleSize);
     
     PolynomialReconstructor rec = new PolynomialReconstructor();
     MallowsModel mm = rec.reconstruct(sample, center);

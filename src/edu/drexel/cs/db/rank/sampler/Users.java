@@ -1,10 +1,13 @@
 package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -27,15 +30,29 @@ public class Users extends ArrayList<PW> {
     
     low = 0;
     high = prefix.size();
-    Item item = reference.get(high);
-    Set<Item> higher = pref.getHigher(item);
-    Set<Item> lower = pref.getLower(item);
-    for (int j = 0; j < prefix.size(); j++) {
-      Item it = prefix.get(j);
-      if (higher.contains(it)) low = j + 1;
-      if (lower.contains(it) && j < high) high = j;
+//    Item item = reference.get(high);
+//    Set<Item> higher = pref.getHigher(item);
+//    Set<Item> lower = pref.getLower(item);
+//    for (int j = 0; j < prefix.size(); j++) {
+//      Item it = prefix.get(j);
+//      if (higher.contains(it)) low = j + 1;
+//      if (j < high && lower.contains(it)) high = j;
+//    }
+
+    ItemSet items = prefix.getItemSet();
+    for (int id = 0; id < cons.size(); id++) {
+      Boolean b = cons.get(id);
+      if (b == null) continue;
+      Item item = items.getItemById(id);
+      int i = prefix.indexOf(item);
+      if (b) low = Math.max(low, i+1);
+      else high = Math.min(high, i);
     }
 
+    if (low > high) {
+      Logger.info("Low and High for %s %s: %d, %d\n%s", prefix, cons, low, high, pref);
+      try { System.in.read(); } catch (IOException ex) { }
+    }
     
     double sum = 0;
     int i = prefix.size();

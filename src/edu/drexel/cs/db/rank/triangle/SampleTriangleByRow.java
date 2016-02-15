@@ -3,8 +3,8 @@ package edu.drexel.cs.db.rank.triangle;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
@@ -27,15 +27,15 @@ public class SampleTriangleByRow extends Triangle {
     }
   }
   
-  public SampleTriangleByRow(Ranking reference, Sample sample) {
+  public SampleTriangleByRow(Ranking reference, RankingSample sample) {
     this(reference);
     
     long start = System.currentTimeMillis();
     for (int item = 1; item < reference.size(); item++) {
       Logger.info("Item %d of %d, %d sec", item, reference.size(), System.currentTimeMillis() - start);
       for (int index = 0; index < sample.size(); index++) {
-        RW rw = sample.get(index);
-        this.add(rw.r, rw.w, item);
+        PW<Ranking> pw = sample.get(index);
+        this.add(pw.p, pw.w, item);
       }
     }
     
@@ -133,7 +133,7 @@ public class SampleTriangleByRow extends Triangle {
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getRandomRanking();
-    Sample sample = MallowsUtils.sample(ref, 0.2, 1000);
+    RankingSample sample = MallowsUtils.sample(ref, 0.2, 1000);
     Filter.remove(sample, 0.1);
     
     SampleTriangleByRow t = new SampleTriangleByRow(ref, sample);

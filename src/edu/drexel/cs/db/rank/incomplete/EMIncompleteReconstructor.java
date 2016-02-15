@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.incomplete;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -37,10 +38,14 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
   public EMIncompleteReconstructor() {
     this(0, false);
   }
+
+  public EMIncompleteReconstructor(int i) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
   
   
   @Override
-  public MallowsModel reconstruct(Sample sample) {
+  public MallowsModel reconstruct(Sample<Ranking> sample) {
     Ranking center = CenterReconstructor.reconstruct(sample);
     return this.reconstruct(sample, center);
   }
@@ -66,21 +71,21 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
   }
   
   @Override
-  public MallowsModel reconstruct(Sample sample, Ranking center) {
+  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) {
     ItemSet items = sample.getItemSet();
     MallowsModel estimate = new MallowsModel(center, startPhi);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     AMPSamplerPlus amp = new AMPSamplerPlus(estimate, rate);
     if (isPlus() && !isPlusPlus()) amp.setTrainingSample(sample);
-    Sample resample = sample;
+    Sample<Ranking> resample = sample;
     for (int i = 0; i < iterations; i++) {
       if (isPlusPlus()) amp.setTrainingSample(resample);
       amp.setModel(estimate);
       if (listener != null) listener.onIterationStart(i, estimate, amp.getTrainingSample());
       
-      resample = new Sample(items);
+      resample = new RankingSample(items);
       for (int j = 0; j < sample.size(); j++) {
-        Ranking r = sample.get(j).r;
+        Ranking r = sample.get(j).p;
         double w = sample.getWeight(j);
         if (r.size() == items.size()) {
           resample.add(r, w);
@@ -100,14 +105,14 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
   
   public static interface OnIterationListener {
     
-    public void onIterationStart(int iteration, MallowsModel estimate, Sample trainingSample);
-    public void onIterationEnd(int iteration, MallowsModel estimate, Sample resample);
+    public void onIterationStart(int iteration, MallowsModel estimate, Sample<Ranking> trainingSample);
+    public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample);
   }
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getReferenceRanking();
-    Sample sample = MallowsUtils.sample(ref, 0.9, 500);
+    RankingSample sample = MallowsUtils.sample(ref, 0.9, 500);
     Filter.remove(sample, 0.4);
     
     {

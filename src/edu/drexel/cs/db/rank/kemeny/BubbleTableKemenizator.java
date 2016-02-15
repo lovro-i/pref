@@ -4,10 +4,12 @@ package edu.drexel.cs.db.rank.kemeny;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.rating.RatingsSample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import edu.drexel.cs.db.rank.util.MathUtils;
 
@@ -16,9 +18,7 @@ public class BubbleTableKemenizator implements Kemenizator {
 
   
   @Override
-  public Ranking kemenize(Sample sample, Ranking start) {
-    if (start == null) start = sample.get(MathUtils.RANDOM.nextInt(sample.size())).r;
-    
+  public Ranking kemenize(Sample<? extends PreferenceSet> sample, Ranking start) {
     double[][] before = new PairwisePreferenceMatrix(sample).getMatrix();
     Ranking kemeny = new Ranking(start);
     
@@ -67,7 +67,7 @@ public class BubbleTableKemenizator implements Kemenizator {
     System.out.println(center);
     MallowsTriangle triangle = new MallowsTriangle(center, 0.97);
     RIMRSampler sampler = new RIMRSampler(triangle);
-    Sample sample = sampler.generate(500);
+    RankingSample sample = sampler.generate(500);
     
     Histogram<Ranking> rankHist = new Histogram(sample);
     Ranking before = rankHist.getMostFrequent();
@@ -77,11 +77,6 @@ public class BubbleTableKemenizator implements Kemenizator {
     System.out.println(kemeny1.kemenize(sample, before));
     System.out.println(System.currentTimeMillis() - t1);
 
-    long t2 = System.currentTimeMillis();
-    Kemenizator kemeny2 = new BubbleKemenizator();
-    System.out.println(kemeny2.kemenize(sample, before));
-    System.out.println(System.currentTimeMillis() - t2);
-        
   }
 
 }

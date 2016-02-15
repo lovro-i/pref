@@ -5,7 +5,7 @@ import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.RankingDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
@@ -60,7 +60,7 @@ public class Reconstruct1 {
         
         StringBuilder sb = new StringBuilder();
         for (int t = 0; t < tests; t++) {
-          Sample sample = sampler.generate(sampleSize);
+          RankingSample sample = sampler.generate(sampleSize);
 
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int c = 1;
@@ -69,7 +69,7 @@ public class Reconstruct1 {
           if (pert > 0.00001) {
             for (int j = 0; j < models; j++) {
               c++;
-              Sample perturbed = perturb(sample, pert);
+              RankingSample perturbed = perturb(sample, pert);
               MallowsModel m = new CompleteReconstructor().reconstruct(perturbed);
               sum += m.getPhi();
             }
@@ -121,8 +121,8 @@ public class Reconstruct1 {
     return r1;
   }
   
-  private static Sample perturb(Sample sample, double p) {
-    Sample s = new Sample(sample.getItemSet());
+  private static RankingSample perturb(RankingSample sample, double p) {
+    RankingSample s = new RankingSample(sample.getItemSet());
     for (Ranking r: sample.rankings()) {
       Ranking r1 = perturb(r, p);
       s.add(r1);
@@ -144,10 +144,10 @@ public class Reconstruct1 {
         if ((t+1) % 100 == 0) System.out.println("Test #" + (t+1));
         MallowsTriangle triangle = new MallowsTriangle(center, phi);
         RIMRSampler sampler = new RIMRSampler(triangle);
-        Sample sample = sampler.generate(samps);
+        RankingSample sample = sampler.generate(samps);
         // Comb.comb(sample, 0.1);
 
-        Sample perturbed = perturb(sample, 0.05);
+        RankingSample perturbed = perturb(sample, 0.05);
         sample.addAll(perturbed);
 
         MallowsModel m0 = new CompleteReconstructor().reconstruct(sample);
@@ -173,7 +173,7 @@ public class Reconstruct1 {
       if ((t+1) % 100 == 0) System.out.println("Test #" + (t+1));
       MallowsTriangle triangle = new MallowsTriangle(center, phi);
       RIMRSampler sampler = new RIMRSampler(triangle);
-      Sample sample = sampler.generate(samps);
+      RankingSample sample = sampler.generate(samps);
       Filter.remove(sample, 0.1);
       
       StringBuilder sb = new StringBuilder();
@@ -187,7 +187,7 @@ public class Reconstruct1 {
         double pert = perts[i];
         double sum = m0.getE();
         for (int j = 0; j < ns; j++) {
-          Sample perturbed = perturb(sample, pert);
+          RankingSample perturbed = perturb(sample, pert);
           // perturbed.addAll(sample);
           MallowsModel model = new CompleteReconstructor().reconstruct(perturbed);
           
@@ -323,7 +323,7 @@ public class Reconstruct1 {
         MallowsTriangle triangle = new MallowsTriangle(center, phi);
         RIMRSampler sampler = new RIMRSampler(triangle);
         for (int samps: samples) {        
-          Sample sample = sampler.generate(samps);
+          RankingSample sample = sampler.generate(samps);
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           
@@ -400,7 +400,7 @@ public class Reconstruct1 {
         MallowsTriangle triangle = new MallowsTriangle(center, phi);
         RIMRSampler sampler = new RIMRSampler(triangle);
         for (int samps: samples) {        
-          Sample sample = sampler.generate(samps);
+          RankingSample sample = sampler.generate(samps);
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           

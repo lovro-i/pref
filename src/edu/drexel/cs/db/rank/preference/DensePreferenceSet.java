@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class DensePreferenceSet implements PreferenceSet {
+public class DensePreferenceSet implements MutablePreferenceSet {
 
   private final ItemSet items;
   private final boolean[][] higher;
@@ -32,16 +32,30 @@ public class DensePreferenceSet implements PreferenceSet {
     return higher;
   }
   
-  public void add(int higher, int lower) {
-    this.higher[higher][lower] = true;
-    this.higher[lower][higher] = false;
+  @Override
+  public DensePreferenceSet clone() {
+    DensePreferenceSet dps = new DensePreferenceSet(items);
+    for (int i = 0; i < higher.length; i++) {
+      for (int j = 0; j < higher.length; j++) {
+        dps.higher[i][j] = higher[i][j];
+      }
+    }
+    return dps;
   }
   
-  public void add(Item higher, Item lower) {
+  @Override
+  public boolean add(int higher, int lower) {
+    if (this.higher[higher][lower] && !this.higher[lower][higher]) return false;
+    this.higher[higher][lower] = true;
+    this.higher[lower][higher] = false;
+    return true;
+  }
+  
+  @Override
+  public boolean add(Item higher, Item lower) {    
     int hid = higher.getId();
     int lid = lower.getId();
-    this.higher[hid][lid] = true;
-    this.higher[lid][hid] = false;
+    return add(hid, lid);
   }
 
   @Override
@@ -185,14 +199,42 @@ public class DensePreferenceSet implements PreferenceSet {
     }
   }
 
+  private Integer hash;
+  
   @Override
   public int hashCode() {
-    int hash = 3;
-    hash = 79 * hash + java.util.Arrays.deepHashCode(this.higher);
+    if (hash == null) {
+      hash = 3;
+      hash = 79 * hash + java.util.Arrays.deepHashCode(this.higher);
+    }
     return hash;
   }
-
   
+
+  @Override
+  public Boolean remove(int itemId1, int itemId2) {
+    Boolean result = isHigher(itemId1, itemId2);
+    this.higher[itemId1][itemId2] = this.higher[itemId2][itemId1] = false;
+    return result;
+  }
+  
+  @Override
+  public Boolean remove(Item item1, Item item2) {
+    int hid = item1.getId();
+    int lid = item2.getId();
+    return remove(hid, lid);
+  }
+
+  @Override
+  public boolean contains(int higherId, int lowerId) {
+    return this.higher[higherId][lowerId];
+  }
+  
+  @Override
+  public boolean contains(Item higher, Item lower) {
+    return this.contains(higher.getId(), lower.getId());
+  }
+
   public static void main(String[] args) {
     ItemSet items = new ItemSet(4);
     DensePreferenceSet prefs = new DensePreferenceSet(items);
@@ -221,6 +263,4 @@ public class DensePreferenceSet implements PreferenceSet {
     Set<Item> lower = tc.getLower(c);
     System.out.println(Arrays.toString(lower.toArray()));
   }
-
-  
 }

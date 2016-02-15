@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class SparsePreferenceSet extends HashSet<Preference> implements PreferenceSet {
+public class SparsePreferenceSet extends HashSet<Preference> implements MutablePreferenceSet {
 
   private final ItemSet items;
 
@@ -14,6 +14,14 @@ public class SparsePreferenceSet extends HashSet<Preference> implements Preferen
     this.items = itemSet;
   }
 
+  @Override
+  public SparsePreferenceSet clone() {
+    SparsePreferenceSet sps = new SparsePreferenceSet(items);
+    sps.addAll(this);
+    return sps;
+  }
+  
+  
   @Override
   public ItemSet getItemSet() {
     return items;
@@ -25,18 +33,29 @@ public class SparsePreferenceSet extends HashSet<Preference> implements Preferen
     return null;
   }
   
-    @Override
+  @Override
   public Boolean isHigher(int hid, int lid) {
     return isHigher(items.get(hid), items.get(lid));
   }
   
-  public void add(Item higher, Item lower) {
+  @Override
+  public boolean add(int higherId, int lowerId) {
+    return this.add(items.get(higherId), items.get(lowerId));
+  }
+  
+  @Override
+  public boolean add(Item higher, Item lower) {
     if (!items.contains(higher)) throw new IllegalArgumentException("Item " + higher + " not in the set");
     if (!items.contains(lower)) throw new IllegalArgumentException("Item " + lower + " not in the set");
     
     Preference pref = new Preference(higher, lower);
+    if (this.contains(pref)) return false;
+    this.remove(lower, higher);
     this.add(pref);
+    return true;
   }
+  
+    
   
   @Override
   public String toString() {
@@ -78,6 +97,33 @@ public class SparsePreferenceSet extends HashSet<Preference> implements Preferen
       if (pref.higher.equals(i)) set.add(pref.lower);
     }
     return set;
+  }
+
+
+
+  @Override
+  public Boolean remove(Item item1, Item item2) {
+    Boolean result = this.isHigher(item1, item2);
+    if (result != null) {
+      if (result) this.remove(new Preference(item1, item2));
+      else this.remove(new Preference(item2, item1));
+    }
+    return result;
+  }
+
+  @Override
+  public Boolean remove(int idemId1, int itemId2) {
+    return this.remove(items.get(idemId1), items.get(itemId2));
+  }
+
+  @Override
+  public boolean contains(Item higher, Item lower) {
+    return this.contains(new Preference(higher, lower));
+  }
+
+  @Override
+  public boolean contains(int higherId, int lowerId) {
+    return this.contains(items.get(higherId), items.get(lowerId));
   }
   
 }

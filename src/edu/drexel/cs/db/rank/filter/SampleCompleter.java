@@ -4,7 +4,8 @@ import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
@@ -13,15 +14,15 @@ import edu.drexel.cs.db.rank.triangle.SampleTriangle;
 /** Complete each ranking in the sample with a random one(s), consistent with the ranking (the order of the present items is kept) */
 public class SampleCompleter {
 
-  private Sample sample;
+  private RankingSample sample;
   
-  public SampleCompleter(Sample sample) {
+  public SampleCompleter(RankingSample sample) {
     this.sample = sample;
   }
 
   /** Completes the incomplete rankings in the sample with random consistent complete one.
    */
-  public Sample complete() {
+  public RankingSample complete() {
     return complete(1);
   }
   
@@ -29,25 +30,22 @@ public class SampleCompleter {
   /** Completes the incomplete rankings in the sample with <code>num</code> random consistent complete ones.
    * Each incomplete ranking is substituted with <code>num</code> complete ones, each with weight <code>1 / num</code>
    */
-  public Sample complete(int num) {
+  public RankingSample complete(int num) {
     ItemSet items = sample.getItemSet();
-    Sample complete = new Sample(items);
-    for (int index = 0; index < sample.size(); index++) {
-      Ranking r = sample.get(index).r;
-      double weight = sample.getWeight(index);
-
-      int m = items.size() - r.size();
+    RankingSample complete = new RankingSample(items);
+    for (PW<Ranking> pw: sample) {
+      int m = items.size() - pw.p.size();
       if (m == 0) {
-        complete.add(r, weight);
+        complete.add(pw);
         continue;
       }
-      double w = weight / num;
+      double w = pw.w / num;
       for (int i = 0; i < num; i++) {
         Ranking random = items.getRandomRanking();
         int k = 0; // index of item in the incomplete ranking to be inserted next
         for (int j = 0; j < random.size(); j++) {
           Item e = random.get(j);
-          if (r.contains(e)) random.set(j, r.get(k++));          
+          if (pw.p.contains(e)) random.set(j, pw.p.get(k++));          
         }
         complete.add(random, w);
       }
@@ -96,11 +94,11 @@ public class SampleCompleter {
     
     MallowsTriangle triangle = new MallowsTriangle(center, phi);
     RIMRSampler sampler = new RIMRSampler(triangle);    
-    Sample sample = sampler.generate(10);
+    RankingSample sample = sampler.generate(10);
     Filter.remove(sample, 0.1);
     
     SampleCompleter completer = new SampleCompleter(sample);
-    Sample complete = completer.complete(10);
+    RankingSample complete = completer.complete(10);
     System.out.println(complete);
   }
   

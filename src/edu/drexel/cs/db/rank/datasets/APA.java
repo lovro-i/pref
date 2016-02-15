@@ -1,16 +1,18 @@
 package edu.drexel.cs.db.rank.datasets;
 
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
-import edu.drexel.cs.db.rank.preference.PreferenceSample;
+import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import java.io.File;
 import java.io.IOException;
 
 
 public class APA {
 
-  private Sample sample;
+  private RankingSample sample;
   
   public APA(String filename) throws IOException {
     this(new File(filename));
@@ -21,16 +23,12 @@ public class APA {
     this.sample = loader.loadSample(data);
   }
   
-  public Sample getRankingSample() {
+  public RankingSample getRankingSample() {
     return sample;
   }
   
-  public PreferenceSample getPreferenceSample() {
-    PreferenceSample ps = new PreferenceSample(sample.getItemSet());
-    for (Sample.RW rw: sample) {
-      ps.add(DensePreferenceSet.fromTopKRanking(rw.r), rw.w);
-    }
-    return ps;
+  public Sample<DensePreferenceSet> transitiveClosure() {
+    return sample.transitiveClosure();
   }
 
   

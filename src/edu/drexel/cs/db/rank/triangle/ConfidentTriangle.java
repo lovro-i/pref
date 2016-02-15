@@ -4,9 +4,8 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.filter.Filter;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,16 +27,10 @@ public class ConfidentTriangle extends Triangle {
     this.referenceIndex = reference.getIndexMap();
   }
   
-  public ConfidentTriangle(Ranking reference, Sample sample) {
+  public ConfidentTriangle(Ranking reference, Sample<Ranking> sample) {
     this(reference);
-//    double per = 0;
-    for (RW rw: sample) {
-//      double p = 100d * index / sample.size();
-//      if (p - per > 10) {
-//        per = p;
-//        Logger.info(p + "% ");
-//      }
-      this.add(rw.r, rw.w);
+    for (PW<Ranking> pw: sample) {
+      this.add(pw.p, pw.w);
     }
     
   }

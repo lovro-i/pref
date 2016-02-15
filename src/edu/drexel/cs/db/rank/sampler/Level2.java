@@ -2,8 +2,9 @@ package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,10 +18,10 @@ class Level2 {
   private final Map<Ranking, Users> map = new HashMap<Ranking, Users>();
   
   
-  Level2(Ranking reference, PreferenceConstraint cons, int index) {
+  Level2(Ranking reference, PreferenceConstraint cons) {
     this.reference = reference;
     this.cons = cons;
-    this.index = index;
+    this.index = cons.size();
   }
 
   @Override

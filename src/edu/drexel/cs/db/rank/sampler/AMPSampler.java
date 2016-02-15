@@ -3,13 +3,14 @@ package edu.drexel.cs.db.rank.sampler;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
+import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import fr.lri.tao.apro.util.Logger;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +27,10 @@ public class AMPSampler {
     this.model = model;
   }
   
+  private long timeHiLo = 0;
+  private long timeCP = 0;
+  
+    
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(model.getItemSet());
@@ -38,6 +43,7 @@ public class AMPSampler {
       int low = 0;
       int high = i;
       
+      long t1 = System.currentTimeMillis();
       Set<Item> higher = tc.getHigher(item);
       Set<Item> lower = tc.getLower(item);
       for (int j = 0; j < r.size(); j++) {
@@ -45,11 +51,13 @@ public class AMPSampler {
         if (higher.contains(it)) low = j + 1;
         if (lower.contains(it) && j < high) high = j;
       }
+      timeHiLo += System.currentTimeMillis() - t1;
             
       if (low == high) {
         r.addAt(low, item);
       }
-      else {        
+      else {
+        long t2 = System.currentTimeMillis();
         double sum = 0;
         double[] p = new double[high+1];                
         for (int j = low; j <= high; j++) {
@@ -66,22 +74,29 @@ public class AMPSampler {
             break;
           }
         }
+        timeCP += System.currentTimeMillis() - t2;
       }
     }
     return r;
   }
   
+  public void printTimes() {
+    Logger.info("timeHiLo: %d ms; timeCP: %d ms", timeHiLo, timeCP);
+  }
+  
+
+  
   /** Create new sample with completions of the rankings in the input one */
-  public Sample sample(Sample sample) {
-    Sample out = new Sample(sample.getItemSet());
-    for (RW rw: sample) {
-      out.add(sample(rw.r), rw.w);      
+  public RankingSample sample(Sample<? extends PreferenceSet> sample) {
+    RankingSample out = new RankingSample(sample.getItemSet());
+    for (PW pw: sample) {
+      out.add(sample(pw.p), pw.w);      
     }
     return out;
   }
   
-  public Sample sample(PreferenceSet v, int size) {
-    Sample sample = new Sample(model.getItemSet());
+  public RankingSample sample(PreferenceSet v, int size) {
+    RankingSample sample = new RankingSample(model.getItemSet());
     for (int i = 0; i < size; i++) {
       sample.add(sample(v));      
     }
@@ -142,8 +157,8 @@ public class AMPSampler {
     return r;
   }
   
-  public Sample sample(Ranking v, int size) {
-    Sample sample = new Sample(model.getItemSet());
+  public RankingSample sample(Ranking v, int size) {
+    RankingSample sample = new RankingSample(model.getItemSet());
     for (int i = 0; i < size; i++) {
       sample.add(sample(v));      
     }
@@ -160,7 +175,7 @@ public class AMPSampler {
     
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.8);
     AMPSampler sampler = new AMPSampler(model);
-    Sample sample = sampler.sample(v, 1000);
+    RankingSample sample = sampler.sample(v, 1000);
 //    System.out.println(sample);
 //    for (Ranking r: sample) {
 //      if (!Filter.isConsistent(r, v)) Logger.error("Inconsistent: " + r.toString());
@@ -169,7 +184,7 @@ public class AMPSampler {
     
     // PreferenceSet test
     {
-      Sample s2 = sampler.sample(DensePreferenceSet.fromRanking(v), 1000);
+      RankingSample s2 = sampler.sample(DensePreferenceSet.fromRanking(v), 1000);
       System.out.println(s2);
       for (Ranking r: s2.rankings()) {
         if (!r.isConsistent(v)) Logger.error("Inconsistent: " + r.toString());

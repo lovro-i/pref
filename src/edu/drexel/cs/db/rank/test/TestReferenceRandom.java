@@ -4,7 +4,7 @@ import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
@@ -29,7 +29,7 @@ public class TestReferenceRandom {
     System.out.println(original);
     MallowsTriangle triangle = new MallowsTriangle(original);
     RIMRSampler sampler = new RIMRSampler(triangle);
-    Sample sample = sampler.generate(sampleSize);
+    RankingSample sample = sampler.generate(sampleSize);
     
     CompleteReconstructor reconstructor = new CompleteReconstructor();
     MallowsModel mallows1 = reconstructor.reconstruct(sample);
@@ -47,7 +47,7 @@ public class TestReferenceRandom {
     
     SampleTriangleByRow st = new SampleTriangleByRow(c1, sample);
     RIMRSampler resampler = new RIMRSampler(st);
-    Sample resample = resampler.generate(10000);
+    RankingSample resample = resampler.generate(10000);
     
     MallowsModel mallows = reconstructor.reconstruct(resample);
     System.out.println(mallows);

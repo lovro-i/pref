@@ -5,7 +5,7 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import java.util.Set;
 
 /** Set of preferences of one user */
-public interface PreferenceSet {
+public interface PreferenceSet extends Cloneable {
 
   
   public ItemSet getItemSet();
@@ -13,7 +13,7 @@ public interface PreferenceSet {
   /** Returns true if contains this preference, false if contains the opposite, and null if it doesn't contain the information on this pair */
   public Boolean isHigher(Item higher, Item lower);
   
-  /** Returns true if contains this preference, false if contains the opposite, and null if it doesn't contain the information on this pair */
+  /** Returns true if contains preference with this item IDs, false if contains the opposite, and null if it doesn't contain the information on this pair */
   public Boolean isHigher(int higher, int lower);
   
   /** Returns the transitive closure of this preference set, as DensePreferenceSet */
@@ -25,10 +25,11 @@ public interface PreferenceSet {
   /** Returns the list of items with lower preference than this one */
   public Set<Item> getLower(Item i);
 
+  /** @return true if the set contains information that the former item is higher than the latter */
+  public boolean contains(Item higher, Item lower);
   
-  // public void add(Item higher, Item lower);
+  /** @return true if the set contains information that the former item is higher than the latter */
+  public boolean contains(int higherId, int lowerId);  
   
-  // public Sample toSample();
-  
-  
+  public PreferenceSet clone();
 }

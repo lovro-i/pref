@@ -3,10 +3,10 @@ package edu.drexel.cs.db.rank.filter;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
-import edu.drexel.cs.db.rank.incomplete.Missing;
+import edu.drexel.cs.db.rank.incomplete.MissingProbabilities;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -25,33 +25,33 @@ public class Filter {
   }
   
   /** Remove items from the ranking with probabilities specified in Missing. Destructive on ranking, changes the actual ranking */
-  public static void remove(Ranking ranking, Missing m) {
+  public static void remove(Ranking ranking, MissingProbabilities m) {
     m.remove(ranking);
   }
   
   /** Remove items from all rankings with probability p for removing each one. Destructive, changes the actual sample and its rankings */
-  public static void remove(Sample sample, double p) {
-    for (RW rw: sample) {
-      Filter.remove(rw.r, p);
+  public static void remove(RankingSample sample, double p) {
+    for (PW<Ranking> pw: sample) {
+      Filter.remove(pw.p, p);
     }
   }
   
   
   /** Remove items from all rankings with probabilities specified in Missing. Destructive, changes the actual sample and its rankings */
-  public static void remove(Sample sample, Missing m) {
+  public static void remove(RankingSample sample, MissingProbabilities m) {
     m.remove(sample);
   }
   
   
   /** Leave only top K items in each ranking */
-  public static void top(Sample sample, int k) {
+  public static void top(RankingSample sample, int k) {
     for (Ranking r: sample.rankings()) {
       while (r.size() > k) r.remove(r.size() - 1);
     }
   }
   
   /** Leave between min and max (both inclusive) items in the ranking. Uniform distribution */
-  public static void top(Sample sample, int min, int max) {
+  public static void top(RankingSample sample, int min, int max) {
     for (Ranking r: sample.rankings()) {
       int k = min + random.nextInt(max - min + 1);
       while (r.size() > k) r.remove(r.size() - 1);
@@ -59,7 +59,7 @@ public class Filter {
   }
   
   /** Replaces a ranking with a uniformly random one with probability p */
-  public static void noise(Sample sample, double p) {
+  public static void noise(RankingSample sample, double p) {
     for (Ranking r: sample.rankings()) {
       double flip = random.nextDouble();
       if (flip < p) randomize(r);
@@ -78,10 +78,10 @@ public class Filter {
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     
-    Sample sample = MallowsUtils.sample(items.getRandomRanking(), 0.3, 100);
+    RankingSample sample = MallowsUtils.sample(items.getRandomRanking(), 0.3, 100);
     System.out.println(sample);
     
-    Sample noisy = new Sample(sample);
+    RankingSample noisy = new RankingSample(sample);
     noise(noisy, 0.2);
     System.out.println(noisy);
     

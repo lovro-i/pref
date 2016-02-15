@@ -4,7 +4,7 @@ package edu.drexel.cs.db.rank.test;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.util.TrainUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -49,7 +49,7 @@ public class PolynomialTests {
 
           MallowsTriangle triangle = new MallowsTriangle(reference, phi);
           RIMRSampler sampler = new RIMRSampler(triangle);
-          Sample sample = sampler.generate(sampleSize);
+          RankingSample sample = sampler.generate(sampleSize);
           MallowsModel mallows = rec.reconstruct(sample);
           
           double recPhi = mallows.getPhi();
@@ -93,7 +93,7 @@ public class PolynomialTests {
 
           MallowsTriangle triangle = new MallowsTriangle(reference, phi);
           RIMRSampler sampler = new RIMRSampler(triangle);
-          Sample sample = sampler.generate(sampleSize);
+          RankingSample sample = sampler.generate(sampleSize);
           MallowsModel mallows = rec.reconstruct(sample);
           
           double recPhi = mallows.getPhi();

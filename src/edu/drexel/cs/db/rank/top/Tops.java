@@ -1,26 +1,25 @@
 package edu.drexel.cs.db.rank.top;
 
-import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.util.MathUtils;
 
-/** Distribution of ranking length */
+/** Distribution of ranking lengths */
 public class Tops {
 
   private final ItemSet items;
   private double[] lengths;
   
-  public Tops(Sample sample) {
+  public Tops(RankingSample sample) {
     this.items = sample.getItemSet();
     lengths = new double[items.size() + 1];
     double sum = 0;
-    for (RW rw: sample) {
-      int i = rw.r.size();
-      lengths[i] += rw.w;
-      sum += rw.w;
+    for (PW<Ranking> pw: sample) {
+      int i = pw.p.size();
+      lengths[i] += pw.w;
+      sum += pw.w;
     }
     
     for (int i = 0; i < lengths.length; i++) {
@@ -46,7 +45,7 @@ public class Tops {
   }
     
   /** Remove items randomly from the sample with specified probabilities */
-  public void remove(Sample sample) {
+  public void remove(RankingSample sample) {
     for (Ranking r: sample.rankings()) {
       remove(r);
     }

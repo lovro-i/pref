@@ -2,9 +2,8 @@ package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
-import edu.drexel.cs.db.rank.preference.PreferenceSample;
-import edu.drexel.cs.db.rank.preference.PreferenceSample.PW;
+import edu.drexel.cs.db.rank.core.Sample.PW;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,24 +17,22 @@ class Level1 {
   private final Map<PreferenceConstraint, Level2> map = new HashMap<PreferenceConstraint, Level2>(); 
   private final Map<PW, PreferenceConstraint> users = new HashMap<PW, PreferenceConstraint>();
   
-  Level1(Ranking reference, PreferenceSample sample, int index) {
+  Level1(Ranking reference, Sample<? extends PreferenceSet> sample, int index) {
     this.reference = reference;
     this.index = index;
-    build(sample);
-  }
 
-  private void build(PreferenceSample sample) {
     for (PW pw: sample) {
-      PreferenceConstraint cons = new PreferenceConstraint(pw.p, reference, index);
+      PreferenceConstraint cons = new PreferenceConstraint(pw.p, reference, index+1);
+      // Logger.info("Level1 %d created cons %s", index, cons);
       Level2 level2 = map.get(cons);
       if (level2 == null) {
-        level2 = new Level2(reference, cons, index);
+        level2 = new Level2(reference, cons);
         map.put(cons, level2);
       }
       users.put(pw, cons);
     }
   }
-
+  
   void add(PW pw, Ranking prefix) {
     PreferenceConstraint cons = users.get(pw);
     Level2 level3 = map.get(cons);

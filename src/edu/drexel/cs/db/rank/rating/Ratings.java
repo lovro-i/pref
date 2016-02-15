@@ -3,8 +3,8 @@ package edu.drexel.cs.db.rank.rating;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.preference.SparsePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.sampler.FullSample;
@@ -58,20 +58,20 @@ public class Ratings extends HashMap<Item, Float> {
   
   
   
-  public Sample toSample() {
+  public RankingSample toSample() {
     List<List<Item>> groups = getGroups();    
     
-    Sample sample = null;
+    RankingSample sample = null;
     for (List<Item> le: groups) {
-      Sample s = new FullSample(this.items, le);
+      RankingSample s = new FullSample(this.items, le);
       if (sample == null) sample = s;
       else sample = sample.multiply(s);
     }
     
     double w = 1d / sample.size();
-    Sample wd = new Sample(items);
-    for (RW rw: sample) {
-      wd.add(rw.r, w);
+    RankingSample wd = new RankingSample(items);
+    for (PW pw: sample) {
+      wd.add(pw);
     }
     return wd;
   }
@@ -84,7 +84,7 @@ public class Ratings extends HashMap<Item, Float> {
     return s.longValueExact();
   }
   
-  public Sample toSample(int max) {
+  public RankingSample toSample(int max) {
     List<List<Item>> groups = getGroups();    
     boolean shrink;
     try {
@@ -104,7 +104,7 @@ public class Ratings extends HashMap<Item, Float> {
       for (Item e: le) r.add(e);      
     }
 
-    Sample sample = new Sample(items);
+    RankingSample sample = new RankingSample(items);
     double w = 1d / max;
     for (int i = 0; i < max; i++) {
       Ranking ranking = new Ranking(items);
@@ -160,7 +160,7 @@ public class Ratings extends HashMap<Item, Float> {
     ratings.put(items.get(6), 2f); // G: 2
     // BE | CDF | G | A 
     
-    Sample sample = ratings.toSample(5);
+    RankingSample sample = ratings.toSample(5);
     System.out.println(sample);
     
     PreferenceSet prefs = ratings.toPreferences();

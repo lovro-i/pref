@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.noisy;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -55,7 +55,7 @@ public class NoisyTest {
       ItemSet items = new ItemSet(itemSetSize);
       Ranking center = items.getRandomRanking();
       MallowsModel model = new MallowsModel(center, phi);
-      Sample sample = MallowsUtils.sample(model, sampleSize);
+      RankingSample sample = MallowsUtils.sample(model, sampleSize);
       Filter.noise(sample, noise);
 
 

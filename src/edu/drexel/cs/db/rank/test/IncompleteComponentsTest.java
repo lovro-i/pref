@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.test;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.filter.SampleCompleter;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
@@ -97,7 +97,7 @@ public class IncompleteComponentsTest {
         ItemSet items = new ItemSet(itemSetSize);
         Ranking center = items.getRandomRanking();
         MallowsModel model = new MallowsModel(center, phi);
-        Sample sample = MallowsUtils.sample(model, sampleSize);
+        RankingSample sample = MallowsUtils.sample(model, sampleSize);
         Filter.remove(sample, miss);
 
 
@@ -105,7 +105,7 @@ public class IncompleteComponentsTest {
         long start = System.currentTimeMillis();
         SampleTriangle st1 = new SampleTriangle(center, sample);
         RIMRSampler resampler1 = new RIMRSampler(st1);
-        Sample resample1 = resampler1.generate(resampleSize);
+        RankingSample resample1 = resampler1.generate(resampleSize);
         MallowsModel model1 = reconstructor.reconstruct(resample1, center);
         long time1 = System.currentTimeMillis() - start;
         line += String.format("\t%.5f\t%.1f", model1.getPhi(), 0.001 * time1);
@@ -115,7 +115,7 @@ public class IncompleteComponentsTest {
         start = System.currentTimeMillis();
         SampleTriangleByRow st2 = new SampleTriangleByRow(center, sample);
         RIMRSampler resampler2 = new RIMRSampler(st2);
-        Sample resample2 = resampler2.generate(resampleSize);
+        RankingSample resample2 = resampler2.generate(resampleSize);
         MallowsModel model2 = reconstructor.reconstruct(resample2, center);
         long time2 = System.currentTimeMillis() - start;
         line += String.format("\t%.5f\t%.1f", model2.getPhi(), 0.001 * time2);
@@ -129,7 +129,7 @@ public class IncompleteComponentsTest {
         start = System.currentTimeMillis();
         for (int j = 0; j < bootstraps.length; j++) {
           SampleCompleter completer = new SampleCompleter(sample);
-          Sample resample = completer.complete(completions);
+          RankingSample resample = completer.complete(completions);
           MallowsModel mallows = reconstructor.reconstruct(resample, center);
           bootstraps[j] = mallows.getPhi();
         }

@@ -1,6 +1,7 @@
 package edu.drexel.cs.db.rank.noisy;
 
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.sampler.Resampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -36,13 +37,13 @@ public class NoisyReconstructor implements MallowsReconstructor {
   }
   
   @Override
-  public MallowsModel reconstruct(Sample sample) throws Exception {
+  public MallowsModel reconstruct(Sample<Ranking> sample) throws Exception {
     Ranking center = CenterReconstructor.reconstruct(sample);
     return this.reconstruct(sample, center);
   }
 
   @Override
-  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
     NoisyGenerator generator = new NoisyGenerator(triangle, boots);
     Instances data = generator.generate(sample, trainSeries, threads);
     data.setClassIndex(data.numAttributes() - 1);    
@@ -72,7 +73,7 @@ public class NoisyReconstructor implements MallowsReconstructor {
       Resampler resampler = new Resampler(sample);
       double bootstraps[] = new double[boots];
       for (int j = 0; j < bootstraps.length; j++) {
-        Sample resample = resampler.resample();
+        Sample<Ranking> resample = resampler.resample();
         MallowsModel m = reconstructor.reconstruct(resample, center);
         bootstraps[j] = m.getPhi();
       }

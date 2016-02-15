@@ -1,10 +1,11 @@
-package edu.drexel.cs.db.rank.measure;
+package edu.drexel.cs.db.rank.distance;
 
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
 
 /** Calculates Kullback-Leibler divergence between two PPMs */
-public class KullbackLeibler {
+public class KL {
 
   public static double divergence(Sample real, Sample model) {
     return divergence(new PairwisePreferenceMatrix(real), new PairwisePreferenceMatrix(model));

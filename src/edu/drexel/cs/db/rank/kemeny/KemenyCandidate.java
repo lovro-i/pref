@@ -9,12 +9,12 @@ import edu.drexel.cs.db.rank.util.Histogram;
 public class KemenyCandidate {
 
   /** Quickly find a good complete candidate to start kemenization from */
-  public static Ranking find(Sample sample) {
+  public static Ranking find(Sample<Ranking> sample) {
     int n = sample.getItemSet().size();
     Ranking longest = null;
     Histogram<Ranking> rankHist = new Histogram();
     for (int i = 0; i < sample.size(); i++) {
-      Ranking r = sample.get(i).r;
+      Ranking r = sample.get(i).p;
       if (longest == null || r.size() > longest.size()) longest = r;
       if (r.size() == n) rankHist.add(r, sample.getWeight(i));
     }

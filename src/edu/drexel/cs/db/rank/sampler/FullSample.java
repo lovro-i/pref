@@ -3,12 +3,12 @@ package edu.drexel.cs.db.rank.sampler;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Sample containing all rankings of length n */
-public class FullSample extends Sample {
+public class FullSample extends RankingSample {
 
   public FullSample(ItemSet items) {
     super(items);
@@ -45,12 +45,12 @@ public class FullSample extends Sample {
     ItemSet items = new ItemSet(n);
     
     Ranking reference = items.getReferenceRanking();
-    Sample sample = new FullSample(reference);
+    RankingSample sample = new FullSample(reference);
     System.out.println(sample);
     
     List<Item> es = new ArrayList<Item>();
     es.add(items.get(0));
-    Sample s = new FullSample(items, es);
+    RankingSample s = new FullSample(items, es);
     System.out.println(s);
     
   }

@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import java.util.List;
 
 
@@ -13,7 +13,7 @@ public class MallowsMixtureClusterer {
     return centers;
   }
   
-  public void cluster(Sample sample) {
+  public void cluster(RankingSample sample) {
     
   }
 }

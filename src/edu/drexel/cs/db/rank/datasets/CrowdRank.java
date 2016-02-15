@@ -3,9 +3,9 @@ package edu.drexel.cs.db.rank.datasets;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.filter.Split;
-import edu.drexel.cs.db.rank.incomplete.IncompleteReconstructor;
+import edu.drexel.cs.db.rank.incomplete.EMIncompleteReconstructor;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
@@ -23,8 +23,8 @@ import java.util.StringTokenizer;
 public class CrowdRank {
 
   private File data;
-  private Map<Integer, Sample> hits;
-  private Sample fullSample;
+  private Map<Integer, RankingSample> hits;
+  private RankingSample fullSample;
   
   public CrowdRank(File data) throws IOException {
     this.data = data;
@@ -33,18 +33,18 @@ public class CrowdRank {
   }
   
   private void loadHitSamples() throws IOException {
-    hits = new HashMap<Integer, Sample>();
+    hits = new HashMap<Integer, RankingSample>();
     List<String> lines = FileUtils.readLines(data);
     Set<Integer> hitIds = getHits(lines);
     for (Integer hit: hitIds) {
       ItemSet items = getItems(lines, hit);
-      Sample sample = new Sample(items);
+      RankingSample sample = new RankingSample(items);
       hits.put(hit, sample);
       loadSample(sample, lines, hit);
     }
   }
   
-  public Sample getHitSample(int hit) throws IOException {
+  public RankingSample getHitSample(int hit) throws IOException {
     if (hits == null) loadHitSamples();
     return hits.get(hit);
   }
@@ -57,7 +57,7 @@ public class CrowdRank {
   private void loadFullSample() throws IOException {
     List<String> lines = FileUtils.readLines(data);
     ItemSet items = getItems(lines);
-    fullSample = new Sample(items);
+    fullSample = new RankingSample(items);
     for (String line: lines) {
       try {
         StringTokenizer t = new StringTokenizer(line, ", -;\"");
@@ -75,12 +75,12 @@ public class CrowdRank {
     }
   }
   
-  public Sample getFullSample() throws IOException {
+  public RankingSample getFullSample() throws IOException {
     if (fullSample == null) loadFullSample();
     return fullSample;
   }
   
-  private void loadSample(Sample sample, List<String> lines, Integer hit) {
+  private void loadSample(RankingSample sample, List<String> lines, Integer hit) {
     ItemSet items = sample.getItemSet();
     for (String line: lines) {
       try {
@@ -157,17 +157,15 @@ public class CrowdRank {
   
   /** Model the whole hit with a mixture of mallows */
   public MallowsMixtureModel reconstructFull(int hit) throws Exception {
-    Sample sample = getHitSample(hit);
-    File folder = new File("C:\\Projects\\Rank\\Results.3");
-    File arff = new File(folder, "hit." + hit + ".train.arff");
-    MallowsReconstructor single = new IncompleteReconstructor(arff, 3);
+    RankingSample sample = getHitSample(hit);
+    MallowsReconstructor single = new EMIncompleteReconstructor(10);
     MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, 10);        
     return reconstructor.reconstruct(sample);
   }
   
   
   public MallowsMixtureModel reconstructFullSample() throws Exception {
-    MallowsReconstructor single = new IncompleteReconstructor(3);
+    MallowsReconstructor single = new EMIncompleteReconstructor(10);
     MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, 10);        
     return reconstructor.reconstruct(fullSample);
   }
@@ -176,7 +174,7 @@ public class CrowdRank {
     File data = new File("C:\\Projects\\Rank\\Papers\\prefaggregation\\Mallows_Model\\datasets\\crowdrank\\hit_uid_ranking.csv");
     CrowdRank crowdRank = new CrowdRank(data);
     
-    Sample sample = crowdRank.getFullSample();
+    RankingSample sample = crowdRank.getFullSample();
     System.out.println(sample);
     System.out.println(crowdRank.reconstructFullSample());
   }

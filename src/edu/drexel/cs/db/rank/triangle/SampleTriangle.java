@@ -2,8 +2,8 @@ package edu.drexel.cs.db.rank.triangle;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.RW;
+import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class SampleTriangle extends Triangle {
     }
   }
   
-  public SampleTriangle(Ranking reference, Sample sample) {
+  public SampleTriangle(Ranking reference, RankingSample sample) {
     this(reference);
     double per = 0;
     for (int index = 0; index < sample.size(); index++) {
@@ -32,8 +32,8 @@ public class SampleTriangle extends Triangle {
         per = p;
         System.out.print(p + "% ");
       }
-      RW rw = sample.get(index);
-      this.add(rw.r, rw.w);
+      PW<Ranking> rw = sample.get(index);
+      this.add(rw.p, rw.w);
     }
     
   }

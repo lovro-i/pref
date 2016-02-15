@@ -1,12 +1,11 @@
 package edu.drexel.cs.db.rank.test;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
-import edu.drexel.cs.db.rank.measure.KullbackLeibler;
+import edu.drexel.cs.db.rank.distance.KL;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.plot.ScatterPlot;
-import edu.drexel.cs.db.rank.preference.PPMDistance;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.File;
@@ -30,7 +29,7 @@ public class LogLikelihoodAndKL {
     ItemSet items = new ItemSet(10);
     double phi = 0.2;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);    
-    Sample sample = MallowsUtils.sample(model, 5000);
+    RankingSample sample = MallowsUtils.sample(model, 5000);
     
     // System.out.println(model.getLogLikelihood(sample));
     
@@ -60,27 +59,27 @@ public class LogLikelihoodAndKL {
       double phi1 = 0.1 + 0.7 * Math.random();
       
       MallowsModel model1 = new MallowsModel(items.getRandomRanking(), phi1);
-      Sample sample1 = MallowsUtils.sample(model1, N);
+      RankingSample sample1 = MallowsUtils.sample(model1, N);
       
       double phi2 = 0.1 + 0.7 * Math.random();
       MallowsModel model2 = new MallowsModel(model1.getCenter(), phi2);
-      Sample sample2 = MallowsUtils.sample(model2, N);
+      RankingSample sample2 = MallowsUtils.sample(model2, N);
       
       double phi3 = phi2;
       MallowsModel model3 = new MallowsModel(items.getRandomRanking(), phi3);
-      Sample sample3 = MallowsUtils.sample(model3, N);
+      RankingSample sample3 = MallowsUtils.sample(model3, N);
       
       double phi4 = 0.1 + 0.7 * Math.random();
       MallowsModel model4 = new MallowsModel(items.getRandomRanking(), phi4);
-      Sample sample4 = MallowsUtils.sample(model4, N);
+      RankingSample sample4 = MallowsUtils.sample(model4, N);
       
       
-      out.println(String.format("%.6f, %.6f", KullbackLeibler.divergence(sample1, sample2), model1.getLogLikelihood(sample2)));
-      out.println(String.format("%.6f, %.6f", KullbackLeibler.divergence(sample1, sample3), model1.getLogLikelihood(sample3)));
-      out.println(String.format("%.6f, %.6f", KullbackLeibler.divergence(sample1, sample4), model1.getLogLikelihood(sample4)));
-      out.println(String.format("%.6f, %.6f", KullbackLeibler.divergence(sample2, sample3), model2.getLogLikelihood(sample3)));
-      out.println(String.format("%.6f, %.6f", KullbackLeibler.divergence(sample2, sample4), model2.getLogLikelihood(sample4)));
-      out.println(String.format("%.6f, %.6f", KullbackLeibler.divergence(sample3, sample4), model3.getLogLikelihood(sample4)));
+      out.println(String.format("%.6f, %.6f", KL.divergence(sample1, sample2), model1.getLogLikelihood(sample2)));
+      out.println(String.format("%.6f, %.6f", KL.divergence(sample1, sample3), model1.getLogLikelihood(sample3)));
+      out.println(String.format("%.6f, %.6f", KL.divergence(sample1, sample4), model1.getLogLikelihood(sample4)));
+      out.println(String.format("%.6f, %.6f", KL.divergence(sample2, sample3), model2.getLogLikelihood(sample3)));
+      out.println(String.format("%.6f, %.6f", KL.divergence(sample2, sample4), model2.getLogLikelihood(sample4)));
+      out.println(String.format("%.6f, %.6f", KL.divergence(sample3, sample4), model3.getLogLikelihood(sample4)));
       out.flush();
       
       if (i % 100 == 0) plot(file, png);

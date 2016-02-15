@@ -4,6 +4,7 @@ import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.RankingDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.sampler.Resampler;
@@ -56,7 +57,7 @@ public class Bootstrap2 {
         for (double phi: phis) {
           MallowsTriangle triangle = new MallowsTriangle(center, phi);
           RIMRSampler sampler = new RIMRSampler(triangle);
-          Sample sample = sampler.generate(samps);
+          RankingSample sample = sampler.generate(samps);
           
           // No Bootstrap
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
@@ -68,7 +69,7 @@ public class Bootstrap2 {
           Resampler resampler = new Resampler(sample);          
           double phim = 0;
           for (int i = 0; i < bootstraps; i++) {
-            Sample resample = resampler.resample();
+            Sample<Ranking> resample = resampler.resample();
             MallowsModel m = new CompleteReconstructor().reconstruct(resample);
             phim += m.getPhi();
           }

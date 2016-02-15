@@ -1,5 +1,8 @@
-package edu.drexel.cs.db.rank.core;
+package edu.drexel.cs.db.rank.top;
 
+import edu.drexel.cs.db.rank.core.Item;
+import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import java.util.Set;
 

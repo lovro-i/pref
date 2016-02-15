@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.test;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -25,7 +25,7 @@ public class NoiseTest {
     System.out.println(original);
     MallowsTriangle triangle = new MallowsTriangle(original);
     RIMRSampler sampler = new RIMRSampler(triangle);
-    Sample sample = sampler.generate(sampleSize);
+    RankingSample sample = sampler.generate(sampleSize);
     
     
     

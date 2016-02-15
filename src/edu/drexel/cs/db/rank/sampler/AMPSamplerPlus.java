@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.sampler;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
@@ -18,7 +19,7 @@ public class AMPSamplerPlus extends AMPSampler {
 
   private ConfidentTriangle triangle;
   private double rate;
-  private Sample sample;
+  private Sample<Ranking> sample;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -27,7 +28,7 @@ public class AMPSamplerPlus extends AMPSampler {
    * @param sample
    * @param rate 
    */
-  public AMPSamplerPlus(MallowsModel model, Sample sample, double rate) {
+  public AMPSamplerPlus(MallowsModel model, Sample<Ranking> sample, double rate) {
     this(model, rate);
     this.setTrainingSample(sample);
   }
@@ -47,11 +48,11 @@ public class AMPSamplerPlus extends AMPSampler {
     return rate > 0;
   }
   
-  public Sample getTrainingSample() {
+  public Sample<Ranking> getTrainingSample() {
     return sample;
   }
   
-  public void setTrainingSample(Sample sample) {
+  public void setTrainingSample(Sample<Ranking> sample) {
     this.sample = sample;
     this.triangle = new ConfidentTriangle(model.getCenter(), sample);
   }
@@ -60,7 +61,7 @@ public class AMPSamplerPlus extends AMPSampler {
     this.rate = rate;
   }
   
-  public AMPSamplerPlus(MallowsModel model, Sample sample) {
+  public AMPSamplerPlus(MallowsModel model, Sample<Ranking> sample) {
     this(model, sample, 5);
   }
   
@@ -116,8 +117,8 @@ public class AMPSamplerPlus extends AMPSampler {
     return r;
   }
   
-  public Sample sample(PreferenceSet v, int size) {
-    Sample sample = new Sample(model.getItemSet());
+  public RankingSample sample(PreferenceSet v, int size) {
+    RankingSample sample = new RankingSample(model.getItemSet());
     for (int i = 0; i < size; i++) {
       sample.add(sample(v));      
     }
@@ -185,8 +186,8 @@ public class AMPSamplerPlus extends AMPSampler {
     return r;
   }
   
-  public Sample sample(Ranking v, int size) {
-    Sample sample = new Sample(model.getItemSet());
+  public RankingSample sample(Ranking v, int size) {
+    RankingSample sample = new RankingSample(model.getItemSet());
     for (int i = 0; i < size; i++) {
       sample.add(sample(v));      
     }
@@ -206,12 +207,12 @@ public class AMPSamplerPlus extends AMPSampler {
     
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.8);
     AMPSampler amp = new AMPSampler(model);
-    Sample s1 = amp.sample(v, 1000);
+    RankingSample s1 = amp.sample(v, 1000);
     
     
     
     AMPSamplerPlus sampler = new AMPSamplerPlus(model, s1);
-    Sample sample = sampler.sample(v, 1000);
+    RankingSample sample = sampler.sample(v, 1000);
     
   }
 }

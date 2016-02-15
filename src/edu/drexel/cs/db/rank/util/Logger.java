@@ -13,6 +13,18 @@ public class Logger {
     System.out.println(obj.toString());
   }
   
+  public static void error(Throwable t) {
+    System.out.println(t.getMessage());
+  }
+  
+  public static void error(String msg, Object... args) {
+    System.out.println(String.format(msg, args));
+  }
+  
+  public static void error(Throwable t, String msg, Object... args) {
+    System.out.println(t.getMessage() + " " + String.format(msg, args));
+  }
+  
   public static void time(String msg, long start) {
     info("%s | time: %.1f sec", msg, 0.001d * (System.currentTimeMillis() - start));
   }

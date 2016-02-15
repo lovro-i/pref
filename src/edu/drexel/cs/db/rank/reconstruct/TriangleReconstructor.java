@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.reconstruct;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.math.Polynomial;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -62,7 +62,7 @@ public class TriangleReconstructor {
     
     
     
-    Sample sample = MallowsUtils.sample(model, 10000);
+    RankingSample sample = MallowsUtils.sample(model, 10000);
     SampleTriangle tr = new SampleTriangle(reference, sample);
     System.out.println(reconstructPhi(tr));
   }

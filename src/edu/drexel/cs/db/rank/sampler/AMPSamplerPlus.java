@@ -1,68 +1,63 @@
 package edu.drexel.cs.db.rank.sampler;
 
+import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
+import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
-import edu.drexel.cs.db.rank.triangle.TriangleRow;
+import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import java.util.Map;
 import java.util.Set;
 
 
-public class AMPSamplerPlus extends AMPSampler {
+public class AMPSamplerPlus implements MallowsSampler {
 
-  private ConfidentTriangle triangle;
-  private double rate;
-  private Sample<Ranking> sample;
+  private MallowsModel model;
+  private double alpha;
+  private Sample<? extends PreferenceSet> sample;
   
-  /** Very low rate (close to zero) favors sample information.
-   * High rate (close to positive infinity) favors AMP.
-   * 
-   * @param model
-   * @param sample
-   * @param rate 
-   */
-  public AMPSamplerPlus(MallowsModel model, Sample<Ranking> sample, double rate) {
-    this(model, rate);
-    this.setTrainingSample(sample);
-  }
-  
-  public AMPSamplerPlus(MallowsModel model, double rate) {
-    super(model);
-    if (rate < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
-    this.rate = rate;
-  }
-
-  /** Creates an ordinary AMP (no sample, just the model) */
-  public AMPSamplerPlus(MallowsModel model) {
-    this(model, 0);
-  }
-  
-  public boolean isPlus() {
-    return rate > 0;
-  }
-  
-  public Sample<Ranking> getTrainingSample() {
-    return sample;
-  }
-  
-  public void setTrainingSample(Sample<Ranking> sample) {
+  public AMPSamplerPlus(MallowsModel model, Sample sample, double alpha) {
+    this.model = model;
+    this.alpha = alpha;
     this.sample = sample;
-    this.triangle = new ConfidentTriangle(model.getCenter(), sample);
+  }
+    
+  
+  private double[] support(PreferenceBuild build, int low, int high) {
+    double[] support = new double[high+1];
+    for (PW pw: sample) {
+      int index = build.getInsertIndex(pw.p);
+      if (index >= low && index <= high) {
+        support[index] += pw.w;
+      }
+    }
+    return support;
   }
   
-  public void setRate(double rate) {
-    this.rate = rate;
+  @Override
+  public MallowsModel getModel() {
+    return model;
   }
   
-  public AMPSamplerPlus(MallowsModel model, Sample<Ranking> sample) {
-    this(model, sample, 5);
+  @Override
+  public void setModel(MallowsModel model) {
+    this.model = model;
+  }
+
+  @Override
+  public Sample<Ranking> sample(Sample<? extends PreferenceSet> sample) {
+    RankingSample out = new RankingSample(sample.getItemSet());
+    for (PW pw: sample) {
+      Ranking r = sample(pw.p);
+      out.add(r, pw.w);
+    }
+    return out;
   }
   
   public Ranking sample(PreferenceSet v) {
@@ -72,6 +67,8 @@ public class AMPSamplerPlus extends AMPSampler {
     
     Item item = reference.get(0);
     r.add(item);
+    PreferenceBuild build = new PreferenceBuild(tc, r, reference);
+    
     for (int i = 1; i < reference.size(); i++) {
       item = reference.get(i);
       int low = 0;
@@ -79,6 +76,7 @@ public class AMPSamplerPlus extends AMPSampler {
       
       Set<Item> higher = tc.getHigher(item);
       Set<Item> lower = tc.getLower(item);
+      r = build.getPrefix();
       for (int j = 0; j < r.size(); j++) {
         Item it = r.get(j);
         if (higher.contains(it)) low = j + 1;
@@ -86,133 +84,41 @@ public class AMPSamplerPlus extends AMPSampler {
       }
             
       if (low == high) {
-        r.addAt(low, item);
+        build = build.addNext(low);
       }
-      else {        
-        double sum = 0;
+      else {              
+        double[] support = support(build, low, high);
+        double sc = MathUtils.sum(support);
+        double a = sc / (alpha + sc);
+        // Logger.info("Support: %f (%f)", sc, a);
+        
         double[] p = new double[high+1];
-        double alpha = 0;
-        TriangleRow row = null;
-        if (isPlus() && triangle != null) {
-          row = triangle.getRow(i);
-          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
-        }
         for (int j = low; j <= high; j++) {
           p[j] = Math.pow(model.getPhi(), i - j);
-          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
-          sum += p[j];
+          if (a > 0) p[j] = (1 - a) * p[j] + a * support[j] / sc;
         }
-        
-        double flip = MathUtils.RANDOM.nextDouble();
-        double ps = 0;
-        for (int j = low; j <= high; j++) {
-          ps += p[j] / sum;
-          if (ps > flip || j == high) {
-            r.addAt(j, item);
-            break;
-          }
-        }
+        build = build.addNext(p);
       }
     }
-    return r;
+    return build.getPrefix();
   }
-  
-  public RankingSample sample(PreferenceSet v, int size) {
-    RankingSample sample = new RankingSample(model.getItemSet());
-    for (int i = 0; i < size; i++) {
-      sample.add(sample(v));      
-    }
-    return sample;
-  }
-  
-  public Ranking sample(Ranking v) {
-    Ranking reference = model.getCenter();
-    Map<Item, Integer> map = v.getIndexMap();
-    Ranking r = new Ranking(model.getItemSet());
-    
-    Item item = reference.get(0);
-    r.add(item);
-    for (int i = 1; i < reference.size(); i++) {
-      item = reference.get(i);
-      int low, high;
-      
-      Integer ci = map.get(item);
-      if (ci == null) {
-        low = 0;
-        high = i;
-      }
-      else {
-        low = 0;
-        high = i;
-        
-        for (int j = 0; j < r.size(); j++) {
-          Item t = r.get(j);
-          Integer ti = map.get(t);
-          if (ti == null) continue;
-          if (ti < ci) low = j + 1;
-          if (ti > ci && j < high) high = j;
-        }
-      }
-      
-      if (low == high) {
-        r.addAt(low, item);
-      }
-      else {        
-        double sum = 0;
-        double[] p = new double[high+1];      
-        TriangleRow row = null;
-        double alpha = 0;
-        if (isPlus() && triangle != null) {
-          row = triangle.getRow(i);
-          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
-        }
-        for (int j = low; j <= high; j++) {
-          p[j] = Math.pow(model.getPhi(), i - j);
-          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
-          sum += p[j];
-        }
-        
-        double flip = MathUtils.RANDOM.nextDouble();
-        double ps = 0;
-        for (int j = low; j <= high; j++) {
-          ps += p[j] / sum;
-          if (ps > flip || j == high) {
-            r.addAt(j, item);
-            break;
-          }
-        }
-      }
-    }
-    return r;
-  }
-  
-  public RankingSample sample(Ranking v, int size) {
-    RankingSample sample = new RankingSample(model.getItemSet());
-    for (int i = 0; i < size; i++) {
-      sample.add(sample(v));      
-    }
-    return sample;
-  }
-  
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking v = new Ranking(items);
-    v.add(items.get(0));    
-    v.add(items.get(1));    
     v.add(items.get(3));    
     v.add(items.get(7));
     v.add(items.get(5));
     System.out.println(v);
     
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.8);
-    AMPSampler amp = new AMPSampler(model);
-    RankingSample s1 = amp.sample(v, 1000);
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.5);    
+    RankingSample sample = MallowsUtils.sample(model, 10000);
+    Filter.remove(sample, 0.2);
     
-    
-    
-    AMPSamplerPlus sampler = new AMPSamplerPlus(model, s1);
-    RankingSample sample = sampler.sample(v, 1000);
-    
+    AMPSamplerPlus sampler = new AMPSamplerPlus(model, sample, 100);
+    Ranking r = sampler.sample(v);
+    Logger.info("\nResult: %s", r);
   }
+
+
 }

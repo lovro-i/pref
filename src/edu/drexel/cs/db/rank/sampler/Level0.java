@@ -32,7 +32,7 @@ public class Level0 {
     }
   }
   
-  public Level1 getLevel2(int index) {
+  public Level1 getLevel1(int index) {
     return map.get(index);
   }
 }

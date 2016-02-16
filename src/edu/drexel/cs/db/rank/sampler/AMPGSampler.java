@@ -44,8 +44,8 @@ public class AMPGSampler {
     start = System.currentTimeMillis();
     for (int i = 1; i < reference.size(); i++) {
       Item item = reference.get(i);
-      Level1 prev = level1.getLevel2(i-1);
-      Level1 next = level1.getLevel2(i);
+      Level1 prev = level1.getLevel1(i-1);
+      Level1 next = level1.getLevel1(i);
 //      Logger.info("[Item %d]\n%s", i, prev);
 //      try { System.in.read(); } catch (IOException ex) { }
       long t1 = System.currentTimeMillis();
@@ -159,7 +159,6 @@ public class AMPGSampler {
       RankingSample out = sampler.sample(tcs);      
       // System.out.println(out);
       Logger.info("[AMP] %d items, %d users in %d ms", items.size(), out.size(), System.currentTimeMillis() - start);
-      sampler.printTimes();
     }
     
     {

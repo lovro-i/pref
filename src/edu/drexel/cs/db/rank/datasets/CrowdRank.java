@@ -155,28 +155,28 @@ public class CrowdRank {
     return new ItemSet(ids.toArray());
   }
   
-  /** Model the whole hit with a mixture of mallows */
-  public MallowsMixtureModel reconstructFull(int hit) throws Exception {
-    RankingSample sample = getHitSample(hit);
-    MallowsReconstructor single = new EMIncompleteReconstructor(10);
-    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, 10);        
-    return reconstructor.reconstruct(sample);
-  }
-  
-  
-  public MallowsMixtureModel reconstructFullSample() throws Exception {
-    MallowsReconstructor single = new EMIncompleteReconstructor(10);
-    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, 10);        
-    return reconstructor.reconstruct(fullSample);
-  }
-  
-  public static void main(String[] args) throws Exception {
-    File data = new File("C:\\Projects\\Rank\\Papers\\prefaggregation\\Mallows_Model\\datasets\\crowdrank\\hit_uid_ranking.csv");
-    CrowdRank crowdRank = new CrowdRank(data);
-    
-    RankingSample sample = crowdRank.getFullSample();
-    System.out.println(sample);
-    System.out.println(crowdRank.reconstructFullSample());
-  }
+//  /** Model the whole hit with a mixture of mallows */
+//  public MallowsMixtureModel reconstructFull(int hit) throws Exception {
+//    RankingSample sample = getHitSample(hit);
+//    MallowsReconstructor single = new EMIncompleteReconstructor(10);
+//    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, 10);        
+//    return reconstructor.reconstruct(sample);
+//  }
+//  
+//  
+//  public MallowsMixtureModel reconstructFullSample() throws Exception {
+//    MallowsReconstructor single = new EMIncompleteReconstructor(10);
+//    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, 10);        
+//    return reconstructor.reconstruct(fullSample);
+//  }
+//  
+//  public static void main(String[] args) throws Exception {
+//    File data = new File("C:\\Projects\\Rank\\Papers\\prefaggregation\\Mallows_Model\\datasets\\crowdrank\\hit_uid_ranking.csv");
+//    CrowdRank crowdRank = new CrowdRank(data);
+//    
+//    RankingSample sample = crowdRank.getFullSample();
+//    System.out.println(sample);
+//    System.out.println(crowdRank.reconstructFullSample());
+//  }
   
 }

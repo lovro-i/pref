@@ -4,25 +4,54 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.util.Logger;
+import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
+import edu.drexel.cs.db.rank.triangle.TriangleRow;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.Map;
 import java.util.Set;
 
+/** The one that uses the whole sample for probabilities. */
+public class AMPSamplerX extends MallowsSampler {
 
-public class AMPSampler extends MallowsSampler {
+  private ConfidentTriangle triangle;
+  private double rate;
+  private Sample<Ranking> sample;
+  
+  /** Very low rate (close to zero) favors sample information.
+   * High rate (close to positive infinity) favors AMP.
+   * 
+   * @param model
+   * @param sample
+   * @param rate 
+   */
+  public AMPSamplerX(MallowsModel model, Sample<Ranking> sample, double rate) {
+    super(model);
+    this.setTrainingSample(sample);
+    if (rate < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
+    this.rate = rate;
+  }
+
 
   
-  public AMPSampler(MallowsModel model) {
-    super(model);
+  public Sample<Ranking> getTrainingSample() {
+    return sample;
+  }
+  
+  public void setTrainingSample(Sample<Ranking> sample) {
+    this.sample = sample;
+    this.triangle = new ConfidentTriangle(model.getCenter(), sample);
+  }
+  
+  public void setRate(double rate) {
+    this.rate = rate;
   }
   
   
-   
-  @Override
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(model.getItemSet());
@@ -35,7 +64,6 @@ public class AMPSampler extends MallowsSampler {
       int low = 0;
       int high = i;
       
-      long t1 = System.currentTimeMillis();
       Set<Item> higher = tc.getHigher(item);
       Set<Item> lower = tc.getLower(item);
       for (int j = 0; j < r.size(); j++) {
@@ -47,12 +75,18 @@ public class AMPSampler extends MallowsSampler {
       if (low == high) {
         r.addAt(low, item);
       }
-      else {
-        long t2 = System.currentTimeMillis();
+      else {        
         double sum = 0;
-        double[] p = new double[high+1];                
+        double[] p = new double[high+1];
+        double alpha = 0;
+        TriangleRow row = null;
+        if (triangle != null) {
+          row = triangle.getRow(i);
+          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
+        }
         for (int j = low; j <= high; j++) {
           p[j] = Math.pow(model.getPhi(), i - j);
+          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
           sum += p[j];
         }
         
@@ -70,16 +104,7 @@ public class AMPSampler extends MallowsSampler {
     return r;
   }
   
-  
 
-  public RankingSample sample(PreferenceSet v, int size) {
-    RankingSample sample = new RankingSample(model.getItemSet());
-    for (int i = 0; i < size; i++) {
-      sample.add(sample(v));      
-    }
-    return sample;
-  }
-  
   public Ranking sample(Ranking v) {
     Ranking reference = model.getCenter();
     Map<Item, Integer> map = v.getIndexMap();
@@ -114,9 +139,16 @@ public class AMPSampler extends MallowsSampler {
       }
       else {        
         double sum = 0;
-        double[] p = new double[high+1];                
+        double[] p = new double[high+1];      
+        TriangleRow row = null;
+        double alpha = 0;
+        if (triangle != null) {
+          row = triangle.getRow(i);
+          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
+        }
         for (int j = low; j <= high; j++) {
           p[j] = Math.pow(model.getPhi(), i - j);
+          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
           sum += p[j];
         }
         
@@ -133,33 +165,28 @@ public class AMPSampler extends MallowsSampler {
     }
     return r;
   }
-  
+
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking v = new Ranking(items);
+    v.add(items.get(0));    
+    v.add(items.get(1));    
     v.add(items.get(3));    
     v.add(items.get(7));
     v.add(items.get(5));
     System.out.println(v);
     
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.8);
-    AMPSampler sampler = new AMPSampler(model);
+    AMPSampler amp = new AMPSampler(model);
+    RankingSample s1 = amp.sample(v, 1000);
+    
+    
+    
+    AMPSamplerX sampler = new AMPSamplerX(model, s1, 10);
     RankingSample sample = sampler.sample(v, 1000);
-//    System.out.println(sample);
-//    for (Ranking r: sample) {
-//      if (!Filter.isConsistent(r, v)) Logger.error("Inconsistent: " + r.toString());
-//    }
-    
-    
-    // PreferenceSet test
-    {
-      RankingSample s2 = sampler.sample(v.transitiveClosure(), 1000);
-      System.out.println(s2);
-      for (Ranking r: s2.rankings()) {
-        if (!r.isConsistent(v)) Logger.error("Inconsistent: " + r.toString());
-      }
-    }
     
   }
+
+  
 }

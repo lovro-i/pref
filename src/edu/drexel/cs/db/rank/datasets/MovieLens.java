@@ -76,7 +76,7 @@ public class MovieLens {
     Logger.info("Splitting the sample intro train (%.2f) and test (%.2f)", split, 1-split);
     
     // Reconstruct
-    MallowsReconstructor single = new EMIncompleteReconstructor(10);
+    MallowsReconstructor single = new EMIncompleteReconstructor(null);
     MallowsMixtureRatingsReconstructor reconstructor = new MallowsMixtureRatingsReconstructor(single, 10);
     reconstructor.setMaxRankings(1);
     MallowsMixtureModel model = reconstructor.reconstruct(splits.get(0));    

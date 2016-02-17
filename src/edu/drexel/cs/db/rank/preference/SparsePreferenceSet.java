@@ -2,7 +2,13 @@ package edu.drexel.cs.db.rank.preference;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -124,6 +130,40 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
   @Override
   public boolean contains(int higherId, int lowerId) {
     return this.contains(items.get(higherId), items.get(lowerId));
+  }
+  
+  /** Create ranking from the items in the collection, if possible */
+  @Override
+  public Ranking project(Collection<Item> items) {
+    Map<Item, Integer> itemCount = new HashMap<Item, Integer>();
+    for (Item item: items) itemCount.put(item, 0);
+    List<Item> itemList = new ArrayList<Item>(items);
+    
+    for (int i = 0; i < itemList.size() - 1; i++) {
+      Item it1 = itemList.get(i);
+      for (int j = i+1; j < itemList.size(); j++) {
+        Item it2 = itemList.get(j);
+        Boolean b = this.isHigher(it1, it2);
+        if (b == null) return null;
+        if (b) {
+          int c = itemCount.get(it2);
+          itemCount.put(it2, c+1);
+        }
+        else {
+          int c = itemCount.get(it1);
+          itemCount.put(it1, c+1);
+        }
+      }      
+    }
+    
+    Map<Integer, Item> reverse = new HashMap<Integer, Item>();
+    for (Item it: itemCount.keySet()) reverse.put(itemCount.get(it), it);
+    
+    Ranking top = new Ranking(getItemSet());
+    for (int i = 0; i < itemList.size(); i++) {
+      top.add(reverse.get(i));
+    }    
+    return top;
   }
   
 }

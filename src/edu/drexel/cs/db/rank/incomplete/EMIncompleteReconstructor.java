@@ -9,7 +9,11 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CenterReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
+import edu.drexel.cs.db.rank.sampler.AMPSampler;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerPlus;
+import edu.drexel.cs.db.rank.sampler.AMPSamplerPlusPlus;
+import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
+import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 
@@ -17,33 +21,17 @@ import edu.drexel.cs.db.rank.util.Logger;
 public class EMIncompleteReconstructor implements MallowsReconstructor {
 
   private int iterations = 10;
-  private double startPhi = 0.5;
   
-  private double rate;
-  private final boolean useCompleteSample;
+  private MallowsSampler sampler;
   private OnIterationListener listener;
   
-  /** Construct EM reconstructor with rate between model and sample information.
-   * If zero or negative, only model is used
-   * otherwise, sample is weighted n / (rate + n)
-   * @param rate How much is information from the sample favored: n / (rate + n)
-   * @param useCompleteSample If true, it uses the completed sample from the previous iteration. If false, always uses the input sample
+  /** Construct EM reconstructor with specified sampler
    */
-  public EMIncompleteReconstructor(double rate, boolean useCompleteSample) {
-    this.rate = rate;
-    this.useCompleteSample = useCompleteSample;
+  public EMIncompleteReconstructor(MallowsSampler sampler) {
+    this.sampler = sampler;
   }
   
-  /** Uses ordinary AMP */
-  public EMIncompleteReconstructor() {
-    this(0, false);
-  }
 
-  public EMIncompleteReconstructor(int i) {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-  
-  
   @Override
   public MallowsModel reconstruct(Sample<Ranking> sample) {
     Ranking center = CenterReconstructor.reconstruct(sample);
@@ -58,43 +46,16 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     this.listener = listener;
   }
   
-  public void setInitialPhi(double phi) {
-    this.startPhi = phi;
-  }
-
-  public boolean isPlus() {
-    return rate > 0;
-  }
-  
-  public boolean isPlusPlus() {
-    return (rate > 0) && useCompleteSample;
-  }
-  
+ 
   @Override
   public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) {
-    ItemSet items = sample.getItemSet();
-    MallowsModel estimate = new MallowsModel(center, startPhi);
+    MallowsModel estimate = sampler.getModel();
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    AMPSamplerPlus amp = new AMPSamplerPlus(estimate, rate);
-    if (isPlus() && !isPlusPlus()) amp.setTrainingSample(sample);
     Sample<Ranking> resample = sample;
     for (int i = 0; i < iterations; i++) {
-      if (isPlusPlus()) amp.setTrainingSample(resample);
-      amp.setModel(estimate);
-      if (listener != null) listener.onIterationStart(i, estimate, amp.getTrainingSample());
-      
-      resample = new RankingSample(items);
-      for (int j = 0; j < sample.size(); j++) {
-        Ranking r = sample.get(j).p;
-        double w = sample.getWeight(j);
-        if (r.size() == items.size()) {
-          resample.add(r, w);
-          continue;
-        }
-        
-        Ranking complete = amp.sample(r);
-        resample.add(complete, w);
-      }
+      sampler.setModel(estimate);
+      if (listener != null) listener.onIterationStart(i, estimate, sample);
+      resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
       if (listener != null) listener.onIterationEnd(i, estimate, resample);
     }
@@ -109,37 +70,73 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample);
   }
   
+  
+  
+  
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getReferenceRanking();
-    RankingSample sample = MallowsUtils.sample(ref, 0.9, 500);
-    Filter.remove(sample, 0.4);
+    RankingSample sample = MallowsUtils.sample(ref, 0.2, 1000);
+    Filter.remove(sample, 0.3);
+    
+    
+    OnIterationListener listener = new OnIterationListener() {
+      @Override
+      public void onIterationStart(int iteration, MallowsModel estimate, Sample<Ranking> trainingSample) {        
+      }
+
+      @Override
+      public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample) {
+        Logger.info("Iteration %d: %f", iteration, estimate.getPhi());
+      }
+      
+    };
+    
+    
+    double initialPhi = 0.9;
+    MallowsModel initial = new MallowsModel(ref, initialPhi);
+    
     
     {
       long start = System.currentTimeMillis();
-      EMIncompleteReconstructor rec = new EMIncompleteReconstructor();
-      rec.setInitialPhi(0.2);
+      MallowsSampler sampler = new AMPSampler(initial);
+      EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
+      rec.setIterations(4);
+      rec.setOnIterationListener(listener);
       MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("Done in %d ms", System.currentTimeMillis() - start);
+      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
     }
     
     {
       long start = System.currentTimeMillis();
-      System.out.println();
-      EMIncompleteReconstructor rec = new EMIncompleteReconstructor(5, false);
-      rec.setInitialPhi(0.2);
+      MallowsSampler sampler = new AMPSamplerX(initial, sample, 10);
+      EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
+      rec.setIterations(4);
+      rec.setOnIterationListener(listener);
       MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("Done in %d ms", System.currentTimeMillis() - start);
+      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
     }
     
     {
       long start = System.currentTimeMillis();
-      System.out.println();
-      EMIncompleteReconstructor rec = new EMIncompleteReconstructor(5, true);
-      rec.setInitialPhi(0.2);
+      MallowsSampler sampler = new AMPSamplerPlus(initial, sample, 10);
+      EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
+      rec.setIterations(4);
+      rec.setOnIterationListener(listener);
       MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("Done in %d ms", System.currentTimeMillis() - start);
+      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
     }
+    
+    {
+      long start = System.currentTimeMillis();
+      MallowsSampler sampler = new AMPSamplerPlusPlus(initial, sample, 10);
+      EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
+      rec.setIterations(4);
+      rec.setOnIterationListener(listener);
+      MallowsModel model = rec.reconstruct(sample, ref);
+      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
+    }
+
     
   }
 }

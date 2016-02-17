@@ -2,6 +2,8 @@ package edu.drexel.cs.db.rank.preference;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
+import java.util.Collection;
 import java.util.Set;
 
 /** Set of preferences of one user */
@@ -18,6 +20,9 @@ public interface PreferenceSet extends Cloneable {
   
   /** Returns the transitive closure of this preference set, as DensePreferenceSet */
   public DensePreferenceSet transitiveClosure();
+  
+  /** Create ranking from items in the collection, if possible */
+  public Ranking project(Collection<Item> items);
   
   /** Returns the list of items with higher preference than this one */
   public Set<Item> getHigher(Item i);

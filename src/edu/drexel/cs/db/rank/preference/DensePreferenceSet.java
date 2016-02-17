@@ -4,7 +4,12 @@ import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -158,30 +163,43 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     return set;
   }
   
-  public static DensePreferenceSet fromRanking(Ranking r) {
-    DensePreferenceSet prefs = new DensePreferenceSet(r.getItemSet());
-    for (int i = 0; i < r.size()-1; i++) {
-      Item higher = r.get(i);
-      for (int j = i+1; j < r.size(); j++) {
-        Item lower = r.get(j);
-        prefs.add(higher, lower);        
+  
+  /** Create ranking from the items in the collection, if possible */
+  @Override
+  public Ranking project(Collection<Item> items) {
+    Map<Item, Integer> itemCount = new HashMap<Item, Integer>();
+    for (Item item: items) itemCount.put(item, 0);
+    List<Item> itemList = new ArrayList<Item>(items);
+    
+    for (int i = 0; i < itemList.size() - 1; i++) {
+      Item it1 = itemList.get(i);
+      for (int j = i+1; j < itemList.size(); j++) {
+        Item it2 = itemList.get(j);
+        Boolean b = this.isHigher(it1, it2);
+        if (b == null) return null;
+        if (b) {
+          int c = itemCount.get(it2);
+          itemCount.put(it2, c+1);
+        }
+        else {
+          int c = itemCount.get(it1);
+          itemCount.put(it1, c+1);
+        }
       }      
     }
-    return prefs;
+    
+    Map<Integer, Item> reverse = new HashMap<Integer, Item>();
+    for (Item it: itemCount.keySet()) reverse.put(itemCount.get(it), it);
+    
+    Ranking top = new Ranking(getItemSet());
+    for (int i = 0; i < itemList.size(); i++) {
+      Item it = reverse.get(i);
+      if (it == null) return null;
+      top.add(it);
+    }    
+    return top;
   }
   
-  
-  public static DensePreferenceSet fromTopKRanking(Ranking r) {    
-    DensePreferenceSet prefs = fromRanking(r);
-    Set<Item> missing = r.getMissingItems();
-    for (int i = 0; i < r.size(); i++) {
-      Item higher = r.get(i);
-      for (Item lower: missing) {
-        prefs.add(higher, lower);        
-      }      
-    }
-    return prefs;
-  }
   
   @Override
   public boolean equals(Object o) {
@@ -234,7 +252,7 @@ public class DensePreferenceSet implements MutablePreferenceSet {
   public boolean contains(Item higher, Item lower) {
     return this.contains(higher.getId(), lower.getId());
   }
-
+  
   public static void main(String[] args) {
     ItemSet items = new ItemSet(4);
     DensePreferenceSet prefs = new DensePreferenceSet(items);
@@ -258,7 +276,7 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     
     Ranking r = items.getRandomRanking();
     System.out.println(r);
-    System.out.println(DensePreferenceSet.fromRanking(r));
+    System.out.println(r.transitiveClosure());
     
     Set<Item> lower = tc.getLower(c);
     System.out.println(Arrays.toString(lower.toArray()));

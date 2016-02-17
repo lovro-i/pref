@@ -11,7 +11,6 @@ import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
-import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -64,6 +63,36 @@ public class MissingProbabilities {
     }
   }
 
+  // Linear: firstPoint, lastPoint, missingP = (lastPoint-firstPoint)*(k-1)/(n-1) + firstpoint
+  public MissingProbabilities(ItemSet items, String missingModel, double firstPoint, double lastPoint) {
+    this.items = items;
+    int itemsSize = items.size();
+    this.miss = new double[itemsSize];
+    double missingIncreasingRate = (lastPoint - firstPoint) / (itemsSize - 1);
+    if (missingModel.equals("linear")) {
+      for (int i = 0; i < itemsSize; i++) {
+        this.miss[i] = missingIncreasingRate * i + firstPoint;
+      }
+    };
+  }
+
+  // Geometric: p, missingP = 1 - (1-p)^(k-1)*p
+  // Exponential: lambda, missingP = 1 - lambda*e^(-lambda*k)
+  public MissingProbabilities(ItemSet items, String missingModel, double p) {
+    this.items = items;
+    int itemsSize = items.size();
+    this.miss = new double[itemsSize];
+    if (missingModel.equals("geometric")) {
+      for (int i = 0; i < itemsSize; i++) {
+        this.miss[i] = 1 - Math.pow(1 - p, i) * p;
+      }
+    } else if (missingModel.equals("exponential")) {
+      for (int i = 0; i < itemsSize; i++) {
+        this.miss[i] = 1 - p * Math.pow(Math.E, (-p * i));
+      }
+    }
+  }
+
   /**
    * Remove items randomly from the ranking with specified probabilities
    */
@@ -113,7 +142,6 @@ public class MissingProbabilities {
         }
       }
     }
-
   }
 
   /**
@@ -165,9 +193,16 @@ public class MissingProbabilities {
     System.out.println("Before transitive closure:\n" + prefs.toString());
     MutablePreferenceSet tc = prefs.transitiveClosure();
     System.out.println("After tc, before missing:\n" + tc.toString());
-    MissingProbabilities m = new MissingProbabilities(items,0.3);
+    MissingProbabilities m = new MissingProbabilities(items, 0.3);
     m.remove(tc);
     System.out.println("After missing:\n" + tc.toString());
 
+    System.out.println("\nNow let's test missing probabilities of linear, geometric and exponential:");
+    MissingProbabilities mLinear = new MissingProbabilities(items, "linear", 0.1, 0.9);
+    System.out.println("Linear:\n" + mLinear);
+    MissingProbabilities mGeometric = new MissingProbabilities(items, "geometric", 0.6);
+    System.out.println("Geometric:\n" + mGeometric);
+    MissingProbabilities mExponential = new MissingProbabilities(items, "exponential", 0.7);
+    System.out.println("Exponential:\n" + mExponential);
   }
 }

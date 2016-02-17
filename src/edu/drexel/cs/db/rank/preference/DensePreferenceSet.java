@@ -193,7 +193,9 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     
     Ranking top = new Ranking(getItemSet());
     for (int i = 0; i < itemList.size(); i++) {
-      top.add(reverse.get(i));
+      Item it = reverse.get(i);
+      if (it == null) return null;
+      top.add(it);
     }    
     return top;
   }

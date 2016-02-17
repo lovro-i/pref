@@ -6,8 +6,6 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
-import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
@@ -15,25 +13,15 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class AMPSampler implements MallowsSampler {
+public class AMPSampler extends MallowsSampler {
 
-  protected MallowsModel model;
   
   public AMPSampler(MallowsModel model) {
-    this.model = model;
+    super(model);
   }
   
   
-  @Override
-  public MallowsModel getModel() {
-    return model;
-  }
-  
-  public void setModel(MallowsModel model) {
-    this.model = model;
-  }
-  
-    
+   
   @Override
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();
@@ -82,18 +70,8 @@ public class AMPSampler implements MallowsSampler {
     return r;
   }
   
+  
 
-  
-  /** Create new sample with completions of the rankings in the input one */
-  @Override
-  public RankingSample sample(Sample<? extends PreferenceSet> sample) {
-    RankingSample out = new RankingSample(sample.getItemSet());
-    for (PW pw: sample) {
-      out.add(sample(pw.p), pw.w);      
-    }
-    return out;
-  }
-  
   public RankingSample sample(PreferenceSet v, int size) {
     RankingSample sample = new RankingSample(model.getItemSet());
     for (int i = 0; i < size; i++) {
@@ -156,13 +134,6 @@ public class AMPSampler implements MallowsSampler {
     return r;
   }
   
-  public RankingSample sample(Ranking v, int size) {
-    RankingSample sample = new RankingSample(model.getItemSet());
-    for (int i = 0; i < size; i++) {
-      sample.add(sample(v));      
-    }
-    return sample;
-  }
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);

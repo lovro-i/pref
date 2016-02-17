@@ -16,9 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 /** The one that uses the whole sample for probabilities. */
-public class AMPSamplerX implements MallowsSampler {
+public class AMPSamplerX extends MallowsSampler {
 
-  private MallowsModel model;
   private ConfidentTriangle triangle;
   private double rate;
   private Sample<Ranking> sample;
@@ -31,7 +30,7 @@ public class AMPSamplerX implements MallowsSampler {
    * @param rate 
    */
   public AMPSamplerX(MallowsModel model, Sample<Ranking> sample, double rate) {
-    this.model = model;
+    super(model);
     this.setTrainingSample(sample);
     if (rate < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
     this.rate = rate;
@@ -51,26 +50,7 @@ public class AMPSamplerX implements MallowsSampler {
   public void setRate(double rate) {
     this.rate = rate;
   }
-   
-  @Override
-  public void setModel(MallowsModel model) {
-    this.model = model;
-  }
   
-  @Override
-  public MallowsModel getModel() {
-    return model;
-  }
-
-  @Override
-  public Sample<Ranking> sample(Sample<? extends PreferenceSet> sample) {
-    RankingSample out = new RankingSample(sample.getItemSet());
-    for (PW pw: sample) {
-      Ranking r = sample(pw.p);
-      out.add(r, pw.w);
-    }
-    return out;
-  }
   
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();
@@ -124,14 +104,7 @@ public class AMPSamplerX implements MallowsSampler {
     return r;
   }
   
-  public RankingSample sample(PreferenceSet v, int size) {
-    RankingSample sample = new RankingSample(model.getItemSet());
-    for (int i = 0; i < size; i++) {
-      sample.add(sample(v));      
-    }
-    return sample;
-  }
-  
+
   public Ranking sample(Ranking v) {
     Ranking reference = model.getCenter();
     Map<Item, Integer> map = v.getIndexMap();
@@ -192,15 +165,6 @@ public class AMPSamplerX implements MallowsSampler {
     }
     return r;
   }
-  
-  public RankingSample sample(Ranking v, int size) {
-    RankingSample sample = new RankingSample(model.getItemSet());
-    for (int i = 0; i < size; i++) {
-      sample.add(sample(v));      
-    }
-    return sample;
-  }
-  
 
   
   public static void main(String[] args) {

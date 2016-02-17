@@ -284,8 +284,10 @@ public class Ranking implements Comparable, PreferenceSet {
   
   public boolean isConsistent(PreferenceSet v) {
     for (int i = 0; i < size()-1; i++) {
+      Item i1 = this.get(i);
       for (int j = i+1; j < size(); j++) {
-         Boolean p = v.isHigher(i, j);
+        Item i2 = this.get(j);
+         Boolean p = v.isHigher(i1, i2);
          if (p != null && p == false) return false;
       }
     }

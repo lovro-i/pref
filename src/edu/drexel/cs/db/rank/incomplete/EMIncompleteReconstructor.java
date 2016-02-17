@@ -70,6 +70,9 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample);
   }
   
+  
+  
+  
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getReferenceRanking();
@@ -98,36 +101,40 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
       long start = System.currentTimeMillis();
       MallowsSampler sampler = new AMPSampler(initial);
       EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
+      rec.setIterations(4);
       rec.setOnIterationListener(listener);
       MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("%s Done in %d ms", sampler.getClass(), System.currentTimeMillis() - start);
+      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
     }
     
     {
       long start = System.currentTimeMillis();
       MallowsSampler sampler = new AMPSamplerX(initial, sample, 10);
       EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
+      rec.setIterations(4);
       rec.setOnIterationListener(listener);
       MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("%s Done in %d ms", sampler.getClass(), System.currentTimeMillis() - start);
+      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
     }
     
     {
       long start = System.currentTimeMillis();
       MallowsSampler sampler = new AMPSamplerPlus(initial, sample, 10);
       EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
+      rec.setIterations(4);
       rec.setOnIterationListener(listener);
       MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("%s Done in %d ms", sampler.getClass(), System.currentTimeMillis() - start);
+      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
     }
     
     {
       long start = System.currentTimeMillis();
-      MallowsSampler sampler = new AMPSamplerPlusPlus(initial, 10);
+      MallowsSampler sampler = new AMPSamplerPlusPlus(initial, sample, 10);
       EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
+      rec.setIterations(4);
       rec.setOnIterationListener(listener);
       MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("%s Done in %d ms", sampler.getClass(), System.currentTimeMillis() - start);
+      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
     }
 
     

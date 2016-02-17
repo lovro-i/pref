@@ -10,6 +10,11 @@ import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 
 public class MallowsUtils {
   
+  public static Ranking sample(MallowsModel model) {
+    MallowsTriangle triangle = new MallowsTriangle(model);
+    RIMRSampler sampler = new RIMRSampler(triangle);
+    return sampler.generate();
+  }
   
   public static RankingSample sample(MallowsModel model, int size) {
     MallowsTriangle triangle = new MallowsTriangle(model);

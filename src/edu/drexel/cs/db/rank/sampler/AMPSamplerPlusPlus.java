@@ -17,42 +17,34 @@ import java.util.List;
 import java.util.Set;
 
 
-public class AMPSamplerPlusPlus implements MallowsSampler {
+public class AMPSamplerPlusPlus extends MallowsSampler {
 
-  private MallowsModel model;
   private double alpha;
+  private final Sample<DensePreferenceSet> evidence;
+  private final List<DensePreferenceSet> support = new ArrayList<DensePreferenceSet>();
   
-  public AMPSamplerPlusPlus(MallowsModel model, double alpha) {
-    this.model = model;
+  
+  public AMPSamplerPlusPlus(MallowsModel model, Sample evidence, double alpha) {
+    super(model);
     this.alpha = alpha;
+    this.evidence = evidence.transitiveClosure();
   }
     
   
-  @Override
-  public MallowsModel getModel() {
-    return model;
-  }
-  
-  public void setModel(MallowsModel model) {
-    this.model = model;
-  }
-  
-  
-  private double[] support(Sample<DensePreferenceSet> evidence, PreferenceBuild build, int low, int high) {
-    double[] support = new double[high+1];
-    for (PW pw: evidence) {
+  private double[] support(PreferenceBuild build, int low, int high) {
+    double[] sup = new double[high+1];
+    support.clear();
+    for (PW<DensePreferenceSet> pw: evidence) {
       int index = build.getInsertIndex(pw.p);
       if (index >= low && index <= high) {
-        support[index] += pw.w;
-        // Logger.info("Found support: %s", pw.p);
+        sup[index] += pw.w;
+        support.add(pw.p);
       }
     }
-    return support;
+    return sup;
   }
   
   private void updateEvidence(DensePreferenceSet tc, PreferenceBuild build) {
-    // System.out.println(build);
-    // Logger.info("\nBefore update: %s", tc);
     Ranking r = build.getPrefix();
     Item item = build.getReference().get(r.size()-1);
     boolean seen = false;
@@ -62,13 +54,17 @@ public class AMPSamplerPlusPlus implements MallowsSampler {
       else if (seen) tc.add(item, it);
       else tc.add(it, item);
     }
-    // Logger.info("After update: %s", tc);
   }
   
+  private void updateSupport(PreferenceBuild build) {
+    for (DensePreferenceSet dps: support) {
+      updateEvidence(dps, build);
+    }
+  }
 
   @Override
   public Ranking sample(PreferenceSet pref) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    throw new UnsupportedOperationException("Not supported for single sampling");
   }
 
 
@@ -109,7 +105,7 @@ public class AMPSamplerPlusPlus implements MallowsSampler {
           build = build.addNext(low);
         }
         else {              
-          double[] support = support(tcs, build, low, high);
+          double[] support = support(build, low, high);
           double sc = MathUtils.sum(support);
           double a = sc / (alpha + sc);
 
@@ -118,14 +114,14 @@ public class AMPSamplerPlusPlus implements MallowsSampler {
             p[j] = Math.pow(model.getPhi(), i - j);
             if (a > 0) p[j] = (1 - a) * p[j] + a * support[j] / sc;
           }
-          build = build.addNext(p);          
+          build = build.addNext(p); 
+          updateSupport(build);
         }
         
         if (build.getPrefix().size() == reference.size()) {
           out.add(build.getPrefix(), tcs.getWeight(k));
         }
         else {
-          updateEvidence(tcs.getPreferenceSet(k), build);
           builds.set(k, build);
         }
       }
@@ -143,11 +139,11 @@ public class AMPSamplerPlusPlus implements MallowsSampler {
 //    System.out.println(v);
     
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.5);    
-    RankingSample sample = MallowsUtils.sample(model, 1);
+    RankingSample sample = MallowsUtils.sample(model, 3);
     Filter.remove(sample, 0.2);
     System.out.println(sample);
     
-    AMPSamplerPlusPlus sampler = new AMPSamplerPlusPlus(model, 100);
+    AMPSamplerPlusPlus sampler = new AMPSamplerPlusPlus(model, sample, 100);
     RankingSample rs = sampler.sample(sample);
     for (int i = 0; i < sample.size(); i++) {
       Logger.info("%s -> %s", sample.getPreferenceSet(i), rs.getPreferenceSet(i));

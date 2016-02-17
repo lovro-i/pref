@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.rank.sampler;
 
-import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
@@ -16,14 +15,13 @@ import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.Set;
 
 
-public class AMPSamplerPlus implements MallowsSampler {
+public class AMPSamplerPlus extends MallowsSampler {
 
-  private MallowsModel model;
   private double alpha;
   private Sample<? extends PreferenceSet> sample;
   
   public AMPSamplerPlus(MallowsModel model, Sample sample, double alpha) {
-    this.model = model;
+    super(model);
     this.alpha = alpha;
     this.sample = sample;
   }
@@ -40,25 +38,6 @@ public class AMPSamplerPlus implements MallowsSampler {
     return support;
   }
   
-  @Override
-  public MallowsModel getModel() {
-    return model;
-  }
-  
-  @Override
-  public void setModel(MallowsModel model) {
-    this.model = model;
-  }
-
-  @Override
-  public Sample<Ranking> sample(Sample<? extends PreferenceSet> sample) {
-    RankingSample out = new RankingSample(sample.getItemSet());
-    for (PW pw: sample) {
-      Ranking r = sample(pw.p);
-      out.add(r, pw.w);
-    }
-    return out;
-  }
   
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();

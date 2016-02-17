@@ -73,7 +73,7 @@ public class MissingProbabilities {
       for (int i = 0; i < itemsSize; i++) {
         this.miss[i] = missingIncreasingRate * i + firstPoint;
       }
-    };
+    }
   }
 
   // Geometric: p, missingP = 1 - (1-p)^(k-1)*p
@@ -87,6 +87,7 @@ public class MissingProbabilities {
         this.miss[i] = 1 - Math.pow(1 - p, i) * p;
       }
     } else if (missingModel.equals("exponential")) {
+      // Here p is the lambda in exponential distribution
       for (int i = 0; i < itemsSize; i++) {
         this.miss[i] = 1 - p * Math.pow(Math.E, (-p * i));
       }
@@ -111,31 +112,24 @@ public class MissingProbabilities {
    * be removed with probability that either item1 or item2 is removed For
    * PreferenceSets, you should remove a preference with probability that either
    * of them is removed. That is, the pair (item1 > item2) remains in the set
-   * with probability (1 - pMissing(item1) * (1 - pMissing(item2)). Then, you
-   * can create different instances of MissingProbabilities class that will
-   * represent different probability distributions. These can be created in
-   * static models, or as subclasses, or however it suits you.
-   *
+   * with probability (1 - pMissing(item1) * (1 - pMissing(item2)).
    * @param prefs is an instance of a MutablePreferenceSet
    */
   public void remove(MutablePreferenceSet prefs) {
-    // @todo Haoyue
-    Item e1, e2;
-    double flip, missingPairProbability;
     int itemsSize = prefs.getItemSet().size();
     for (int i = 0; i < itemsSize - 1; i++) {
       for (int j = i + 1; j < itemsSize; j++) {
-        e1 = this.items.get(i);
-        e2 = this.items.get(j);
+        Item e1 = this.items.get(i);
+        Item e2 = this.items.get(j);
         if (prefs.contains(e1, e2)) {
-          flip = random.nextDouble();
-          missingPairProbability = 1 - (1 - this.get(e1)) * (1 - this.get(e2));
+          double flip = random.nextDouble();
+          double missingPairProbability = 1 - (1 - this.get(e1)) * (1 - this.get(e2));
           if (flip < missingPairProbability) {
             prefs.remove(e1, e2);
           }
         } else if (prefs.contains(e2, e1)) {
-          flip = random.nextDouble();
-          missingPairProbability = 1 - (1 - this.get(e1)) * (1 - this.get(e2));
+          double flip = random.nextDouble();
+          double missingPairProbability = 1 - (1 - this.get(e1)) * (1 - this.get(e2));
           if (flip < missingPairProbability) {
             prefs.remove(e2, e1);
           }

@@ -6,11 +6,9 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import java.util.Random;
 
 /**
@@ -18,11 +16,11 @@ import java.util.Random;
  * probability
  */
 public class MissingProbabilities {
-
+  
   private static Random random = new Random();
 
   private ItemSet items;
-  private double[] miss;
+  protected double[] miss;
 
   public MissingProbabilities(ItemSet items, double[] miss) {
     this.items = items;
@@ -63,36 +61,47 @@ public class MissingProbabilities {
     }
   }
 
-  // Linear: firstPoint, lastPoint, missingP = (lastPoint-firstPoint)*(k-1)/(n-1) + firstpoint
-  public MissingProbabilities(ItemSet items, String missingModel, double firstPoint, double lastPoint) {
-    this.items = items;
+  
+
+  /** Creates an object with linear distribution: firstPoint, lastPoint, missingP = (lastPoint-firstPoint)*(k-1)/(n-1) + firstpoint
+   * 
+   * @param items
+   * @param firstPoint
+   * @param lastPoint
+   * @return 
+   */
+  public static MissingProbabilities linear(ItemSet items, double firstPoint, double lastPoint) {
+    double[] miss = new double[items.size()];
     int itemsSize = items.size();
-    this.miss = new double[itemsSize];
     double missingIncreasingRate = (lastPoint - firstPoint) / (itemsSize - 1);
-    if (missingModel.equals("linear")) {
-      for (int i = 0; i < itemsSize; i++) {
-        this.miss[i] = missingIncreasingRate * i + firstPoint;
-      }
-    };
-  }
-
-  // Geometric: p, missingP = 1 - (1-p)^(k-1)*p
-  // Exponential: lambda, missingP = 1 - lambda*e^(-lambda*k)
-  public MissingProbabilities(ItemSet items, String missingModel, double p) {
-    this.items = items;
-    int itemsSize = items.size();
-    this.miss = new double[itemsSize];
-    if (missingModel.equals("geometric")) {
-      for (int i = 0; i < itemsSize; i++) {
-        this.miss[i] = 1 - Math.pow(1 - p, i) * p;
-      }
-    } else if (missingModel.equals("exponential")) {
-      for (int i = 0; i < itemsSize; i++) {
-        this.miss[i] = 1 - p * Math.pow(Math.E, (-p * i));
-      }
+    for (int i = 0; i < items.size(); i++) {
+      miss[i] = missingIncreasingRate * i + firstPoint;
     }
+    return new MissingProbabilities(items, miss);
   }
 
+  
+  /** Geometric: p, missingP = 1 - (1-p)^(k-1)*p */
+  public static MissingProbabilities geometric(ItemSet items, double p) {
+    int itemsSize = items.size();
+    double[] miss = new double[itemsSize];
+    for (int i = 0; i < itemsSize; i++) {
+      miss[i] = 1 - Math.pow(1 - p, i) * p;
+    }
+    return new MissingProbabilities(items, miss);
+  }
+  
+  
+  /** Exponential: lambda, missingP = 1 - lambda*e^(-lambda*k) */
+  public static MissingProbabilities exponential(ItemSet items, double p) {
+    int itemsSize = items.size();
+    double[] miss = new double[itemsSize];
+    for (int i = 0; i < itemsSize; i++) {
+      miss[i] = 1 - p * Math.pow(Math.E, (-p * i));
+    }
+    return new MissingProbabilities(items, miss);
+  }
+  
   /**
    * Remove items randomly from the ranking with specified probabilities
    */
@@ -119,23 +128,20 @@ public class MissingProbabilities {
    * @param prefs is an instance of a MutablePreferenceSet
    */
   public void remove(MutablePreferenceSet prefs) {
-    // @todo Haoyue
-    Item e1, e2;
-    double flip, missingPairProbability;
     int itemsSize = prefs.getItemSet().size();
     for (int i = 0; i < itemsSize - 1; i++) {
-      for (int j = i + 1; j < itemsSize; j++) {
-        e1 = this.items.get(i);
-        e2 = this.items.get(j);
+      Item e1 = this.items.get(i);
+      for (int j = i + 1; j < itemsSize; j++) {        
+        Item e2 = this.items.get(j);
         if (prefs.contains(e1, e2)) {
-          flip = random.nextDouble();
-          missingPairProbability = 1 - (1 - this.get(e1)) * (1 - this.get(e2));
+          double flip = random.nextDouble();
+          double missingPairProbability = 1 - (1 - this.get(e1)) * (1 - this.get(e2));
           if (flip < missingPairProbability) {
             prefs.remove(e1, e2);
           }
         } else if (prefs.contains(e2, e1)) {
-          flip = random.nextDouble();
-          missingPairProbability = 1 - (1 - this.get(e1)) * (1 - this.get(e2));
+          double flip = random.nextDouble();
+          double missingPairProbability = 1 - (1 - this.get(e1)) * (1 - this.get(e2));
           if (flip < missingPairProbability) {
             prefs.remove(e2, e1);
           }
@@ -198,11 +204,11 @@ public class MissingProbabilities {
     System.out.println("After missing:\n" + tc.toString());
 
     System.out.println("\nNow let's test missing probabilities of linear, geometric and exponential:");
-    MissingProbabilities mLinear = new MissingProbabilities(items, "linear", 0.1, 0.9);
+    MissingProbabilities mLinear = MissingProbabilities.linear(items, 0.1, 0.9);
     System.out.println("Linear:\n" + mLinear);
-    MissingProbabilities mGeometric = new MissingProbabilities(items, "geometric", 0.6);
+    MissingProbabilities mGeometric = MissingProbabilities.geometric(items, 0.6);
     System.out.println("Geometric:\n" + mGeometric);
-    MissingProbabilities mExponential = new MissingProbabilities(items, "exponential", 0.7);
+    MissingProbabilities mExponential = MissingProbabilities.exponential(items, 0.7);
     System.out.println("Exponential:\n" + mExponential);
   }
 }

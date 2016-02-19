@@ -74,19 +74,40 @@ public class MissingProbabilities {
     double[] miss = new double[items.size()];
     int itemsSize = items.size();
     double missingIncreasingRate = (lastPoint - firstPoint) / (itemsSize - 1);
+<<<<<<< HEAD
     for (int i = 0; i < items.size(); i++) {
       miss[i] = missingIncreasingRate * i + firstPoint;
     }
     return new MissingProbabilities(items, miss);
+=======
+    if (missingModel.equals("linear")) {
+      for (int i = 0; i < itemsSize; i++) {
+        this.miss[i] = missingIncreasingRate * i + firstPoint;
+      }
+    }
+>>>>>>> fc03a80b6e2e0fab887ca6299f7fb5df5e1ece7a
   }
 
   
   /** Geometric: p, missingP = 1 - (1-p)^(k-1)*p */
   public static MissingProbabilities geometric(ItemSet items, double p) {
     int itemsSize = items.size();
+<<<<<<< HEAD
     double[] miss = new double[itemsSize];
     for (int i = 0; i < itemsSize; i++) {
       miss[i] = 1 - Math.pow(1 - p, i) * p;
+=======
+    this.miss = new double[itemsSize];
+    if (missingModel.equals("geometric")) {
+      for (int i = 0; i < itemsSize; i++) {
+        this.miss[i] = 1 - Math.pow(1 - p, i) * p;
+      }
+    } else if (missingModel.equals("exponential")) {
+      // Here p is the lambda in exponential distribution
+      for (int i = 0; i < itemsSize; i++) {
+        this.miss[i] = 1 - p * Math.pow(Math.E, (-p * i));
+      }
+>>>>>>> fc03a80b6e2e0fab887ca6299f7fb5df5e1ece7a
     }
     return new MissingProbabilities(items, miss);
   }
@@ -120,18 +141,19 @@ public class MissingProbabilities {
    * be removed with probability that either item1 or item2 is removed For
    * PreferenceSets, you should remove a preference with probability that either
    * of them is removed. That is, the pair (item1 > item2) remains in the set
-   * with probability (1 - pMissing(item1) * (1 - pMissing(item2)). Then, you
-   * can create different instances of MissingProbabilities class that will
-   * represent different probability distributions. These can be created in
-   * static models, or as subclasses, or however it suits you.
-   *
+   * with probability (1 - pMissing(item1) * (1 - pMissing(item2)).
    * @param prefs is an instance of a MutablePreferenceSet
    */
   public void remove(MutablePreferenceSet prefs) {
     int itemsSize = prefs.getItemSet().size();
     for (int i = 0; i < itemsSize - 1; i++) {
+<<<<<<< HEAD
       Item e1 = this.items.get(i);
       for (int j = i + 1; j < itemsSize; j++) {        
+=======
+      for (int j = i + 1; j < itemsSize; j++) {
+        Item e1 = this.items.get(i);
+>>>>>>> fc03a80b6e2e0fab887ca6299f7fb5df5e1ece7a
         Item e2 = this.items.get(j);
         if (prefs.contains(e1, e2)) {
           double flip = random.nextDouble();

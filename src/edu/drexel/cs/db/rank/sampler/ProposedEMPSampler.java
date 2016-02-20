@@ -47,7 +47,7 @@ public class ProposedEMPSampler extends MallowsSampler {
           ps += p[j] / sum;
           if (ps >= flip) {
             r.addAt(j, sigmai);
-            System.out.format("Insert %s at %d, new ranking is %s\n",sigmai.toString(),j,r.toString());
+//            System.out.format("Insert %s at %d, new ranking is %s\n",sigmai.toString(),j,r.toString());
             break;
           }
         }

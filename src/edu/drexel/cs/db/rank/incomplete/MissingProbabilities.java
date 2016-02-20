@@ -6,9 +6,11 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
+import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import java.util.Random;
 
 /**
@@ -16,28 +18,17 @@ import java.util.Random;
  * probability
  */
 public class MissingProbabilities {
-  
+
   private static Random random = new Random();
 
   private ItemSet items;
-  protected double[] miss;
+  private double[] miss;
 
   public MissingProbabilities(ItemSet items, double[] miss) {
     this.items = items;
     this.miss = new double[items.size()];
     for (int i = 0; i < this.miss.length; i++) {
       this.miss[i] = miss[i];
-    }
-  }
-
-  /**
-   * Uniform missing rate for all items
-   */
-  public MissingProbabilities(ItemSet items, double p) {
-    this.items = items;
-    this.miss = new double[items.size()];
-    for (int i = 0; i < miss.length; i++) {
-      miss[i] = p;
     }
   }
 
@@ -61,68 +52,47 @@ public class MissingProbabilities {
     }
   }
 
-  
-
-  /** Creates an object with linear distribution: firstPoint, lastPoint, missingP = (lastPoint-firstPoint)*(k-1)/(n-1) + firstpoint
-   * 
-   * @param items
-   * @param firstPoint
-   * @param lastPoint
-   * @return 
-   */
-  public static MissingProbabilities linear(ItemSet items, double firstPoint, double lastPoint) {
-    double[] miss = new double[items.size()];
+  // Linear: firstPoint, lastPoint, missingP = (lastPoint-firstPoint)*(k-1)/(n-1) + firstpoint
+  public static MissingProbabilities uniform(ItemSet items, double p) {
     int itemsSize = items.size();
+    double[] miss = new double[itemsSize];
+    for (int i = 0; i < itemsSize; i++) {
+      miss[i] = p;
+    }
+    return new MissingProbabilities(items, miss);
+  }
+
+  // Linear: firstPoint, lastPoint, missingP = (lastPoint-firstPoint)*(k-1)/(n-1) + firstpoint
+  public static MissingProbabilities linear(ItemSet items, double firstPoint, double lastPoint) {
+    int itemsSize = items.size();
+    double[] miss = new double[itemsSize];
     double missingIncreasingRate = (lastPoint - firstPoint) / (itemsSize - 1);
-<<<<<<< HEAD
-    for (int i = 0; i < items.size(); i++) {
+    for (int i = 0; i < itemsSize; i++) {
       miss[i] = missingIncreasingRate * i + firstPoint;
     }
     return new MissingProbabilities(items, miss);
-=======
-    if (missingModel.equals("linear")) {
-      for (int i = 0; i < itemsSize; i++) {
-        this.miss[i] = missingIncreasingRate * i + firstPoint;
-      }
-    }
->>>>>>> fc03a80b6e2e0fab887ca6299f7fb5df5e1ece7a
   }
 
-  
-  /** Geometric: p, missingP = 1 - (1-p)^(k-1)*p */
+  // Geometric: p, missingP = 1 - (1-p)^(k-1)*p
   public static MissingProbabilities geometric(ItemSet items, double p) {
     int itemsSize = items.size();
-<<<<<<< HEAD
     double[] miss = new double[itemsSize];
     for (int i = 0; i < itemsSize; i++) {
       miss[i] = 1 - Math.pow(1 - p, i) * p;
-=======
-    this.miss = new double[itemsSize];
-    if (missingModel.equals("geometric")) {
-      for (int i = 0; i < itemsSize; i++) {
-        this.miss[i] = 1 - Math.pow(1 - p, i) * p;
-      }
-    } else if (missingModel.equals("exponential")) {
-      // Here p is the lambda in exponential distribution
-      for (int i = 0; i < itemsSize; i++) {
-        this.miss[i] = 1 - p * Math.pow(Math.E, (-p * i));
-      }
->>>>>>> fc03a80b6e2e0fab887ca6299f7fb5df5e1ece7a
     }
     return new MissingProbabilities(items, miss);
   }
-  
-  
-  /** Exponential: lambda, missingP = 1 - lambda*e^(-lambda*k) */
-  public static MissingProbabilities exponential(ItemSet items, double p) {
+
+  // Exponential: lambda, missingP = 1 - lambda*e^(-lambda*k)
+  public static MissingProbabilities exponential(ItemSet items, double lambda) {
     int itemsSize = items.size();
     double[] miss = new double[itemsSize];
     for (int i = 0; i < itemsSize; i++) {
-      miss[i] = 1 - p * Math.pow(Math.E, (-p * i));
+      miss[i] = 1 - lambda * Math.pow(Math.E, (-lambda * i));
     }
     return new MissingProbabilities(items, miss);
   }
-  
+
   /**
    * Remove items randomly from the ranking with specified probabilities
    */
@@ -142,18 +112,14 @@ public class MissingProbabilities {
    * PreferenceSets, you should remove a preference with probability that either
    * of them is removed. That is, the pair (item1 > item2) remains in the set
    * with probability (1 - pMissing(item1) * (1 - pMissing(item2)).
+   *
    * @param prefs is an instance of a MutablePreferenceSet
    */
   public void remove(MutablePreferenceSet prefs) {
     int itemsSize = prefs.getItemSet().size();
     for (int i = 0; i < itemsSize - 1; i++) {
-<<<<<<< HEAD
-      Item e1 = this.items.get(i);
-      for (int j = i + 1; j < itemsSize; j++) {        
-=======
       for (int j = i + 1; j < itemsSize; j++) {
         Item e1 = this.items.get(i);
->>>>>>> fc03a80b6e2e0fab887ca6299f7fb5df5e1ece7a
         Item e2 = this.items.get(j);
         if (prefs.contains(e1, e2)) {
           double flip = random.nextDouble();
@@ -221,7 +187,7 @@ public class MissingProbabilities {
     System.out.println("Before transitive closure:\n" + prefs.toString());
     MutablePreferenceSet tc = prefs.transitiveClosure();
     System.out.println("After tc, before missing:\n" + tc.toString());
-    MissingProbabilities m = new MissingProbabilities(items, 0.3);
+    MissingProbabilities m = MissingProbabilities.uniform(items, 0.3);
     m.remove(tc);
     System.out.println("After missing:\n" + tc.toString());
 

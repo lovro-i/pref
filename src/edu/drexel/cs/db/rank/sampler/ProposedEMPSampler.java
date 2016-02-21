@@ -31,14 +31,14 @@ public class ProposedEMPSampler extends MallowsSampler {
         double sum = 0;
         double[] p = new double[r.size() + 1];
         for (int j = 0; j <= r.size(); j++) {          
-          double dInsertion = Math.abs(j - i);
-          double dDelta = 0;
+          int dInsertion = Math.abs(j - i);
+          int dDelta = 0;
           for (int k = 0; k < r.size(); k++) {
             Item e = rr.get(k);
             if (k < j && reference.isHigher(sigmai, e)) {
-              dDelta += 1;
+              dDelta++;
             } else if (k > j && reference.isHigher(e, sigmai)) {
-              dDelta += 1;
+              dDelta++;
             }
           }
           double dOverall = dPrevItems + dInsertion + dDelta; 

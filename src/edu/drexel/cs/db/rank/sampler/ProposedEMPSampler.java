@@ -4,11 +4,11 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import java.util.Arrays;
-import java.util.Map;
 
 public class ProposedEMPSampler extends MallowsSampler {
 
@@ -18,27 +18,31 @@ public class ProposedEMPSampler extends MallowsSampler {
 
   public Ranking sample(Ranking v) {
     Ranking reference = model.getCenter();
-    Map<Item, Integer> map = v.getIndexMap();
-    Ranking r = new Ranking(model.getItemSet());
-
-    r.add(v);
+    Ranking r = new Ranking(v);
+    
+    
+    
     for (int i = 0; i < reference.size(); i++) {
       Item sigmai = reference.get(i);
 
       if (!r.contains(sigmai)) {
+        Ranking rr = reference.project(r.getItems());
+        double dPrevItems = KendallTauDistance.between(rr, r); // distance between r and reference's projection to r (d_previous_items)
         double sum = 0;
         double[] p = new double[r.size() + 1];
-        for (int j = 0; j <= r.size(); j++) {
-          int newDist = 0;
+        for (int j = 0; j <= r.size(); j++) {          
+          double dInsertion = Math.abs(j - i);
+          double dDelta = 0;
           for (int k = 0; k < r.size(); k++) {
-            Item e = r.get(k);
-            if ((k < j) && (reference.isHigher(sigmai, e))) {
-              newDist += 1;
-            } else if ((k >= j) && (reference.isHigher(e, sigmai))) {
-              newDist += 1;
+            Item e = rr.get(k);
+            if (k < j && reference.isHigher(sigmai, e)) {
+              dDelta += 1;
+            } else if (k > j && reference.isHigher(e, sigmai)) {
+              dDelta += 1;
             }
           }
-          p[j] = Math.pow(model.getPhi(), newDist);
+          double dOverall = dPrevItems + dInsertion + dDelta; 
+          p[j] = Math.pow(model.getPhi(), dOverall);
           sum += p[j];
         }
         double flip = MathUtils.RANDOM.nextDouble();

@@ -3,9 +3,7 @@ package edu.drexel.cs.db.rank.sampler;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
-import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.distance.KL;
-import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.util.Logger;
@@ -37,15 +35,15 @@ public class SamplerTester {
     v.add(items.get(5));
     System.out.println(v);
 
-    {
-      RejectionSampler testSampler = new RejectionSampler(model);
-      test(testSampler, model, v, 100000);
-    }
-
-    {
-      AMPSampler testSampler = new AMPSampler(model);
-      test(testSampler, model, v, 100000);
-    }
+//    {
+//      RejectionSampler testSampler = new RejectionSampler(model);
+//      test(testSampler, model, v, 100000);
+//    }
+//
+//    {
+//      AMPSampler testSampler = new AMPSampler(model);
+//      test(testSampler, model, v, 100000);
+//    }
 
     {
       ProposedEMPSampler testSampler = new ProposedEMPSampler(model);

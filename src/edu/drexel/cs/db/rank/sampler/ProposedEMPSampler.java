@@ -4,10 +4,8 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
-import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 
 public class ProposedEMPSampler extends MallowsSampler {
@@ -19,30 +17,24 @@ public class ProposedEMPSampler extends MallowsSampler {
   public Ranking sample(Ranking v) {
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(v);
-    
-    
-    
+
     for (int i = 0; i < reference.size(); i++) {
       Item sigmai = reference.get(i);
 
       if (!r.contains(sigmai)) {
-        Ranking rr = reference.project(r.getItems());
-        double dPrevItems = KendallTauDistance.between(rr, r); // distance between r and reference's projection to r (d_previous_items)
         double sum = 0;
         double[] p = new double[r.size() + 1];
-        for (int j = 0; j <= r.size(); j++) {          
-          int dInsertion = Math.abs(j - i);
-          int dDelta = 0;
+        for (int j = 0; j <= r.size(); j++) {
+          int newDist = 0;
           for (int k = 0; k < r.size(); k++) {
-            Item e = rr.get(k);
-            if (k < j && reference.isHigher(sigmai, e)) {
-              dDelta++;
-            } else if (k > j && reference.isHigher(e, sigmai)) {
-              dDelta++;
+            Item e = r.get(k);
+            if ((k < j) && (reference.isHigher(sigmai, e))) {
+              newDist += 1;
+            } else if ((k >= j) && (reference.isHigher(e, sigmai))) {
+              newDist += 1;
             }
           }
-          double dOverall = dPrevItems + dInsertion + dDelta; 
-          p[j] = Math.pow(model.getPhi(), dOverall);
+          p[j] = Math.pow(model.getPhi(), newDist);
           sum += p[j];
         }
         double flip = MathUtils.RANDOM.nextDouble();

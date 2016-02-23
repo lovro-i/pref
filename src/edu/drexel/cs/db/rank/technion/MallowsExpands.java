@@ -1,12 +1,13 @@
 package edu.drexel.cs.db.rank.technion;
 
 import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 
+/** Mapping from Expand states to their probabilities */
 public class MallowsExpands extends HashMap<MallowsExpand, Double> {
   
-  private Expander expander;
+  /** The owner of this object */
+  private final Expander expander;
   
   public MallowsExpands(Expander expander) {
     this.expander = expander;
@@ -25,7 +26,8 @@ public class MallowsExpands extends HashMap<MallowsExpand, Double> {
   }
   
   /** Adds item e to the right of the item 'prev' in all the Expands.
-   *  If (after == null), it is added at the beginning
+   *  If <code>prev</code> is null, it is added at the beginning
+   * @return Map of union of the states and their probabilities expanded after adding item e after prev to all expand states
    */  
   public MallowsExpands insert(Item e, Item prev) {
     MallowsExpands expands = new MallowsExpands(expander);
@@ -60,6 +62,11 @@ public class MallowsExpands extends HashMap<MallowsExpand, Double> {
     }
   }
   
+  
+  /** Expand possible states if the specified item is missing (can be inserted between any two present items)
+   * @param item To insert
+   * @return Mapping of states to their probabilities
+   */
   public MallowsExpands insertMissing(Item item) {
     MallowsExpands expands = new MallowsExpands(expander);    
     for (MallowsExpand ex: this.keySet()) {
@@ -80,6 +87,7 @@ public class MallowsExpands extends HashMap<MallowsExpand, Double> {
     }
     return sb.toString();
   }
+  
   
   /** Get the sum of weights where item e is at the position pos (zero based) */
   public double count(Item e, int pos) {
@@ -113,6 +121,13 @@ public class MallowsExpands extends HashMap<MallowsExpand, Double> {
       dist = new double[0];
     }
     return dist;
+  }
+
+  /** Returns the total probability of all the expanded states */
+  public double getProbability() {
+    double sum = 0;
+    for (double p: this.values()) sum += p;
+    return sum;
   }
   
 }

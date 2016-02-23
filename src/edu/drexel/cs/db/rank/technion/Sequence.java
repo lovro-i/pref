@@ -4,14 +4,16 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 
-/** Defines a sequence where some items are at specific places (set using Sequence.set method)
- * Items at other positions are undefined
+/** Defines a sequence some items are at specific places (set using Sequence.set method)
+ * Items at other positions are undefined.
+ * Example: A -> 0, C -> 3, B -> 5
  */
 public class Sequence {
 
-  private ItemSet itemSet;
-  private Item[] sequence;
+  private final ItemSet itemSet;
+  private final Item[] sequence;
   
+  /** Create an empty sequence over the set of possible items */
   public Sequence(ItemSet itemSet) {
     this.itemSet = itemSet;
     this.sequence = new Item[itemSet.size()];
@@ -20,8 +22,13 @@ public class Sequence {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
+    boolean first = true;
     for (int i = 0; i < sequence.length; i++) {
-      if (sequence[i] != null) sb.append("sequence[").append(i).append("]: ").append(sequence[i]).append('\n');
+      if (sequence[i] != null) {
+        if (first) first = false;
+        else sb.append(", ");
+        sb.append(sequence[i]).append(" -> ").append(i);
+      }
     }    
     return sb.toString();
   }
@@ -37,6 +44,7 @@ public class Sequence {
     return sequence;
   }
   
+  /** Returns the ranking (partial order) that this sequence represents */
   public Ranking getRanking() {
     Ranking r = new Ranking(itemSet);
     for (Item item: sequence) {

@@ -160,6 +160,7 @@ public class Ranking implements Comparable, PreferenceSet {
   
   @Override
   public boolean equals(Object o) {
+    if (o == null) return false;
     Ranking ranking = (Ranking) o;
     if (this.items.size() != ranking.items.size()) return false;
     for (int i=0; i<items.size(); i++) {

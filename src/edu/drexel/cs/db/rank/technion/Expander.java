@@ -4,29 +4,42 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.triangle.UpTo;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.HashMap;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.Map;
 
-
+/** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities */
 public class Expander {
 
+  /** Model that this Expander calculates */
   private final MallowsModel model;
-  private final Map<Item, Integer> referenceIndex;
-  private final Ranking ranking;
+  
+  /** Just a utility map of item to its index in the reference ranking */
+  private final Map<Item, Integer> referenceIndex; 
+  
+  /** Partial order whose expand states are currently calculated */
+  private Ranking ranking;
+  
+  /** Map of states to their probabilities */
   private MallowsExpands expands;
   
   
-  public Expander(MallowsModel model, Ranking ranking) {
+  /** Creates an Expander for the give Mallows model */
+  public Expander(MallowsModel model) {
     this.model = model;
-    this.ranking = ranking;
     this.referenceIndex = model.getCenter().getIndexMap();
-    expand();
   }
     
   
-  private void expand() {
+  /** Executes the dynamic algorithm for this partial order. 
+   * Does not have to be called explicitely, it will be called from getProbability() methods when needed (when it's not calculated for the specified ranking).
+   */
+  public void expand(Ranking ranking) {
+    if (ranking.equals(this.ranking)) {
+      Logger.info("Expander already available for ranking " + ranking);
+      return;
+    }
+    Logger.info("Building expander for ranking " + ranking);
+    this.ranking = ranking;
     expands = new MallowsExpands(this);
     expands.nullify();
     Ranking reference = model.getCenter();
@@ -42,14 +55,23 @@ public class Expander {
     }
   }
   
+  /** Returns the sum of probabilities of all sequences with this partial ordering */
+  public double getProbability(Ranking r) {
+    expand(r);
+    return expands.getProbability();
+  }
   
-  public double getProbability(Sequence seq) {    
+  /** Returns the probability of the specific sequence
+   * @param seq Sequence whose probability we want */
+  public double getProbability(Sequence seq) {
+    expand(seq.getRanking());
     MallowsExpand ex = new MallowsExpand(seq);
     Double p = expands.get(ex);
     if (p == null) return 0;
     return p;
   } 
 
+  /** Returns the Mallows model of this expander */
   public MallowsModel getModel() {
     return model;
   }

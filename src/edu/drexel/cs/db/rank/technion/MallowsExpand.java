@@ -1,20 +1,28 @@
 package edu.drexel.cs.db.rank.technion;
 
 import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.util.Arrays;
 
-/** One state */
+/** One state in the expansion. The state is represented by the ordering of known items, and number of unknown items between them (plus in front and after).
+ * Example: 1.A.2.B.1 is ranking xAxxBx, where x are any items
+ */
 public class MallowsExpand {
   
-  private Expander expander;
-  private int[] miss;
-  private Item[] items;
+  /** The owner object */
+  private final Expander expander;
+  
+  /** Number of missing elements at each position */
+  private final int[] miss;
+  
+  /** Array of known items */
+  private final Item[] items;
 
+  
+  /** Create the state from a given sequence */
   public MallowsExpand(Sequence seq) {
     this.items = new Item[seq.size()];
     this.miss = new int[this.items.length + 1];
+    this.expander = null;
     
     int ie = 0;
     int im = 0;
@@ -29,12 +37,14 @@ public class MallowsExpand {
     }
   }
   
+  /** Create an empty state */
   public MallowsExpand(Expander expander) {
     this.expander = expander;
     this.items = new Item[0];
     this.miss = new int[1];
   }
   
+  /** Crate a state with no missing items */
   private MallowsExpand(Expander expander, Item[] items) {
     this.expander = expander;
     this.items = new Item[items.length];
@@ -42,6 +52,7 @@ public class MallowsExpand {
     miss = new int[items.length + 1];
   }
   
+  /** Create a clone of the state */
   private MallowsExpand(Expander expander, MallowsExpand e) {
     this.expander = expander;
     this.items = new Item[e.items.length];
@@ -59,6 +70,10 @@ public class MallowsExpand {
     return len;
   }
   
+  /** Expand possible states from this one, if the specified item is missing (can be inserted between any two present items)
+   * @param item To insert
+   * @return Mapping of states to their probabilities
+   */
   public MallowsExpands insertMissing(Item e) {
     MallowsExpands expands = new MallowsExpands(expander);
     
@@ -79,6 +94,7 @@ public class MallowsExpand {
   }
   
 
+  /** Calculate the probability of the item being inserted at the given position. Directly from the Mallows model */
   private double probability(int itemIndex, int position) {
     double phi = expander.getModel().getPhi();
     double r = Math.pow(phi, Math.abs(itemIndex - position));
@@ -87,7 +103,7 @@ public class MallowsExpand {
   
   
   /** Adds item e to the right of the item 'prev'.
-   *  If (after == null), it is added at the beginning
+   *  If (prev == null), it is added at the beginning
    */  
   public MallowsExpands insert(Item e, Item prev) {
     MallowsExpands expands = new MallowsExpands(expander);

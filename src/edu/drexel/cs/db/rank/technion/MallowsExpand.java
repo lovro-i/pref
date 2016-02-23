@@ -147,6 +147,7 @@ public class MallowsExpand {
     return -1;
   }
   
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof MallowsExpand)) return false;
     MallowsExpand e = (MallowsExpand) o;

@@ -25,9 +25,9 @@ public class Test {
     
     {
       Sequence seq = new Sequence(items);
-      seq.put(items.get(1), 2);
-      seq.put(items.get(2), 3);
       seq.put(items.get(4), 0);
+      seq.put(items.get(1), 2);
+      seq.put(items.get(2), 3);      
       System.out.println(seq);    
       double p = Math.pow(phi, 11) + 2 * Math.pow(phi, 10) + Math.pow(phi, 9) + Math.pow(phi, 5) + Math.pow(phi, 4);
       double t = expander.getProbability(seq);

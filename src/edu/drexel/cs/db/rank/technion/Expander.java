@@ -12,16 +12,16 @@ import java.util.Map;
 
 public class Expander {
 
-  private MallowsModel model;
-  private Map<Item, Integer> referenceIndex = new HashMap<Item, Integer>();
-  private Ranking ranking;
+  private final MallowsModel model;
+  private final Map<Item, Integer> referenceIndex;
+  private final Ranking ranking;
   private MallowsExpands expands;
   
   
   public Expander(MallowsModel model, Ranking ranking) {
     this.model = model;
     this.ranking = ranking;
-    this.referenceIndex = ranking.getIndexMap();
+    this.referenceIndex = model.getCenter().getIndexMap();
     expand();
   }
     
@@ -40,14 +40,14 @@ public class Expander {
       if (pos == -1) expands = expands.insertMissing(e);
       else expands = expands.insert(e, upto.previous);      
     }
-    
-    System.out.println(expands);
   }
   
   
   public double getProbability(Sequence seq) {    
     MallowsExpand ex = new MallowsExpand(seq);
-    return expands.get(ex);
+    Double p = expands.get(ex);
+    if (p == null) return 0;
+    return p;
   } 
 
   public MallowsModel getModel() {

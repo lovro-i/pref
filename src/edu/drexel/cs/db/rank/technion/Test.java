@@ -28,10 +28,9 @@ public class Test {
       seq.put(items.get(4), 0);
       seq.put(items.get(1), 2);
       seq.put(items.get(2), 3);      
-      System.out.println(seq);    
       double p = Math.pow(phi, 11) + 2 * Math.pow(phi, 10) + Math.pow(phi, 9) + Math.pow(phi, 5) + Math.pow(phi, 4);
       double t = expander.getProbability(seq);
-      Logger.info("%.6f %.6f", p, t);
+      Logger.info("%s %.6f %.6f", seq, p, t);
     }
     
     {
@@ -39,10 +38,9 @@ public class Test {
       seq.put(items.get(1), 2);
       seq.put(items.get(2), 4);
       seq.put(items.get(4), 0);
-      System.out.println(seq);    
       double p = Math.pow(phi, 12) + Math.pow(phi, 11) + Math.pow(phi, 9) + Math.pow(phi, 8) + Math.pow(phi, 6) + Math.pow(phi, 5);
       double t = expander.getProbability(seq);
-      Logger.info("%.6f %.6f", p, t);
+      Logger.info("%s %.6f %.6f", seq, p, t);
     }
     
     {
@@ -50,10 +48,9 @@ public class Test {
       seq.put(items.get(1), 2);
       seq.put(items.get(2), 5);
       seq.put(items.get(4), 0);
-      System.out.println(seq);    
       double p = Math.pow(phi, 11) + 2 * Math.pow(phi, 10) + Math.pow(phi, 9) + Math.pow(phi, 7) + Math.pow(phi, 6);
       double t = expander.getProbability(seq);
-      Logger.info("%.6f %.6f", p, t);
+      Logger.info("%s %.6f %.6f", seq, p, t);
     }
   }
   

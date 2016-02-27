@@ -165,5 +165,13 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
     }    
     return top;
   }
+
+  @Override
+  public boolean contains(Item item) {
+    for (Preference pref: this) {
+      if (pref.contains(item)) return true;
+    }
+    return false;
+  }
   
 }

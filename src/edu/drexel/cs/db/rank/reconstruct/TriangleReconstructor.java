@@ -14,7 +14,7 @@ import edu.drexel.cs.db.rank.util.Logger;
 
 /** One that should reconstruct phi directly from the triangle, without sampling
  * Not working fine, still experimental
- * @todo 
+ * ToDo 
  */
 public class TriangleReconstructor {
 

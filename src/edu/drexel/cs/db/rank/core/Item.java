@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.core;
 
 public class Item {
 
-  private int id;
+  public final int id;
   private Object tag;
     
   Item(int id) {

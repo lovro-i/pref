@@ -6,11 +6,9 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import java.util.Random;
 
 /**
@@ -110,7 +108,7 @@ public class MissingProbabilities {
    * Remove preferences randomly from this PreferenceSet Each preference should
    * be removed with probability that either item1 or item2 is removed For
    * PreferenceSets, you should remove a preference with probability that either
-   * of them is removed. That is, the pair (item1 > item2) remains in the set
+   * of them is removed. That is, the pair (item1 &gt; item2) remains in the set
    * with probability (1 - pMissing(item1) * (1 - pMissing(item2)).
    *
    * @param prefs is an instance of a MutablePreferenceSet

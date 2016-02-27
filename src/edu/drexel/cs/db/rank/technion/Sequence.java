@@ -6,7 +6,7 @@ import edu.drexel.cs.db.rank.core.Ranking;
 
 /** Defines a sequence some items are at specific places (set using Sequence.set method)
  * Items at other positions are undefined.
- * Example: A -> 0, C -> 3, B -> 5
+ * Example: A -&gt; 0, C -&gt; 3, B -&gt; 5
  */
 public class Sequence {
 

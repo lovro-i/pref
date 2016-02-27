@@ -14,17 +14,17 @@ import edu.drexel.cs.db.rank.mixture.MallowsMixtureRatingsReconstructor;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
-import edu.drexel.cs.db.rank.triangle.Expands;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-
+/** Class used for loading and accessing MovieLens dataset */
 public class MovieLens {
     
   private File data;
   
+  /** Load MovieLens dataset from the specified file */
   public MovieLens(File data) {
     this.data = data;
   }

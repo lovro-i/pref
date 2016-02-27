@@ -109,7 +109,7 @@ public class Expand {
     return -1;
   }
   
-  /** @returns Index of item e in the array of all (fixed + missed) items */
+  /** @return Index of item e in the array of all (fixed + missed) items */
   public int position(Item e) {
     if (e == null) return -1;
     int pos = 0;

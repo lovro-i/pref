@@ -4,11 +4,6 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
-import edu.drexel.cs.db.rank.filter.Split;
-import edu.drexel.cs.db.rank.incomplete.EMIncompleteReconstructor;
-import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
-import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
-import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
@@ -19,13 +14,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-
+/** Class used for loading and accessing CrowdRank dataset */
 public class CrowdRank {
 
   private File data;
   private Map<Integer, RankingSample> hits;
   private RankingSample fullSample;
   
+  /** Load CrowdRank dataset from the file */
   public CrowdRank(File data) throws IOException {
     this.data = data;
     loadHitSamples();

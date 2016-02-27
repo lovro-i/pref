@@ -44,6 +44,10 @@ public class Preference {
     return true;
   }
 
+  public boolean contains(Item item) {
+    return higher.equals(item) || lower.equals(item);
+  }
+  
   @Override
   public String toString() {
     return higher + " \u227b " + lower;

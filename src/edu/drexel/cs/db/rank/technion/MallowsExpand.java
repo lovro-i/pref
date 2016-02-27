@@ -71,10 +71,10 @@ public class MallowsExpand {
   }
   
   /** Expand possible states from this one, if the specified item is missing (can be inserted between any two present items)
-   * @param item To insert
+   * @param item to insert
    * @return Mapping of states to their probabilities
    */
-  public MallowsExpands insertMissing(Item e) {
+  public MallowsExpands insertMissing(Item item) {
     MallowsExpands expands = new MallowsExpands(expander);
     
     int pos = 0;
@@ -84,7 +84,7 @@ public class MallowsExpand {
       
       double p = 0;
       for (int j = 0; j <= miss[i]; j++) {
-        p += probability(e.getId(), pos);
+        p += probability(item.getId(), pos);
         pos++;
       }
       expands.add(ex, p);
@@ -142,7 +142,7 @@ public class MallowsExpand {
     return expands;
   }
   
-  /** @returns Index of item e in the array of fixed items */
+  /** @return Index of item e in the array of fixed items */
   private int indexOf(Item e) {
     if (e == null) return -1;
     for (int i = 0; i < items.length; i++) {
@@ -151,7 +151,7 @@ public class MallowsExpand {
     return -1;
   }
   
-  /** @returns Index of item e in the array of all (fixed + missed) items */
+  /** @return Index of item e in the array of all (fixed + missed) items */
   public int position(Item e) {
     if (e == null) return -1;
     int pos = 0;

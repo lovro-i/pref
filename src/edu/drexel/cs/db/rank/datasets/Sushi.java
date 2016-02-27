@@ -7,7 +7,6 @@ import edu.drexel.cs.db.rank.filter.Split;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
 import edu.drexel.cs.db.rank.distance.KL;
-import edu.drexel.cs.db.rank.mixture.MallowsMixtureCompactor;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -22,15 +21,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-
+/** Class used for loading and accessing Sushi dataset */
 public class Sushi {
 
   private RankingSample sample;
   
+  /** Load Sushi dataset from the file with specified filename */
   public Sushi(String filename) throws IOException {    
     this(new File(filename));
   }
   
+  /** Load Sushi dataset from the specified file */
   public Sushi(File file) throws IOException {   
     SampleLoader loader = new SampleLoader(true, false, false);
     this.sample = loader.loadSample(file);

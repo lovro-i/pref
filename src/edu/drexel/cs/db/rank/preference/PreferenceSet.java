@@ -36,5 +36,8 @@ public interface PreferenceSet extends Cloneable {
   /** @return true if the set contains information that the former item is higher than the latter */
   public boolean contains(int higherId, int lowerId);  
   
+  /** @return true if contains any information about this item */
+  public boolean contains(Item item);
+  
   public PreferenceSet clone();
 }

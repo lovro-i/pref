@@ -51,6 +51,23 @@ public class ItemSet implements List<Item> {
     }
   }
   
+  
+  public void sigmas() {
+    int i = 0;
+    for (Item e: items) {
+      i++;
+      
+      String s = "";
+      int a = i;
+      while (a > 0) {
+        s = String.valueOf(Character.toChars('\u2080' + (a % 10))) + s;
+        a = a / 10;
+      }      
+      s = "\u03c3" + s;
+      e.setTag(s);
+    }
+  }
+  
   /** @return random ranking of length len */
   public Ranking getRandomRanking(int len) {
     if (len > items.size()) throw new IllegalArgumentException("Ranking length cannot be greater that the number of items");
@@ -212,5 +229,11 @@ public class ItemSet implements List<Item> {
     }
     sb.append(" }");
     return sb.toString();
+  }
+  
+  public static void main(String[] args) {
+    ItemSet items = new ItemSet(15);
+    items.sigmas();
+    System.out.println(items);
   }
 }

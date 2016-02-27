@@ -32,7 +32,6 @@ public class RatingsLoader {
   
   /** Loads sample from the reader
    * @param reader Source of data
-   * @param weighted If true, the last value in the line is ranking weight
    * @param delimiters Commas, tabs, semi-colons...
    */
   public RatingsLoader(Reader reader, String delimiters) throws IOException {

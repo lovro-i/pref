@@ -253,6 +253,15 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     return this.contains(higher.getId(), lower.getId());
   }
   
+  @Override
+  public boolean contains(Item item) {
+    for (Item it: items) {
+      Boolean b = this.isHigher(item, it);
+      if (b != null) return true;
+    }
+    return false;
+  }
+  
   public static void main(String[] args) {
     ItemSet items = new ItemSet(4);
     DensePreferenceSet prefs = new DensePreferenceSet(items);

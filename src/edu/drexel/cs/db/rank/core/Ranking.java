@@ -78,7 +78,7 @@ public class Ranking implements Comparable, PreferenceSet {
     return items.set(index, e);
   }
   
-  /** Add Item e at the specified position in the ranking (shifting the ones on the right). If index >= size of the item, add at the end */
+  /** Add Item e at the specified position in the ranking (shifting the ones on the right). If index &gt;= size of the item, add at the end */
   public void addAt(int index, Item e) {
     if (this.contains(e)) throw new IllegalArgumentException(String.format("Item %s already in %s", e, this));
     if (index >= items.size()) items.add(e);

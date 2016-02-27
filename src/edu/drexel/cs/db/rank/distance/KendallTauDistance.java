@@ -23,7 +23,7 @@ public class KendallTauDistance implements RankingDistance {
   private int threshold = 2;
   
   /** Set threshold for which the kendall tau distance is computed.
-   * if (number_of_common_items < threshold) return Double.POSITIVE_INFINITY
+   * if (number_of_common_items &lt; threshold) return Double.POSITIVE_INFINITY
    * Default is 2;
    * @param threshold 
    */

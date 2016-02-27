@@ -32,6 +32,8 @@ public class MissingProbabilities {
 
   /**
    * create the missing statistics from the sample
+   *
+   * @param sample
    */
   public MissingProbabilities(RankingSample sample) {
     this.items = sample.getItemSet();
@@ -61,32 +63,49 @@ public class MissingProbabilities {
   }
 
   // Linear: firstPoint, lastPoint, missingP = (lastPoint-firstPoint)*(k-1)/(n-1) + firstpoint
-  public static MissingProbabilities linear(ItemSet items, double firstPoint, double lastPoint) {
+  public static MissingProbabilities uniform(Ranking center, double p) {
+    ItemSet items = center.getItemSet();
+    int itemsSize = items.size();
+    double[] miss = new double[itemsSize];
+    for (int i = 0; i < itemsSize; i++) {
+      miss[i] = p;
+    }
+    return new MissingProbabilities(items, miss);
+  }
+
+  // Linear: firstPoint, lastPoint, missingP = (lastPoint-firstPoint)*(k-1)/(n-1) + firstpoint
+  public static MissingProbabilities linear(Ranking center, double firstPoint, double lastPoint) {
+    ItemSet items = center.getItemSet();
     int itemsSize = items.size();
     double[] miss = new double[itemsSize];
     double missingIncreasingRate = (lastPoint - firstPoint) / (itemsSize - 1);
     for (int i = 0; i < itemsSize; i++) {
-      miss[i] = missingIncreasingRate * i + firstPoint;
+      int itemId = center.get(i).getId();
+      miss[itemId] = missingIncreasingRate * i + firstPoint;
     }
     return new MissingProbabilities(items, miss);
   }
 
   // Geometric: p, missingP = 1 - (1-p)^(k-1)*p
-  public static MissingProbabilities geometric(ItemSet items, double p) {
+  public static MissingProbabilities geometric(Ranking center, double p) {
+    ItemSet items = center.getItemSet();
     int itemsSize = items.size();
     double[] miss = new double[itemsSize];
     for (int i = 0; i < itemsSize; i++) {
-      miss[i] = 1 - Math.pow(1 - p, i) * p;
+      int itemId = center.get(i).getId();
+      miss[itemId] = 1 - Math.pow(1 - p, i) * p;
     }
     return new MissingProbabilities(items, miss);
   }
 
   // Exponential: lambda, missingP = 1 - lambda*e^(-lambda*k)
-  public static MissingProbabilities exponential(ItemSet items, double lambda) {
+  public static MissingProbabilities exponential(Ranking center, double lambda) {
+    ItemSet items = center.getItemSet();
     int itemsSize = items.size();
     double[] miss = new double[itemsSize];
     for (int i = 0; i < itemsSize; i++) {
-      miss[i] = 1 - lambda * Math.pow(Math.E, (-lambda * i));
+      int itemId = center.get(i).getId();
+      miss[itemId] = 1 - lambda * Math.pow(Math.E, (-lambda * i));
     }
     return new MissingProbabilities(items, miss);
   }
@@ -173,15 +192,19 @@ public class MissingProbabilities {
 //    MissingProbabilities m = new MissingProbabilities(sample);
 //    System.out.println(m);
 
-    ItemSet items = new ItemSet(4);
-    DensePreferenceSet prefs = new DensePreferenceSet(items);
+    ItemSet items = new ItemSet(5);
     Item a = items.get(0);
     Item b = items.get(1);
     Item c = items.get(2);
     Item d = items.get(3);
+    Item e = items.get(4);
+
+    DensePreferenceSet prefs = new DensePreferenceSet(items);
     prefs.add(b, a);
     prefs.add(c, b);
     prefs.add(d, c);
+    prefs.add(d, e);
+
     System.out.println("Before transitive closure:\n" + prefs.toString());
     MutablePreferenceSet tc = prefs.transitiveClosure();
     System.out.println("After tc, before missing:\n" + tc.toString());
@@ -189,12 +212,17 @@ public class MissingProbabilities {
     m.remove(tc);
     System.out.println("After missing:\n" + tc.toString());
 
-    System.out.println("\nNow let's test missing probabilities of linear, geometric and exponential:");
-    MissingProbabilities mLinear = MissingProbabilities.linear(items, 0.1, 0.9);
+    Ranking r = new Ranking(items);
+    for (int i = items.size() - 1; i >= 0; i--) {
+      r.add(items.get(i));
+    }
+
+    System.out.format("Now let's test missing probabilities of linear, geometric and exponential given ranking %s:\n\n",r);
+    MissingProbabilities mLinear = MissingProbabilities.linear(r, 0.1, 0.9);
     System.out.println("Linear:\n" + mLinear);
-    MissingProbabilities mGeometric = MissingProbabilities.geometric(items, 0.6);
+    MissingProbabilities mGeometric = MissingProbabilities.geometric(r, 0.6);
     System.out.println("Geometric:\n" + mGeometric);
-    MissingProbabilities mExponential = MissingProbabilities.exponential(items, 0.7);
+    MissingProbabilities mExponential = MissingProbabilities.exponential(r, 0.7);
     System.out.println("Exponential:\n" + mExponential);
   }
 }

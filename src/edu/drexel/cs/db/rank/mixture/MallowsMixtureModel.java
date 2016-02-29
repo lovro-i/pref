@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.rank.mixture;
 
-import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
@@ -8,7 +7,6 @@ import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import edu.drexel.cs.db.rank.util.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -123,6 +123,28 @@ public class MissingProbabilities {
     }
   }
 
+  
+  /** */
+  public void removeItems(Ranking r) {
+      // if it's a ranking, just remove items
+  }
+  
+  public void removeItems(MutablePreferenceSet prefs) {
+      // if it's a MutablePreferenceSet, remove all edges (preferences) if an item is decided to be removed
+  }
+  
+  /** Performs modifications on the given object */
+  public void removePreferences(MutablePreferenceSet prefs) {
+    // if it's a preference set, remove a preference with 1 - (1 - p1) * (1 - p2) (already implemented below, move it here)
+  }
+  
+  public DensePreferenceSet removePreferences(Ranking r) {
+    DensePreferenceSet tc = r.transitiveClosure();
+    removePreferences(tc);
+    return tc;
+  }
+  
+  
   /**
    * Remove preferences randomly from this PreferenceSet Each preference should
    * be removed with probability that either item1 or item2 is removed For
@@ -132,6 +154,7 @@ public class MissingProbabilities {
    *
    * @param prefs is an instance of a MutablePreferenceSet
    */
+  @Deprecated
   public void remove(MutablePreferenceSet prefs) {
     int itemsSize = prefs.getItemSet().size();
     for (int i = 0; i < itemsSize - 1; i++) {

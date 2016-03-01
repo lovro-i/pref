@@ -61,29 +61,37 @@ public class Ranking implements Comparable, PreferenceSet {
     }
   }
   
-  /** Add Item e at the end of the ranking */
+  /** Adds Item e at the end of the ranking */
   public void add(Item e) {
     if (this.contains(e)) throw new IllegalArgumentException("Item " + e + " already in the sample: " + this.toString());
     items.add(e);
-    clearHash();
+  }
+  
+  
+  /** Same as add(Item e). Appends Item e at the end of the ranking */
+  public void append(Item e) {
+    this.add(e);
   }
   
   /** Append ranking r to the end of the ranking */
-  public void add(Ranking r) {
+  public void append(Ranking r) {
     for (Item e: r.getItems()) this.add(e);
   }
   
   public Item set(int index, Item e) {
-    clearHash();
     return items.set(index, e);
   }
   
   /** Add Item e at the specified position in the ranking (shifting the ones on the right). If index &gt;= size of the item, add at the end */
-  public void addAt(int index, Item e) {
+  public void add(int index, Item e) {
     if (this.contains(e)) throw new IllegalArgumentException(String.format("Item %s already in %s", e, this));
     if (index >= items.size()) items.add(e);
     else items.add(index, e);
-    clearHash();
+  }
+  
+  /** Same as add(int index, Item e). Adds Item e at the specified position in the ranking (shifting the ones on the right). If index &gt;= size of the item, add at the end. */
+  public void insert(int index, Item e) {
+    this.add(index, e);
   }
 
   /** Return the ranking containing only the items from the collection, in the same order as this ranking */
@@ -106,14 +114,13 @@ public class Ranking implements Comparable, PreferenceSet {
   
   public void remove(int index) {
     items.remove(index);
-    clearHash();
   }
   
   
   /** Add Item e at the random position in the ranking */
   public void addAtRandom(Item e) {
     int index = random.nextInt(items.size()+1);
-    this.addAt(index, e);
+    this.add(index, e);
   }
   
   
@@ -145,7 +152,6 @@ public class Ranking implements Comparable, PreferenceSet {
     Item e2 = items.get(i2);
     items.set(i1, e2);
     items.set(i2, e1);
-    clearHash();
   }
 
   /** Return the item at i-th place in the ranking */
@@ -169,19 +175,11 @@ public class Ranking implements Comparable, PreferenceSet {
     return true;
   }
 
-  private Integer hash;
   
   @Override
   public int hashCode() {
-    if (hash == null) {
-      hash = 7;
-      hash = 53 * hash + Objects.hashCode(this.items);
-    }
+    int hash = 371 + Objects.hashCode(this.items);
     return hash;
-  }
-  
-  private void clearHash() {
-    hash = null;
   }
   
   public static Ranking fromStringById(ItemSet itemSet, String s) {
@@ -213,7 +211,7 @@ public class Ranking implements Comparable, PreferenceSet {
   }
 
   @Override
-  public Boolean isHigher(Item higher, Item lower) {
+  public Boolean isPreferred(Item higher, Item lower) {
     Integer ih = null;
     Integer il = null;
     for (int i = 0; i < items.size(); i++) {
@@ -230,7 +228,7 @@ public class Ranking implements Comparable, PreferenceSet {
   }
   
   @Override
-  public Boolean isHigher(int higher, int lower) {
+  public Boolean isPreferred(int higher, int lower) {
     Integer ih = null;
     Integer il = null;
     for (int i = 0; i < items.size(); i++) {
@@ -288,7 +286,7 @@ public class Ranking implements Comparable, PreferenceSet {
       Item i1 = this.get(i);
       for (int j = i+1; j < size(); j++) {
         Item i2 = this.get(j);
-         Boolean p = v.isHigher(i1, i2);
+         Boolean p = v.isPreferred(i1, i2);
          if (p != null && p == false) return false;
       }
     }
@@ -297,7 +295,7 @@ public class Ranking implements Comparable, PreferenceSet {
 
   @Override
   public boolean contains(Item higher, Item lower) {
-    Boolean h = isHigher(higher, lower);
+    Boolean h = isPreferred(higher, lower);
     if (h == null) return false;
     return h;
   }
@@ -306,7 +304,7 @@ public class Ranking implements Comparable, PreferenceSet {
 
   @Override
   public boolean contains(int higherId, int lowerId) {
-    Boolean h = isHigher(higherId, lowerId);
+    Boolean h = isPreferred(higherId, lowerId);
     if (h == null) return false;
     return h;
   }

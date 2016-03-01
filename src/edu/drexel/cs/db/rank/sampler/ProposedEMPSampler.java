@@ -28,9 +28,9 @@ public class ProposedEMPSampler extends MallowsSampler {
           int newDist = 0;
           for (int k = 0; k < r.size(); k++) {
             Item e = r.get(k);
-            if ((k < j) && (reference.isHigher(sigmai, e))) {
+            if ((k < j) && (reference.isPreferred(sigmai, e))) {
               newDist += 1;
-            } else if ((k >= j) && (reference.isHigher(e, sigmai))) {
+            } else if ((k >= j) && (reference.isPreferred(e, sigmai))) {
               newDist += 1;
             }
           }
@@ -42,7 +42,7 @@ public class ProposedEMPSampler extends MallowsSampler {
         for (int j = 0; j <= r.size(); j++) {
           ps += p[j] / sum;
           if (ps >= flip) {
-            r.addAt(j, sigmai);
+            r.add(j, sigmai);
 //            System.out.format("Insert %s at %d, new ranking is %s\n",sigmai.toString(),j,r.toString());
             break;
           }

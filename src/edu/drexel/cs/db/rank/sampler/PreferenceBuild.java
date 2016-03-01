@@ -85,7 +85,7 @@ public class PreferenceBuild {
   public PreferenceBuild addNext(int index) {
     Ranking r = new Ranking(prefix);
     Item next = reference.get(prefix.size());
-    r.addAt(index, next);
+    r.add(index, next);
     return new PreferenceBuild(pref, r, reference);
   }
   

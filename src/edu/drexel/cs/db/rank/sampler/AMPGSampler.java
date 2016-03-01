@@ -106,7 +106,7 @@ public class AMPGSampler {
           long t2 = System.currentTimeMillis();
           Ranking r = new Ranking(users.prefix);
           if (users.low == users.high) {
-            r.addAt(users.low, item);
+            r.add(users.low, item);
           }
           else {
             double flip = MathUtils.RANDOM.nextDouble();
@@ -114,7 +114,7 @@ public class AMPGSampler {
             for (int j = users.low; j <= users.high; j++) {
               ps += users.p[j];
               if (ps > flip || j == users.high) {
-                r.addAt(j, item);
+                r.add(j, item);
                 break;
               }
             }

@@ -122,8 +122,8 @@ public class PreferenceGroup {
     Item item1 = reference.get(idx);
     for (int i = 0; i < idx; i++) {
       Item item2 = reference.get(i);
-      Boolean b1 = pref1.isHigher(item1, item2);
-      Boolean b2 = pref2.isHigher(item1, item2);
+      Boolean b1 = pref1.isPreferred(item1, item2);
+      Boolean b2 = pref2.isPreferred(item1, item2);
       if (!Utils.equals(b1, b2)) return false;
     }
     return true;

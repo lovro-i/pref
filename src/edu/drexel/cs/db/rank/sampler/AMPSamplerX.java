@@ -73,7 +73,7 @@ public class AMPSamplerX extends MallowsSampler {
       }
             
       if (low == high) {
-        r.addAt(low, item);
+        r.add(low, item);
       }
       else {        
         double sum = 0;
@@ -95,7 +95,7 @@ public class AMPSamplerX extends MallowsSampler {
         for (int j = low; j <= high; j++) {
           ps += p[j] / sum;
           if (ps > flip || j == high) {
-            r.addAt(j, item);
+            r.add(j, item);
             break;
           }
         }
@@ -135,7 +135,7 @@ public class AMPSamplerX extends MallowsSampler {
       }
       
       if (low == high) {
-        r.addAt(low, item);
+        r.add(low, item);
       }
       else {        
         double sum = 0;
@@ -157,7 +157,7 @@ public class AMPSamplerX extends MallowsSampler {
         for (int j = low; j <= high; j++) {
           ps += p[j] / sum;
           if (ps > flip || j == high) {
-            r.addAt(j, item);
+            r.add(j, item);
             break;
           }
         }

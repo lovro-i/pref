@@ -45,7 +45,7 @@ public class AMPSampler extends MallowsSampler {
       }
             
       if (low == high) {
-        r.addAt(low, item);
+        r.add(low, item);
       }
       else {
         long t2 = System.currentTimeMillis();
@@ -61,7 +61,7 @@ public class AMPSampler extends MallowsSampler {
         for (int j = low; j <= high; j++) {
           ps += p[j] / sum;
           if (ps > flip || j == high) {
-            r.addAt(j, item);
+            r.add(j, item);
             break;
           }
         }
@@ -110,7 +110,7 @@ public class AMPSampler extends MallowsSampler {
       }
       
       if (low == high) {
-        r.addAt(low, item);
+        r.add(low, item);
       }
       else {        
         double sum = 0;
@@ -125,7 +125,7 @@ public class AMPSampler extends MallowsSampler {
         for (int j = low; j <= high; j++) {
           ps += p[j] / sum;
           if (ps > flip || j == high) {
-            r.addAt(j, item);
+            r.add(j, item);
             break;
           }
         }

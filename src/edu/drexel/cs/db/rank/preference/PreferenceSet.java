@@ -13,10 +13,10 @@ public interface PreferenceSet extends Cloneable {
   public ItemSet getItemSet();
   
   /** Returns true if contains this preference, false if contains the opposite, and null if it doesn't contain the information on this pair */
-  public Boolean isHigher(Item higher, Item lower);
+  public Boolean isPreferred(Item preferred, Item over);
   
   /** Returns true if contains preference with this item IDs, false if contains the opposite, and null if it doesn't contain the information on this pair */
-  public Boolean isHigher(int higher, int lower);
+  public Boolean isPreferred(int preferred, int over);
   
   /** Returns the transitive closure of this preference set, as DensePreferenceSet */
   public DensePreferenceSet transitiveClosure();

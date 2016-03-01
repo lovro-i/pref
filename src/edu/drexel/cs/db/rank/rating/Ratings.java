@@ -110,7 +110,7 @@ public class Ratings extends HashMap<Item, Float> {
       Ranking ranking = new Ranking(items);
       for (Ranking r: subrankings) {
         r.randomize();
-        ranking.add(r);
+        ranking.append(r);
       }
       sample.add(ranking, w);
     }
@@ -126,7 +126,7 @@ public class Ratings extends HashMap<Item, Float> {
       Ranking r = new Ranking(items);
       for (Item e: le) r.add(e);      
       r.randomize();
-      ranking.add(r);
+      ranking.append(r);
     }
     
     return ranking;

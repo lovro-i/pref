@@ -18,12 +18,12 @@ public class TopRanking extends Ranking {
   }
   
   @Override
-  public Boolean isHigher(Item higher, Item lower) {
+  public Boolean isPreferred(Item higher, Item lower) {
     throw new IllegalArgumentException("ToDo");
   }
   
   @Override
-  public Boolean isHigher(int higher, int lower) {
+  public Boolean isPreferred(int higher, int lower) {
     throw new IllegalArgumentException("ToDo");
   }
   

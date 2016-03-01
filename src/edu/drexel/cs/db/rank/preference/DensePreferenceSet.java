@@ -64,16 +64,16 @@ public class DensePreferenceSet implements MutablePreferenceSet {
   }
 
   @Override
-  public Boolean isHigher(Item higher, Item lower) {
-    int hid = higher.getId();
-    int lid = lower.getId();
+  public Boolean isPreferred(Item preferred, Item over) {
+    int hid = preferred.getId();
+    int lid = over.getId();
     if (this.higher[hid][lid]) return true;
     if (this.higher[lid][hid]) return false;
     return null;
   }
   
   @Override
-  public Boolean isHigher(int hid, int lid) {
+  public Boolean isPreferred(int hid, int lid) {
     if (this.higher[hid][lid]) return true;
     if (this.higher[lid][hid]) return false;
     return null;
@@ -175,7 +175,7 @@ public class DensePreferenceSet implements MutablePreferenceSet {
       Item it1 = itemList.get(i);
       for (int j = i+1; j < itemList.size(); j++) {
         Item it2 = itemList.get(j);
-        Boolean b = this.isHigher(it1, it2);
+        Boolean b = this.isPreferred(it1, it2);
         if (b == null) return null;
         if (b) {
           int c = itemCount.get(it2);
@@ -231,7 +231,7 @@ public class DensePreferenceSet implements MutablePreferenceSet {
 
   @Override
   public Boolean remove(int itemId1, int itemId2) {
-    Boolean result = isHigher(itemId1, itemId2);
+    Boolean result = isPreferred(itemId1, itemId2);
     this.higher[itemId1][itemId2] = this.higher[itemId2][itemId1] = false;
     return result;
   }
@@ -256,7 +256,7 @@ public class DensePreferenceSet implements MutablePreferenceSet {
   @Override
   public boolean contains(Item item) {
     for (Item it: items) {
-      Boolean b = this.isHigher(item, it);
+      Boolean b = this.isPreferred(item, it);
       if (b != null) return true;
     }
     return false;
@@ -279,8 +279,8 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     System.out.println(tc);
     System.out.println("");
     
-    System.out.println(prefs.isHigher(a, c));
-    System.out.println(tc.isHigher(a, c));
+    System.out.println(prefs.isPreferred(a, c));
+    System.out.println(tc.isPreferred(a, c));
     
     
     Ranking r = items.getRandomRanking();

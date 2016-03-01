@@ -44,7 +44,7 @@ class Level2 {
       Item it1 = reference.get(i);
       for (int j = i+1; j < index; j++) {
         Item it2 = reference.get(j);
-        Boolean b = pref.isHigher(it1, it2);
+        Boolean b = pref.isPreferred(it1, it2);
         if (b == null) return null;
         if (b) {
           int c = items.get(it2);

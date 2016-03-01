@@ -79,8 +79,8 @@ public class KendallTauDistance implements RankingDistance {
       Item it1 = items.get(i);
       for (int j = i+1; j < items.size(); j++) {
         Item it2 = items.get(j);
-        Boolean b1 = pref1.isHigher(it1, it2);
-        Boolean b2 = pref2.isHigher(it1, it2);
+        Boolean b1 = pref1.isPreferred(it1, it2);
+        Boolean b2 = pref2.isPreferred(it1, it2);
         if (b1 != null && b2 != null && !b1.equals(b2)) distance++;
       }
       

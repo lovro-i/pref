@@ -33,15 +33,15 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
     return items;
   }
   
-  public Boolean isHigher(Item higher, Item lower) {
+  public Boolean isPreferred(Item higher, Item lower) {
     if (this.contains(new Preference(higher, lower))) return true;
     if (this.contains(new Preference(lower, higher))) return false;
     return null;
   }
   
   @Override
-  public Boolean isHigher(int hid, int lid) {
-    return isHigher(items.get(hid), items.get(lid));
+  public Boolean isPreferred(int hid, int lid) {
+    return isPreferred(items.get(hid), items.get(lid));
   }
   
   @Override
@@ -109,7 +109,7 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
 
   @Override
   public Boolean remove(Item item1, Item item2) {
-    Boolean result = this.isHigher(item1, item2);
+    Boolean result = this.isPreferred(item1, item2);
     if (result != null) {
       if (result) this.remove(new Preference(item1, item2));
       else this.remove(new Preference(item2, item1));
@@ -143,7 +143,7 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
       Item it1 = itemList.get(i);
       for (int j = i+1; j < itemList.size(); j++) {
         Item it2 = itemList.get(j);
-        Boolean b = this.isHigher(it1, it2);
+        Boolean b = this.isPreferred(it1, it2);
         if (b == null) return null;
         if (b) {
           int c = itemCount.get(it2);

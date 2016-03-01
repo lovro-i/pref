@@ -14,9 +14,9 @@ public class PreferenceSimilarity {
     int similarity = 0;
     for (int i = 0; i < n-1; i++) {
       for (int j = i+1; j < n; j++) {
-        Boolean b1 = pref1.isHigher(i, j);
+        Boolean b1 = pref1.isPreferred(i, j);
         if (b1 != null) {
-          Boolean b2 = pref2.isHigher(i, j);
+          Boolean b2 = pref2.isPreferred(i, j);
           if (b2 != null && b1.equals(b2)) {
             similarity++;
           }

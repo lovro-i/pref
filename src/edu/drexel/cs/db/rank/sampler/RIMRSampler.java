@@ -25,7 +25,7 @@ public class RIMRSampler {
     for (int i=1; i<items.size(); i++) {
       Item e = items.get(i);
       int pos = triangle.randomPosition(i);      
-      r.addAt(pos, e);
+      r.add(pos, e);
     }
     return r;
   }

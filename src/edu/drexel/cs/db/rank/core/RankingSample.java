@@ -29,7 +29,7 @@ public class RankingSample extends Sample<Ranking> {
     for (PW<Ranking> pw1: this) {
       for (PW<Ranking> pw2: s) {
         Ranking r = new Ranking(pw1.p);
-        r.add(pw2.p);
+        r.append(pw2.p);
         sample.add(r, pw1.w * pw2.w);
       }
     }

@@ -46,6 +46,7 @@ public class Test {
       double p = Math.pow(phi, 11) + 2 * Math.pow(phi, 10) + Math.pow(phi, 9) + Math.pow(phi, 5) + Math.pow(phi, 4); // This is the manually calculated correct value that should be obtained
       double t = expander.getProbability(seq);
       Logger.info("Probability of %s: %.7f %.7f", seq, p, t); // Are p and t equal? Yes, they are.
+      if (p != t) System.err.println("ERROR, the algorithm did not return the correct result");
     }
     
     {

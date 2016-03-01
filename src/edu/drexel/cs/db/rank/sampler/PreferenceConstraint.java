@@ -14,7 +14,7 @@ class PreferenceConstraint extends ArrayList<Boolean> {
     Item item = reference.get(index);
     for (int i = 0; i < index; i++) {
       Item it = reference.get(i);
-      add(pref.isHigher(it, item));
+      add(pref.isPreferred(it, item));
     }
   }
 

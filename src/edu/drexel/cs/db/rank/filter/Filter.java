@@ -7,6 +7,7 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.incomplete.MissingProbabilities;
+import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.security.SecureRandom;
@@ -27,12 +28,12 @@ public class Filter {
   
   /** Remove items from the ranking with probabilities specified in Missing. Destructive on ranking, changes the actual ranking */
   public static void removeItems(Ranking ranking, MissingProbabilities m) {
-    m.remove(ranking);
+    m.removeItems(ranking);
   }
   
-  /** Remove items from the ranking with probabilities specified in Missing. Destructive on ranking, changes the actual ranking */
-  public static void remove(MutablePreferenceSet pref, MissingProbabilities m) {
-    m.remove(pref);
+  /** Remove pairs from the preferenceSet with probabilities specified in Missing. */
+  public static void removePreferences(MapPreferenceSet pref, MissingProbabilities m) {
+    m.removePreferences(pref);
   }
   
   /** Remove items from all rankings with probability p for removing each one. Destructive, changes the actual sample and its rankings */

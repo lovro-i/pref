@@ -10,8 +10,9 @@ import java.util.LinkedList;
 import java.util.Set;
 
 /**
- * MapPreferenceSet is in format HashMap<Item,HashSet<Item>>. It records the
- * children of each item. It represents the preference set as a DAG.
+ * MapPreferenceSet is in format HashMap<Item,HashSet<Item>>. It records
+ * adjacent children for each item. Each entry means that Item e is preferred to
+ * all items in HashSet<Item>. It represents the preference set as a DAG.
  */
 public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements MutablePreferenceSet {
 
@@ -19,14 +20,15 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
   public MapPreferenceSet(ItemSet itemSet) {
     this.items = itemSet;
+    // Initialize all keys with empty set.
     for (Item e : items) {
       this.put(e, new HashSet<>());
     }
   }
 
   /**
-   * It runs BFS to check if input edge will bring cycles. BFS starts from v to
-   * u when adding preference (Item u, Item v)
+   * It runs BFS to check if input edge will bring cycles. BFS starts from lower to
+   * higher when adding preference (Item higher, Item lower)
    *
    * @param higher Item higher is preferred in input edge.
    * @param lower Item lower is less preferred in input edge.
@@ -102,7 +104,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 
-  public MapPreferenceSet transitiveClosureOfMap() {
+  public MapPreferenceSet transitiveClosureToMap() {
     MapPreferenceSet prefsNewTC = this.deepCopy();
     MapPreferenceSet prefsOldTC;
     do {
@@ -122,7 +124,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     Set<Item> constraintItems = new HashSet<>();
     constraintItems.addAll(items);
 
-    MapPreferenceSet prefsTC = this.transitiveClosureOfMap();
+    MapPreferenceSet prefsTC = this.transitiveClosureToMap();
     MapPreferenceSet prefsProjected = new MapPreferenceSet((ItemSet) items);
 
     for (Item e : prefsProjected.keySet()) {
@@ -210,7 +212,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     System.out.format("Now print the inital preference set: %s.\n", prefs.toString());
     System.out.println("Error message shows that cycle detection works when adding illegal edge.\n");
     prefs.add(c, a);
-    prefs = prefs.transitiveClosureOfMap();
+    prefs = prefs.transitiveClosureToMap();
     System.out.println("After transitive closure:");
     System.out.println(prefs);
     System.out.println("After project by {0,1,2}:");

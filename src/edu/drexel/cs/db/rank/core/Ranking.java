@@ -1,6 +1,7 @@
 package edu.drexel.cs.db.rank.core;
 
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
+import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.*;
@@ -251,6 +252,16 @@ public class Ranking implements Comparable, PreferenceSet {
     for (int i = 0; i < size()-1; i++) {
       for (int j = i+1; j < size(); j++) {
         tc.add(get(i), get(j));
+      }
+    }
+    return tc;
+  }
+  
+    public MapPreferenceSet transitiveClosureToMap() {
+    MapPreferenceSet tc = new MapPreferenceSet(this.itemSet);
+    for (int i = 0; i < size()-1; i++) {
+      for (int j = i+1; j < size(); j++) {
+        tc.get(this.get(i)).add(this.get(j));
       }
     }
     return tc;

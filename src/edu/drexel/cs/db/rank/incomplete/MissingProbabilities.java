@@ -8,8 +8,11 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
+import edu.drexel.cs.db.rank.preference.Preference;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Class that stores information for each item in the ItemSet about its missing
@@ -123,28 +126,52 @@ public class MissingProbabilities {
     }
   }
 
-  
-  /** */
-  public void removeItems(Ranking r) {
-      // if it's a ranking, just remove items
+  public boolean removeItems(Ranking r) {
+    // if it's a ranking, just remove items
+    int itemsSize = r.getItemSet().size();
+    for (int i = 0; i < itemsSize; i++) {
+      Item e = this.items.get(i);
+      if (r.contains(e)) {
+        double flip = random.nextDouble();
+        double missingPairProbability = this.get(e);
+        if (flip < missingPairProbability) {
+          r.remove(i);
+        }
+      }
+    }
+    return r.size() > 2;
   }
-  
+
   public void removeItems(MutablePreferenceSet prefs) {
-      // if it's a MutablePreferenceSet, remove all edges (preferences) if an item is decided to be removed
+    // if it's a MutablePreferenceSet, remove all edges (preferences) if an item is decided to be removed
+    int itemsSize = prefs.getItemSet().size();
+    Set<Integer> ItemsGoingToMissing = new HashSet<>();
+    for (int i = 0; i < itemsSize; i++) {
+      Item e = this.items.get(i);
+      double flip = random.nextDouble();
+      double missingPairProbability = this.get(e);
+      if (flip < missingPairProbability) {
+        ItemsGoingToMissing.add(i);
+      }
+    }
+//    for (Preference pref: prefs){
+//      
+//    }
   }
-  
-  /** Performs modifications on the given object */
-  public void removePreferences(MutablePreferenceSet prefs) {
-    // if it's a preference set, remove a preference with 1 - (1 - p1) * (1 - p2) (already implemented below, move it here)
-  }
-  
+
   public DensePreferenceSet removePreferences(Ranking r) {
     DensePreferenceSet tc = r.transitiveClosure();
     removePreferences(tc);
     return tc;
   }
-  
-  
+
+  /**
+   * Performs modifications on the given object
+   */
+  public void removePreferences(MutablePreferenceSet prefs) {
+    // if it's a preference set, remove a preference with 1 - (1 - p1) * (1 - p2) (already implemented below, move it here)
+  }
+
   /**
    * Remove preferences randomly from this PreferenceSet Each preference should
    * be removed with probability that either item1 or item2 is removed For
@@ -240,7 +267,7 @@ public class MissingProbabilities {
       r.add(items.get(i));
     }
 
-    System.out.format("Now let's test missing probabilities of linear, geometric and exponential given ranking %s:\n\n",r);
+    System.out.format("Now let's test missing probabilities of linear, geometric and exponential given ranking %s:\n\n", r);
     MissingProbabilities mLinear = MissingProbabilities.linear(r, 0.1, 0.9);
     System.out.println("Linear:\n" + mLinear);
     MissingProbabilities mGeometric = MissingProbabilities.geometric(r, 0.6);

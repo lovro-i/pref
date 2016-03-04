@@ -118,8 +118,8 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
   }
 
   @Override
-  public Boolean remove(int idemId1, int itemId2) {
-    return this.remove(items.get(idemId1), items.get(itemId2));
+  public Boolean remove(int itemId1, int itemId2) {
+    return this.remove(items.get(itemId1), items.get(itemId2));
   }
 
   @Override

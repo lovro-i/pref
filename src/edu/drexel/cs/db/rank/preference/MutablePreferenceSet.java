@@ -20,6 +20,6 @@ public interface MutablePreferenceSet extends PreferenceSet {
   /** Remove this pair from the set, whichever order
    * @return previous value
    */
-  public Boolean remove(int idemId1, int itemId2);  
+  public Boolean remove(int itemId1, int itemId2);  
   
 }

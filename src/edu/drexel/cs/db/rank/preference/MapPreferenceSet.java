@@ -156,7 +156,8 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
       return r;
     }
     System.err.println("No ranking can be generated from this preference set."); //!! This should throw an exception, not write to console
-    return new Ranking((ItemSet) items);
+                                                                                 //!! This writes an error that a ranking cannot be generated, and then returns a ranking?!?!
+    return new Ranking((ItemSet) items); //!! You cannot cast Collection<Item> to ItemSet. Ranking is STILL over the whole itemset, even though it is incomplete.
   }
 
   @Override

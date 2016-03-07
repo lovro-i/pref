@@ -22,7 +22,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     this.items = itemSet;
     // Initialize all keys with empty set.
     for (Item e : items) {
-      this.put(e, new HashSet<>());
+      this.put(e, new HashSet<>()); //!! you should create empty HashSets only when they are needed (in add). And also check if they are null in isPreferred and simiilar...
     }
   }
 
@@ -34,7 +34,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
    * @param lower Item lower is less preferred in input edge.
    * @return true if input edge will bring cycles. Otherwise, false.
    */
-  public boolean MakeGraphCyclic(Item higher, Item lower) {
+  public boolean MakeGraphCyclic(Item higher, Item lower) { //!! method names always start with lower case. It should probably be private.
     HashSet<Item> closeList = new HashSet<>();
     LinkedList<Item> openList = new LinkedList<>();
     openList.add(lower);
@@ -46,7 +46,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
         }
         openList.add(e);
         if (e.equals(higher)) {
-          System.err.format("Error when adding (%s, %s)\n", higher, lower);
+          System.err.format("Error when adding (%s, %s)\n", higher, lower); //!! this should throw an exception, not write to console
           return true;
         }
         closeList.add(currentItem);
@@ -74,7 +74,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     if (item1Preferred) {
       this.get(item1).remove(item2);
     } else {
-      System.err.format("Error when removing pair (%s,%s), this pair doesn't exsit.", item1, item2);
+      System.err.format("Error when removing pair (%s,%s), this pair doesn't exsit.", item1, item2); //!! this should throw an exception, not write to console
     }
     return item1Preferred;
   }
@@ -90,7 +90,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   }
 
   @Override
-  public Boolean isPreferred(Item preferred, Item over) {
+  public Boolean isPreferred(Item preferred, Item over) { //!! this returns only true or false. It shouuld return null if no preference is specified
     return this.get(preferred).contains(over);
   }
 
@@ -100,10 +100,16 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   }
 
   @Override
-  public DensePreferenceSet transitiveClosure() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  public DensePreferenceSet transitiveClosure() { 
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  public MapPreferenceSet tempTrainsitiveClosure() {
+    //!! This should be implemented to return MapPreferenceSet. It will later replace transitiveClosure()
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+  
+  
   public MapPreferenceSet transitiveClosureToMap() {
     MapPreferenceSet prefsNewTC = this.deepCopy();
     MapPreferenceSet prefsOldTC;
@@ -149,7 +155,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
       }
       return r;
     }
-    System.err.println("No ranking can be generated from this preference set.");
+    System.err.println("No ranking can be generated from this preference set."); //!! This should throw an exception, not write to console
     return new Ranking((ItemSet) items);
   }
 
@@ -181,13 +187,13 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
   @Override
   public boolean contains(Item item) {
-    return this.containsKey(item) || this.containsValue(item);
+    return this.containsKey(item) || this.containsValue(item); //!! this map's values are HashSets, and you are checking if it's an Item. It's never an item, it's always HashSet
   }
 
   @Override
   public MapPreferenceSet clone() {
     MapPreferenceSet prefsClone = new MapPreferenceSet(items);
-    prefsClone.putAll(this);
+    prefsClone.putAll(this); //!! this will put the same HashSets as in the original one. So, when you change the original, it will change the copy too, or vice versa. Clone should create an independent copy
     return prefsClone;
   }
 
@@ -226,5 +232,13 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     System.out.println("Test remove");
     prefs.remove(1, 2);
     System.out.println(prefs);
+    
+    
+    
+    MapPreferenceSet p = new MapPreferenceSet(items);
+    p.add(a, b);
+    System.out.println(p.contains(c)); //!! This should return false, not true
+    System.out.println(p.isPreferred(d, c)); //!! This should return null, not false
+    //!! These are good examples why we need unit testing (jUnit)
   }
 }

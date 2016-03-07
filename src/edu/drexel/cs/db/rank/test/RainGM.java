@@ -74,7 +74,7 @@ public class RainGM {
     graph.addFactor(new GrassFunction(), sprinkler, rain, wetGrass);
     
     cloudy.setInput(0.5, 0.5);
-    wetGrass.setFixedValue(true); // we want to check the probability of if the grass is wet
+    wetGrass.setFixedValue(true); // we want to check the probability of the grass being wet
     
     graph.setOption(BPOptions.iterations, 20);
     graph.solve();

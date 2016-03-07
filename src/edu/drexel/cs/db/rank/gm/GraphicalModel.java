@@ -30,9 +30,43 @@ public class GraphicalModel {
     for (int i = 0; i < reference.size(); i++) {      
       Item item = reference.get(i);
       if (!pref.contains(item)) continue;
-      InsertVariable insert = new InsertVariable(this, item);
+      Xii insert = new Xii(this, item);
       variables.add(insert);
     }
+  }
+  
+  public List<Variable> getChildren(Variable parent) {
+    List<Variable> children = new ArrayList<Variable>();
+    for (Variable var: variables) {
+      if (var.getParents().contains(parent)) children.add(var);
+    }
+    return children;
+  }
+    
+  public Xii getXii(Item item) {
+    for (Variable var: variables) {
+      if (var instanceof Xii) {
+        Xii xii = (Xii) var;
+        if (xii.getItem().equals(item)) return xii;
+      }
+    }
+    
+    Xii xii = new Xii(this, item);
+    variables.add(xii);
+    return xii;
+  }
+  
+  public Xij getXij(Item item, int t) {
+    for (Variable var: variables) {
+      if (var instanceof Xij) {
+        Xij xij = (Xij) var;
+        if (xij.getItem().equals(item) && xij.getT() == t) return xij;
+      }
+    }
+    
+    Xij xij = new Xij(this, item, t);
+    variables.add(xij);
+    return xij;
   }
   
   

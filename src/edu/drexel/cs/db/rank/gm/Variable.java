@@ -7,7 +7,7 @@ import java.util.List;
 public abstract class Variable {
 
   protected final GraphicalModel gm;
-  protected final List<Variable> vars = new ArrayList<Variable>();
+  protected final List<Variable> parents = new ArrayList<Variable>();
   protected final List<Row> rows = new ArrayList<Row>();
   
   public Variable(GraphicalModel gm) {
@@ -17,11 +17,18 @@ public abstract class Variable {
   
   public abstract String getName();
   
+  public void addParent(Variable parent) {
+    this.parents.add(parent);
+  }
+  
+  public List<Variable> getParents() {
+    return parents;
+  }
   
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (Variable v: vars) sb.append(v.getName()).append('\t');
+    for (Variable v: parents) sb.append(v.getName()).append('\t');
     sb.append("P\n");
     for (Row t: rows) sb.append(t).append('\n');
     return sb.toString();

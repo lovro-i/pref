@@ -6,10 +6,13 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.filter.Filter;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-
+/** RIM triangle that contains only certain information from each preference. Preference is discarded as soon as a missing item is reached. */
 public class ConfidentTriangle extends Triangle {
 
   protected final Map<Integer, TriangleRow> rows;  
@@ -27,12 +30,9 @@ public class ConfidentTriangle extends Triangle {
     this.referenceIndex = reference.getIndexMap();
   }
   
-  public ConfidentTriangle(Ranking reference, Sample<Ranking> sample) {
+  public ConfidentTriangle(Ranking reference, Sample sample) {
     this(reference);
-    for (PW<Ranking> pw: sample) {
-      this.add(pw.p, pw.w);
-    }
-    
+    add(sample);    
   }
   
   public double get(int item, int pos) {
@@ -50,15 +50,22 @@ public class ConfidentTriangle extends Triangle {
     return rows.get(e).getRandomPosition();
   }
   
+  public void add(Sample<PreferenceSet> sample) {
+    for (PW pw: sample) {
+      this.add(pw.p, pw.w);
+    }
+  }
+  
   /** Adds ranking to the triangle with specified weight. Returns true if added, false otherwise */
-  public boolean add(Ranking ranking, double weight) {
+  public boolean add(PreferenceSet pref, double weight) {
+    Set<Item> items = new HashSet<Item>();
     for (int i = 0; i < reference.size(); i++) {
       TriangleRow row = rows.get(i); // Triangle row to be updated
       Item e = reference.get(i);
+      items.add(e);
       
-      UpTo upto = new UpTo(ranking, i, referenceIndex);
-      int pos = upto.position;
-      
+      Ranking r = pref.project(items);
+      int pos = r.indexOf(e);      
       if (pos == -1) return true;                            
       row.inc(pos, weight);
     }

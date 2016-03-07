@@ -29,9 +29,23 @@ public class GraphicalModel {
     Ranking reference = model.getCenter();
     for (int i = 0; i < reference.size(); i++) {      
       Item item = reference.get(i);
-      if (!pref.contains(item)) continue;
-      Xii insert = new Xii(this, item);
-      variables.add(insert);
+      if (pref.contains(item)) {
+        Xii xii = getXii(item);
+        for (Item higher: pref.getHigher(item)) {
+          int i1 = reference.indexOf(higher);
+          if (i1 < i) {
+            Xij xij = this.getXij(higher, i-1);
+            xii.addParent(xij);
+          }
+        }
+        for (Item lower: pref.getLower(item)) {
+          int i1 = reference.indexOf(lower);
+          if (i1 < i) {
+            Xij xij = this.getXij(lower, i-1);
+            xii.addParent(xij);
+          }
+        }
+      }
     }
   }
   
@@ -66,14 +80,29 @@ public class GraphicalModel {
     
     Xij xij = new Xij(this, item, t);
     variables.add(xij);
+    Xij before = getXijBefore(item, t);
+    xij.addParent(before);
     return xij;
+  }
+  
+  public Xij getXijBefore(Item item, int t) {
+    Xij before = null;
+    for (Variable var: variables) {
+      if (var instanceof Xij) {
+        Xij xij = (Xij) var;
+        if (xij.getItem().equals(item) && xij.getT() < t) {
+          if (before == null || before.getT() < xij.getT()) before = xij;
+        }
+      }
+    }
+    return before;
   }
   
   
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (Variable v: variables) sb.append(v).append("\n\n");
+    for (Variable v: variables) sb.append(v);
     return sb.toString();
   }
   

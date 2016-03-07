@@ -20,7 +20,6 @@ public class AMPSamplerX extends MallowsSampler {
 
   private ConfidentTriangle triangle;
   private double rate;
-  private Sample<Ranking> sample;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -29,7 +28,7 @@ public class AMPSamplerX extends MallowsSampler {
    * @param sample
    * @param rate 
    */
-  public AMPSamplerX(MallowsModel model, Sample<Ranking> sample, double rate) {
+  public AMPSamplerX(MallowsModel model, Sample sample, double rate) {
     super(model);
     this.setTrainingSample(sample);
     if (rate < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
@@ -38,13 +37,13 @@ public class AMPSamplerX extends MallowsSampler {
 
 
   
-  public Sample<Ranking> getTrainingSample() {
-    return sample;
+  public void setTrainingSample(Sample sample) {
+    this.triangle = new ConfidentTriangle(model.getCenter(), sample);
   }
   
-  public void setTrainingSample(Sample<Ranking> sample) {
-    this.sample = sample;
-    this.triangle = new ConfidentTriangle(model.getCenter(), sample);
+  public void addTrainingSample(Sample sample) {
+    if (triangle == null) setTrainingSample(sample);
+    else triangle.add(sample);
   }
   
   public void setRate(double rate) {

@@ -131,7 +131,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     constraintItems.addAll(items);
 
     MapPreferenceSet prefsTC = this.transitiveClosureToMap();
-    MapPreferenceSet prefsProjected = new MapPreferenceSet((ItemSet) items);
+    MapPreferenceSet prefsProjected = new MapPreferenceSet((ItemSet) items); //!! You can't convert items to ItemSet, it is a Collection<Item>, not an ItemSet
 
     for (Item e : prefsProjected.keySet()) {
       HashSet<Item> commonItems = new HashSet<>();

@@ -1,7 +1,6 @@
 package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.Item;
-import java.util.ArrayList;
 import java.util.List;
 
 

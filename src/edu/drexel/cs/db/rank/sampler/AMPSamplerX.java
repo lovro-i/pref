@@ -37,13 +37,25 @@ public class AMPSamplerX extends MallowsSampler {
 
 
   
-  public void setTrainingSample(Sample sample) {
+  public final void setTrainingSample(Sample sample) {
     this.triangle = new ConfidentTriangle(model.getCenter(), sample);
   }
   
   public void addTrainingSample(Sample sample) {
     if (triangle == null) setTrainingSample(sample);
     else triangle.add(sample);
+  }
+  
+  /** Add single PreferenceSet to training sample (triangle) */
+  public void addTrainingSample(PreferenceSet pref, double weight) {
+    if (triangle == null) {
+      Sample sample = new Sample(pref.getItemSet());
+      sample.add(pref, weight);
+      setTrainingSample(sample);
+    }
+    else {
+      triangle.add(pref, weight);
+    }
   }
   
   public void setRate(double rate) {

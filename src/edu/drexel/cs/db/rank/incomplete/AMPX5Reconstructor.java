@@ -7,7 +7,9 @@ import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
 
 
-/** Starts from the sample from the previous iteration, and updates it during iteration */
+/** Starts from the sample from the previous iteration, and updates it during iteration 
+ * dynamic, iterative, smoothing
+ */
 public class AMPX5Reconstructor extends EMReconstructor {
 
   private final double alpha;

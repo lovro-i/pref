@@ -6,7 +6,9 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
 
-/** Creates insertion triangle from the starting sample at the beginning of each iteration, and updates it through the iteration (after each ranking) */
+/** Creates insertion triangle from the starting sample at the beginning of each iteration, and updates it through the iteration (after each ranking) 
+ * Dynamic, smoothing
+ */
 public class AMPX4Reconstructor extends EMReconstructor {
 
   private final double alpha;

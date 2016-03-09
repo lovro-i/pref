@@ -7,7 +7,9 @@ import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
 
 
-/** Creates insertion triangle from the sample of the previous iteration (only). The first iteration uses the initial sample. */
+/** Creates insertion triangle from the sample of the previous iteration (only). The first iteration uses the initial sample. 
+ * Iterative, no smoothing
+ */
 public class AMPX2Reconstructor extends EMReconstructor {
 
   private final double alpha;

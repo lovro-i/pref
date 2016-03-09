@@ -18,8 +18,8 @@ import java.util.Set;
 /** The one that uses the whole sample for probabilities. */
 public class AMPSamplerX extends MallowsSampler {
 
-  private ConfidentTriangle triangle;
-  private double rate;
+  protected ConfidentTriangle triangle;
+  protected double rate;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.

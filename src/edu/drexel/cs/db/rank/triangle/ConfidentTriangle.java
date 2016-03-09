@@ -71,6 +71,10 @@ public class ConfidentTriangle extends Triangle {
     }
     return true;
   }
+  
+  public void add(int row, int pos, double weight) {
+    rows.get(row).inc(pos, weight);
+  }
 
   
   @Override

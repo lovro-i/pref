@@ -5,13 +5,14 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
+import edu.drexel.cs.db.rank.sampler.AMPSamplerXDItem;
 
-/** Creates insertion triangle from the starting sample at the beginning of each iteration, and updates it through the iteration (after each ranking) */
-public class AMPX4Reconstructor extends EMReconstructor {
+/** Constantly updates training sample after each ranking, adding to the same triangle all the time, during iterations */
+public class AMPX7Reconstructor extends EMReconstructor {
 
   private final double alpha;
   
-  public AMPX4Reconstructor(MallowsModel model, int iterations, double alpha) {
+  public AMPX7Reconstructor(MallowsModel model, int iterations, double alpha) {
     super(model, iterations);
     this.alpha = alpha;
   }
@@ -19,10 +20,10 @@ public class AMPX4Reconstructor extends EMReconstructor {
   @Override
   public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
+    AMPSamplerXDItem sampler = new AMPSamplerXDItem(estimate, sample, alpha);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     Sample<Ranking> resample = sample;
     for (int i = 0; i < iterations; i++) {
-      AMPSamplerXD sampler = new AMPSamplerXD(estimate, sample, alpha);
       if (listener != null) listener.onIterationStart(i, estimate, sample);
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);

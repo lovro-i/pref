@@ -6,13 +6,10 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
-import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Class that stores information for each item in the ItemSet about its missing
@@ -271,7 +268,7 @@ public class MissingProbabilities {
     prefs.add(d, e);
 
     System.out.println("Before transitive closure:\n" + prefs.toString());
-    MapPreferenceSet tc = prefs.transitiveClosureToMap();
+    MapPreferenceSet tc = prefs.tempTransitiveClosure();
     System.out.println("After tc, before missing:\n" + tc.toString());
     MissingProbabilities m = MissingProbabilities.uniform(items, 0.3);
     m.removePreferences(tc);

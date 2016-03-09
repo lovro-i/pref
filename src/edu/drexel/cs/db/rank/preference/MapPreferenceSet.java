@@ -13,52 +13,69 @@ import java.util.Set;
  * MapPreferenceSet is in format HashMap<Item,HashSet<Item>>. It records
  * adjacent children for each item. Each entry means that Item e is preferred to
  * all items in HashSet<Item>. It represents the preference set as a DAG.
+ * MapPreferenceSet.reverseMap represents the reverse preference graph, where
+ * key is less preferred items and values are preferred items.
  */
 public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements MutablePreferenceSet {
 
   private final ItemSet items;
+  public HashMap<Item, HashSet<Item>> reverseMap = new HashMap<>(); // reverseMap<lessPreferredItem, HashSet<preferredItems>>;
 
   public MapPreferenceSet(ItemSet itemSet) {
     this.items = itemSet;
-    // Initialize all keys with empty set.
-    for (Item e : items) {
-      this.put(e, new HashSet<>()); //!! you should create empty HashSets only when they are needed (in add). And also check if they are null in isPreferred and simiilar...
-    }
   }
 
   /**
-   * It runs BFS to check if input edge will bring cycles. BFS starts from lower to
-   * higher when adding preference (Item higher, Item lower)
+   * It runs BFS to check if input edge will bring cycles. BFS starts from lower
+   * to higher when adding preference (Item higher, Item lower)
    *
    * @param higher Item higher is preferred in input edge.
    * @param lower Item lower is less preferred in input edge.
-   * @return true if input edge will bring cycles. Otherwise, false.
    */
-  public boolean MakeGraphCyclic(Item higher, Item lower) { //!! method names always start with lower case. It should probably be private.
+  private void makeGraphCyclic(Item higher, Item lower) {
     HashSet<Item> closeList = new HashSet<>();
     LinkedList<Item> openList = new LinkedList<>();
     openList.add(lower);
     while (!openList.isEmpty()) {
       Item currentItem = openList.poll();
-      for (Item e : this.get(currentItem)) {
-        if (!closeList.contains(e)) {
-          openList.add(e);
+      if (this.containsKey(currentItem)) {
+        for (Item e : this.get(currentItem)) {
+          if (!closeList.contains(e)) {
+            openList.add(e);
+          }
+          if (e.equals(higher)) {
+            String errorMessage = String.format("Adding preference pair (%s, %s) is ignored to avoid preference graph cycles.", higher, lower);
+            throw new ArithmeticException(errorMessage);
+          }
+          closeList.add(currentItem);
         }
-        openList.add(e);
-        if (e.equals(higher)) {
-          System.err.format("Error when adding (%s, %s)\n", higher, lower); //!! this should throw an exception, not write to console
-          return true;
-        }
-        closeList.add(currentItem);
       }
     }
-    return false;
   }
 
   @Override
   public boolean add(Item higher, Item lower) {
-    if (!MakeGraphCyclic(higher, lower)) {
-      this.get(higher).add(lower);
+    try {
+      makeGraphCyclic(higher, lower);
+
+      if (this.containsKey(higher)) {
+        this.get(higher).add(lower);
+      } else {
+        HashSet<Item> tmpSet = new HashSet<>();
+        tmpSet.add(lower);
+        this.put(higher, tmpSet);
+      }
+
+      if (this.reverseMap.containsKey(lower)) {
+        this.reverseMap.get(lower).add(higher);
+      } else {
+        HashSet<Item> tmpSet = new HashSet<>();
+        tmpSet.add(higher);
+        this.reverseMap.put(lower, tmpSet);
+      }
+    } catch (ArithmeticException e) {
+      System.err.println(e);
+      return false;
     }
     return true;
   }
@@ -73,8 +90,16 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     boolean item1Preferred = this.get(item1).contains(item2);
     if (item1Preferred) {
       this.get(item1).remove(item2);
+      if (this.get(item1).isEmpty()) {
+        this.remove(item1);
+      }
+      this.reverseMap.get(item2).remove(item1);
+      if (this.reverseMap.isEmpty()) {
+        this.reverseMap.remove(item2);
+      }
     } else {
-      System.err.format("Error when removing pair (%s,%s), this pair doesn't exsit.", item1, item2); //!! this should throw an exception, not write to console
+      String errorMessage = String.format("Error when removing pair (%s,%s), this pair doesn't exsit.", item1, item2);
+      throw new ArithmeticException(errorMessage);
     }
     return item1Preferred;
   }
@@ -90,8 +115,17 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   }
 
   @Override
-  public Boolean isPreferred(Item preferred, Item over) { //!! this returns only true or false. It shouuld return null if no preference is specified
-    return this.get(preferred).contains(over);
+  public Boolean isPreferred(Item preferred, Item over) {
+    boolean preferredIsInKeySet = this.containsKey(preferred);
+    boolean overIsInKeySet = this.reverseMap.containsKey(over);
+    
+    if (preferredIsInKeySet && this.get(preferred).contains(over)) {
+      return true;
+    } else if (overIsInKeySet && this.get(preferred).contains(over)) {
+      return false;
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -100,25 +134,31 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   }
 
   @Override
-  public DensePreferenceSet transitiveClosure() { 
+  public DensePreferenceSet transitiveClosure() {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  public MapPreferenceSet tempTrainsitiveClosure() {
-    //!! This should be implemented to return MapPreferenceSet. It will later replace transitiveClosure()
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-  
-  
-  public MapPreferenceSet transitiveClosureToMap() {
+  public MapPreferenceSet tempTransitiveClosure() {
     MapPreferenceSet prefsNewTC = this.deepCopy();
     MapPreferenceSet prefsOldTC;
     do {
       prefsOldTC = prefsNewTC.deepCopy();
+      // update original map
       for (Item eParent : prefsOldTC.keySet()) {
         for (Item eChild : prefsOldTC.get(eParent)) {
-          HashSet<Item> grandchildren = prefsOldTC.get(eChild);
-          prefsNewTC.get(eParent).addAll(grandchildren);
+          if (prefsOldTC.containsKey(eChild)) {
+            HashSet<Item> eGrandchildren = prefsOldTC.get(eChild);
+            prefsNewTC.get(eParent).addAll(eGrandchildren);
+          }
+        }
+      }
+      // update reverse map
+      for (Item eParent : prefsOldTC.reverseMap.keySet()) {
+        for (Item eChild : prefsOldTC.reverseMap.get(eParent)) {
+          if (prefsOldTC.reverseMap.containsKey(eChild)) {
+            HashSet<Item> eGrandchildren = prefsOldTC.reverseMap.get(eChild);
+            prefsNewTC.reverseMap.get(eParent).addAll(eGrandchildren);
+          }
         }
       }
     } while (!prefsNewTC.equals(prefsOldTC));
@@ -127,20 +167,22 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
   @Override
   public Ranking project(Collection<Item> items) {
-    Set<Item> constraintItems = new HashSet<>();
-    constraintItems.addAll(items);
+    HashSet<Item> projectedItems = new HashSet<>(items);
+    // compute its transitive closure before computing projected ranking
+    MapPreferenceSet prefsTC = this.tempTransitiveClosure(); 
+    // the projected preference pairs
+    MapPreferenceSet prefsProjected = new MapPreferenceSet(this.items);
 
-    MapPreferenceSet prefsTC = this.transitiveClosureToMap();
-    MapPreferenceSet prefsProjected = new MapPreferenceSet((ItemSet) items); //!! You can't convert items to ItemSet, it is a Collection<Item>, not an ItemSet
-
-    for (Item e : prefsProjected.keySet()) {
-      HashSet<Item> commonItems = new HashSet<>();
-      commonItems.addAll(constraintItems);
+    HashSet<Item> commonKeyItems = new HashSet<>(projectedItems);
+    commonKeyItems.retainAll(this.keySet());
+    for (Item e : commonKeyItems) {
+      HashSet<Item> commonItems = new HashSet<>(projectedItems);
       commonItems.retainAll(prefsTC.get(e));
       prefsProjected.put(e, commonItems);
     }
 
     int pairsSum = 0;
+    // #descendents to item, it shows how an item is preferred.
     HashMap<Integer, Item> numToItem = new HashMap<>();
     for (Item e : prefsProjected.keySet()) {
       int numChildren = prefsProjected.get(e).size();
@@ -149,26 +191,18 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     }
     int keySetSize = prefsProjected.keySet().size();
     if (pairsSum == keySetSize * (keySetSize - 1) / 2) {
-      Ranking r = new Ranking((ItemSet) items);
+      Ranking r = new Ranking(this.items);
       for (int i = keySetSize - 1; i >= 0; i--) {
         r.add(numToItem.get(i));
       }
-      return r;
+      return r;  
     }
-    System.err.println("No ranking can be generated from this preference set."); //!! This should throw an exception, not write to console
-                                                                                 //!! This writes an error that a ranking cannot be generated, and then returns a ranking?!?!
-    return new Ranking((ItemSet) items); //!! You cannot cast Collection<Item> to ItemSet. Ranking is STILL over the whole itemset, even though it is incomplete.
+    throw new ArithmeticException("No ranking can be generated from this preference set.");
   }
 
   @Override
   public Set<Item> getHigher(Item i) {
-    Set<Item> higherItems = new HashSet<>();
-    for (Item e : this.keySet()) {
-      if (this.get(e).contains(i)) {
-        higherItems.add(e);
-      }
-    }
-    return higherItems;
+    return this.reverseMap.get(i);
   }
 
   @Override
@@ -188,22 +222,37 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
   @Override
   public boolean contains(Item item) {
-    return this.containsKey(item) || this.containsValue(item); //!! this map's values are HashSets, and you are checking if it's an Item. It's never an item, it's always HashSet
+    return this.containsKey(item) || this.reverseMap.containsKey(item);
   }
 
+  /**
+   * Shallow prefsDeepCopy of current MapPreferenceSet instance
+   *
+   * @return a shallow prefsDeepCopy of itself
+   */
   @Override
   public MapPreferenceSet clone() {
     MapPreferenceSet prefsClone = new MapPreferenceSet(items);
-    prefsClone.putAll(this); //!! this will put the same HashSets as in the original one. So, when you change the original, it will change the copy too, or vice versa. Clone should create an independent copy
+    prefsClone.putAll(this);
+    prefsClone.reverseMap.putAll(this.reverseMap);
     return prefsClone;
   }
 
+  /**
+   * Deep prefsDeepCopy of current MapPreferenceSet instance
+   *
+   * @return a deep prefsDeepCopy of itself
+   */
   public MapPreferenceSet deepCopy() {
-    MapPreferenceSet copy = new MapPreferenceSet(items);
+    MapPreferenceSet prefsDeepCopy = new MapPreferenceSet(items);
     for (Entry<Item, HashSet<Item>> entry : this.entrySet()) {
-      copy.put(entry.getKey(), new HashSet<>(entry.getValue()));
+      prefsDeepCopy.put(entry.getKey(), new HashSet<>(entry.getValue()));
     }
-    return copy;
+    for (Entry<Item, HashSet<Item>> entry : this.reverseMap.entrySet()) {
+      prefsDeepCopy.reverseMap.put(entry.getKey(), new HashSet<>(entry.getValue()));
+    }
+
+    return prefsDeepCopy;
   }
 
   public static void main(String[] args) {
@@ -216,12 +265,14 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     prefs.add(a, b);
     prefs.add(b, c);
     prefs.add(c, d);
-    System.out.format("Now print the inital preference set: %s.\n", prefs.toString());
-    System.out.println("Error message shows that cycle detection works when adding illegal edge.\n");
+    System.out.format("Now print the inital preference set: %s.\n", prefs);
+    System.out.format("Now print the reverse preference set: %s.\n", prefs.reverseMap);
+    System.out.println("Error message shows that cycle detection works when adding illegal edge.");
     prefs.add(c, a);
-    prefs = prefs.transitiveClosureToMap();
+    prefs = prefs.tempTransitiveClosure();
     System.out.println("After transitive closure:");
-    System.out.println(prefs);
+    System.out.format("Now print the inital preference set: %s.\n", prefs);
+    System.out.format("Now print the reverse preference set: %s.\n", prefs.reverseMap);
     System.out.println("After project by {0,1,2}:");
     ItemSet itemsMask = new ItemSet(3);
     Ranking r = prefs.project(itemsMask);
@@ -233,13 +284,11 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     System.out.println("Test remove");
     prefs.remove(1, 2);
     System.out.println(prefs);
-    
-    
-    
+
     MapPreferenceSet p = new MapPreferenceSet(items);
     p.add(a, b);
-    System.out.println(p.contains(c)); //!! This should return false, not true
-    System.out.println(p.isPreferred(d, c)); //!! This should return null, not false
+    System.out.println(p.contains(c));
+    System.out.println(p.isPreferred(d, c));
     //!! These are good examples why we need unit testing (jUnit)
   }
 }

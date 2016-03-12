@@ -182,7 +182,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     }
 
     int pairsSum = 0;
-    // #descendents to item, it shows how an item is preferred.
+    // Map<number of descendents, item>, it shows how much this item is preferred.
     HashMap<Integer, Item> numToItem = new HashMap<>();
     for (Item e : prefsProjected.keySet()) {
       int numChildren = prefsProjected.get(e).size();

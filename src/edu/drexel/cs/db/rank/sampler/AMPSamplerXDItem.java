@@ -10,6 +10,7 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.TriangleRow;
+import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,7 +42,7 @@ public class AMPSamplerXDItem extends AMPSamplerX {
   private Ranking sampleOne(PreferenceSet tc, Ranking r, int index) {
     Ranking reference = model.getCenter();
     Item item = reference.get(index);
-    r.add(item);
+    // r.add(item);
 
     int low = 0;
     int high = index;

@@ -1,10 +1,17 @@
 package edu.drexel.cs.db.rank.incomplete;
 
+import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
+import edu.drexel.cs.db.rank.sampler.AMPSampler;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerXDItem;
+import edu.drexel.cs.db.rank.sampler.MallowsSampler;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
+import edu.drexel.cs.db.rank.util.Logger;
 
 /** Constantly updates training sample after each ranking, adding to the same triangle all the time, during iterations, By Item
  * 
@@ -34,4 +41,24 @@ public class AMPX7Reconstructor extends EMReconstructor {
     return estimate;
   }
 
+  
+  public static void main(String[] args) throws Exception {
+    ItemSet items = new ItemSet(10);
+    Ranking ref = items.getReferenceRanking();
+    RankingSample sample = MallowsUtils.sample(ref, 0.2, 10);
+    Filter.remove(sample, 0.3);
+    
+    double initialPhi = 0.9;
+    MallowsModel initial = new MallowsModel(ref, initialPhi);
+    
+    
+    {
+      long start = System.currentTimeMillis();
+      EMReconstructor rec = new AMPX7Reconstructor(initial, 4, 1);
+      MallowsModel model = rec.reconstruct(sample, ref);
+      System.out.println("model = " + model);
+      Logger.info("%s Done in %d ms", rec.getClass().getSimpleName(), System.currentTimeMillis() - start);
+    }
+  }
+  
 }

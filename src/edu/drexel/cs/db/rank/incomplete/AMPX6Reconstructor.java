@@ -7,7 +7,7 @@ import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
 
 /** Constantly updates training sample after each ranking, adding to the same triangle all the time, during iterations 
- * dynamic, smoothing, not iterative
+ * dynamic, smoothing (therefore iterative)
  */
 public class AMPX6Reconstructor extends EMReconstructor {
 

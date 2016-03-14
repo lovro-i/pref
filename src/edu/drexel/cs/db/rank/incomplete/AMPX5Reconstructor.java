@@ -8,7 +8,7 @@ import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
 
 
 /** Starts from the sample from the previous iteration, and updates it during iteration 
- * dynamic, iterative, smoothing
+ * dynamic, iterative, no smoothing
  */
 public class AMPX5Reconstructor extends EMReconstructor {
 

@@ -8,14 +8,15 @@ import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerXDItem;
 
-
-/** Creates insertion triangle from the sample of the previous iteration (only) and updates it through the iteration. The first iteration uses the initial sample. 
- * Dynamic, iterative, no smoothing, by item
+/**
+ * Creates insertion triangle from the sample of the previous iteration (only)
+ * and updates it through the iteration. The first iteration uses the initial
+ * sample. Dynamic, iterative, no smoothing, by item
  */
 public class AMPX8Reconstructor extends EMReconstructor {
 
   private final double alpha;
-  
+
   public AMPX8Reconstructor(MallowsModel model, int iterations, double alpha) {
     super(model, iterations);
     this.alpha = alpha;
@@ -26,14 +27,24 @@ public class AMPX8Reconstructor extends EMReconstructor {
     MallowsModel estimate = model;
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     Sample<Ranking> resample = sample;
+    double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
+      oldPhi = estimate.getPhi();
       AMPSamplerXDItem sampler = new AMPSamplerXDItem(estimate, resample, alpha);
-      if (listener != null) listener.onIterationStart(i, estimate, sample);
+      if (listener != null) {
+        listener.onIterationStart(i, estimate, sample);
+      }
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
-      if (listener != null) listener.onIterationEnd(i, estimate, resample);
+      if (listener != null) {
+        listener.onIterationEnd(i, estimate, resample);
+      }
+      newPhi = estimate.getPhi();
+      if (Math.abs(newPhi - oldPhi) < 0.001) {
+        break;
+      }
     }
-    
+
     return estimate;
   }
 }

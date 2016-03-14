@@ -5,10 +5,11 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
+import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
 
 
-/** Creates insertion triangle from the sample of the previous iteration (only). The first iteration uses the initial sample. 
- * Iterative, no smoothing
+/** Creates insertion triangle from the sample of the previous iteration (only) and updates it through the iteration. The first iteration uses the initial sample. 
+ * Dynamic, iterative, no smoothing
  */
 public class AMPX8Reconstructor extends EMReconstructor {
 
@@ -25,7 +26,7 @@ public class AMPX8Reconstructor extends EMReconstructor {
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     Sample<Ranking> resample = sample;
     for (int i = 0; i < iterations; i++) {
-      AMPSamplerX sampler = new AMPSamplerX(estimate, resample, alpha);
+      AMPSamplerXD sampler = new AMPSamplerXD(estimate, resample, alpha);
       if (listener != null) listener.onIterationStart(i, estimate, sample);
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);

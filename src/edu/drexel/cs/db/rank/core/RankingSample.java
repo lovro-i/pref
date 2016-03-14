@@ -50,7 +50,7 @@ public class RankingSample extends Sample<Ranking> {
     for (PW pw : this) {
       out.print(pw.p);
       out.print("\t");
-      out.print(pw.w);
+      out.print((int)pw.w);
       out.println();
     }
   }

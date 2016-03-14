@@ -14,7 +14,7 @@ import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 
 /** Constantly updates training sample after each ranking, adding to the same triangle all the time, during iterations, By Item
- * 
+ * dynamic, smoothing, iterative, by item
  */
 public class AMPX7Reconstructor extends EMReconstructor {
 

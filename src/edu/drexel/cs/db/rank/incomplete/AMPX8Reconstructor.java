@@ -4,8 +4,6 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
 import edu.drexel.cs.db.rank.sampler.AMPSamplerXDItem;
 
 

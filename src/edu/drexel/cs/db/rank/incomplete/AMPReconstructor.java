@@ -6,13 +6,14 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSampler;
 
-/** Uses simple AMP */
+/**
+ * Uses simple AMP
+ */
 public class AMPReconstructor extends EMReconstructor {
 
   public AMPReconstructor(MallowsModel model, int iterations) {
     super(model, iterations);
   }
-
 
   @Override
   public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) {
@@ -20,14 +21,24 @@ public class AMPReconstructor extends EMReconstructor {
     AMPSampler sampler = new AMPSampler(estimate);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     Sample<Ranking> resample = sample;
+    double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
+      oldPhi = estimate.getPhi();
       sampler.setModel(estimate);
-      if (listener != null) listener.onIterationStart(i, estimate, sample);
+      if (listener != null) {
+        listener.onIterationStart(i, estimate, sample);
+      }
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
-      if (listener != null) listener.onIterationEnd(i, estimate, resample);
+      if (listener != null) {
+        listener.onIterationEnd(i, estimate, resample);
+      }
+      newPhi = estimate.getPhi();
+      if (Math.abs(newPhi - oldPhi) < 0.001) {
+        break;
+      }
     }
-    
+
     return estimate;
   }
 

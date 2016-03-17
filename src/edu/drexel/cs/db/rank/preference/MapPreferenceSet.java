@@ -118,7 +118,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   public Boolean isPreferred(Item preferred, Item over) {
     boolean preferredIsInKeySet = this.containsKey(preferred);
     boolean overIsInKeySet = this.reverseMap.containsKey(over);
-    
+
     if (preferredIsInKeySet && this.get(preferred).contains(over)) {
       return true;
     } else if (overIsInKeySet && this.get(preferred).contains(over)) {
@@ -169,7 +169,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   public Ranking project(Collection<Item> items) {
     HashSet<Item> projectedItems = new HashSet<>(items);
     // compute its transitive closure before computing projected ranking
-    MapPreferenceSet prefsTC = this.tempTransitiveClosure(); 
+    MapPreferenceSet prefsTC = this.tempTransitiveClosure();
     // the projected preference pairs
     MapPreferenceSet prefsProjected = new MapPreferenceSet(this.items);
 
@@ -195,9 +195,46 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
       for (int i = keySetSize - 1; i >= 0; i--) {
         r.add(numToItem.get(i));
       }
-      return r;  
+      return r;
     }
     throw new ArithmeticException("No ranking can be generated from this preference set.");
+  }
+
+  public Ranking toIncompleteRanking() {
+
+    // Map<number of descendents, item>, it shows how much this item is preferred.
+    HashMap<Integer, HashSet<Item>> numToItem = new HashMap<>();
+    HashSet<Item> availableItems = new HashSet<>();
+    availableItems.addAll(this.keySet());
+    availableItems.addAll(this.reverseMap.keySet());
+    for (Item e : availableItems) {
+      int numChildren = 0;
+      int numAncesters = 0;
+      if (this.containsKey(e)) {
+        numChildren = this.get(e).size();
+      }
+      if (this.reverseMap.containsKey(e)){
+        numAncesters = this.reverseMap.get(e).size();
+      }
+      int preferenceIdx = numChildren-numAncesters;
+      if (numToItem.containsKey(preferenceIdx)) {
+        numToItem.get(preferenceIdx).add(e);
+      } else {
+        HashSet<Item> tmpSet = new HashSet<>();
+        tmpSet.add(e);
+        numToItem.put(preferenceIdx, tmpSet);
+      }
+    }
+
+    Ranking r = new Ranking(this.items);
+    for (int i = items.size(); i >= -items.size(); i--) {
+      if (numToItem.containsKey(i)) {
+        for (Item e : numToItem.get(i)) {
+          r.add(e);
+        }
+      }
+    }
+    return r;
   }
 
   @Override
@@ -287,6 +324,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
     MapPreferenceSet p = new MapPreferenceSet(items);
     p.add(a, b);
+    System.out.println(p.toIncompleteRanking());
     System.out.println(p.contains(c));
     System.out.println(p.isPreferred(d, c));
     //!! These are good examples why we need unit testing (jUnit)

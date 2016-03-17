@@ -316,6 +316,23 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     return false;
   }
 
+  public MapPreferenceSet toMapPreferenceSet() {
+    MapPreferenceSet mapPS = new MapPreferenceSet(items);
+    for (Item e : items) {
+      HashSet<Item> higherItems = new HashSet<>();
+      for (Item higher : this.getHigher(e)) {
+        higherItems.add(higher);
+      }
+      HashSet<Item> lowerItems = new HashSet<>();
+      for (Item lower : lowerItems) {
+        lowerItems.add(lower);
+      }
+      mapPS.put(e, lowerItems);
+      mapPS.reverseMap.put(e, higherItems);
+    }
+    return mapPS;
+  }
+
   public static void main(String[] args) {
     ItemSet items = new ItemSet(4);
     DensePreferenceSet prefs = new DensePreferenceSet(items);
@@ -330,4 +347,5 @@ public class DensePreferenceSet implements MutablePreferenceSet {
 
     System.out.println(prefs);
   }
+
 }

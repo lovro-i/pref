@@ -6,6 +6,8 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.CenterReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
@@ -23,6 +25,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
 
   private MallowsSampler sampler;
   private OnIterationListener listener;
+  private OnIterationListenerPairs listenerPairs;
 
   /**
    * Construct EM reconstructor with specified sampler
@@ -43,6 +46,10 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
 
   public void setOnIterationListener(OnIterationListener listener) {
     this.listener = listener;
+  }
+  
+    public void setOnIterationListenerPairs(OnIterationListenerPairs listenerPairs) {
+    this.listenerPairs = listenerPairs;
   }
 
   @Override
@@ -71,7 +78,39 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     return estimate;
   }
 
-  public static interface OnIterationListener {
+  public MallowsModel reconstructFromPairs(Sample<MapPreferenceSet> sample, Ranking center) {
+    MallowsModel estimate = sampler.getModel();
+    PolynomialReconstructor reconstructor = new PolynomialReconstructor();
+    Sample<Ranking> resample = new Sample<>(sample.getItemSet());
+    double oldPhi, newPhi;
+    for (int i = 0; i < iterations; i++) {
+      oldPhi = estimate.getPhi();
+      sampler.setModel(estimate);
+      if (listenerPairs != null) {
+        listenerPairs.onIterationStart(i, estimate, sample);
+      }
+      resample = sampler.sample(sample);
+      estimate = reconstructor.reconstruct(resample, center);
+      if (listenerPairs != null) {
+        listenerPairs.onIterationEnd(i, estimate, resample);
+      }
+      newPhi = estimate.getPhi();
+      if (Math.abs(newPhi - oldPhi) < 0.001) {
+        break;
+      }
+    }
+
+    return estimate;
+  }
+  
+  public static interface OnIterationListenerPairs {
+
+    public void onIterationStart(int iteration, MallowsModel estimate, Sample<MapPreferenceSet> trainingSample);
+
+    public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample);
+  }
+  
+    public static interface OnIterationListener {
 
     public void onIterationStart(int iteration, MallowsModel estimate, Sample<Ranking> trainingSample);
 

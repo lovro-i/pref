@@ -135,7 +135,16 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
   @Override
   public DensePreferenceSet transitiveClosure() {
-    throw new UnsupportedOperationException("Not supported yet.");
+    DensePreferenceSet densePS = new DensePreferenceSet(items);
+    for (int i = 0; i < items.size(); i++) {
+      for (int j = 0; j < items.size(); j++) {
+        densePS.higher[i][j] = false;
+        if (this.contains(items.get(i), items.get(j))){
+          densePS.higher[i][j] = true;
+        }
+      }
+    }
+    return densePS;
   }
 
   public MapPreferenceSet tempTransitiveClosure() {
@@ -213,10 +222,10 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
       if (this.containsKey(e)) {
         numChildren = this.get(e).size();
       }
-      if (this.reverseMap.containsKey(e)){
+      if (this.reverseMap.containsKey(e)) {
         numAncesters = this.reverseMap.get(e).size();
       }
-      int preferenceIdx = numChildren-numAncesters;
+      int preferenceIdx = numChildren - numAncesters;
       if (numToItem.containsKey(preferenceIdx)) {
         numToItem.get(preferenceIdx).add(e);
       } else {

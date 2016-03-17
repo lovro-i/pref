@@ -16,7 +16,7 @@ import java.util.Set;
 public class DensePreferenceSet implements MutablePreferenceSet {
 
   private final ItemSet items;
-  private final boolean[][] higher;
+  final boolean[][] higher;
 
   public DensePreferenceSet(ItemSet items) {
     this.items = items;

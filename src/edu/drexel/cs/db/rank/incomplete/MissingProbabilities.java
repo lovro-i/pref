@@ -211,7 +211,7 @@ public class MissingProbabilities {
         double flip = random.nextDouble();
         double missingPairProbability = 1 - (1 - this.get(eParent)) * (1 - this.get(eChild));
         if (flip < missingPairProbability) {
-          prefs.get(eParent).remove(eChild);
+          prefs.remove(eParent, eChild);
         }
       }
     }

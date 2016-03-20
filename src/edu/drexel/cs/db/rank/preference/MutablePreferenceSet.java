@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.preference;
 
 import edu.drexel.cs.db.rank.core.Item;
 
-/** Absract class that represents custom pairwise preference set (not ranking) that can be pairwise edited
+/** Abstract class that represents custom pairwise preference set (not ranking) that can be pairwise edited
  */
 public interface MutablePreferenceSet extends PreferenceSet {
 

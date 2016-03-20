@@ -324,12 +324,13 @@ public class DensePreferenceSet implements MutablePreferenceSet {
         higherItems.add(higher);
       }
       HashSet<Item> lowerItems = new HashSet<>();
-      for (Item lower : lowerItems) {
+      for (Item lower : this.getLower(e)) {
         lowerItems.add(lower);
       }
       mapPS.put(e, lowerItems);
       mapPS.reverseMap.put(e, higherItems);
     }
+    mapPS.prune();
     return mapPS;
   }
 

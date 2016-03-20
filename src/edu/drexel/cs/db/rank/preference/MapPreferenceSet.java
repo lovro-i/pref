@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.preference;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,7 +53,36 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
       }
     }
   }
+  
+  @Override
+  public int size() {
+    int size = 0;
+    for (Item i: this.keySet()) {
+      size += this.get(i).size();
+    }
+    return size;
+  }
 
+  /** Removes the empty sets */
+  public void prune() {
+    Set<Item> empty = new HashSet<Item>();
+    for (Item i: this.keySet()) {
+      if (this.get(i).isEmpty()) empty.add(i);
+    }
+    for (Item i: empty) {
+      this.remove(i);
+    }
+    
+    empty.clear();
+    for (Item i: this.reverseMap.keySet()) {
+      if (this.reverseMap.get(i).isEmpty()) empty.add(i);
+    }
+    for (Item i: empty) {
+      this.reverseMap.remove(i);
+    }
+  }
+    
+    
   @Override
   public boolean add(Item higher, Item lower) {
     try {
@@ -87,22 +117,28 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
   @Override
   public Boolean remove(Item item1, Item item2) {
-    boolean item1Preferred = this.get(item1).contains(item2);
+    HashSet<Item> set = this.get(item1);
+    if (set == null) return false;
+    boolean item1Preferred = set.contains(item2);
     if (item1Preferred) {
-      this.get(item1).remove(item2);
-      if (this.get(item1).isEmpty()) {
+      set.remove(item2);
+      if (set.isEmpty()) {
+        // Logger.info("%s, removing %s > %s", this, item1, item2);
         this.remove(item1);
       }
       this.reverseMap.get(item2).remove(item1);
       if (this.reverseMap.isEmpty()) {
         this.reverseMap.remove(item2);
       }
-    } else {
-      String errorMessage = String.format("Error when removing pair (%s,%s), this pair doesn't exsit.", item1, item2);
+    } 
+    else {
+      String errorMessage = String.format("Error removing pair (%s, %s), the pair doesn't exist.", item1, item2);
       throw new ArithmeticException(errorMessage);
     }
     return item1Preferred;
   }
+  
+
 
   @Override
   public Boolean remove(int itemId1, int itemId2) {
@@ -121,7 +157,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
     if (preferredIsInKeySet && this.get(preferred).contains(over)) {
       return true;
-    } else if (overIsInKeySet && this.get(preferred).contains(over)) {
+    } else if (overIsInKeySet && this.reverseMap.get(over).contains(preferred)) {
       return false;
     } else {
       return null;
@@ -258,7 +294,9 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
 
   @Override
   public boolean contains(Item higher, Item lower) {
-    return this.get(higher).contains(lower);
+    HashSet<Item> lowers = this.get(higher);
+    if (lowers == null) return false;
+    return lowers.contains(lower);
   }
 
   @Override

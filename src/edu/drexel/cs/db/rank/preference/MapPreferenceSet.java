@@ -11,11 +11,9 @@ import java.util.LinkedList;
 import java.util.Set;
 
 /**
- * MapPreferenceSet is in format HashMap<Item,HashSet<Item>>. It records
- * adjacent children for each item. Each entry means that Item e is preferred to
- * all items in HashSet<Item>. It represents the preference set as a DAG.
- * MapPreferenceSet.reverseMap represents the reverse preference graph, where
- * key is less preferred items and values are preferred items.
+ * MapPreferenceSet is in format HashMap<Item,HashSet<Item>>. It records Directed Acyclic Graph (DAG) of preferences. Each entry shows that Item e is
+ * preferred to items in HashSet<Item>. It has a reverseMap which represents the reverse preference graph, where key is less preferred items and
+ * values are preferred items.
  */
 public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements MutablePreferenceSet {
 
@@ -27,8 +25,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   }
 
   /**
-   * It runs BFS to check if input edge will bring cycles. BFS starts from lower
-   * to higher when adding preference (Item higher, Item lower)
+   * It runs BFS to check if input edge will bring cycles. BFS starts from lower to higher when adding preference (Item higher, Item lower)
    *
    * @param higher Item higher is preferred in input edge.
    * @param lower Item lower is less preferred in input edge.
@@ -53,36 +50,41 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
       }
     }
   }
-  
+
   @Override
   public int size() {
     int size = 0;
-    for (Item i: this.keySet()) {
+    for (Item i : this.keySet()) {
       size += this.get(i).size();
     }
     return size;
   }
 
-  /** Removes the empty sets */
+  /**
+   * Removes the empty sets
+   */
   public void prune() {
     Set<Item> empty = new HashSet<Item>();
-    for (Item i: this.keySet()) {
-      if (this.get(i).isEmpty()) empty.add(i);
+    for (Item i : this.keySet()) {
+      if (this.get(i).isEmpty()) {
+        empty.add(i);
+      }
     }
-    for (Item i: empty) {
+    for (Item i : empty) {
       this.remove(i);
     }
-    
+
     empty.clear();
-    for (Item i: this.reverseMap.keySet()) {
-      if (this.reverseMap.get(i).isEmpty()) empty.add(i);
+    for (Item i : this.reverseMap.keySet()) {
+      if (this.reverseMap.get(i).isEmpty()) {
+        empty.add(i);
+      }
     }
-    for (Item i: empty) {
+    for (Item i : empty) {
       this.reverseMap.remove(i);
     }
   }
-    
-    
+
   @Override
   public boolean add(Item higher, Item lower) {
     try {
@@ -118,7 +120,9 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   @Override
   public Boolean remove(Item item1, Item item2) {
     HashSet<Item> set = this.get(item1);
-    if (set == null) return false;
+    if (set == null) {
+      return false;
+    }
     boolean item1Preferred = set.contains(item2);
     if (item1Preferred) {
       set.remove(item2);
@@ -130,15 +134,12 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
       if (this.reverseMap.isEmpty()) {
         this.reverseMap.remove(item2);
       }
-    } 
-    else {
+    } else {
       String errorMessage = String.format("Error removing pair (%s, %s), the pair doesn't exist.", item1, item2);
       throw new ArithmeticException(errorMessage);
     }
     return item1Preferred;
   }
-  
-
 
   @Override
   public Boolean remove(int itemId1, int itemId2) {
@@ -175,7 +176,7 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
     for (int i = 0; i < items.size(); i++) {
       for (int j = 0; j < items.size(); j++) {
         densePS.higher[i][j] = false;
-        if (this.contains(items.get(i), items.get(j))){
+        if (this.contains(items.get(i), items.get(j))) {
           densePS.higher[i][j] = true;
         }
       }
@@ -295,7 +296,9 @@ public class MapPreferenceSet extends HashMap<Item, HashSet<Item>> implements Mu
   @Override
   public boolean contains(Item higher, Item lower) {
     HashSet<Item> lowers = this.get(higher);
-    if (lowers == null) return false;
+    if (lowers == null) {
+      return false;
+    }
     return lowers.contains(lower);
   }
 

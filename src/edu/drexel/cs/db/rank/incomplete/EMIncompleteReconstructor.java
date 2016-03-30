@@ -110,7 +110,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample);
   }
   
-    public static interface OnIterationListener {
+  public static interface OnIterationListener {
 
     public void onIterationStart(int iteration, MallowsModel estimate, Sample<Ranking> trainingSample);
 

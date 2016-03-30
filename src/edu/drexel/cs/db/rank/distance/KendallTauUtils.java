@@ -2,11 +2,10 @@ package edu.drexel.cs.db.rank.distance;
 
 import edu.drexel.cs.db.rank.math.Polynomial;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/** Maximum n value for which you don't get Infinity anywhere is 171 */
 public class KendallTauUtils {
   
   
@@ -22,10 +21,11 @@ public class KendallTauUtils {
   }
   
   public static void main(String[] args) {
-    int n = 5;
-    for (int i = 0; i <= n * (n - 1) / 2; i++) {
-      Logger.info("%d: %f", i, getCount(n, i));      
-    }
+    int n = 171;    
+    System.out.println(getCount(n, n * (n - 1) / 4));    
+//    for (int i = 0; i <= n * (n - 1) / 2; i++) {
+//      Logger.info("%d: %f", i, getCount(n, i));      
+//    }
   }
   
 }

@@ -150,24 +150,16 @@ public class MallowsMixtureModel {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < models.size(); i++) {
-      MallowsModel model = models.get(i);
-      String s = String.format("[Model %d] Center = %s, phi = %.3f, weight = %.1f", i + 1, model.getCenter(), model.getPhi(), 100d * weights.get(i) / sumWeights);
-      sb.append(s).append("\n");
-    }
-    return sb.toString();
+    return toString("\n");
   }
 
-  public String toOutputFileString() {
+  public String toString(String separator) {
     StringBuilder sb = new StringBuilder();
-    sb.append("\"");
     for (int i = 0; i < models.size(); i++) {
       MallowsModel model = models.get(i);
       String s = String.format("[Model %d] Center = %s, phi = %.3f, weight = %.1f", i + 1, model.getCenter(), model.getPhi(), 100d * weights.get(i) / sumWeights);
-      sb.append(s);
+      sb.append(s).append(separator);
     }
-    sb.append("\"");
     return sb.toString();
   }
 

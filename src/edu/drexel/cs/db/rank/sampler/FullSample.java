@@ -29,12 +29,12 @@ public class FullSample extends RankingSample {
   }
   
   private void permute(Ranking r, int k) {
-    for (int i = k; i < r.size(); i++) {
+    for (int i = k; i < r.length(); i++) {
       java.util.Collections.swap(r.getItems(), i, k);
       this.permute(r, k + 1);
       java.util.Collections.swap(r.getItems(), k, i);
     }
-    if (k == r.size() - 1) {
+    if (k == r.length() - 1) {
       Ranking a = new Ranking(r);
       this.add(a);
     }

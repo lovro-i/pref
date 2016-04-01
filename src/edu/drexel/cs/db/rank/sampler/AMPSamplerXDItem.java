@@ -49,7 +49,7 @@ public class AMPSamplerXDItem extends AMPSamplerX {
 
     Set<Item> higher = tc.getHigher(item);
     Set<Item> lower = tc.getLower(item);
-    for (int j = 0; j < r.size(); j++) {
+    for (int j = 0; j < r.length(); j++) {
       Item it = r.get(j);
       if (higher.contains(it)) low = j + 1;
       if (lower.contains(it) && j < high) high = j;
@@ -105,7 +105,7 @@ public class AMPSamplerXDItem extends AMPSamplerX {
     }
     
     
-    for (int index = 1; index < reference.size(); index++) {
+    for (int index = 1; index < reference.length(); index++) {
       Item item = reference.get(index);
       items.add(item);
       

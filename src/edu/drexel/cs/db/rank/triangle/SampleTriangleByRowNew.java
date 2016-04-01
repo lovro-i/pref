@@ -32,7 +32,7 @@ public class SampleTriangleByRowNew extends Triangle {
     this.sample = sample;
     this.buildReferenceIndexMap();
     rows = new HashMap<Integer, TriangleRow>();
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       TriangleRow c = new TriangleRow(i);
       rows.put(i, c);
     }
@@ -40,9 +40,9 @@ public class SampleTriangleByRowNew extends Triangle {
     
     long start = System.currentTimeMillis();
     
-    for (int item = 0; item < reference.size(); item++) {
+    for (int item = 0; item < reference.length(); item++) {
       pending.clear();
-      Logger.info("Item %d of %d, %d sec", item, reference.size(), (int) (0.001 * (System.currentTimeMillis() - start)));
+      Logger.info("Item %d of %d, %d sec", item, reference.length(), (int) (0.001 * (System.currentTimeMillis() - start)));
       
       addParallel(item);
       unpendParallel(item);
@@ -214,7 +214,7 @@ public class SampleTriangleByRowNew extends Triangle {
   
   private void buildReferenceIndexMap() {
     referenceIndex.clear();
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       Item e = reference.get(i);
       referenceIndex.put(e, i);
     }    

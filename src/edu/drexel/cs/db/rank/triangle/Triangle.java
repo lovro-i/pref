@@ -42,7 +42,7 @@ public abstract class Triangle {
     if (!(o instanceof Triangle)) return false;
     Triangle t = (Triangle) o;
     double epsilon = 0.0001;
-    for (int item = 0; item < reference.size(); item++) {      
+    for (int item = 0; item < reference.length(); item++) {      
       for (int pos = 0; pos <= item; pos++) {
         double diff = Math.abs(this.get(item, pos) - t.get(item, pos)); 
         if (diff > epsilon) return false;

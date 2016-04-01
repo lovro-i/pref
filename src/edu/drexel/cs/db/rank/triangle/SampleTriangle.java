@@ -17,7 +17,7 @@ public class SampleTriangle extends Triangle {
     super(reference);
     this.buildReferenceIndexMap();
     rows = new HashMap<Integer, TriangleRow>();
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       TriangleRow c = new TriangleRow(i);
       rows.put(i, c);
     }
@@ -59,7 +59,7 @@ public class SampleTriangle extends Triangle {
     Expands expands = new Expands();
     expands.nullify();
     
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       TriangleRow row = rows.get(i); // Triangle row to be updated
       Item e = reference.get(i);
       
@@ -108,7 +108,7 @@ public class SampleTriangle extends Triangle {
   
   private void buildReferenceIndexMap() {
     referenceIndex.clear();
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       Item e = reference.get(i);
       referenceIndex.put(e, i);
     }    
@@ -117,7 +117,7 @@ public class SampleTriangle extends Triangle {
   /** Return the ranking containing only the items up to (and including) max */
   private Ranking upTo(Ranking ranking, int max) {
     Ranking r = new Ranking(ranking.getItemSet());
-    for (int i=0; i<ranking.size(); i++) {
+    for (int i=0; i<ranking.length(); i++) {
       Item e = ranking.get(i);
       int index = referenceIndex.get(e);
       if (index <= max) r.add(e);

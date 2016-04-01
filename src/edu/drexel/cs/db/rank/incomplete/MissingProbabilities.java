@@ -4,11 +4,13 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
-import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
+import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
+import edu.drexel.cs.db.rank.preference.Preference;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -69,6 +71,19 @@ public class MissingProbabilities {
     return new MissingProbabilities(items, miss);
   }
 
+  /**
+   * Uniform missing probabilities, specified by pairwise missing rate. Items share the same missing probability.
+   *
+   * @param items is the ItemSet which will be assigned some probabilities for
+   * each item,
+   * @param pp is the uniform missing probability PAIRWISE.
+   * @return the MissingProbabilities Class
+   */
+  public static MissingProbabilities uniformPairwise(ItemSet items, double pp) {
+    double missingItemWise = 1 - Math.sqrt(1 - pp);
+    return uniform(items, missingItemWise);
+  }
+  
   /**
    * Uniform missing probabilities. Items share the same missing probability.
    *
@@ -151,51 +166,28 @@ public class MissingProbabilities {
 
   /**
    * Remove items randomly from the ranking.
-   *
-   * @param r
-   * @return
    */
   public void removeItems(Ranking r) {
-    for (int i = r.size() - 1; i >= 0; i--) {
+    for (int i = r.length() - 1; i >= 0; i--) {
       Item e = r.get(i);
       double flip = random.nextDouble();
       if (flip < get(e)) {
         r.remove(i);
       }
     }
-    if (r.size() < 2) {
-      System.err.println("Length of ranking is less than 2.");
-    }
   }
 
   /**
-   * remove all edges (preferences) if an item is decided to be removed.
-   *
-   * @param prefs
+   * Removes all preference pairs of an item if the item is decided to be removed.
    */
-  public void removeItems(MapPreferenceSet prefs) {
-    int itemsSize = prefs.getItemSet().size();
-    HashSet<Item> missingItems = new HashSet<>();
-    for (int i = 0; i < itemsSize; i++) {
+  public void removeItems(PreferenceSet prefs) {
+    for (int i = 0; i < prefs.getItemSet().size(); i++) {
       Item e = this.items.get(i);
       double flip = random.nextDouble();
       if (flip < get(e)) {
-        missingItems.add(e);
-      }
-    }
-    for (Item e : prefs.keySet()) {
-      if (missingItems.contains(e)) {
         prefs.remove(e);
-      } else {
-        prefs.get(e).removeAll(missingItems);
       }
     }
-  }
-
-  public MapPreferenceSet removePreferences(Ranking r) {
-    MapPreferenceSet tc = r.transitiveClosureToMap();
-    removePreferences(tc);
-    return tc;
   }
 
   /**
@@ -204,29 +196,17 @@ public class MissingProbabilities {
    *
    * @param prefs
    */
-  public void removePreferences(MapPreferenceSet prefs) {
-    MapPreferenceSet cloneSet = prefs.deepCopy();
-    for (Item eParent : cloneSet.keySet()) {
-      for (Item eChild : cloneSet.get(eParent)) {
-        double flip = random.nextDouble();
-        double missingPairProbability = 1 - (1 - this.get(eParent)) * (1 - this.get(eChild));
-        if (flip < missingPairProbability) {
-          prefs.remove(eParent, eChild);
-        }
-      }
+  public void removePreferences(MutablePreferenceSet prefs) {
+    List<Preference> remove = new ArrayList<Preference>();
+    for (Preference pref: prefs.getPreferences()) {      
+      double missingPairProbability = 1 - (1 - this.get(pref.higher)) * (1 - this.get(pref.lower));
+      double flip = random.nextDouble();
+      if (flip < missingPairProbability) remove.add(pref);
     }
+    
+    for (Preference pref: remove) prefs.remove(pref);
   }
 
-  /**
-   * Remove preferences randomly from the sample with specified probabilities
-   *
-   * @param sample
-   */
-  public void remove(Sample<? extends PreferenceSet> sample) {
-    for (PreferenceSet ps : sample.preferenceSets()) {
-//      remove(ps);
-    }
-  }
 
   public double get(Item e) {
     return miss[e.getId()];
@@ -246,45 +226,5 @@ public class MissingProbabilities {
     return sb.toString();
   }
 
-  public static void main(String[] args) {
-//    ItemSet items = new ItemSet(10);
-//    RankingSample sample = MallowsUtils.sample(items.getRandomRanking(), 0.3, 2000);
-//    Filter.remove(sample, 0.3);
-//
-//    MissingProbabilities m = new MissingProbabilities(sample);
-//    System.out.println(m);
 
-    ItemSet items = new ItemSet(5);
-    Item a = items.get(0);
-    Item b = items.get(1);
-    Item c = items.get(2);
-    Item d = items.get(3);
-    Item e = items.get(4);
-
-    MapPreferenceSet prefs = new MapPreferenceSet(items);
-    prefs.add(b, a);
-    prefs.add(c, b);
-    prefs.add(d, c);
-    prefs.add(d, e);
-
-    System.out.println("Before transitive closure:\n" + prefs.toString());
-    MapPreferenceSet tc = prefs.tempTransitiveClosure();
-    System.out.println("After tc, before missing:\n" + tc.toString());
-    MissingProbabilities m = MissingProbabilities.uniform(items, 0.3);
-    m.removePreferences(tc);
-    System.out.println("After missing:\n" + tc.toString());
-
-    Ranking r = new Ranking(items);
-    for (int i = items.size() - 1; i >= 0; i--) {
-      r.add(items.get(i));
-    }
-
-    System.out.format("Now let's test missing probabilities of linear, geometric and exponential given ranking %s:\n\n", r);
-    MissingProbabilities mLinear = MissingProbabilities.linear(r, 0.1, 0.9);
-    System.out.println("Linear:\n" + mLinear);
-    MissingProbabilities mGeometric = MissingProbabilities.geometric(r, 0.6);
-    System.out.println("Geometric:\n" + mGeometric);
-    MissingProbabilities mExponential = MissingProbabilities.exponential(r, 0.7);
-    System.out.println("Exponential:\n" + mExponential);
-  }
 }

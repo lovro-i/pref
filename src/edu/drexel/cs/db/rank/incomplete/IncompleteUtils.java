@@ -13,7 +13,7 @@ public class IncompleteUtils {
     double count = 0;
     double total = 0;    
     for (PW<Ranking> pw: sample) {
-      count += pw.w * pw.p.size();
+      count += pw.w * pw.p.length();
       total += pw.w * items.size();
     }
     return 1d * (total - count) / total;

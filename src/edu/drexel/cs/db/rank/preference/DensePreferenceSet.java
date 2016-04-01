@@ -27,6 +27,11 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     this.items = items;
     this.higher = a;
   }
+  
+  public DensePreferenceSet(PreferenceSet prefs) {
+    this(prefs.getItemSet());
+    for (Preference pref: prefs.getPreferences()) this.add(pref.higher, pref.lower);
+  }
 
   @Override
   public ItemSet getItemSet() {
@@ -52,11 +57,9 @@ public class DensePreferenceSet implements MutablePreferenceSet {
    * When adding edge(u,v), run BFS from v to check if new edge brings any
    * circle.
    *
-   * @param higher, which is u
-   * @param lower, which is v
-   * @return
+   * @return true if it is possible to add (higher, lower) pair
    */
-  public boolean makeGraphCyclic(int higher, int lower) {
+  public boolean checkAcyclic(int higher, int lower) {
     // starting from lower item to see if lower item's spring is higher item's ancestor.
     LinkedList<Integer> openList = new LinkedList<>();
     openList.add(lower);
@@ -66,23 +69,18 @@ public class DensePreferenceSet implements MutablePreferenceSet {
         if (this.higher[currentItem][i] == true) {
           openList.add(i);
           if (i == higher) {
-            return true;
+            return false;
           }
         }
       }
     }
-    return false;
+    return true;
   }
 
   @Override
   public boolean add(int higher, int lower) {
-    if (this.higher[higher][lower] && !this.higher[lower][higher]) {
-      System.err.format("Error when adding edge (%d, %d), which makes cycles.\n", higher, lower);
-      return false;
-    }
-    if (makeGraphCyclic(higher, lower)) {
-      System.err.format("Error when adding edge (%d, %d), which makes cycles.\n", higher, lower);
-      return false;
+    if (!checkAcyclic(higher, lower)) {
+      throw new IllegalStateException(String.format("Cannot add (%s, %s) pair, graph would be cyclic", higher, lower));
     }
     this.higher[higher][lower] = true;
     this.higher[lower][higher] = false;
@@ -133,6 +131,25 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     } while (!eq);
 
     return new DensePreferenceSet(items, c);
+  }
+  
+  @Override
+  public void transitiveClose() {
+    boolean[][] a = higher;
+    boolean[][] b = higher;
+    boolean[][] c;
+    boolean eq;
+    do {
+      c = multiplyOr(a, b);
+      eq = equal(c, b);
+      b = c;
+    } while (!eq);
+
+    for (int i = 0; i < higher.length; i++) {
+      for (int j = 0; j < higher.length; j++) {
+        this.higher[i][j] = c[i][j];
+      }
+    }
   }
 
   private boolean[][] multiplyOr(boolean[][] a, boolean[][] b) {
@@ -294,6 +311,14 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     int lid = item2.getId();
     return remove(hid, lid);
   }
+  
+  @Override
+  public boolean remove(Preference pref) {
+    boolean contains = this.higher[pref.higher.id][pref.lower.id];
+    this.higher[pref.higher.id][pref.lower.id] = false;
+    return contains;
+  }
+
 
   @Override
   public boolean contains(int higherId, int lowerId) {
@@ -304,7 +329,13 @@ public class DensePreferenceSet implements MutablePreferenceSet {
   public boolean contains(Item higher, Item lower) {
     return this.contains(higher.getId(), lower.getId());
   }
-
+    
+  @Override
+  public boolean contains(Preference pref) {
+    return contains(pref.higher.id, pref.lower.id);
+  }
+  
+  
   @Override
   public boolean contains(Item item) {
     for (Item it : items) {
@@ -316,37 +347,48 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     return false;
   }
 
-  public MapPreferenceSet toMapPreferenceSet() {
-    MapPreferenceSet mapPS = new MapPreferenceSet(items);
-    for (Item e : items) {
-      HashSet<Item> higherItems = new HashSet<>();
-      for (Item higher : this.getHigher(e)) {
-        higherItems.add(higher);
+  @Override
+  public int size() {
+    int c = 0;
+    for (int i = 0; i < higher.length; i++) {
+      for (int j = 0; j < higher.length; j++) {
+        if (higher[i][j]) c++;
       }
-      HashSet<Item> lowerItems = new HashSet<>();
-      for (Item lower : this.getLower(e)) {
-        lowerItems.add(lower);
-      }
-      mapPS.put(e, lowerItems);
-      mapPS.reverseMap.put(e, higherItems);
     }
-    mapPS.prune();
-    return mapPS;
+    return c;
   }
 
-  public static void main(String[] args) {
-    ItemSet items = new ItemSet(4);
-    DensePreferenceSet prefs = new DensePreferenceSet(items);
-    Item a = items.get(0);
-    Item b = items.get(1);
-    Item c = items.get(2);
-    Item d = items.get(3);
-    prefs.add(a, b);
-    prefs.add(b, c);
-    prefs.add(c, d);
-    prefs.add(d, a);
-
-    System.out.println(prefs);
+  @Override
+  public Set<Preference> getPreferences() {
+    Set<Preference> prefs = new HashSet<Preference>();
+    for (int i = 0; i < higher.length; i++) {
+      Item h = items.get(i);
+      for (int j = 0; j < higher.length; j++) {
+        if (higher[i][j]) {
+          Preference p = new Preference(h, items.get(j));
+          prefs.add(p);
+        }
+      }
+    }
+    return prefs;
   }
 
+  @Override
+  public boolean remove(Item item) {
+    boolean removed = false;
+    for (int i = 0; i < higher.length; i++) {
+      if (higher[i][item.id]) {
+        removed = true;
+        higher[i][item.id] = false;
+      }
+      if (higher[item.id][i]) {
+        removed = true;
+        higher[item.id][i] = false;
+      }
+    }
+    return removed;
+  }
+
+
+ 
 }

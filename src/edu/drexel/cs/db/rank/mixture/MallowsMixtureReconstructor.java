@@ -182,7 +182,7 @@ public class MallowsMixtureReconstructor {
 
     Map<PreferenceSet, PreferenceSet> transitiveClosures = new HashMap<PreferenceSet, PreferenceSet>();
     for (MapPreferenceSet r : rankings) {
-      transitiveClosures.put(r, r.tempTransitiveClosure());
+      transitiveClosures.put(r, r.transitiveClosure());
     }
 
     double lastPercent = -20;

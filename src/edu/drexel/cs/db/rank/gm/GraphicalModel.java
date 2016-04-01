@@ -27,7 +27,7 @@ public class GraphicalModel {
   
   public void build() {
     Ranking reference = model.getCenter();
-    for (int i = 0; i < reference.size(); i++) {      
+    for (int i = 0; i < reference.length(); i++) {      
       Item item = reference.get(i);
       if (pref.contains(item)) {
         Xii xii = getXii(item);

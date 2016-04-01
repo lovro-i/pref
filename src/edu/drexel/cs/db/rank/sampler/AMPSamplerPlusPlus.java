@@ -46,9 +46,9 @@ public class AMPSamplerPlusPlus extends MallowsSampler {
   
   private void updateEvidence(DensePreferenceSet tc, PreferenceBuild build) {
     Ranking r = build.getPrefix();
-    Item item = build.getReference().get(r.size()-1);
+    Item item = build.getReference().get(r.length()-1);
     boolean seen = false;
-    for (int i = 0; i < r.size(); i++) {
+    for (int i = 0; i < r.length(); i++) {
       Item it = r.get(i);
       if (it.equals(item)) seen = true;
       else if (seen) tc.add(item, it);
@@ -83,7 +83,7 @@ public class AMPSamplerPlusPlus extends MallowsSampler {
       builds.add(build);
     }
     
-    for (int i = 1; i < reference.size(); i++) {
+    for (int i = 1; i < reference.length(); i++) {
       Item item = reference.get(i);
       
       for (int k = 0; k < builds.size(); k++) {
@@ -95,7 +95,7 @@ public class AMPSamplerPlusPlus extends MallowsSampler {
         Set<Item> higher = tc.getHigher(item);
         Set<Item> lower = tc.getLower(item);
         Ranking r = build.getPrefix();
-        for (int j = 0; j < r.size(); j++) {
+        for (int j = 0; j < r.length(); j++) {
           Item it = r.get(j);
           if (higher.contains(it)) low = j + 1;
           if (lower.contains(it) && j < high) high = j;
@@ -118,7 +118,7 @@ public class AMPSamplerPlusPlus extends MallowsSampler {
           updateSupport(build);
         }
         
-        if (build.getPrefix().size() == reference.size()) {
+        if (build.getPrefix().length() == reference.length()) {
           out.add(build.getPrefix(), tcs.getWeight(k));
         }
         else {

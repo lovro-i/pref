@@ -24,9 +24,9 @@ public class PairwisePreferenceMatrix {
     ppm = new double[n][n];
     
     for (PW<Ranking> pw: sample) {
-      for (int i = 0; i < pw.p.size()-1; i++) {
+      for (int i = 0; i < pw.p.length()-1; i++) {
         int e1 = pw.p.get(i).getId();
-        for (int j = i+1; j < pw.p.size(); j++) {
+        for (int j = i+1; j < pw.p.length(); j++) {
           int e2 = pw.p.get(j).getId();
           ppm[e1][e2] += pw.w;
         }
@@ -40,12 +40,9 @@ public class PairwisePreferenceMatrix {
     ppm = new double[n][n];
     
     for (PW pw: sample) {
-      DensePreferenceSet tc = pw.p.transitiveClosure();
-      boolean[][] mat = tc.getMatrix();
-      for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-          if (mat[i][j]) ppm[i][j] += pw.w;
-        }
+      PreferenceSet tc = pw.p.transitiveClosure();
+      for (Preference pref: tc.getPreferences()) {
+        ppm[pref.higher.id][pref.lower.id] += pw.w;
       }
     }
   }

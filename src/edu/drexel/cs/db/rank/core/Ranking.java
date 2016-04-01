@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.core;
 
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
+import edu.drexel.cs.db.rank.preference.Preference;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.*;
@@ -47,7 +48,7 @@ public class Ranking implements Comparable, PreferenceSet {
   /** Returns map of Item to index (position in the ranking */
   public Map<Item, Integer> getIndexMap() {
     Map<Item, Integer> map = new HashMap<Item, Integer>();
-    for (int i = 0; i < this.size(); i++) {
+    for (int i = 0; i < this.length(); i++) {
       Item e = this.get(i);
       map.put(e, i);
     }    
@@ -56,8 +57,8 @@ public class Ranking implements Comparable, PreferenceSet {
     
   /** Shuffles the items in this ranking */
   public void randomize() {
-    for (int i = 0; i < this.size() - 1; i++) {
-      int j = i + MathUtils.RANDOM.nextInt(size() - i);
+    for (int i = 0; i < this.length() - 1; i++) {
+      int j = i + MathUtils.RANDOM.nextInt(length() - i);
       swap(i, j);
     }
   }
@@ -105,7 +106,7 @@ public class Ranking implements Comparable, PreferenceSet {
   }
   
   public Ranking top(int k) {
-    if (k >= this.size()) return new Ranking(this);
+    if (k >= this.length()) return new Ranking(this);
     Ranking top = new Ranking(this.itemSet);
     for (int i = 0; i < k; i++) {
       top.add(this.get(i));
@@ -117,6 +118,13 @@ public class Ranking implements Comparable, PreferenceSet {
     items.remove(index);
   }
   
+  @Override
+  public boolean remove(Item item) {
+    int index = this.indexOf(item);
+    if (index == -1) return false;
+    remove(index);
+    return true;
+  }
   
   /** Add Item e at the random position in the ranking */
   public void addAtRandom(Item e) {
@@ -134,8 +142,14 @@ public class Ranking implements Comparable, PreferenceSet {
   }
   
   /** Number of items in this ranking. */
-  public int size() {
+  public int length() {
     return items.size();
+  }
+  
+  /** Number of pairs in this ranking (n * (n - 1) / 2). */
+  @Override
+  public int size() {
+    return items.size() * (items.size() - 1) / 2;
   }
   
   @Override
@@ -247,26 +261,18 @@ public class Ranking implements Comparable, PreferenceSet {
   }
 
   @Override
-  public DensePreferenceSet transitiveClosure() {
-    DensePreferenceSet tc = new DensePreferenceSet(this.itemSet);
-    for (int i = 0; i < size()-1; i++) {
-      for (int j = i+1; j < size(); j++) {
-        tc.add(get(i), get(j));
+  public MapPreferenceSet transitiveClosure() {
+    MapPreferenceSet tc = new MapPreferenceSet(this.itemSet);
+    for (int i = 0; i < length()-1; i++) {
+      Item h = get(i);
+      for (int j = i+1; j < length(); j++) {
+        tc.add(h, get(j));
       }
     }
     return tc;
   }
   
-    public MapPreferenceSet transitiveClosureToMap() {
-    MapPreferenceSet tc = new MapPreferenceSet(this.itemSet);
-    for (int i = 0; i < size()-1; i++) {
-      for (int j = i+1; j < size(); j++) {
-        tc.get(this.get(i)).add(this.get(j));
-      }
-    }
-    return tc;
-  }
-
+  
   @Override
   public Set<Item> getHigher(Item item) {
     Set<Item> higher = new HashSet<Item>();
@@ -283,7 +289,7 @@ public class Ranking implements Comparable, PreferenceSet {
   public Set<Item> getLower(Item item) {
     Set<Item> lower = new HashSet<Item>();
     if (this.contains(item)) {
-      for (int i = size()-1; i > 0; i--) {
+      for (int i = length()-1; i > 0; i--) {
         Item it = this.items.get(i);
         if (item.equals(it)) return lower;
         else lower.add(it);
@@ -293,9 +299,9 @@ public class Ranking implements Comparable, PreferenceSet {
   }
   
   public boolean isConsistent(PreferenceSet v) {
-    for (int i = 0; i < size()-1; i++) {
+    for (int i = 0; i < length()-1; i++) {
       Item i1 = this.get(i);
-      for (int j = i+1; j < size(); j++) {
+      for (int j = i+1; j < length(); j++) {
         Item i2 = this.get(j);
          Boolean p = v.isPreferred(i1, i2);
          if (p != null && p == false) return false;
@@ -312,6 +318,13 @@ public class Ranking implements Comparable, PreferenceSet {
   }
   
   
+    
+  @Override
+  public boolean contains(Preference pref) {
+    return contains(pref.higher, pref.lower);
+  }
+
+  
 
   @Override
   public boolean contains(int higherId, int lowerId) {
@@ -319,6 +332,19 @@ public class Ranking implements Comparable, PreferenceSet {
     if (h == null) return false;
     return h;
   }
+
+  @Override
+  public Set<Preference> getPreferences() {
+    Set<Preference> prefs = new HashSet<Preference>();
+    for (int i = 0; i < length()-1; i++) {
+      Item h = get(i);
+      for (int j = i+1; j < length(); j++) {
+        prefs.add(new Preference(h, get(j)));
+      }
+    }
+    return prefs;
+  }
+
   
 }
  

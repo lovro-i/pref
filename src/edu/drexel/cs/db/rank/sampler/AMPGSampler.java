@@ -42,7 +42,7 @@ public class AMPGSampler {
     long timeLevel1Get = 0;
     long timeInsert = 0;
     start = System.currentTimeMillis();
-    for (int i = 1; i < reference.size(); i++) {
+    for (int i = 1; i < reference.length(); i++) {
       Item item = reference.get(i);
       Level1 prev = level1.getLevel1(i-1);
       Level1 next = level1.getLevel1(i);
@@ -121,11 +121,11 @@ public class AMPGSampler {
           }
           timeInsert += System.currentTimeMillis() - t2;
           
-          if (r.size() == users.prefix.size()) {
+          if (r.length() == users.prefix.length()) {
             Logger.info("ERROR 1: %d %s, %s, %d, %d\n%s\n%s\n%s", i, users.prefix, r, users.low, users.high, Arrays.toString(users.p), users.cons, users.pref);
           }
           
-          if (r.size() == reference.size()) out.add(r, pw.w);
+          if (r.length() == reference.length()) out.add(r, pw.w);
           else if (next != null) {
             long st = System.currentTimeMillis();
             next.add(pw, r);
@@ -169,7 +169,7 @@ public class AMPGSampler {
       Logger.info("[G-AMP] %d items, %d users in %d ms", items.size(), out.size(), System.currentTimeMillis() - start);
       
       for (Ranking r: out.rankings()) {
-        if (r.size() < items.size()) System.out.println("ERROR: "+r);
+        if (r.length() < items.size()) System.out.println("ERROR: "+r);
       }
     }
   }

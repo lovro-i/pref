@@ -22,7 +22,7 @@ public class UpTo {
     int pos = -1;
     Item prev = null;
     boolean found = false;
-    for (int i=0; i<ranking.size(); i++) {
+    for (int i=0; i<ranking.length(); i++) {
       Item e = ranking.get(i);
       int index = referenceIndex.get(e);
       if (index <= max) pos++;

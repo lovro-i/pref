@@ -44,7 +44,7 @@ public class Expander {
     expands.nullify();
     Ranking reference = model.getCenter();
     
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       Item e = reference.get(i);
       
       UpTo upto = new UpTo(ranking, i, referenceIndex); 

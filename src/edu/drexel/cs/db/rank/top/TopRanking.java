@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.top;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
+import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import java.util.Set;
 
 
@@ -28,11 +28,11 @@ public class TopRanking extends Ranking {
   }
   
   @Override
-  public DensePreferenceSet transitiveClosure() {
-    DensePreferenceSet tc = super.transitiveClosure();    
+  public MapPreferenceSet transitiveClosure() {
+    MapPreferenceSet tc = super.transitiveClosure();    
     
     Set<Item> missing = this.getMissingItems();
-    for (int i = 0; i < size(); i++) {
+    for (int i = 0; i < length(); i++) {
       Item higher = get(i);
       for (Item lower: missing) {
         tc.add(higher, lower);        

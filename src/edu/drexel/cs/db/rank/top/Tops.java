@@ -17,7 +17,7 @@ public class Tops {
     lengths = new double[items.size() + 1];
     double sum = 0;
     for (PW<Ranking> pw: sample) {
-      int i = pw.p.size();
+      int i = pw.p.length();
       lengths[i] += pw.w;
       sum += pw.w;
     }
@@ -41,7 +41,7 @@ public class Tops {
   /** Remove items randomly from the ranking with specified probabilities */
   public void remove(Ranking ranking) {
     int k = pickLength();
-    while (ranking.size() > k) ranking.remove(ranking.size() - 1);
+    while (ranking.length() > k) ranking.remove(ranking.length() - 1);
   }
     
   /** Remove items randomly from the sample with specified probabilities */

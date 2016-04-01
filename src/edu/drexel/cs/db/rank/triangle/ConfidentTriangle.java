@@ -23,7 +23,7 @@ public class ConfidentTriangle extends Triangle {
   public ConfidentTriangle(Ranking reference) {
     super(reference);
     rows = new HashMap<Integer, TriangleRow>();
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       TriangleRow c = new TriangleRow(i);
       rows.put(i, c);
     }
@@ -59,7 +59,7 @@ public class ConfidentTriangle extends Triangle {
   /** Adds ranking to the triangle with specified weight. Returns true if added, false otherwise */
   public boolean add(PreferenceSet pref, double weight) {
     Set<Item> items = new HashSet<Item>();
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       TriangleRow row = rows.get(i); // Triangle row to be updated
       Item e = reference.get(i);
       items.add(e);

@@ -23,7 +23,7 @@ public class TriangleReconstructor {
     double sumPhi = 0;
     int countPhi = 0;
     Ranking reference = triangle.getReference();
-    for (int item = 1; item < reference.size(); item++) {
+    for (int item = 1; item < reference.length(); item++) {
       TriangleRow row = triangle.getRow(item);
       for (int pos = 0; pos < row.size(); pos++) {
         double p = row.getProbability(pos);

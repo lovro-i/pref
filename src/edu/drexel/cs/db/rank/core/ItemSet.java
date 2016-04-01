@@ -73,7 +73,7 @@ public class ItemSet implements List<Item> {
     if (len > items.size()) throw new IllegalArgumentException("Ranking length cannot be greater that the number of items");
     Ranking ranking = new Ranking(this);
     List<Item> elems = new ArrayList<Item>(items);
-    while (ranking.size() < len) {
+    while (ranking.length() < len) {
       int id = MathUtils.RANDOM.nextInt(elems.size());
       Item item = elems.get(id);
       ranking.add(item);
@@ -85,8 +85,8 @@ public class ItemSet implements List<Item> {
   /** @return random ranking containing all items */
   public Ranking getRandomRanking() {
     Ranking ranking = new Ranking(this.getReferenceRanking());
-    for (int i = 0; i < ranking.size() - 1; i++) {
-      int j = i + MathUtils.RANDOM.nextInt(ranking.size() - i);
+    for (int i = 0; i < ranking.length() - 1; i++) {
+      int j = i + MathUtils.RANDOM.nextInt(ranking.length() - i);
       ranking.swap(i, j);
     }
     return ranking;

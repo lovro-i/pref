@@ -98,11 +98,11 @@ public class KendallTauDistance implements RankingDistance {
     // find intersection
     List<Item> comp1 = new ArrayList<Item>();
     List<Item> comp2 = new ArrayList<Item>();    
-    for (int i=0; i<ranking1.size(); i++) {
+    for (int i=0; i<ranking1.length(); i++) {
       Item e1 = ranking1.get(i);
       if (ranking2.contains(e1)) comp1.add(e1);      
     }
-    for (int i=0; i<ranking2.size(); i++) {
+    for (int i=0; i<ranking2.length(); i++) {
       Item i2 = ranking2.get(i);
       if (ranking1.contains(i2)) comp2.add(i2);
     }    

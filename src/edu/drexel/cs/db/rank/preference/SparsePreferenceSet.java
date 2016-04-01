@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,11 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
 
   public SparsePreferenceSet(ItemSet itemSet) {
     this.items = itemSet;
+  }
+  
+  public SparsePreferenceSet(PreferenceSet prefs) {
+    this(prefs.getItemSet());
+    for (Preference pref: prefs.getPreferences()) this.add(pref.higher, pref.lower);
   }
 
   @Override
@@ -74,17 +80,16 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
   }
   
  
-  public DensePreferenceSet toDense() {
-    DensePreferenceSet dense = new DensePreferenceSet(items);
-    for (Preference pref: this) {
-      dense.add(pref.higher, pref.lower);
-    }
-    return dense;
+  @Override
+  public MapPreferenceSet transitiveClosure() {
+    MapPreferenceSet tc = new MapPreferenceSet(this);
+    tc.transitiveClose();
+    return tc;
   }
   
   @Override
-  public DensePreferenceSet transitiveClosure() {
-    return this.toDense().transitiveClosure();
+  public void transitiveClose() {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
@@ -173,5 +178,35 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
     }
     return false;
   }
+
+  @Override
+  public Set<Preference> getPreferences() {
+    return this;
+  }
+
+  @Override
+  public boolean remove(Item item) {
+    boolean removed = false;
+    Iterator<Preference> it = this.iterator();
+    while (it.hasNext()) {
+      Preference pref = it.next();
+      if (pref.contains(item)) {
+        removed = true;
+        it.remove();
+      }
+    }
+    return removed;
+  }
+
+  @Override
+  public boolean remove(Preference pref) {
+    return super.remove(pref);
+  }
+
+  @Override
+  public boolean contains(Preference pref) {
+    return super.contains(pref);
+  }
+
   
 }

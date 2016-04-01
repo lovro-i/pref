@@ -18,7 +18,7 @@ public class Level0 {
     this.reference = reference;
 
     // initialize Level1s
-    for (int i = 0; i < reference.size()-1; i++) {
+    for (int i = 0; i < reference.length()-1; i++) {
       Level1 level1 = new Level1(reference, sample, i); 
       map.put(i, level1);
     }

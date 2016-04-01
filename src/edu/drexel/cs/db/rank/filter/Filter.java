@@ -20,7 +20,7 @@ public class Filter {
 
   /** Remove items from the ranking with probability p for removing each one. Destructive on ranking, changes the actual ranking */
   public static void remove(Ranking ranking, double p) {
-    for (int i = ranking.size()-1; i >= 0; i--) {
+    for (int i = ranking.length()-1; i >= 0; i--) {
       double flip = random.nextDouble();
       if (flip < p) ranking.remove(i);
     }
@@ -32,7 +32,7 @@ public class Filter {
   }
   
   /** Remove pairs from the preferenceSet with probabilities specified in Missing. */
-  public static void removePreferences(MapPreferenceSet pref, MissingProbabilities m) {
+  public static void removePreferences(MutablePreferenceSet pref, MissingProbabilities m) {
     m.removePreferences(pref);
   }
   
@@ -44,16 +44,10 @@ public class Filter {
   }
   
   
-  /** Remove items from all rankings with probabilities specified in Missing. Destructive, changes the actual sample and its rankings */
-  public static void remove(RankingSample sample, MissingProbabilities m) {
-    m.remove(sample);
-  }
-  
-  
   /** Leave only top K items in each ranking */
   public static void top(RankingSample sample, int k) {
     for (Ranking r: sample.rankings()) {
-      while (r.size() > k) r.remove(r.size() - 1);
+      while (r.length() > k) r.remove(r.length() - 1);
     }
   }
   
@@ -61,7 +55,7 @@ public class Filter {
   public static void top(RankingSample sample, int min, int max) {
     for (Ranking r: sample.rankings()) {
       int k = min + random.nextInt(max - min + 1);
-      while (r.size() > k) r.remove(r.size() - 1);
+      while (r.length() > k) r.remove(r.length() - 1);
     }
   }
   
@@ -75,8 +69,8 @@ public class Filter {
   
   /** Uniformly randomizes the items of the ranking. Destructive, changes the actual ranking */
   public static void randomize(Ranking ranking) {
-    for (int i = 0; i < ranking.size() - 1; i++) {
-      int j = i + random.nextInt(ranking.size() - i);
+    for (int i = 0; i < ranking.length() - 1; i++) {
+      int j = i + random.nextInt(ranking.length() - i);
       ranking.swap(i, j);
     }
   }

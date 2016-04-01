@@ -18,15 +18,15 @@ public class ProposedEMPSampler extends MallowsSampler {
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(v);
 
-    for (int i = 0; i < reference.size(); i++) {
+    for (int i = 0; i < reference.length(); i++) {
       Item sigmai = reference.get(i);
 
       if (!r.contains(sigmai)) {
         double sum = 0;
-        double[] p = new double[r.size() + 1];
-        for (int j = 0; j <= r.size(); j++) {
+        double[] p = new double[r.length() + 1];
+        for (int j = 0; j <= r.length(); j++) {
           int newDist = 0;
-          for (int k = 0; k < r.size(); k++) {
+          for (int k = 0; k < r.length(); k++) {
             Item e = r.get(k);
             if ((k < j) && (reference.isPreferred(sigmai, e))) {
               newDist += 1;
@@ -39,7 +39,7 @@ public class ProposedEMPSampler extends MallowsSampler {
         }
         double flip = MathUtils.RANDOM.nextDouble();
         double ps = 0;
-        for (int j = 0; j <= r.size(); j++) {
+        for (int j = 0; j <= r.length(); j++) {
           ps += p[j] / sum;
           if (ps >= flip) {
             r.add(j, sigmai);

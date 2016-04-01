@@ -19,7 +19,7 @@ public class PreferenceBuild {
     this.pref = pref;
     this.prefix = prefix;
     this.reference = reference;
-    if (prefix.size() < reference.size()) this.constraint = new PreferenceConstraint(pref, reference, prefix.size());
+    if (prefix.length() < reference.length()) this.constraint = new PreferenceConstraint(pref, reference, prefix.length());
     else constraint = null;
   }
   
@@ -36,7 +36,7 @@ public class PreferenceBuild {
   }
   
   public boolean isCompatible(PreferenceSet p) {
-    PreferenceConstraint pc = new PreferenceConstraint(p, reference, prefix.size());
+    PreferenceConstraint pc = new PreferenceConstraint(p, reference, prefix.length());
     if (!pc.equals(constraint)) return false;
     Ranking projection = p.project(prefix.getItems());
     return prefix.equals(projection);
@@ -45,9 +45,9 @@ public class PreferenceBuild {
   /** Does the parameter PreferenceSet have the same history as this build */
   public boolean isSupport(PreferenceSet p) {
     Set<Item> items = new HashSet<Item>(prefix.getItems());
-    items.add(reference.get(prefix.size()));
+    items.add(reference.get(prefix.length()));
     Ranking projection = p.project(items);
-    if (projection == null || projection.size() < items.size()) return false;
+    if (projection == null || projection.length() < items.size()) return false;
     
     Ranking p2 = projection.project(prefix.getItems());
     return prefix.equals(p2);
@@ -56,10 +56,10 @@ public class PreferenceBuild {
   /** Does the parameter PreferenceSet have the same history as this build, and is the next item between low and high (inclusive) */
   public boolean isSupport(PreferenceSet p, int low, int high) {
     Set<Item> items = new HashSet<Item>(prefix.getItems());
-    Item nextItem = reference.get(prefix.size());
+    Item nextItem = reference.get(prefix.length());
     items.add(nextItem);
     Ranking projection = p.project(items);
-    if (projection == null || projection.size() < items.size()) return false;
+    if (projection == null || projection.length() < items.size()) return false;
     
     int index = projection.indexOf(nextItem);
     if (index < low || index > high) return false;
@@ -71,10 +71,10 @@ public class PreferenceBuild {
   /** If the given PreferenceSet can be used as support for this build, what is its insertion index. If cannot be used, returns -1 */
   public int getInsertIndex(PreferenceSet p) {
     Set<Item> items = new HashSet<Item>(prefix.getItems());
-    Item nextItem = reference.get(prefix.size());
+    Item nextItem = reference.get(prefix.length());
     items.add(nextItem);
     Ranking projection = p.project(items);
-    if (projection == null || projection.size() < items.size()) return -1;
+    if (projection == null || projection.length() < items.size()) return -1;
 
     Ranking p2 = projection.project(prefix.getItems());
     if (!prefix.equals(p2)) return -1;    
@@ -84,7 +84,7 @@ public class PreferenceBuild {
   /** Add next element at index position */
   public PreferenceBuild addNext(int index) {
     Ranking r = new Ranking(prefix);
-    Item next = reference.get(prefix.size());
+    Item next = reference.get(prefix.length());
     r.add(index, next);
     return new PreferenceBuild(pref, r, reference);
   }

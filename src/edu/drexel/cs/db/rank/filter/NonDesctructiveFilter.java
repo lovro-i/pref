@@ -47,8 +47,8 @@ public class NonDesctructiveFilter {
   /** Uniformly randomizes the items of the ranking. Non=destructive, returns a new ranking. */
   public static Ranking randomize(Ranking ranking) {
     Ranking r = new Ranking(ranking);
-    for (int i = 0; i < r.size() - 1; i++) {
-      int j = i + random.nextInt(r.size() - i);
+    for (int i = 0; i < r.length() - 1; i++) {
+      int j = i + random.nextInt(r.length() - i);
       r.swap(i, j);
     }
     return r;

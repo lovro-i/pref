@@ -26,19 +26,18 @@ public class AMPSampler extends MallowsSampler {
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(model.getItemSet());
-    DensePreferenceSet tc = v.transitiveClosure();
+    PreferenceSet tc = v.transitiveClosure();
     
     Item item = reference.get(0);
     r.add(item);
-    for (int i = 1; i < reference.size(); i++) {
+    for (int i = 1; i < reference.length(); i++) {
       item = reference.get(i);
       int low = 0;
       int high = i;
       
-      long t1 = System.currentTimeMillis();
       Set<Item> higher = tc.getHigher(item);
       Set<Item> lower = tc.getLower(item);
-      for (int j = 0; j < r.size(); j++) {
+      for (int j = 0; j < r.length(); j++) {
         Item it = r.get(j);
         if (higher.contains(it)) low = j + 1;
         if (lower.contains(it) && j < high) high = j;
@@ -87,7 +86,7 @@ public class AMPSampler extends MallowsSampler {
     
     Item item = reference.get(0);
     r.add(item);
-    for (int i = 1; i < reference.size(); i++) {
+    for (int i = 1; i < reference.length(); i++) {
       item = reference.get(i);
       int low, high;
       
@@ -100,7 +99,7 @@ public class AMPSampler extends MallowsSampler {
         low = 0;
         high = i;
         
-        for (int j = 0; j < r.size(); j++) {
+        for (int j = 0; j < r.length(); j++) {
           Item t = r.get(j);
           Integer ti = map.get(t);
           if (ti == null) continue;

@@ -29,7 +29,7 @@ public class Users extends ArrayList<PW> {
     this.cons = cons;
     
     low = 0;
-    high = prefix.size();
+    high = prefix.length();
 //    Item item = reference.get(high);
 //    Set<Item> higher = pref.getHigher(item);
 //    Set<Item> lower = pref.getLower(item);
@@ -55,7 +55,7 @@ public class Users extends ArrayList<PW> {
     }
     
     double sum = 0;
-    int i = prefix.size();
+    int i = prefix.length();
     p = new double[high+1];                
     for (int j = low; j <= high; j++) {
       p[j] = Math.pow(model.getPhi(), i - j);

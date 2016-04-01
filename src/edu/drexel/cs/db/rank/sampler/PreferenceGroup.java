@@ -92,7 +92,7 @@ public class PreferenceGroup {
 
   
   public List<PreferenceGroup> split() {
-    if (index == reference.size() - 1) throw new UnsupportedOperationException("Cannot split futher");
+    if (index == reference.length() - 1) throw new UnsupportedOperationException("Cannot split futher");
     
     List<PreferenceGroup> groups = new ArrayList<PreferenceGroup>();
     for (PreferenceSet pref: prefs) {
@@ -140,7 +140,7 @@ public class PreferenceGroup {
   private static void write(PreferenceGroup group, StringBuilder sb) {
     indent(group.getIndex(), sb);
     sb.append(group).append('\n');
-    if (group.getIndex() < group.getReference().size() - 1) {
+    if (group.getIndex() < group.getReference().length() - 1) {
       List<PreferenceGroup> splits = group.split();
       for (PreferenceGroup g: splits) {
         write(g, sb);

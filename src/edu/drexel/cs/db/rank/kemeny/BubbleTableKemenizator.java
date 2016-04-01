@@ -25,7 +25,7 @@ public class BubbleTableKemenizator implements Kemenizator {
     boolean foundBetter = true;
     while (foundBetter) {
       foundBetter = false;
-      for (int i = 0; i < kemeny.size() - 1; i++) {
+      for (int i = 0; i < kemeny.length() - 1; i++) {
         int e1 = kemeny.get(i).getId();
         int e2 = kemeny.get(i+1).getId();        
         if (before[e2][e1] > before[e1][e2]) {
@@ -47,7 +47,7 @@ public class BubbleTableKemenizator implements Kemenizator {
     boolean foundBetter = true;
     while (foundBetter) {
       foundBetter = false;
-      for (int i = 0; i < kemeny.size() - 1; i++) {
+      for (int i = 0; i < kemeny.length() - 1; i++) {
         int e1 = kemeny.get(i).getId();
         int e2 = kemeny.get(i+1).getId();        
         if (before[e2][e1] > before[e1][e2]) {

@@ -34,7 +34,7 @@ public class SampleCompleter {
     ItemSet items = sample.getItemSet();
     RankingSample complete = new RankingSample(items);
     for (PW<Ranking> pw: sample) {
-      int m = items.size() - pw.p.size();
+      int m = items.size() - pw.p.length();
       if (m == 0) {
         complete.add(pw);
         continue;
@@ -43,7 +43,7 @@ public class SampleCompleter {
       for (int i = 0; i < num; i++) {
         Ranking random = items.getRandomRanking();
         int k = 0; // index of item in the incomplete ranking to be inserted next
-        for (int j = 0; j < random.size(); j++) {
+        for (int j = 0; j < random.length(); j++) {
           Item e = random.get(j);
           if (pw.p.contains(e)) random.set(j, pw.p.get(k++));          
         }
@@ -68,7 +68,7 @@ public class SampleCompleter {
     for (int i = 0; i < 10000000; i++) {
       Ranking random = items.getRandomRanking();
       int k = 0; // index of item in the incomplete ranking to be inserted next
-      for (int j = 0; j < random.size(); j++) {
+      for (int j = 0; j < random.length(); j++) {
         Item e = random.get(j);
         if (r.contains(e)) {
           random.set(j, r.get(k++));
@@ -79,7 +79,7 @@ public class SampleCompleter {
     
     System.out.println(hist);
     System.out.println(hist.size());
-    System.out.println(SampleTriangle.mixes(r.size(), n-r.size()));
+    System.out.println(SampleTriangle.mixes(r.length(), n-r.length()));
   }
 
   public static void main(String[] args) { 

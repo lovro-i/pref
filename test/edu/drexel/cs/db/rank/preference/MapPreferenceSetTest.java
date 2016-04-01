@@ -1,7 +1,10 @@
 package edu.drexel.cs.db.rank.preference;
 
+import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -80,6 +83,38 @@ public class MapPreferenceSetTest {
     PreferenceSet tc1 = pref.transitiveClosure();
     assertEquals(12, tc1.size());
   }
+  
+  @Test
+  public void testProject() {
+    System.out.println("MapPreferenceSet.project() test");
+    for (int i = 0; i < 1; i++) {
+      Ranking r = items.getRandomRanking();
+
+      MapPreferenceSet tc = r.transitiveClosure();
+      Ranking p0 = tc.project(items);
+      assertEquals(r, p0);
+     
+      tc.remove(items.get(2), items.get(4));
+      Ranking p1 = tc.project(items);
+      assertNull(p1); // should be null because it cannot be projected to a complete ranking (a pair is missing)
+
+      Set<Item> sub = new HashSet<Item>(items);
+      sub.remove(items.get(2));
+      sub.remove(items.get(4));
+      Ranking p2 = tc.project(sub);
+      System.out.println(sub);
+      System.out.println(p2);
+      assertEquals(8, p2.length());
+      
+      sub.remove(items.get(0));
+      sub.remove(items.get(7));
+      Ranking p3 = tc.project(sub);
+      System.out.println(sub);
+      System.out.println(p3);
+      assertEquals(6, p3.length());
+    }
+  }
+    
   
 //
 //  /**

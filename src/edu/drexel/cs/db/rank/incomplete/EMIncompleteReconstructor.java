@@ -7,15 +7,13 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.incomplete.EMReconstructor.OnIterationListener;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.CenterReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSampler;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerPlus;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerPlusPlus;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
+import edu.drexel.cs.db.rank.sampler.other.AMPSamplerPlus;
+import edu.drexel.cs.db.rank.sampler.other.AMPSamplerPlusPlus;
+import edu.drexel.cs.db.rank.sampler.AMPxSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
@@ -110,7 +108,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
 
     {
       long start = System.currentTimeMillis();
-      MallowsSampler sampler = new AMPSamplerX(initial, sample, 10);
+      MallowsSampler sampler = new AMPxSampler(initial, sample, 10);
       EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
       rec.setIterations(4);
       rec.setOnIterationListener(listener);

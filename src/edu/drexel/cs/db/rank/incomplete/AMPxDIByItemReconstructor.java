@@ -4,19 +4,19 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
+import edu.drexel.cs.db.rank.sampler.other.AMPxDSamplerByItem;
 
 /**
- * Creates insertion triangle from the starting sample, and updates it after
- * each iteration Iterative, with smoothing
- * REMOVE
+ * Creates insertion triangle from the sample of the previous iteration (only)
+ * and updates it through the iteration. The first iteration uses the initial
+ * sample. Dynamic, iterative, no smoothing, by item
  */
 @Deprecated
-public class AMPX3Reconstructor extends EMReconstructor {
+public class AMPxDIByItemReconstructor extends EMReconstructor {
 
   private final double alpha;
 
-  public AMPX3Reconstructor(MallowsModel model, int iterations, double alpha) {
+  public AMPxDIByItemReconstructor(MallowsModel model, int iterations, double alpha) {
     super(model, iterations);
     this.alpha = alpha;
   }
@@ -24,16 +24,12 @@ public class AMPX3Reconstructor extends EMReconstructor {
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
-    AMPSamplerX sampler = new AMPSamplerX(estimate, sample, alpha);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     Sample resample = sample;
     double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
       oldPhi = estimate.getPhi();
-      sampler.setModel(estimate);
-      if (i > 0) {
-        sampler.addTrainingSample(resample);
-      }
+      AMPxDSamplerByItem sampler = new AMPxDSamplerByItem(estimate, resample, alpha);
       if (listener != null) {
         listener.onIterationStart(i, estimate, sample);
       }
@@ -50,5 +46,4 @@ public class AMPX3Reconstructor extends EMReconstructor {
 
     return estimate;
   }
-
 }

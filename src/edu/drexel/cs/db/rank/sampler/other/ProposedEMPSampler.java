@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.rank.sampler;
+package edu.drexel.cs.db.rank.sampler.other;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
@@ -6,6 +6,7 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.util.MathUtils;
 
 public class ProposedEMPSampler extends MallowsSampler {

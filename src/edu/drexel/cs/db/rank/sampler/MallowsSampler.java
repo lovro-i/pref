@@ -6,7 +6,7 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 
-
+/** Base class for all Mallows posterior samplers */
 public abstract class MallowsSampler {
 
   protected MallowsModel model;

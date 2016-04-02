@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.rank.sampler;
+package edu.drexel.cs.db.rank.sampler.other;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;

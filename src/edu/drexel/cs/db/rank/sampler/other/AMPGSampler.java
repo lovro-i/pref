@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.rank.sampler;
+package edu.drexel.cs.db.rank.sampler.other;
 
 import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;
@@ -9,10 +9,13 @@ import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
+import edu.drexel.cs.db.rank.sampler.AMPSampler;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.List;
 
+@Deprecated
 public class AMPGSampler {
 
   protected MallowsModel model;

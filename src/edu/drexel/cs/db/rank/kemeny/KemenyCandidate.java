@@ -30,14 +30,17 @@ public class KemenyCandidate {
   
   
   public static Ranking complete(PreferenceSet p) {
-    Ranking complete = toIncompleteRanking(p);
+    Ranking complete = toRanking(p);
     for (Item e: p.getItemSet()) {
       if (!complete.contains(e)) complete.add(e);
     }
     return complete;
   }
   
-  public static Ranking toIncompleteRanking(PreferenceSet p) {
+  /** Converts a PreferenceSet to an (incomplete) ranking to use as a candidate for kemenization
+   * @author Haoyue
+   */
+  public static Ranking toRanking(PreferenceSet p) {
     HashMap<Integer, HashSet<Item>> numToItem = new HashMap<>();
     HashSet<Item> availableItems = new HashSet<>();
     availableItems.addAll(p.getItems());

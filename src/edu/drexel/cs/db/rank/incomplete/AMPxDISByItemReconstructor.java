@@ -7,7 +7,7 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerXDItem;
+import edu.drexel.cs.db.rank.sampler.other.AMPxDSamplerByItem;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 
@@ -16,11 +16,11 @@ import edu.drexel.cs.db.rank.util.Logger;
  * dynamic, smoothing, iterative, by item
  */
 @Deprecated
-public class AMPX7Reconstructor extends EMReconstructor {
+public class AMPxDISByItemReconstructor extends EMReconstructor {
 
   private final double alpha;
 
-  public AMPX7Reconstructor(MallowsModel model, int iterations, double alpha) {
+  public AMPxDISByItemReconstructor(MallowsModel model, int iterations, double alpha) {
     super(model, iterations);
     this.alpha = alpha;
   }
@@ -28,7 +28,7 @@ public class AMPX7Reconstructor extends EMReconstructor {
   @Override
   public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
-    AMPSamplerXDItem sampler = new AMPSamplerXDItem(estimate, sample, alpha);
+    AMPxDSamplerByItem sampler = new AMPxDSamplerByItem(estimate, sample, alpha);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     Sample resample = sample;
     double oldPhi, newPhi;
@@ -62,7 +62,7 @@ public class AMPX7Reconstructor extends EMReconstructor {
 
     {
       long start = System.currentTimeMillis();
-      EMReconstructor rec = new AMPX7Reconstructor(initial, 4, 1);
+      EMReconstructor rec = new AMPxDISByItemReconstructor(initial, 4, 1);
       MallowsModel model = rec.reconstruct(sample, ref);
       System.out.println("model = " + model);
       Logger.info("%s Done in %d ms", rec.getClass().getSimpleName(), System.currentTimeMillis() - start);

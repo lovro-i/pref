@@ -6,8 +6,8 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 
-/** The one that uses the whole sample for probabilities. */
-public class AMPSamplerXD extends AMPSamplerX {
+/** AMPx variant that immediately updates the Insertion Probability Matrix with a newly sampled ranking */
+public class AMPxDSampler extends AMPxSampler {
 
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -16,7 +16,7 @@ public class AMPSamplerXD extends AMPSamplerX {
    * @param sample
    * @param rate 
    */
-  public AMPSamplerXD(MallowsModel model, Sample sample, double rate) {
+  public AMPxDSampler(MallowsModel model, Sample sample, double rate) {
     super(model, sample, rate);
   }
 

@@ -5,6 +5,7 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
+import edu.drexel.cs.db.rank.incomplete.EMReconstructor.OnIterationListener;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
@@ -19,13 +20,13 @@ import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 
+@Deprecated
 public class EMIncompleteReconstructor implements MallowsReconstructor {
 
   private int iterations = 100;
 
   private MallowsSampler sampler;
   private OnIterationListener listener;
-  private OnIterationListenerPairs listenerPairs;
 
   /**
    * Construct EM reconstructor with specified sampler
@@ -35,7 +36,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample) {
+  public MallowsModel reconstruct(Sample sample) {
     Ranking center = CenterReconstructor.reconstruct(sample);
     return this.reconstruct(sample, center);
   }
@@ -48,15 +49,11 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     this.listener = listener;
   }
   
-    public void setOnIterationListenerPairs(OnIterationListenerPairs listenerPairs) {
-    this.listenerPairs = listenerPairs;
-  }
-
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) {
+  public MallowsModel reconstruct(Sample sample, Ranking center) {
     MallowsModel estimate = sampler.getModel();
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample<Ranking> resample = sample;
+    Sample resample = sample;
     double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
       oldPhi = estimate.getPhi();
@@ -78,45 +75,8 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     return estimate;
   }
 
-  public MallowsModel reconstructFromPairs(Sample<MapPreferenceSet> sample, Ranking center) {
-    MallowsModel estimate = sampler.getModel();
-    PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample<Ranking> resample = new Sample<>(sample.getItemSet());
-    double oldPhi, newPhi;
-    for (int i = 0; i < iterations; i++) {
-      oldPhi = estimate.getPhi();
-      sampler.setModel(estimate);
-      if (listenerPairs != null) {
-        listenerPairs.onIterationStart(i, estimate, sample);
-      }
-      resample = sampler.sample(sample);
-      estimate = reconstructor.reconstruct(resample, center);
-      if (listenerPairs != null) {
-        listenerPairs.onIterationEnd(i, estimate, resample);
-      }
-      newPhi = estimate.getPhi();
-      if (Math.abs(newPhi - oldPhi) < 0.001) {
-        break;
-      }
-    }
-
-    return estimate;
-  }
   
-  public static interface OnIterationListenerPairs {
-
-    public void onIterationStart(int iteration, MallowsModel estimate, Sample<MapPreferenceSet> trainingSample);
-
-    public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample);
-  }
   
-  public static interface OnIterationListener {
-
-    public void onIterationStart(int iteration, MallowsModel estimate, Sample<Ranking> trainingSample);
-
-    public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample);
-  }
-
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getReferenceRanking();
@@ -125,11 +85,11 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
 
     OnIterationListener listener = new OnIterationListener() {
       @Override
-      public void onIterationStart(int iteration, MallowsModel estimate, Sample<Ranking> trainingSample) {
+      public void onIterationStart(int iteration, MallowsModel estimate, Sample trainingSample) {
       }
 
       @Override
-      public void onIterationEnd(int iteration, MallowsModel estimate, Sample<Ranking> resample) {
+      public void onIterationEnd(int iteration, MallowsModel estimate, Sample resample) {
         Logger.info("Iteration %d: %f", iteration, estimate.getPhi());
       }
 

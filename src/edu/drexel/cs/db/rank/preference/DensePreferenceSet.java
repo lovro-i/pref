@@ -375,6 +375,16 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     }
     return prefs;
   }
+  
+  @Override
+  public Set<Item> getItems() {
+    Set<Item> items = new HashSet<Item>();
+    for (Preference p: this.getPreferences()) {
+      items.add(p.higher);
+      items.add(p.lower);
+    }
+    return items;
+  }
 
   @Override
   public boolean remove(Item item) {

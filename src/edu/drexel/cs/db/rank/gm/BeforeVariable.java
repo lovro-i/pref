@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.Item;
 
-
+@Deprecated
 public class BeforeVariable extends Variable {
 
   private final int step;

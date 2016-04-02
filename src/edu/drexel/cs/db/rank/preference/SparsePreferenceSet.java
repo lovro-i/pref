@@ -208,5 +208,15 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
     return super.contains(pref);
   }
 
+  @Override
+  public Set<Item> getItems() {
+    Set<Item> items = new HashSet<Item>();
+    for (Preference p: this) {
+      items.add(p.higher);
+      items.add(p.lower);
+    }
+    return items;
+  }
+
   
 }

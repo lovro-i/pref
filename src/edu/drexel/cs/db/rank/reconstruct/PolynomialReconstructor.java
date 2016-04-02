@@ -3,15 +3,12 @@ package edu.drexel.cs.db.rank.reconstruct;
 
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.KendallTauUtils;
-import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.math.Polynomial;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.Arrays;
 
 /** Reconstructs phi from the known (reconstructed) center and the sample finding the root of the polynomial
@@ -44,16 +41,16 @@ public class PolynomialReconstructor implements MallowsReconstructor {
   
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample) {
+  public MallowsModel reconstruct(Sample sample) {
     Ranking center = CenterReconstructor.reconstruct(sample);
     return this.reconstruct(sample, center);
   }
   
   
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) {
+  public MallowsModel reconstruct(Sample<? extends PreferenceSet> sample, Ranking center) {
     double sumd = 0;
-    for (PW<Ranking> pw: sample) {
+    for (PW pw: sample) {
       sumd += pw.w * KendallTauDistance.getInstance().distance(center, pw.p);
     }
     double meand = sumd / sample.sumWeights();
@@ -65,26 +62,6 @@ public class PolynomialReconstructor implements MallowsReconstructor {
     Polynomial solve = left.sub(right);
     double phi = solve.root(0d, 1d, 0.00001d);
     return new MallowsModel(center, phi);
-  }
-  
-  
-  
-  public static void main(String[] args) {
-    int n = 20;    
-    ItemSet items = new ItemSet(n);
-    double phi = Math.random() * 0.8;
-    Ranking center = items.getRandomRanking();
-    MallowsModel model = new MallowsModel(center, phi);
-    
-    int sampleSize = 5000;
-    MallowsTriangle triangle = new MallowsTriangle(model);
-    RIMRSampler sampler = new RIMRSampler(triangle);
-    RankingSample sample = sampler.generate(sampleSize);
-    
-    PolynomialReconstructor rec = new PolynomialReconstructor();
-    MallowsModel mm = rec.reconstruct(sample, center);
-    System.out.println(model);
-    System.out.println(mm);
   }
 
 }

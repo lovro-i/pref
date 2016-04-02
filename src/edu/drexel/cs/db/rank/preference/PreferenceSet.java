@@ -12,6 +12,9 @@ public interface PreferenceSet extends Cloneable {
   /** Returns the set of items */
   public ItemSet getItemSet();
   
+  /** Returns the set of all items that are appearing in this PreferenceSet */
+  public Collection<Item> getItems();
+  
   /** Returns true if contains this preference, false if contains the opposite, and null if it doesn't contain the information on this pair */
   public Boolean isPreferred(Item preferred, Item over);
   

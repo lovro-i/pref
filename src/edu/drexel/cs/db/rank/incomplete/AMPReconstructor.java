@@ -16,11 +16,11 @@ public class AMPReconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) {
+  public MallowsModel reconstruct(Sample sample, Ranking center) {
     MallowsModel estimate = model;
     AMPSampler sampler = new AMPSampler(estimate);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample<Ranking> resample = sample;
+    Sample resample = sample;
     double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
       oldPhi = estimate.getPhi();

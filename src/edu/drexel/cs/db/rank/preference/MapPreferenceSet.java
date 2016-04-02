@@ -12,35 +12,45 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * MapPreferenceSet stores the preferences as two maps between an item and its lower / higher items. It records Directed Acyclic Graph (DAG) of preferences. Each entry shows that Item e is
- * preferred to items in HashSet<Item>. It has a reverseMap which represents the reverse preference graph, where key is less preferred items and
- * values are preferred items.
+ * MapPreferenceSet stores the preferences as two maps between an item and its
+ * lower / higher items. It records Directed Acyclic Graph (DAG) of preferences.
+ * Each entry shows that Item e is preferred to items in HashSet<Item>. It has a
+ * reverseMap which represents the reverse preference graph, where key is less
+ * preferred items and values are preferred items.
  */
 public class MapPreferenceSet implements MutablePreferenceSet {
 
   private final ItemSet items;
-  
-  /** Maps an item to the set of less preferred items */
+
+  /**
+   * Maps an item to the set of less preferred items
+   */
   private HashMap<Item, HashSet<Item>> lowers = new HashMap<>();
-  
-  /** Maps an item to the set of more preferred items */
+
+  /**
+   * Maps an item to the set of more preferred items
+   */
   private HashMap<Item, HashSet<Item>> highers = new HashMap<>();
 
   public MapPreferenceSet(ItemSet itemSet) {
     this.items = itemSet;
   }
-  
+
   public MapPreferenceSet(PreferenceSet prefs) {
     this(prefs.getItemSet());
-    for (Preference pref: prefs.getPreferences()) this.add(pref.higher, pref.lower);
+    for (Preference pref : prefs.getPreferences()) {
+      this.add(pref.higher, pref.lower);
+    }
   }
 
   /**
-   * Runs BFS to check if input edge will bring cycles. BFS starts from lower to higher when adding preference (Item higher, Item lower)
+   * Runs BFS to check if input edge will bring cycles. BFS starts from lower to
+   * higher when adding preference (Item higher, Item lower)
    *
    * @param higher Item higher is preferred in input edge.
    * @param lower Item lower is less preferred in input edge.
-   * @return true if it is possible to add this pair, false if it would introduce a cycle
+   * @return true if it is possible to add this pair, false if it would
+   * introduce a cycle
    */
   private boolean checkAcyclic(Item higher, Item lower) {
     HashSet<Item> closeList = new HashSet<>();
@@ -53,7 +63,9 @@ public class MapPreferenceSet implements MutablePreferenceSet {
           if (!closeList.contains(e)) {
             openList.add(e);
           }
-          if (e.equals(higher)) return false;
+          if (e.equals(higher)) {
+            return false;
+          }
           closeList.add(currentItem);
         }
       }
@@ -114,7 +126,7 @@ public class MapPreferenceSet implements MutablePreferenceSet {
       highers.put(lower, hi);
     }
     hi.add(higher);
-        
+
     return added;
   }
 
@@ -126,12 +138,13 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   @Override
   public Boolean remove(Item item1, Item item2) {
     Boolean preferred = this.isPreferred(item1, item2);
-    if (preferred == null) return null;
+    if (preferred == null) {
+      return null;
+    }
     if (preferred) {
       lowers.get(item1).remove(item2);
       highers.get(item2).remove(item1);
-    }
-    else {
+    } else {
       lowers.get(item2).remove(item1);
       highers.get(item1).remove(item2);
     }
@@ -142,7 +155,7 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   public Boolean remove(int itemId1, int itemId2) {
     return remove(items.get(itemId1), items.get(itemId2));
   }
-  
+
   @Override
   public boolean remove(Preference pref) {
     boolean contains = this.contains(pref);
@@ -161,11 +174,15 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   @Override
   public Boolean isPreferred(Item preferred, Item over) {
     Set<Item> lo = lowers.get(preferred);
-    if (lo != null && lo.contains(over)) return true;
-    
+    if (lo != null && lo.contains(over)) {
+      return true;
+    }
+
     lo = lowers.get(over);
-    if (lo != null && lo.contains(preferred)) return false;
-    
+    if (lo != null && lo.contains(preferred)) {
+      return false;
+    }
+
     return null;
   }
 
@@ -174,32 +191,39 @@ public class MapPreferenceSet implements MutablePreferenceSet {
     return isPreferred(items.get(preferred), items.get(over));
   }
 
-  /** Performs transitive closure on this preference set (not creating a new object) */
+  /**
+   * Performs transitive closure on this preference set (not creating a new
+   * object)
+   */
   public void transitiveClose() {
     boolean done = false;
     List<Preference> add = new ArrayList<Preference>();
     while (!done) {
       add.clear();
-      for (Item h: this.lowers.keySet()) {
+      for (Item h : this.lowers.keySet()) {
         HashSet<Item> inters = lowers.get(h);
-        if (inters == null) continue;
-        for (Item inter: inters) {
+        if (inters == null) {
+          continue;
+        }
+        for (Item inter : inters) {
           HashSet<Item> lo = lowers.get(inter);
-          if (lo == null) continue;
-          for (Item l: lo) {
-            if (!this.contains(h, l)) add.add(new Preference(h, l));
+          if (lo == null) {
+            continue;
+          }
+          for (Item l : lo) {
+            if (!this.contains(h, l)) {
+              add.add(new Preference(h, l));
+            }
           }
         }
       }
-      for (Preference pref: add) {
+      for (Preference pref : add) {
         this.add(pref.higher, pref.lower);
       }
       done = add.isEmpty();
     }
   }
-  
-  
-  
+
   @Override
   public MapPreferenceSet transitiveClosure() {
     MapPreferenceSet tc = this.clone();
@@ -207,79 +231,12 @@ public class MapPreferenceSet implements MutablePreferenceSet {
     return tc;
   }
 
-
   @Override
   public Ranking project(Collection<Item> items) {
-    HashSet<Item> projectedItems = new HashSet<>(items);
-    // compute its transitive closure before computing projected ranking
-    MapPreferenceSet prefsTC = this.transitiveClosure();
-    // the projected preference pairs
-    MapPreferenceSet prefsProjected = new MapPreferenceSet(this.items);
-
-    HashSet<Item> commonKeyItems = new HashSet<>(projectedItems);
-    commonKeyItems.retainAll(this.lowers.keySet());
-    for (Item e : commonKeyItems) {
-      HashSet<Item> commonItems = new HashSet<>(projectedItems);
-      commonItems.retainAll(prefsTC.lowers.get(e));
-      prefsProjected.lowers.put(e, commonItems);
-    }
-
-    int pairsSum = 0;
-    // Map<number of descendents, item>, it shows how much this item is preferred.
-    HashMap<Integer, Item> numToItem = new HashMap<>();
-    for (Item e : prefsProjected.lowers.keySet()) {
-      int numChildren = prefsProjected.lowers.get(e).size();
-      pairsSum += numChildren;
-      numToItem.put(numChildren, e);
-    }
-    int keySetSize = prefsProjected.lowers.keySet().size();
-    
-    if (pairsSum == keySetSize * (keySetSize - 1) / 2) {
-      Ranking r = new Ranking(this.items);
-      for (int i = keySetSize - 1; i >= 0; i--) {
-        r.add(numToItem.get(i));
-      }
-      return r;
-    }
-    return null;
+    DensePreferenceSet tc = new DensePreferenceSet(this);
+    return tc.project(items);
   }
 
-//  public Ranking toIncompleteRanking() {
-//
-//    // Map<number of descendents, item>, it shows how much this item is preferred.
-//    HashMap<Integer, HashSet<Item>> numToItem = new HashMap<>();
-//    HashSet<Item> availableItems = new HashSet<>();
-//    availableItems.addAll(this.keySet());
-//    availableItems.addAll(this.reverseMap.keySet());
-//    for (Item e : availableItems) {
-//      int numChildren = 0;
-//      int numAncesters = 0;
-//      if (this.containsKey(e)) {
-//        numChildren = this.get(e).size();
-//      }
-//      if (this.reverseMap.containsKey(e)) {
-//        numAncesters = this.reverseMap.get(e).size();
-//      }
-//      int preferenceIdx = numChildren - numAncesters;
-//      if (numToItem.containsKey(preferenceIdx)) {
-//        numToItem.get(preferenceIdx).add(e);
-//      } else {
-//        HashSet<Item> tmpSet = new HashSet<>();
-//        tmpSet.add(e);
-//        numToItem.put(preferenceIdx, tmpSet);
-//      }
-//    }
-//
-//    Ranking r = new Ranking(this.items);
-//    for (int i = items.size(); i >= -items.size(); i--) {
-//      if (numToItem.containsKey(i)) {
-//        for (Item e : numToItem.get(i)) {
-//          r.add(e);
-//        }
-//      }
-//    }
-//    return r;
-//  }
 
   @Override
   public Set<Item> getHigher(Item i) {
@@ -294,15 +251,16 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   @Override
   public boolean contains(Item higher, Item lower) {
     HashSet<Item> lo = this.lowers.get(higher);
-    if (lo == null) return false;
+    if (lo == null) {
+      return false;
+    }
     return lo.contains(lower);
   }
-  
+
   @Override
   public boolean contains(Preference pref) {
     return contains(pref.higher, pref.lower);
   }
-
 
   @Override
   public boolean contains(int higherId, int lowerId) {
@@ -316,32 +274,37 @@ public class MapPreferenceSet implements MutablePreferenceSet {
 
   /**
    * Deep copy of current MapPreferenceSet instance
+   *
    * @return A clone of itself
    */
   @Override
   public MapPreferenceSet clone() {
     MapPreferenceSet clone = new MapPreferenceSet(items);
-    
-    for (Item h: lowers.keySet()) {
+
+    for (Item h : lowers.keySet()) {
       HashSet<Item> lo = new HashSet<Item>();
       clone.lowers.put(h, lo);
-      for (Item l: lowers.get(h)) lo.add(l);
+      for (Item l : lowers.get(h)) {
+        lo.add(l);
+      }
     }
-    
-    for (Item l: highers.keySet()) {
+
+    for (Item l : highers.keySet()) {
       HashSet<Item> hi = new HashSet<Item>();
       clone.highers.put(l, hi);
-      for (Item h: highers.get(l)) hi.add(h);
+      for (Item h : highers.get(l)) {
+        hi.add(h);
+      }
     }
-    
+
     return clone;
   }
 
   @Override
   public Set<Preference> getPreferences() {
     Set<Preference> prefs = new HashSet<Preference>();
-    for (Item h: this.lowers.keySet()) {
-      for (Item l: this.lowers.get(h)) {
+    for (Item h : this.lowers.keySet()) {
+      for (Item l : this.lowers.get(h)) {
         Preference p = new Preference(h, l);
         prefs.add(p);
       }
@@ -356,15 +319,26 @@ public class MapPreferenceSet implements MutablePreferenceSet {
       removed = true;
       this.lowers.remove(item);
     }
-    
+
     if (this.highers.containsKey(item)) {
       removed = true;
       this.highers.remove(item);
     }
-    
+
     return removed;
   }
 
+  @Override
+  public String toString() {
+    return this.getPreferences().toString();
+  }
 
-  
+  @Override
+  public Set<Item> getItems() {
+    Set<Item> items = new HashSet<Item>();
+    items.addAll(highers.keySet());
+    items.addAll(lowers.keySet());
+    return items;
+  }
+
 }

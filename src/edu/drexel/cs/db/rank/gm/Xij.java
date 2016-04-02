@@ -43,7 +43,7 @@ public class Xij extends Variable {
   
   @Override
   public String getName() {
-    return item + "@" + t;
+    return item + "@" + (t + 1);
   }
 
   @Override

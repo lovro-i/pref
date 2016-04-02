@@ -8,6 +8,7 @@ import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
 
 /**
  * Creates insertion triangle from the sample and uses the same one repeatedly
+ * AMPx
  */
 public class AMPX1Reconstructor extends EMReconstructor {
 
@@ -19,11 +20,11 @@ public class AMPX1Reconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
     AMPSamplerX sampler = new AMPSamplerX(estimate, sample, alpha);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample<Ranking> resample = sample;
+    Sample resample = sample;
     double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
       oldPhi = estimate.getPhi();

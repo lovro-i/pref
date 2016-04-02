@@ -11,6 +11,7 @@ import edu.drexel.cs.db.rank.sampler.AMPSamplerXDItem;
  * and updates it through the iteration. The first iteration uses the initial
  * sample. Dynamic, iterative, no smoothing, by item
  */
+@Deprecated
 public class AMPX8Reconstructor extends EMReconstructor {
 
   private final double alpha;
@@ -21,10 +22,10 @@ public class AMPX8Reconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample<Ranking> resample = sample;
+    Sample resample = sample;
     double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
       oldPhi = estimate.getPhi();

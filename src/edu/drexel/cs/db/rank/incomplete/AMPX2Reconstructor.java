@@ -9,6 +9,7 @@ import edu.drexel.cs.db.rank.sampler.AMPSamplerX;
 /**
  * Creates insertion triangle from the sample of the previous iteration (only).
  * The first iteration uses the initial sample. Iterative, no smoothing
+ * AMPxI
  */
 public class AMPX2Reconstructor extends EMReconstructor {
 
@@ -20,10 +21,10 @@ public class AMPX2Reconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample<Ranking> resample = sample;
+    Sample resample = sample;
     double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
       oldPhi = estimate.getPhi();

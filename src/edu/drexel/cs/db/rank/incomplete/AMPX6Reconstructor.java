@@ -11,6 +11,7 @@ import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
  * triangle all the time, during iterations dynamic, smoothing (therefore
  * iterative)
  */
+@Deprecated
 public class AMPX6Reconstructor extends EMReconstructor {
 
   private final double alpha;
@@ -21,7 +22,7 @@ public class AMPX6Reconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
     AMPSamplerXD sampler = new AMPSamplerXD(estimate, sample, alpha);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();

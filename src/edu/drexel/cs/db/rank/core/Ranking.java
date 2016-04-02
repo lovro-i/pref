@@ -133,6 +133,7 @@ public class Ranking implements Comparable, PreferenceSet {
   }
   
   
+  @Override
   public List<Item> getItems() {
     return items;
   }

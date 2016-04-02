@@ -45,12 +45,14 @@ public class DensePreferenceSetTest {
     assertEquals(3, instance.size());
     
     boolean added = instance.add(items.get(6), items.get(1));
-    assertEquals(4, instance.size());
     assertTrue(added);
+    assertEquals(4, instance.size());
+    
     
     added = instance.add(items.get(6), items.get(1));
-    assertEquals(4, instance.size());
     assertFalse(added);
+    assertEquals(4, instance.size());
+    
     
     try {
       instance.add(7, 2);
@@ -100,8 +102,9 @@ public class DensePreferenceSetTest {
       
       tc.remove(items.get(2), items.get(4));
       Ranking p1 = tc.project(items);
-      assertNull(p1); // should be null because it cannot be projected to a complete ranking
-
+      assertNotNull(p1); // should be null because it cannot be projected to a complete ranking
+      assertEquals(r, p1);
+      
       Set<Item> sub = new HashSet<Item>(items);
       sub.remove(items.get(2));
       sub.remove(items.get(4));

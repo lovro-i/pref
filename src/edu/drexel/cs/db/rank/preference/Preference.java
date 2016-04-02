@@ -50,7 +50,7 @@ public class Preference {
   
   @Override
   public String toString() {
-    return higher + " \u227b " + lower;
+    return higher + " > " + lower;
   }
   
    

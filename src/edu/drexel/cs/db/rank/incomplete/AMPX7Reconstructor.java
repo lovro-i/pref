@@ -15,6 +15,7 @@ import edu.drexel.cs.db.rank.util.Logger;
  * Constantly updates training sample after each ranking, adding to the same triangle all the time, during iterations, By Item
  * dynamic, smoothing, iterative, by item
  */
+@Deprecated
 public class AMPX7Reconstructor extends EMReconstructor {
 
   private final double alpha;
@@ -25,11 +26,11 @@ public class AMPX7Reconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
     AMPSamplerXDItem sampler = new AMPSamplerXDItem(estimate, sample, alpha);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample<Ranking> resample = sample;
+    Sample resample = sample;
     double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
       oldPhi = estimate.getPhi();

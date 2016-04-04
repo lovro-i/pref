@@ -12,17 +12,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
-<<<<<<< HEAD
- * MapPreferenceSet stores the preferences as two maps between an item and its lower / higher items. It records Directed Acyclic Graph (DAG) of
- * preferences. Each entry shows that Item e is preferred to items in HashSet<Item>. It has a reverseMap which represents the reverse preference
- * graph, where key is less preferred items and values are preferred items.
-=======
  * MapPreferenceSet stores the preferences as two maps between an item and its
  * lower / higher items. It records Directed Acyclic Graph (DAG) of preferences.
  * Each entry shows that Item e is preferred to items in HashSet<Item>. It has a
  * reverseMap which represents the reverse preference graph, where key is less
  * preferred items and values are preferred items.
->>>>>>> 09f22f6c08dff1f0823c95073e33fc6e7a4ad276
  */
 public class MapPreferenceSet implements MutablePreferenceSet {
 
@@ -244,8 +238,6 @@ public class MapPreferenceSet implements MutablePreferenceSet {
 
   @Override
   public Ranking project(Collection<Item> items) {
-<<<<<<< HEAD
-
     HashSet<Item> projectedItems = new HashSet<>(items);
     // compute its transitive closure before computing projected ranking
     MapPreferenceSet prefsTC = this.transitiveClosure();
@@ -285,49 +277,8 @@ public class MapPreferenceSet implements MutablePreferenceSet {
 
   }
 
-//  public Ranking toIncompleteRanking() {
-//
-//    // Map<number of descendents, item>, it shows how much this item is preferred.
-//    HashMap<Integer, HashSet<Item>> numToItem = new HashMap<>();
-//    HashSet<Item> availableItems = new HashSet<>();
-//    availableItems.addAll(this.keySet());
-//    availableItems.addAll(this.reverseMap.keySet());
-//    for (Item e : availableItems) {
-//      int numChildren = 0;
-//      int numAncesters = 0;
-//      if (this.containsKey(e)) {
-//        numChildren = this.get(e).size();
-//      }
-//      if (this.reverseMap.containsKey(e)) {
-//        numAncesters = this.reverseMap.get(e).size();
-//      }
-//      int preferenceIdx = numChildren - numAncesters;
-//      if (numToItem.containsKey(preferenceIdx)) {
-//        numToItem.get(preferenceIdx).add(e);
-//      } else {
-//        HashSet<Item> tmpSet = new HashSet<>();
-//        tmpSet.add(e);
-//        numToItem.put(preferenceIdx, tmpSet);
-//      }
-//    }
-//
-//    Ranking r = new Ranking(this.items);
-//    for (int i = items.size(); i >= -items.size(); i--) {
-//      if (numToItem.containsKey(i)) {
-//        for (Item e : numToItem.get(i)) {
-//          r.add(e);
-//        }
-//      }
-//    }
-//    return r;
-//  }
-=======
-    DensePreferenceSet tc = new DensePreferenceSet(this);
-    return tc.project(items);
-  }
 
 
->>>>>>> 09f22f6c08dff1f0823c95073e33fc6e7a4ad276
   @Override
   public Set<Item> getHigher(Item i) {
     return this.highers.get(i);
@@ -418,8 +369,7 @@ public class MapPreferenceSet implements MutablePreferenceSet {
     return removed;
   }
 
-<<<<<<< HEAD
-=======
+
   @Override
   public String toString() {
     return this.getPreferences().toString();
@@ -433,5 +383,4 @@ public class MapPreferenceSet implements MutablePreferenceSet {
     return items;
   }
 
->>>>>>> 09f22f6c08dff1f0823c95073e33fc6e7a4ad276
 }

@@ -4,18 +4,17 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-
 public class MapPreferenceSetTest {
-  
+
   private ItemSet items = new ItemSet(10);
-  
+
   public MapPreferenceSetTest() {
   }
-  
 
   /**
    * Test of size method, of class MapPreferenceSet.
@@ -29,9 +28,8 @@ public class MapPreferenceSetTest {
     instance.add(items.get(5), items.get(7));
     assertEquals(3, instance.size());
   }
-  
 
-  @Test  
+  @Test
   public void testAdd() {
     System.out.println("MapPreferenceSet.add() test");
     MapPreferenceSet instance = new MapPreferenceSet(items);
@@ -39,26 +37,24 @@ public class MapPreferenceSetTest {
     instance.add(2, 5);
     instance.add(items.get(5), items.get(7));
     assertEquals(3, instance.size());
-    
+
     boolean added = instance.add(items.get(6), items.get(1));
     assertEquals(4, instance.size());
     assertTrue(added);
-    
+
     added = instance.add(items.get(6), items.get(1));
     assertEquals(4, instance.size());
     assertFalse(added);
-    
+
     try {
       instance.add(7, 2);
       fail();
-    }
-    catch (IllegalStateException e) {
+    } catch (IllegalStateException e) {
       // must throw IllegalStateException
     }
     assertEquals(4, instance.size());
   }
-  
-  
+
   @Test
   public void testTransitiveClosure() {
     System.out.println("MapPreferenceSet.transitiveClosure() test");
@@ -68,10 +64,10 @@ public class MapPreferenceSetTest {
     r.add(items.get(6));
     r.add(items.get(9));
     r.add(items.get(8));
-    
+
     PreferenceSet tc = r.transitiveClosure();
     assertEquals(10, tc.size());
-    
+
     MapPreferenceSet pref = new MapPreferenceSet(items);
     pref.add(0, 3);
     pref.add(2, 5);
@@ -79,26 +75,35 @@ public class MapPreferenceSetTest {
     pref.add(3, 1);
     pref.add(3, 2);
     assertEquals(5, pref.size());
-    
+
     PreferenceSet tc1 = pref.transitiveClosure();
     assertEquals(12, tc1.size());
   }
-  
+
   @Test
   public void testProject() {
     System.out.println("MapPreferenceSet.project() test");
     for (int i = 0; i < 10; i++) {
       Ranking r = items.getRandomRanking();
+      Map<Item, Integer> rMap = r.getIndexMap();
 
       MapPreferenceSet tc = r.transitiveClosure();
       System.out.println(tc);
       Ranking p0 = tc.project(items);
       assertEquals(r, p0);
-     
-      tc.remove(items.get(2), items.get(4));
+
+      Item e1 = items.get(2);
+      Item e2 = items.get(4);
+      int idx1 = rMap.get(e1);
+      int idx2 = rMap.get(e2);
+      tc.remove(e1, e2);
       Ranking p1 = tc.project(items);
-      assertNotNull(p1); // should be null because it cannot be projected to a complete ranking (a pair is missing)
-      assertEquals(r, p1);
+      if (Math.abs(idx1 - idx2) == 1) {
+        assertNull(p1);
+      } else {
+        assertNotNull(p1); // should be null because it cannot be projected to a complete ranking (a pair is missing)
+        assertEquals(r, p1);
+      }
 
       Set<Item> sub = new HashSet<Item>(items);
       sub.remove(items.get(2));
@@ -108,7 +113,7 @@ public class MapPreferenceSetTest {
       System.out.println(p2);
       assertNotNull(p2);
       assertEquals(8, p2.length());
-      
+
       sub.remove(items.get(0));
       sub.remove(items.get(7));
       Ranking p3 = tc.project(sub);
@@ -117,8 +122,7 @@ public class MapPreferenceSetTest {
       assertEquals(6, p3.length());
     }
   }
-    
-  
+
 //
 //  /**
 //   * Test of prune method, of class MapPreferenceSet.

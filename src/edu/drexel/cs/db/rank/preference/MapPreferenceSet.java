@@ -262,7 +262,6 @@ public class MapPreferenceSet implements MutablePreferenceSet {
     Item lastItem = null;
     for (Item e : prefsProjected.lowers.keySet()) {
       int numChildren = prefsProjected.lowers.get(e).size();
-      System.out.println("Item is "+e+", which has "+numChildren+" children");
       numToItem.put(numChildren, e);
       if (numChildren == 1){
         lastItem = prefsProjected.lowers.get(e).iterator().next();

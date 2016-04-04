@@ -85,7 +85,6 @@ public class MapPreferenceSetTest {
     System.out.println("MapPreferenceSet.toRanking() test");
     for (int i = 0; i < 10; i++) {
       Ranking r = items.getRandomRanking();
-      Map<Item, Integer> rMap = r.getIndexMap();
 
       MapPreferenceSet tc = r.transitiveClosure();
       System.out.println(tc);
@@ -94,8 +93,8 @@ public class MapPreferenceSetTest {
 
       Item e1 = items.get(2);
       Item e2 = items.get(4);
-      int idx1 = rMap.get(e1);
-      int idx2 = rMap.get(e2);
+      int idx1 = r.getIndexMap().get(e1);
+      int idx2 = r.getIndexMap().get(e2);
       tc.remove(e1, e2);
       Ranking p1 = tc.toRanking(items);
       if (Math.abs(idx1 - idx2) == 1) {

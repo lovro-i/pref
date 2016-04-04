@@ -57,14 +57,13 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
   
   @Override
   public boolean add(Item higher, Item lower) {
-    if (!items.contains(higher)) throw new IllegalArgumentException("Item " + higher + " not in the set");
-    if (!items.contains(lower)) throw new IllegalArgumentException("Item " + lower + " not in the set");
+    MapPreferenceSet mps = new MapPreferenceSet(this);
+    if (!mps.checkAcyclic(higher, lower)) {
+      throw new IllegalStateException(String.format("Cannot add (%s, %s) pair, graph would be cyclic", higher, lower));
+    }
     
     Preference pref = new Preference(higher, lower);
-    if (this.contains(pref)) return false;
-    this.remove(lower, higher);
-    this.add(pref);
-    return true;
+    return this.add(pref);
   }
   
     

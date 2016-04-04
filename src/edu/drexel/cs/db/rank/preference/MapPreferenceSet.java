@@ -52,7 +52,7 @@ public class MapPreferenceSet implements MutablePreferenceSet {
    * @return true if it is possible to add this pair, false if it would
    * introduce a cycle
    */
-  private boolean checkAcyclic(Item higher, Item lower) {
+  boolean checkAcyclic(Item higher, Item lower) {
     HashSet<Item> closeList = new HashSet<>();
     LinkedList<Item> openList = new LinkedList<>();
     openList.add(lower);

@@ -14,7 +14,7 @@ public class HasseDiagramTest {
 
   @Test
   public void test1() {
-    System.out.println("add");
+    System.out.println("HesseDiagramTest 1");
     
     ItemSet items = new ItemSet(5);
     
@@ -36,6 +36,7 @@ public class HasseDiagramTest {
       System.out.println(hasse);
     }
     
+    // Check if there are 5 edges after adding all items
     assertEquals(5, hasse.size());
     
     PreferenceSet h = hasse.getPreferenceSet();

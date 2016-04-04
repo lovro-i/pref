@@ -96,12 +96,19 @@ public class Ranking implements Comparable, PreferenceSet {
   }
 
   /** Return the ranking containing only the items from the collection, in the same order as this ranking */
-  public Ranking project(Collection<Item> items) {
+  @Override
+  public Ranking toRanking(Collection<Item> items) {
     Ranking r = new Ranking(this.getItemSet());
     for (Item i: this.items) {
       if (items.contains(i)) r.add(i);
     }
     return r;
+  }
+  
+  
+  @Override
+  public Ranking project(Collection<Item> items) {
+    return toRanking(items);
   }
   
   public Ranking top(int k) {

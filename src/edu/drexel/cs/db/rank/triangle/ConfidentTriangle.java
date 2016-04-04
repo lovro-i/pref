@@ -64,7 +64,7 @@ public class ConfidentTriangle extends Triangle {
       Item e = reference.get(i);
       items.add(e);
       
-      Ranking r = pref.project(items);
+      Ranking r = pref.toRanking(items);
       int pos = r.indexOf(e);      
       if (pos == -1) return true;                            
       row.inc(pos, weight);

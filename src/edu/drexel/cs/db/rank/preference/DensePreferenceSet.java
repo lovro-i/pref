@@ -233,7 +233,12 @@ public class DensePreferenceSet implements MutablePreferenceSet {
    * Create ranking from the items in the collection, if possible
    */
   @Override
-  public Ranking project(Collection<Item> items) {
+  public Ranking toRanking(Collection<Item> items) {
+    return this.transitiveClosure().toRankingDirect(items);
+  }
+    
+    
+  private Ranking toRankingDirect(Collection<Item> items) {  
     Map<Item, Integer> itemCount = new HashMap<Item, Integer>();
     for (Item item : items) {
       itemCount.put(item, 0);
@@ -274,6 +279,16 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     return top;
   }
 
+  
+  @Override
+  public DensePreferenceSet project(Collection<Item> items) {
+    DensePreferenceSet projection = new DensePreferenceSet(this);
+    for (Preference pref: this.getPreferences()) {
+      if (items.contains(pref.higher) && items.contains(pref.lower)) projection.add(pref.higher, pref.lower);
+    }
+    return projection;
+  }
+  
   @Override
   public boolean equals(Object o) {
     if (o instanceof DensePreferenceSet) {

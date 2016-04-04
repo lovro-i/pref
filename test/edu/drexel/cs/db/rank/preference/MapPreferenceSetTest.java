@@ -81,15 +81,15 @@ public class MapPreferenceSetTest {
   }
 
   @Test
-  public void testProject() {
-    System.out.println("MapPreferenceSet.project() test");
+  public void testToRanking() {
+    System.out.println("MapPreferenceSet.toRanking() test");
     for (int i = 0; i < 10; i++) {
       Ranking r = items.getRandomRanking();
       Map<Item, Integer> rMap = r.getIndexMap();
 
       MapPreferenceSet tc = r.transitiveClosure();
       System.out.println(tc);
-      Ranking p0 = tc.project(items);
+      Ranking p0 = tc.toRanking(items);
       assertEquals(r, p0);
 
       Item e1 = items.get(2);
@@ -97,18 +97,18 @@ public class MapPreferenceSetTest {
       int idx1 = rMap.get(e1);
       int idx2 = rMap.get(e2);
       tc.remove(e1, e2);
-      Ranking p1 = tc.project(items);
+      Ranking p1 = tc.toRanking(items);
       if (Math.abs(idx1 - idx2) == 1) {
-        assertNull(p1);
+        assertNull(p1); // should be null because it cannot be projected to a complete ranking (a pair is missing)
       } else {
-        assertNotNull(p1); // should be null because it cannot be projected to a complete ranking (a pair is missing)
+        assertNotNull(p1); 
         assertEquals(r, p1);
       }
 
       Set<Item> sub = new HashSet<Item>(items);
       sub.remove(items.get(2));
       sub.remove(items.get(4));
-      Ranking p2 = tc.project(sub);
+      Ranking p2 = tc.toRanking(sub);
       System.out.println(sub);
       System.out.println(p2);
       assertNotNull(p2);
@@ -116,7 +116,7 @@ public class MapPreferenceSetTest {
 
       sub.remove(items.get(0));
       sub.remove(items.get(7));
-      Ranking p3 = tc.project(sub);
+      Ranking p3 = tc.toRanking(sub);
       System.out.println(sub);
       System.out.println(p3);
       assertEquals(6, p3.length());

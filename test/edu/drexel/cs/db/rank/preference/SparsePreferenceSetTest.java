@@ -3,31 +3,27 @@ package edu.drexel.cs.db.rank.preference;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class DensePreferenceSetTest {
+public class SparsePreferenceSetTest {
   
-  private ItemSet items = new ItemSet(10);
   
-  public DensePreferenceSetTest() {
+ private ItemSet items = new ItemSet(10);
+  
+  public SparsePreferenceSetTest() {
   }
   
 
   /**
-   * Test of size method, of class DensePreferenceSet.
+   * Test of size method, of class SparsePreferenceSet.
    */
   @Test
   public void testSize() {
-    System.out.println("DensePreferenceSet.size() test");
-    DensePreferenceSet instance = new DensePreferenceSet(items);
+    System.out.println("SparsePreferenceSet.size() test");
+    SparsePreferenceSet instance = new SparsePreferenceSet(items);
     instance.add(items.get(0), items.get(3));
     instance.add(items.get(2), items.get(5));
     instance.add(items.get(5), items.get(7));
@@ -37,8 +33,8 @@ public class DensePreferenceSetTest {
 
   @Test  
   public void testAdd() {
-    System.out.println("DensePreferenceSet.add() test");
-    DensePreferenceSet instance = new DensePreferenceSet(items);
+    System.out.println("SparsePreferenceSet.add() test");
+    SparsePreferenceSet instance = new SparsePreferenceSet(items);
     instance.add(items.get(0), items.get(3));
     instance.add(2, 5);
     instance.add(items.get(5), items.get(7));
@@ -67,7 +63,7 @@ public class DensePreferenceSetTest {
   
   @Test
   public void testTransitiveClosure() {
-    System.out.println("DensePreferenceSet.transitiveClosure() test");
+    System.out.println("SparsePreferenceSet.transitiveClosure() test");
     Ranking r = new Ranking(items);
     r.add(items.get(2));
     r.add(items.get(4));
@@ -78,7 +74,7 @@ public class DensePreferenceSetTest {
     PreferenceSet tc = r.transitiveClosure();
     assertEquals(10, tc.size());
     
-    DensePreferenceSet pref = new DensePreferenceSet(items);
+    SparsePreferenceSet pref = new SparsePreferenceSet(items);
     pref.add(0, 3);
     pref.add(2, 5);
     pref.add(5, 7);
@@ -92,11 +88,11 @@ public class DensePreferenceSetTest {
   
   @Test
   public void testToRanking() {
-    System.out.println("DensePreferenceSet.toRanking() test");
+    System.out.println("SparsePreferenceSet.toRanking() test");
     for (int i = 0; i < 10; i++) {
       Ranking r = items.getRandomRanking();
 
-      DensePreferenceSet tc = new DensePreferenceSet(r);
+      SparsePreferenceSet tc = new SparsePreferenceSet(r);
       Ranking p0 = tc.toRanking(items);
       assertEquals(r, p0);
       
@@ -127,5 +123,5 @@ public class DensePreferenceSetTest {
       assertEquals(6, p3.length());
     }
   }
-      
+  
 }

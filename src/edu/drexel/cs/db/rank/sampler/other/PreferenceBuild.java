@@ -39,7 +39,7 @@ public class PreferenceBuild {
   public boolean isCompatible(PreferenceSet p) {
     PreferenceConstraint pc = new PreferenceConstraint(p, reference, prefix.length());
     if (!pc.equals(constraint)) return false;
-    Ranking projection = p.project(prefix.getItems());
+    Ranking projection = p.toRanking(prefix.getItems());
     return prefix.equals(projection);
   }
   
@@ -47,10 +47,10 @@ public class PreferenceBuild {
   public boolean isSupport(PreferenceSet p) {
     Set<Item> items = new HashSet<Item>(prefix.getItems());
     items.add(reference.get(prefix.length()));
-    Ranking projection = p.project(items);
+    Ranking projection = p.toRanking(items);
     if (projection == null || projection.length() < items.size()) return false;
     
-    Ranking p2 = projection.project(prefix.getItems());
+    Ranking p2 = projection.toRanking(prefix.getItems());
     return prefix.equals(p2);
   }
   
@@ -59,13 +59,13 @@ public class PreferenceBuild {
     Set<Item> items = new HashSet<Item>(prefix.getItems());
     Item nextItem = reference.get(prefix.length());
     items.add(nextItem);
-    Ranking projection = p.project(items);
+    Ranking projection = p.toRanking(items);
     if (projection == null || projection.length() < items.size()) return false;
     
     int index = projection.indexOf(nextItem);
     if (index < low || index > high) return false;
     
-    Ranking p2 = projection.project(prefix.getItems());
+    Ranking p2 = projection.toRanking(prefix.getItems());
     return prefix.equals(p2);
   }
   
@@ -74,10 +74,10 @@ public class PreferenceBuild {
     Set<Item> items = new HashSet<Item>(prefix.getItems());
     Item nextItem = reference.get(prefix.length());
     items.add(nextItem);
-    Ranking projection = p.project(items);
+    Ranking projection = p.toRanking(items);
     if (projection == null || projection.length() < items.size()) return -1;
 
-    Ranking p2 = projection.project(prefix.getItems());
+    Ranking p2 = projection.toRanking(prefix.getItems());
     if (!prefix.equals(p2)) return -1;    
     return projection.indexOf(nextItem);    
   }

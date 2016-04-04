@@ -25,7 +25,10 @@ public interface PreferenceSet extends Cloneable {
   public MutablePreferenceSet transitiveClosure();
   
   /** Create ranking from items in the collection, if possible */
-  public Ranking project(Collection<Item> items);
+  public Ranking toRanking(Collection<Item> items);
+  
+  /** Project this PreferenceSet to a new one containing only specified items. Keeps only pairs whose both items are in the specified collection */ 
+  public PreferenceSet project(Collection<Item> items);
   
   /** Returns the list of items with higher preference than this one */
   public Set<Item> getHigher(Item i);

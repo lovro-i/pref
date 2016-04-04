@@ -139,7 +139,13 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
   
   /** Create ranking from the items in the collection, if possible */
   @Override
-  public Ranking project(Collection<Item> items) {
+  public Ranking toRanking(Collection<Item> items) {
+    return this.transitiveClosure().toRanking(items);
+  }
+    
+    
+  @Deprecated
+  private Ranking toRankingDirect(Collection<Item> items) {  
     Map<Item, Integer> itemCount = new HashMap<Item, Integer>();
     for (Item item: items) itemCount.put(item, 0);
     List<Item> itemList = new ArrayList<Item>(items);
@@ -169,6 +175,15 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
       top.add(reverse.get(i));
     }    
     return top;
+  }
+  
+  @Override
+  public SparsePreferenceSet project(Collection<Item> items) {
+    SparsePreferenceSet projection = new SparsePreferenceSet(this);
+    for (Preference pref: this.getPreferences()) {
+      if (items.contains(pref.higher) && items.contains(pref.lower)) projection.add(pref);
+    }
+    return projection;
   }
 
   @Override

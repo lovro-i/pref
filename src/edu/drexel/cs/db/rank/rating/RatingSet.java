@@ -57,9 +57,15 @@ public class RatingSet extends HashMap<Item, Float> implements PreferenceSet {
   }
 
   @Override
-  public Ranking project(Collection<Item> items) {
+  public Ranking toRanking(Collection<Item> items) {
     SparsePreferenceSet sps = new SparsePreferenceSet(this);
-    return sps.project(items);
+    return sps.toRanking(items);
+  }
+  
+  @Override
+  public PreferenceSet project(Collection<Item> items) {
+    MapPreferenceSet ps = new MapPreferenceSet(this);
+    return ps.project(items);
   }
 
   @Override

@@ -237,7 +237,7 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   }
 
   @Override
-  public Ranking project(Collection<Item> items) {
+  public Ranking toRanking(Collection<Item> items) {
     HashSet<Item> projectedItems = new HashSet<>(items);
     // compute its transitive closure before computing projected ranking
     MapPreferenceSet prefsTC = this.transitiveClosure();
@@ -275,8 +275,16 @@ public class MapPreferenceSet implements MutablePreferenceSet {
     return r;
 
   }
-
-
+  
+  
+  @Override
+  public MapPreferenceSet project(Collection<Item> items) {
+    MapPreferenceSet projection = new MapPreferenceSet(this);
+    for (Preference pref: this.getPreferences()) {
+      if (items.contains(pref.higher) && items.contains(pref.lower)) projection.add(pref.higher, pref.lower);
+    }
+    return projection;
+  }
 
   @Override
   public Set<Item> getHigher(Item i) {

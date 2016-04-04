@@ -8,7 +8,6 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
@@ -94,7 +93,7 @@ public class AMPSamplerPlus extends MallowsSampler {
     
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.5);    
     RankingSample sample = MallowsUtils.sample(model, 10000);
-    Filter.remove(sample, 0.2);
+    Filter.removeItems(sample, 0.2);
     
     AMPSamplerPlus sampler = new AMPSamplerPlus(model, sample, 100);
     Ranking r = sampler.sample(v);

@@ -93,7 +93,7 @@ public class ConfidentTriangle extends Triangle {
     ConfidentTriangle triangle = new ConfidentTriangle(ref);
     
     Ranking r1 = items.getRandomRanking();
-    Filter.remove(r1, 0.2);
+    Filter.removeItems(r1, 0.2);
     triangle.add(r1, 1);
     System.out.println(r1);
     System.out.println(triangle);

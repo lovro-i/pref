@@ -55,7 +55,7 @@ public class AMPxDISByItemReconstructor extends EMReconstructor {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getReferenceRanking();
     RankingSample sample = MallowsUtils.sample(ref, 0.2, 10);
-    Filter.remove(sample, 0.3);
+    Filter.removeItems(sample, 0.3);
 
     double initialPhi = 0.9;
     MallowsModel initial = new MallowsModel(ref, initialPhi);

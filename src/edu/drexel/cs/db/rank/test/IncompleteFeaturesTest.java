@@ -19,7 +19,7 @@ public class IncompleteFeaturesTest {
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     RankingSample sample = MallowsUtils.sample(items.getRandomRanking(), 0.2, 10000);
-    Filter.remove(sample, 0.3);
+    Filter.removeItems(sample, 0.3);
     int resampleSize = 5000;
     
     

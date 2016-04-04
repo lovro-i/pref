@@ -151,7 +151,7 @@ public class AMPGSampler {
       sample.add(pw.p, Math.random());
       
     }
-    Filter.remove(sample, 0.2);
+    Filter.removeItems(sample, 0.2);
     // System.out.println(sample);
     Sample tcs = sample.transitiveClosure();
     System.out.println("Start");

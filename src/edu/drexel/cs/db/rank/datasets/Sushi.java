@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.datasets;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Split;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
@@ -16,6 +17,7 @@ import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.plot.ScatterPlot;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -95,8 +97,8 @@ public class Sushi {
     Logger.info("[KL Divergence] True: test sample (1500 rankings); Model: GRIM model: %.4f", KL.divergence(testPPM, new PairwisePreferenceMatrix(MallowsUtils.sample(getGrimModel(), 50000))));
     Logger.info("(lower is better)");
     
-    Logger.info("Log Likelihood of test sample being created with our model: %.4f", model.getLogLikelihoodMean(splits.get(1)));
-    Logger.info("Log Likelihood of test sample being created with GRIM model: %.4f", getGrimModel().getLogLikelihoodMean(splits.get(1)));
+    Logger.info("Log Likelihood of test sample being created with our model: %.4f", model.getLogLikelihoodMean((Sample<Ranking>) splits.get(1)));
+    Logger.info("Log Likelihood of test sample being created with GRIM model: %.4f", getGrimModel().getLogLikelihoodMean((Sample<Ranking>) splits.get(1)));
     Logger.info("(higher is better)");
   }
   
@@ -116,8 +118,8 @@ public class Sushi {
     for (int rep = 0; rep < 10; rep++) {
       double split = 0.7;
       List<RankingSample> splits = Split.twoFold(sample, split);
-      RankingSample trainSample = splits.get(0);
-      RankingSample testSample = splits.get(1);
+      Sample<Ranking> trainSample = (Sample<Ranking>) splits.get(0);
+      Sample<Ranking> testSample = (Sample<Ranking>)splits.get(1);
       Logger.info("Splitting the sample intro train (%.2f) and test (%.2f)", split, 1-split);
       
       

@@ -1,15 +1,12 @@
 package edu.drexel.cs.db.rank.filter;
 
-import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.incomplete.MissingProbabilities;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
-import edu.drexel.cs.db.rank.util.Logger;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -19,29 +16,41 @@ public class Filter {
   private static Random random = new SecureRandom();
 
   /** Remove items from the ranking with probability p for removing each one. Destructive on ranking, changes the actual ranking */
-  public static void remove(Ranking ranking, double p) {
+  public static void removeItems(Ranking ranking, double p) {
     for (int i = ranking.length()-1; i >= 0; i--) {
       double flip = random.nextDouble();
       if (flip < p) ranking.remove(i);
     }
   }
   
-  /** Remove items from the ranking with probabilities specified in Missing. Destructive on ranking, changes the actual ranking */
-  public static void removeItems(Ranking ranking, MissingProbabilities m) {
-    m.removeItems(ranking);
+  /** Remove items from the PrefrenceSet with probability p for removing each one. Destructive on ranking, changes the actual ranking */
+  public static void removeItems(PreferenceSet pref, double p) {
+    removeItems(pref, MissingProbabilities.uniform(pref.getItemSet(), p));
   }
+  
+  /** Remove items from the ranking with probabilities specified in Missing. Destructive on ranking, changes the actual ranking */
+  public static void removeItems(PreferenceSet pref, MissingProbabilities m) {
+    m.removeItems(pref);
+  }
+  
+  public static void removeItems(Sample<? extends PreferenceSet> sample, MissingProbabilities m) {
+    for (PW pw: sample) {
+      Filter.removeItems(pw.p, m);
+    }
+  }
+  
+  
+  /** Remove items from all rankings with probability p for removing each one. Destructive, changes the actual sample and its rankings */
+  public static void removeItems(Sample<? extends PreferenceSet> sample, double p) {
+    removeItems(sample, MissingProbabilities.uniform(sample.getItemSet(), p));
+  }
+  
   
   /** Remove pairs from the preferenceSet with probabilities specified in Missing. */
   public static void removePreferences(MutablePreferenceSet pref, MissingProbabilities m) {
     m.removePreferences(pref);
   }
   
-  /** Remove items from all rankings with probability p for removing each one. Destructive, changes the actual sample and its rankings */
-  public static void remove(RankingSample sample, double p) {
-    for (PW<Ranking> pw: sample) {
-      Filter.remove(pw.p, p);
-    }
-  }
   
   
   /** Leave only top K items in each ranking */
@@ -75,22 +84,5 @@ public class Filter {
     }
   }
 
-  
-  public static void main(String[] args) {
-    ItemSet items = new ItemSet(10);
-    
-    RankingSample sample = MallowsUtils.sample(items.getRandomRanking(), 0.3, 100);
-    System.out.println(sample);
-    
-    RankingSample noisy = new RankingSample(sample);
-    noise(noisy, 0.2);
-    System.out.println(noisy);
-    
-    int c = 0;
-    for (int i = 0; i < sample.size(); i++) {
-      if (!sample.get(i).equals(noisy.get(i))) c++;
-    }
-    System.out.println(c);
-  }
 
 }

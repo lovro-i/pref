@@ -10,9 +10,7 @@ import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
-import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
-import edu.drexel.cs.db.rank.triangle.SampleTriangle;
 import edu.drexel.cs.db.rank.triangle.SampleTriangleByRow;
 
 
@@ -35,7 +33,7 @@ public class TestReferenceRandom {
     MallowsModel mallows1 = reconstructor.reconstruct(sample);
     System.out.println(mallows1);
     
-    Filter.remove(sample, missing);
+    Filter.removeItems(sample, missing);
     Ranking candidate = KemenyCandidate.find(sample);
     System.out.println(candidate);
     BubbleTableKemenizator kemenizator = new BubbleTableKemenizator();

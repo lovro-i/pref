@@ -134,7 +134,7 @@ public class SampleTriangleByRow extends Triangle {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getRandomRanking();
     RankingSample sample = MallowsUtils.sample(ref, 0.2, 1000);
-    Filter.remove(sample, 0.1);
+    Filter.removeItems(sample, 0.1);
     
     SampleTriangleByRow t = new SampleTriangleByRow(ref, sample);
     System.out.println(t.equals(t));

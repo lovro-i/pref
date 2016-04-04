@@ -63,10 +63,10 @@ public class MixtureTestRandom {
     double missing = Math.max(0, MathUtils.RANDOM.nextDouble() - 0.3); 
     // missing = 0.5;
     missing = 0;
-    if (missing > 0) Filter.remove(sample, missing);
+    if (missing > 0) Filter.removeItems(sample, missing);
 
     
-    sample.save(new File(folder, "sample."+id+".tsv"));
+    // sample.save(new File(folder, "sample."+id+".tsv"));
     PrintWriter out = FileUtils.write(new File(folder, "sample."+id+".txt"));
     out.println(String.format("%d items, %d models, %d rankings in sample, %.1f%% missing items\n", n, models, sampleSize, missing * 100));
     out.println(model);
@@ -104,7 +104,7 @@ public class MixtureTestRandom {
     double missing = Math.max(0, MathUtils.RANDOM.nextDouble() - 0.3); 
     // missing = 0.5;
     missing = 0;
-    if (missing > 0) Filter.remove(sample, missing);
+    if (missing > 0) Filter.removeItems(sample, missing);
     
     for (int i = 0; i < 300; i++) System.out.print('=');    
     System.out.println("\n");

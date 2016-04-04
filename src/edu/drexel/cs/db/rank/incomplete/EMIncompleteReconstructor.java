@@ -79,7 +79,7 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getReferenceRanking();
     RankingSample sample = MallowsUtils.sample(ref, 0.2, 1000);
-    Filter.remove(sample, 0.3);
+    Filter.removeItems(sample, 0.3);
 
     OnIterationListener listener = new OnIterationListener() {
       @Override

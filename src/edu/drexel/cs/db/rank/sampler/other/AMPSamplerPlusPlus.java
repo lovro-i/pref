@@ -142,7 +142,7 @@ public class AMPSamplerPlusPlus extends MallowsSampler {
     
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.5);    
     RankingSample sample = MallowsUtils.sample(model, 3);
-    Filter.remove(sample, 0.2);
+    Filter.removeItems(sample, 0.2);
     System.out.println(sample);
     
     AMPSamplerPlusPlus sampler = new AMPSamplerPlusPlus(model, sample, 100);

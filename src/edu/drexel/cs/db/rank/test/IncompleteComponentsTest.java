@@ -98,7 +98,7 @@ public class IncompleteComponentsTest {
         Ranking center = items.getRandomRanking();
         MallowsModel model = new MallowsModel(center, phi);
         RankingSample sample = MallowsUtils.sample(model, sampleSize);
-        Filter.remove(sample, miss);
+        Filter.removeItems(sample, miss);
 
 
         // First Method: Triangle no row

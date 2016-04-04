@@ -2,10 +2,9 @@ package edu.drexel.cs.db.rank.loader;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.rating.Ratings;
-import edu.drexel.cs.db.rank.rating.RatingsSample;
+import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.rating.RatingSet;
 import edu.drexel.cs.db.rank.util.FileUtils;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -21,7 +20,7 @@ import java.util.StringTokenizer;
 public class RatingsLoader {
 
   private final ItemSet itemSet;
-  private final RatingsSample sample;
+  private final Sample<RatingSet> sample;
   private final String delimiters;
   
   private Map<String, Item> tags = new HashMap<String, Item>();
@@ -46,22 +45,22 @@ public class RatingsLoader {
     }
     
     // Load ratings
-    this.sample = new RatingsSample(itemSet);
+    this.sample = new Sample<RatingSet>(itemSet);
     loadSample(lines);
   }
   
   
   private void loadSample(List<String> lines) {
-    Map<Integer, Ratings> users = new HashMap<Integer, Ratings>();
+    Map<Integer, RatingSet> users = new HashMap<Integer, RatingSet>();
     for (String line: lines) {
       try {
         StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
         Integer uid = Integer.valueOf(tokenizer.nextToken());
         String itemId = tokenizer.nextToken();
         Float val = Float.valueOf(tokenizer.nextToken());
-        Ratings ratings = users.get(uid);
+        RatingSet ratings = users.get(uid);
         if (ratings == null) {
-          ratings = new Ratings(itemSet);
+          ratings = new RatingSet(itemSet);
           users.put(uid, ratings);
         }
         ratings.put(tags.get(itemId), val);
@@ -69,7 +68,7 @@ public class RatingsLoader {
       catch (NumberFormatException skip) {}
     }
     
-    for (Ratings ratings: users.values()) {
+    for (RatingSet ratings: users.values()) {
       sample.add(ratings);
     }
   }
@@ -89,7 +88,7 @@ public class RatingsLoader {
     return new ItemSet(ids.toArray());
   }
 
-  public RatingsSample getRatingsSample() {
+  public Sample<RatingSet> getRatingsSample() {
     return sample;
   }  
 }

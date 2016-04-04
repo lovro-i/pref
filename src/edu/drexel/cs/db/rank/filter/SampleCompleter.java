@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.rank.filter;
 
-import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
@@ -95,7 +94,7 @@ public class SampleCompleter {
     MallowsTriangle triangle = new MallowsTriangle(center, phi);
     RIMRSampler sampler = new RIMRSampler(triangle);    
     RankingSample sample = sampler.generate(10);
-    Filter.remove(sample, 0.1);
+    Filter.removeItems(sample, 0.1);
     
     SampleCompleter completer = new SampleCompleter(sample);
     RankingSample complete = completer.complete(10);

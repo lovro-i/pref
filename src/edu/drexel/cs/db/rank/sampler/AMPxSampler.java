@@ -6,7 +6,6 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
 import edu.drexel.cs.db.rank.triangle.TriangleRow;
@@ -14,8 +13,8 @@ import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.Map;
 import java.util.Set;
 
-/** The one that uses the whole sample for probabilities. */
-public class AMPSamplerX extends MallowsSampler {
+/** AMP sampler extension that uses the combination of AMP and information from the sample */
+public class AMPxSampler extends MallowsSampler {
 
   protected ConfidentTriangle triangle;
   protected double rate;
@@ -27,7 +26,7 @@ public class AMPSamplerX extends MallowsSampler {
    * @param sample
    * @param rate 
    */
-  public AMPSamplerX(MallowsModel model, Sample sample, double rate) {
+  public AMPxSampler(MallowsModel model, Sample sample, double rate) {
     super(model);
     this.setTrainingSample(sample);
     if (rate < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
@@ -193,7 +192,7 @@ public class AMPSamplerX extends MallowsSampler {
     
     
     
-    AMPSamplerX sampler = new AMPSamplerX(model, s1, 10);
+    AMPxSampler sampler = new AMPxSampler(model, s1, 10);
     RankingSample sample = sampler.sample(v, 1000);
     
   }

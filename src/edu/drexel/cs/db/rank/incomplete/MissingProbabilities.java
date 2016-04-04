@@ -42,7 +42,7 @@ public class MissingProbabilities {
     this.miss = new double[items.size()];
 
     int[] counts = new int[items.size()];
-    for (PW<Ranking> pw : sample) {
+    for (PW pw : sample) {
       for (Item e : pw.p.getItems()) {
         counts[e.getId()] += pw.w;
       }
@@ -84,23 +84,6 @@ public class MissingProbabilities {
     return uniform(items, missingItemWise);
   }
   
-  /**
-   * Uniform missing probabilities. Items share the same missing probability.
-   *
-   * @param center is center ranking which will be assigned some probabilities
-   * for each item.
-   * @param p is the uniform missing probability.
-   * @return the MissingProbabilities Class
-   */
-  public static MissingProbabilities uniform(Ranking center, double p) {
-    ItemSet items = center.getItemSet();
-    int itemsSize = items.size();
-    double[] miss = new double[itemsSize];
-    for (int i = 0; i < itemsSize; i++) {
-      miss[i] = p;
-    }
-    return new MissingProbabilities(items, miss);
-  }
 
   /**
    * Linear missing probabilities. missingP = (lastPoint-firstPoint)*(k-1)/(n-1)

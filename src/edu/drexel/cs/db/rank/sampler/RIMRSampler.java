@@ -17,10 +17,10 @@ public class RIMRSampler {
     this.triangle = triangle;
   }
   
-  public Ranking generate() {
-    Ranking r = new Ranking(triangle.getItemSet());
+  public Ranking generate() {    
     List<Item> items = triangle.getReference().getItems();
     
+    Ranking r = new Ranking(triangle.getItemSet());
     r.add(items.get(0));
     for (int i=1; i<items.size(); i++) {
       Item e = items.get(i);

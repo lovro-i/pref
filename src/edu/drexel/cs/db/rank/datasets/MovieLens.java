@@ -2,17 +2,19 @@ package edu.drexel.cs.db.rank.datasets;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.rating.RatingsSample;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Split;
 import edu.drexel.cs.db.rank.incomplete.EMIncompleteReconstructor;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.loader.RatingsLoader;
 import edu.drexel.cs.db.rank.distance.KL;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
-import edu.drexel.cs.db.rank.mixture.MallowsMixtureRatingsReconstructor;
+import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.rating.RatingSet;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.File;
@@ -30,18 +32,14 @@ public class MovieLens {
   }
   
   
-  public RatingsSample getRatingsSample() throws IOException {
-    RatingsSample sample = new RatingsLoader(data).getRatingsSample();
-    Logger.info("MovieLens dataset loaded: %d users, %d movies", sample.size(), sample.getItems().size());
+  public Sample<RatingSet> getSample() throws IOException {
+    Sample<RatingSet> sample = new RatingsLoader(data).getRatingsSample();
+    Logger.info("MovieLens dataset loaded: %d users, %d movies", sample.size(), sample.getItemSet().size());
     return sample;
   }
   
-  public RankingSample getSample() throws IOException {
-    return getRatingsSample().toSample(1);
-  }
-
-  public ItemSet getItems() throws IOException {
-    return getRatingsSample().getItems();
+  public ItemSet getItemSet() throws IOException {
+    return getSample().getItemSet();
   }
   
 //    [Model 1] Center = 923-858-750-527-904-318-2858-1221-1193-912-50-296-1136-608-2324-1247-908-1213-1252-1198, phi = 0.98, weight = 24
@@ -50,7 +48,7 @@ public class MovieLens {
 //    [Model 4] Center = 318-2324-1198-527-260-2571-2762-1234-356-50-110-3147-1291-2028-1197-1196-593-1704-2918-1307, phi = 0.98, weight = 19
 //    [Model 5] Center = 50-318-527-2324-2804-1288-2858-2762-296-1197-593-858-356-2959-608-2918-1394-2028-1704-2571, phi = 0.97, weight = 13  
   public MallowsMixtureModel getGrimModel() throws IOException {
-    ItemSet items = getItems();
+    ItemSet items = getItemSet();
     MallowsMixtureModel model = new MallowsMixtureModel(items);
 
     Ranking c1 = Ranking.fromStringByTag(items, "923-858-750-527-904-318-2858-1221-1193-912-50-296-1136-608-2324-1247-908-1213-1252-1198");
@@ -68,17 +66,16 @@ public class MovieLens {
   }
   
   public void secondTest() throws Exception {
-    RatingsSample sample = getRatingsSample();
+    Sample<RatingSet> sample = getSample();
     Logger.info("%d movielens rankings loaded", sample.size());
     
     double split = 0.66;
-    List<RatingsSample> splits = Split.twoFold(sample, split);
+    List<Sample<? extends PreferenceSet>> splits = Split.twoFold(sample, split);
     Logger.info("Splitting the sample intro train (%.2f) and test (%.2f)", split, 1-split);
     
     // Reconstruct
     MallowsReconstructor single = new EMIncompleteReconstructor(null);
-    MallowsMixtureRatingsReconstructor reconstructor = new MallowsMixtureRatingsReconstructor(single, 10);
-    reconstructor.setMaxRankings(1);
+    MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, 10);
     MallowsMixtureModel model = reconstructor.reconstruct(splits.get(0));    
     PairwisePreferenceMatrix modelPPM = new PairwisePreferenceMatrix(MallowsUtils.sample(model, 50000));
     

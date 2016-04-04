@@ -112,7 +112,7 @@ public class GraphicalModel {
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(5);
-    items.letters();
+    items.sigmas();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     // BD

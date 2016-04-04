@@ -1,5 +1,6 @@
-package edu.drexel.cs.db.rank.sampler;
+package edu.drexel.cs.db.rank.sampler.other;
 
+import edu.drexel.cs.db.rank.sampler.other.PreferenceConstraint;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;

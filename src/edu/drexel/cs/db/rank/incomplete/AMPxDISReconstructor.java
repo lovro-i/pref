@@ -4,26 +4,27 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerXD;
+import edu.drexel.cs.db.rank.sampler.AMPxDSampler;
 
 /**
  * Constantly updates training sample after each ranking, adding to the same
  * triangle all the time, during iterations dynamic, smoothing (therefore
  * iterative)
  */
-public class AMPX6Reconstructor extends EMReconstructor {
+@Deprecated
+public class AMPxDISReconstructor extends EMReconstructor {
 
   private final double alpha;
 
-  public AMPX6Reconstructor(MallowsModel model, int iterations, double alpha) {
+  public AMPxDISReconstructor(MallowsModel model, int iterations, double alpha) {
     super(model, iterations);
     this.alpha = alpha;
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
-    AMPSamplerXD sampler = new AMPSamplerXD(estimate, sample, alpha);
+    AMPxDSampler sampler = new AMPxDSampler(estimate, sample, alpha);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     Sample<Ranking> resample = sample;
     double oldPhi, newPhi;

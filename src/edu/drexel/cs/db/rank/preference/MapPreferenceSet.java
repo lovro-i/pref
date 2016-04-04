@@ -12,9 +12,17 @@ import java.util.List;
 import java.util.Set;
 
 /**
+<<<<<<< HEAD
  * MapPreferenceSet stores the preferences as two maps between an item and its lower / higher items. It records Directed Acyclic Graph (DAG) of
  * preferences. Each entry shows that Item e is preferred to items in HashSet<Item>. It has a reverseMap which represents the reverse preference
  * graph, where key is less preferred items and values are preferred items.
+=======
+ * MapPreferenceSet stores the preferences as two maps between an item and its
+ * lower / higher items. It records Directed Acyclic Graph (DAG) of preferences.
+ * Each entry shows that Item e is preferred to items in HashSet<Item>. It has a
+ * reverseMap which represents the reverse preference graph, where key is less
+ * preferred items and values are preferred items.
+>>>>>>> 09f22f6c08dff1f0823c95073e33fc6e7a4ad276
  */
 public class MapPreferenceSet implements MutablePreferenceSet {
 
@@ -42,11 +50,13 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   }
 
   /**
-   * Runs BFS to check if input edge will bring cycles. BFS starts from lower to higher when adding preference (Item higher, Item lower)
+   * Runs BFS to check if input edge will bring cycles. BFS starts from lower to
+   * higher when adding preference (Item higher, Item lower)
    *
    * @param higher Item higher is preferred in input edge.
    * @param lower Item lower is less preferred in input edge.
-   * @return true if it is possible to add this pair, false if it would introduce a cycle
+   * @return true if it is possible to add this pair, false if it would
+   * introduce a cycle
    */
   private boolean checkAcyclic(Item higher, Item lower) {
     HashSet<Item> closeList = new HashSet<>();
@@ -189,7 +199,12 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   }
 
   /**
+<<<<<<< HEAD
    * Performs transitive closure on this preference set (not creating a new object)
+=======
+   * Performs transitive closure on this preference set (not creating a new
+   * object)
+>>>>>>> 09f22f6c08dff1f0823c95073e33fc6e7a4ad276
    */
   public void transitiveClose() {
     boolean done = false;
@@ -229,6 +244,7 @@ public class MapPreferenceSet implements MutablePreferenceSet {
 
   @Override
   public Ranking project(Collection<Item> items) {
+<<<<<<< HEAD
 
     HashSet<Item> projectedItems = new HashSet<>(items);
     // compute its transitive closure before computing projected ranking
@@ -305,6 +321,13 @@ public class MapPreferenceSet implements MutablePreferenceSet {
 //    }
 //    return r;
 //  }
+=======
+    DensePreferenceSet tc = new DensePreferenceSet(this);
+    return tc.project(items);
+  }
+
+
+>>>>>>> 09f22f6c08dff1f0823c95073e33fc6e7a4ad276
   @Override
   public Set<Item> getHigher(Item i) {
     return this.highers.get(i);
@@ -395,4 +418,20 @@ public class MapPreferenceSet implements MutablePreferenceSet {
     return removed;
   }
 
+<<<<<<< HEAD
+=======
+  @Override
+  public String toString() {
+    return this.getPreferences().toString();
+  }
+
+  @Override
+  public Set<Item> getItems() {
+    Set<Item> items = new HashSet<Item>();
+    items.addAll(highers.keySet());
+    items.addAll(lowers.keySet());
+    return items;
+  }
+
+>>>>>>> 09f22f6c08dff1f0823c95073e33fc6e7a4ad276
 }

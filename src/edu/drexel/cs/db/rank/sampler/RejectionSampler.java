@@ -7,7 +7,7 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 
-
+/** The ground-truth posterior Mallows sampler. Rejection sampler, thus may be slow */
 public class RejectionSampler extends MallowsSampler {
 
   

@@ -7,7 +7,7 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.rank.sampler.AMPSamplerXDItem;
+import edu.drexel.cs.db.rank.sampler.other.AMPxDSamplerByItem;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 
@@ -15,21 +15,22 @@ import edu.drexel.cs.db.rank.util.Logger;
  * Constantly updates training sample after each ranking, adding to the same triangle all the time, during iterations, By Item
  * dynamic, smoothing, iterative, by item
  */
-public class AMPX7Reconstructor extends EMReconstructor {
+@Deprecated
+public class AMPxDISByItemReconstructor extends EMReconstructor {
 
   private final double alpha;
 
-  public AMPX7Reconstructor(MallowsModel model, int iterations, double alpha) {
+  public AMPxDISByItemReconstructor(MallowsModel model, int iterations, double alpha) {
     super(model, iterations);
     this.alpha = alpha;
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<Ranking> sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
     MallowsModel estimate = model;
-    AMPSamplerXDItem sampler = new AMPSamplerXDItem(estimate, sample, alpha);
+    AMPxDSamplerByItem sampler = new AMPxDSamplerByItem(estimate, sample, alpha);
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample<Ranking> resample = sample;
+    Sample resample = sample;
     double oldPhi, newPhi;
     for (int i = 0; i < iterations; i++) {
       oldPhi = estimate.getPhi();
@@ -54,14 +55,14 @@ public class AMPX7Reconstructor extends EMReconstructor {
     ItemSet items = new ItemSet(10);
     Ranking ref = items.getReferenceRanking();
     RankingSample sample = MallowsUtils.sample(ref, 0.2, 10);
-    Filter.remove(sample, 0.3);
+    Filter.removeItems(sample, 0.3);
 
     double initialPhi = 0.9;
     MallowsModel initial = new MallowsModel(ref, initialPhi);
 
     {
       long start = System.currentTimeMillis();
-      EMReconstructor rec = new AMPX7Reconstructor(initial, 4, 1);
+      EMReconstructor rec = new AMPxDISByItemReconstructor(initial, 4, 1);
       MallowsModel model = rec.reconstruct(sample, ref);
       System.out.println("model = " + model);
       Logger.info("%s Done in %d ms", rec.getClass().getSimpleName(), System.currentTimeMillis() - start);

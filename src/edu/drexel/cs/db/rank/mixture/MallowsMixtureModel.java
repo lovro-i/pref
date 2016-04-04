@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.mixture;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
@@ -130,7 +131,7 @@ public class MallowsMixtureModel {
     return p;
   }
 
-  public double getLogLikelihoodMean(RankingSample sample) {
+  public double getLogLikelihoodMean(Sample<Ranking> sample) {
     double ll = 0;
     for (PW<Ranking> rw : sample) {
       double p = getProbability(rw.p);
@@ -139,7 +140,7 @@ public class MallowsMixtureModel {
     return ll / sample.sumWeights();
   }
 
-  public double getLogLikelihoodMax(RankingSample sample) {
+  public double getLogLikelihoodMax(Sample<Ranking> sample) {
     double ll = 0;
     for (PW<Ranking> rw : sample) {
       double p = getProbabilityMax(rw.p);

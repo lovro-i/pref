@@ -6,10 +6,10 @@ import edu.drexel.cs.db.rank.distance.RankingDistance;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
-import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
@@ -148,7 +147,7 @@ public class Reconstruct1 {
         // Comb.comb(sample, 0.1);
 
         RankingSample perturbed = perturb(sample, 0.05);
-        sample.addAll(perturbed);
+        sample.addAll((Sample<? extends Ranking>) perturbed);
 
         MallowsModel m0 = new CompleteReconstructor().reconstruct(sample);
         // int centerDistance = (int) dist.distance(center, m0.getCenter());
@@ -174,7 +173,7 @@ public class Reconstruct1 {
       MallowsTriangle triangle = new MallowsTriangle(center, phi);
       RIMRSampler sampler = new RIMRSampler(triangle);
       RankingSample sample = sampler.generate(samps);
-      Filter.remove(sample, 0.1);
+      Filter.removeItems(sample, 0.1);
       
       StringBuilder sb = new StringBuilder();
 

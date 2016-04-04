@@ -1,22 +1,23 @@
-package edu.drexel.cs.db.rank.sampler;
+package edu.drexel.cs.db.rank.sampler.other;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.sampler.AMPSampler;
+import edu.drexel.cs.db.rank.sampler.AMPxSampler;
 import edu.drexel.cs.db.rank.triangle.TriangleRow;
-import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.HashSet;
 import java.util.Set;
 
-/** The one that uses the whole sample for probabilities and updates. */
-public class AMPSamplerXDItem extends AMPSamplerX {
+/** The one that uses the whole sample for probabilities and updates the IPM after each new sample. */
+@Deprecated
+public class AMPxDSamplerByItem extends AMPxSampler {
 
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -25,7 +26,7 @@ public class AMPSamplerXDItem extends AMPSamplerX {
    * @param sample
    * @param rate 
    */
-  public AMPSamplerXDItem(MallowsModel model, Sample sample, double rate) {
+  public AMPxDSamplerByItem(MallowsModel model, Sample sample, double rate) {
     super(model, sample, rate);
   }
 
@@ -136,7 +137,7 @@ public class AMPSamplerXDItem extends AMPSamplerX {
     AMPSampler amp = new AMPSampler(model);
     RankingSample s1 = amp.sample(v, 1000);
     
-    AMPSamplerXDItem sampler = new AMPSamplerXDItem(model, s1, 10);
+    AMPxDSamplerByItem sampler = new AMPxDSamplerByItem(model, s1, 10);
     RankingSample sample = sampler.sample(v, 1000);
     System.out.println(sample);
   }

@@ -1,6 +1,8 @@
 package edu.drexel.cs.db.rank.test;
 
+import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.datasets.Sushi;
 import edu.drexel.cs.db.rank.filter.Split;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
@@ -8,6 +10,7 @@ import edu.drexel.cs.db.rank.distance.KL;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor;
 import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.CompleteReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.util.FileUtils;
@@ -50,8 +53,8 @@ public class SushiTests {
         
         // split
         List<RankingSample> split = Split.twoFold(sushi.getSample(), 0.7);        
-        RankingSample trainSample = split.get(0);
-        RankingSample testSample = split.get(1);
+        Sample<Ranking> trainSample = split.get(0);
+        Sample<Ranking> testSample = split.get(1);
         Logger.info("Sushi dataset split into %d train and %d test rankings", trainSample.size(), testSample.size());
 
         // reconstruct

@@ -1,8 +1,6 @@
 package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.preference.Preference;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
@@ -28,19 +26,20 @@ public class HasseDiagram {
   
   
   public void add(Item item) {
+    // Add new edges
     items.add(item);
     for (Preference pref: tc.getPreferences()) {
       if (items.contains(pref.higher) && items.contains(pref.lower)) preferences.add(pref);
-      
-      SparsePreferenceSet next = new SparsePreferenceSet(preferences);      
-      for (Preference p: preferences) {
-        for (Item inter: items) {
-          if (tc.contains(p.higher, inter) && tc.contains(inter, p.lower)) next.remove(p);
-        }
-      }
-      this.preferences = next;
-      
     }
+      
+    // Remove edges
+    SparsePreferenceSet next = new SparsePreferenceSet(preferences);      
+    for (Preference p: preferences) {
+      for (Item inter: items) {
+        if (tc.contains(p.higher, inter) && tc.contains(inter, p.lower)) next.remove(p);
+      }
+    }
+    this.preferences = next;
   }
   
   public SparsePreferenceSet getPreferenceSet() {

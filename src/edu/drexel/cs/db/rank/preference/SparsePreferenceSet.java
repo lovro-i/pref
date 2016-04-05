@@ -40,8 +40,10 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
   }
   
   public Boolean isPreferred(Item higher, Item lower) {
-    if (this.contains(new Preference(higher, lower))) return true;
-    if (this.contains(new Preference(lower, higher))) return false;
+    for (Preference p: this) {
+      if (p.higher.equals(higher) && p.lower.equals(lower)) return true;
+      if (p.higher.equals(lower) && p.lower.equals(higher)) return false;
+    }
     return null;
   }
   

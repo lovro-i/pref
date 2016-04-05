@@ -6,7 +6,9 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class GraphicalModel {
@@ -27,36 +29,41 @@ public class GraphicalModel {
   
   public void build() {
     Ranking reference = model.getCenter();
-    for (int i = 0; i < reference.length(); i++) {      
+    HasseDiagram hasse = new HasseDiagram(pref);
+    for (int i = 0; i < reference.length(); i++) {
       Item item = reference.get(i);
       if (pref.contains(item)) {
-        Xii xii = getXii(item);
-        for (Item higher: pref.getHigher(item)) {
-          int i1 = reference.indexOf(higher);
-          if (i1 < i) {
-            Xij xij = this.getXij(higher, i-1);
-            xii.addParent(xij);
-          }
+        
+        hasse.add(item);
+        PreferenceSet h = hasse.getPreferenceSet();
+        Xii xii = getXii(item); // create insertion variable
+        
+        for (Item higher: h.getHigher(item)) {
+          Xij xij = this.getXij(higher, i-1);
+          xii.addParent(xij);
         }
-        for (Item lower: pref.getLower(item)) {
-          int i1 = reference.indexOf(lower);
-          if (i1 < i) {
-            Xij xij = this.getXij(lower, i-1);
-            xii.addParent(xij);
-          }
+        for (Item lower: h.getLower(item)) {
+          Xij xij = this.getXij(lower, i-1);
+          xii.addParent(xij);
         }
       }
     }
   }
   
-  public List<Variable> getChildren(Variable parent) {
-    List<Variable> children = new ArrayList<Variable>();
+  public List<Variable> getVariables() {
+    return variables;
+  }
+  
+  /** Get children of the variable */
+  public Set<Variable> getChildren(Variable parent) {
+    Set<Variable> children = new HashSet<Variable>();
     for (Variable var: variables) {
       if (var.getParents().contains(parent)) children.add(var);
     }
     return children;
   }
-    
+   
+  /** Return Xii of the item. Creates one if it doesn't already exist. */
   public Xii getXii(Item item) {
     for (Variable var: variables) {
       if (var instanceof Xii) {
@@ -70,6 +77,7 @@ public class GraphicalModel {
     return xii;
   }
   
+  /** Returns Xij of the item at time t. Creates one if it doesn't already exist. */
   public Xij getXij(Item item, int t) {
     for (Variable var: variables) {
       if (var instanceof Xij) {
@@ -85,6 +93,7 @@ public class GraphicalModel {
     return xij;
   }
   
+  /** Returns the most recent Xij of the item before time t */
   public Xij getXijBefore(Item item, int t) {
     Xij before = null;
     for (Variable var: variables) {
@@ -106,23 +115,5 @@ public class GraphicalModel {
     return sb.toString();
   }
   
-  
-  
-  
-  
-  public static void main(String[] args) {
-    ItemSet items = new ItemSet(5);
-    items.sigmas();
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
-    
-    // BD
-    Ranking r = new Ranking(items);
-    r.add(items.get(1));
-    r.add(items.get(3));
-    
-    GraphicalModel gm = new GraphicalModel(model, r);
-    gm.build();
-    System.out.println(gm);
-    
-  }
+
 }

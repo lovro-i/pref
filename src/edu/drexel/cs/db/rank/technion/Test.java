@@ -11,7 +11,7 @@ public class Test {
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(6); // Create a set of 6 items (elements, alternatives), IDs 0 to 5    
-    items.letters(); // Name items by letters (A, B, C...). Otherwise names (tags) of items are their IDs (zero based)
+    items.tagLetters(); // Name items by letters (A, B, C...). Otherwise names (tags) of items are their IDs (zero based)
     
     // If you want to custom name items (or to assign any object that items represent), you can use Item.setTag(Object tag)
     // This loop names items sigma_1 to sigma_6. You have it one-based now

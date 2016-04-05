@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.Item;
-import java.util.List;
+import java.util.Set;
 
 
 public class Xij extends Variable {
@@ -37,13 +37,13 @@ public class Xij extends Variable {
     return t;
   }
   
-  public List<Variable> getChildren() {
+  public Set<Variable> getChildren() {
     return gm.getChildren(this);
   }
   
   @Override
   public String getName() {
-    return item + "@" + (t + 1);
+    return "X" + item + "/" + (t + 1);
   }
 
   @Override

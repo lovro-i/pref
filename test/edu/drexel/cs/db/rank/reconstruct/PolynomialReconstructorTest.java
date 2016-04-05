@@ -7,6 +7,13 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import static junit.framework.TestCase.assertEquals;
 import org.junit.Test;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 
 public class PolynomialReconstructorTest {
   

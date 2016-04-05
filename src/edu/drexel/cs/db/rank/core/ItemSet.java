@@ -44,15 +44,15 @@ public class ItemSet implements List<Item> {
     return items.size();
   }
   
-  /** Convert the names (tags) of the items to letters */
-  public void letters() {
+  /** Convert item names (tags) of the items to letters */
+  public void tagLetters() {
     for (Item e: items) {
       e.setTag(String.valueOf(Character.toChars(e.getId()+'A')));
     }
   }
   
-  
-  public void sigmas() {
+  /** Convert item names (tags) to sigma_i (one based) */
+  public void tagSigmas() {
     int i = 0;
     for (Item e: items) {
       i++;
@@ -65,6 +65,13 @@ public class ItemSet implements List<Item> {
       }      
       s = "\u03c3" + s;
       e.setTag(s);
+    }
+  }
+  
+  /** Convert item names (tags) to one based Integers */
+  public void tagOneBased() {
+    for (Item e: items) {
+      e.setTag(new Integer(e.getId()+1));
     }
   }
   
@@ -233,7 +240,7 @@ public class ItemSet implements List<Item> {
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(15);
-    items.sigmas();
+    items.tagSigmas();
     System.out.println(items);
   }
 }

@@ -234,11 +234,11 @@ public class DensePreferenceSet implements MutablePreferenceSet {
    */
   @Override
   public Ranking toRanking(Collection<Item> items) {
-    return this.transitiveClosure().toRankingDirect(items);
+    return this.transitiveClosure().buildRanking(items);
   }
     
     
-  private Ranking toRankingDirect(Collection<Item> items) {  
+  private Ranking buildRanking(Collection<Item> items) {  
     Map<Item, Integer> itemCount = new HashMap<Item, Integer>();
     for (Item item : items) {
       itemCount.put(item, 0);

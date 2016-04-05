@@ -10,14 +10,23 @@ import edu.drexel.cs.db.rank.sampler.AMPxSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.util.Logger;
 
-/** Hybrid EM Reconstructor that first uses AMPxD, and when it stops converging, switches to AMPxI */
+/** Hybrid EM Reconstructor that first uses AMPxD, and when it stops converging, switches to AMPxI or AMPxDI (choose in constructor) */
 public class HybridReconstructor extends EMReconstructor {
 
   private final double alpha;
+  private final boolean ampxdi;
   
-  public HybridReconstructor(MallowsModel model, int iterations, double alpha) {
+  /** Creates a hybrid reconstructor
+   *
+   * @param model Starting model for estimation
+   * @param iterations Maximum number of iterations
+   * @param alpha Split between AMP and sample information
+   * @param ampxdi Sampler to switch to after AMPxD: true for AMPxDI, false for AMPxI
+   */
+  public HybridReconstructor(MallowsModel model, int iterations, double alpha, boolean ampxdi) {
     super(model, iterations);
     this.alpha = alpha;
+    this.ampxdi = ampxdi;
   }
 
   @Override
@@ -33,6 +42,7 @@ public class HybridReconstructor extends EMReconstructor {
       
       MallowsSampler sampler;      
       if (ampxd) sampler = new AMPxDSampler(estimate, sample, alpha);
+      else if (ampxdi) sampler = new AMPxDSampler(estimate, resample, alpha);
       else sampler = new AMPxSampler(estimate, resample, alpha);
       
       

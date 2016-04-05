@@ -6,7 +6,9 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
+import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.other.AMPxDSamplerByItem;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
@@ -26,47 +28,14 @@ public class AMPxDISByItemReconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample sample, Ranking center) throws Exception {
-    MallowsModel estimate = model;
-    AMPxDSamplerByItem sampler = new AMPxDSamplerByItem(estimate, sample, alpha);
-    PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample resample = sample;
-    double oldPhi, newPhi;
-    for (int i = 0; i < iterations; i++) {
-      oldPhi = estimate.getPhi();
-      if (listener != null) {
-        listener.onIterationStart(i, estimate, sample);
-      }
-      resample = sampler.sample(sample);
-      estimate = reconstructor.reconstruct(resample, center);
-      if (listener != null) {
-        listener.onIterationEnd(i, estimate, resample);
-      }
-      newPhi = estimate.getPhi();
-      if (Math.abs(newPhi - oldPhi) < 0.001) {
-        break;
-      }
-    }
-
-    return estimate;
+  protected MallowsSampler initSampler(Sample<? extends PreferenceSet> sample) {
+    return new AMPxDSamplerByItem(model, sample, alpha);
   }
 
-  public static void main(String[] args) throws Exception {
-    ItemSet items = new ItemSet(10);
-    Ranking ref = items.getReferenceRanking();
-    RankingSample sample = MallowsUtils.sample(ref, 0.2, 10);
-    Filter.removeItems(sample, 0.3);
-
-    double initialPhi = 0.9;
-    MallowsModel initial = new MallowsModel(ref, initialPhi);
-
-    {
-      long start = System.currentTimeMillis();
-      EMReconstructor rec = new AMPxDISByItemReconstructor(initial, 4, 1);
-      MallowsModel model = rec.reconstruct(sample, ref);
-      System.out.println("model = " + model);
-      Logger.info("%s Done in %d ms", rec.getClass().getSimpleName(), System.currentTimeMillis() - start);
-    }
+  @Override
+  protected MallowsSampler updateSampler(MallowsSampler sampler, MallowsModel estimate, Sample<? extends PreferenceSet> sample, Sample<? extends PreferenceSet> resample) {
+    return sampler;
   }
+
 
 }

@@ -3,8 +3,10 @@ package edu.drexel.cs.db.rank.incomplete;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSampler;
+import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 
 /**
  * Uses simple AMP
@@ -16,30 +18,15 @@ public class AMPReconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample sample, Ranking center) {
-    MallowsModel estimate = model;
-    AMPSampler sampler = new AMPSampler(estimate);
-    PolynomialReconstructor reconstructor = new PolynomialReconstructor();
-    Sample resample = sample;
-    double oldPhi, newPhi;
-    for (int i = 0; i < iterations; i++) {
-      oldPhi = estimate.getPhi();
-      sampler.setModel(estimate);
-      if (listener != null) {
-        listener.onIterationStart(i, estimate, sample);
-      }
-      resample = sampler.sample(sample);
-      estimate = reconstructor.reconstruct(resample, center);
-      if (listener != null) {
-        listener.onIterationEnd(i, estimate, resample);
-      }
-      newPhi = estimate.getPhi();
-      if (Math.abs(newPhi - oldPhi) < 0.001) {
-        break;
-      }
-    }
-
-    return estimate;
+  protected MallowsSampler initSampler(Sample<? extends PreferenceSet> sample) {
+    return new AMPSampler(model);
   }
+
+  @Override
+  protected MallowsSampler updateSampler(MallowsSampler sampler, MallowsModel estimate, Sample<? extends PreferenceSet> sample, Sample<? extends PreferenceSet> resample) {
+    sampler.setModel(estimate);
+    return sampler;
+  }
+
 
 }

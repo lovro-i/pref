@@ -21,15 +21,15 @@ public class HybridReconstructor extends EMReconstructor {
   }
 
   @Override
-  public MallowsModel reconstruct(Sample<? extends PreferenceSet> sample, Ranking center) throws Exception {
+  public MallowsModel reconstruct(Sample<? extends PreferenceSet> sample, Ranking center) {
     MallowsModel estimate = model;
     PolynomialReconstructor reconstructor = new PolynomialReconstructor();
     Sample resample = sample;
     Double direction = null;
     boolean ampxd = true;
     for (int i = 0; i < iterations; i++) {
-      if (listener != null) listener.onIterationStart(i, estimate, sample);
       double oldPhi = estimate.getPhi();
+      if (listener != null) listener.onIterationStart(i, estimate, sample);
       
       MallowsSampler sampler;      
       if (ampxd) sampler = new AMPxDSampler(estimate, sample, alpha);
@@ -39,7 +39,9 @@ public class HybridReconstructor extends EMReconstructor {
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
       if (listener != null) listener.onIterationEnd(i, estimate, resample);
+      
       double newPhi = estimate.getPhi();
+      if (Math.abs(newPhi - oldPhi) < threshold) break;
       
       // check if should switch to AMPxI
       if (ampxd) {
@@ -50,11 +52,19 @@ public class HybridReconstructor extends EMReconstructor {
           Logger.info("Switching to AMPxI after %d iterations", i);
         }
       }
-      
-      if (Math.abs(newPhi - oldPhi) < 0.001) break;
     }
 
     return estimate;
+  }
+
+  @Override
+  protected MallowsSampler initSampler(Sample<? extends PreferenceSet> sample) {
+    throw new UnsupportedOperationException("Should never be called");
+  }
+
+  @Override
+  protected MallowsSampler updateSampler(MallowsSampler sampler, MallowsModel estimate, Sample<? extends PreferenceSet> sample, Sample<? extends PreferenceSet> resample) {
+    throw new UnsupportedOperationException("Should never be called");
   }
 
 }

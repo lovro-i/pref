@@ -51,6 +51,7 @@ public class ConfidentTriangle extends Triangle {
   }
   
   public void add(Sample<PreferenceSet> sample) {
+    if (sample == null) return;
     for (PW pw: sample) {
       this.add(pw.p, pw.w);
     }

@@ -38,7 +38,7 @@ public class HybridReconstructor extends EMReconstructor {
     boolean ampxd = true;
     for (int i = 0; i < iterations; i++) {
       double oldPhi = estimate.getPhi();
-      if (listener != null) listener.onIterationStart(i, estimate);
+      if (listenerHybrid != null) listenerHybrid.onIterationStart(i, estimate, !ampxd);
       
       MallowsSampler sampler;      
       if (ampxd) sampler = new AMPxDSampler(estimate, sample, alpha);
@@ -47,7 +47,7 @@ public class HybridReconstructor extends EMReconstructor {
       
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
-      if (listener != null) listener.onIterationEnd(i, estimate);
+      if (listenerHybrid != null) listenerHybrid.onIterationEnd(i, estimate, !ampxd);
       
       double newPhi = estimate.getPhi();
       if (Math.abs(newPhi - oldPhi) < threshold) break;
@@ -58,7 +58,11 @@ public class HybridReconstructor extends EMReconstructor {
         if (direction == null) direction = d;
         else if (direction != d) {
           ampxd = false;
-          Logger.info("Switching to AMPxI after %d iterations", i);
+          if (ampxdi){
+            Logger.info("Switching to AMPx-DI after %d iterations", i);
+          } else {
+            Logger.info("Switching to AMPx-I after %d iterations", i);
+          }
         }
       }
     }

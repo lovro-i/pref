@@ -5,6 +5,7 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,6 +21,8 @@ import java.util.Set;
  */
 public class MapPreferenceSet implements MutablePreferenceSet {
 
+  private static final Set<Item> EMPTY_ITEM_SET = Collections.unmodifiableSet(new HashSet<Item>());
+  
   private final ItemSet items;
 
   /**
@@ -193,12 +196,7 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   }
 
   /**
-<<<<<<< HEAD
    * Performs transitive closure on this preference set (not creating a new object)
-=======
-   * Performs transitive closure on this preference set (not creating a new
-   * object)
->>>>>>> 09f22f6c08dff1f0823c95073e33fc6e7a4ad276
    */
   public void transitiveClose() {
     boolean done = false;
@@ -288,12 +286,16 @@ public class MapPreferenceSet implements MutablePreferenceSet {
 
   @Override
   public Set<Item> getHigher(Item i) {
-    return this.highers.get(i);
+    Set<Item> result = this.highers.get(i);
+    if (result == null) result = EMPTY_ITEM_SET;
+    return result;
   }
 
   @Override
   public Set<Item> getLower(Item i) {
-    return this.lowers.get(i);
+    Set<Item> result = this.lowers.get(i);
+    if (result == null) result = EMPTY_ITEM_SET;
+    return result;
   }
 
   @Override

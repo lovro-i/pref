@@ -5,6 +5,7 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
 
 /** AMPx variant that immediately updates the Insertion Probability Matrix with a newly sampled ranking */
 public class AMPxDSampler extends AMPxSampler {

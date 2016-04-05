@@ -32,9 +32,8 @@ public class HasseDiagramTest {
     
     for (Item item: items) {
       hasse.add(item);
-      System.out.println("\nAdded " + item + ":");
-      System.out.println(hasse);
     }
+    System.out.println(hasse);
     
     // Check if there are 5 edges after adding all items
     assertEquals(5, hasse.size());
@@ -47,4 +46,32 @@ public class HasseDiagramTest {
     assertTrue(h.contains(1, 3));
   }
 
+  @Test
+  public void test2() {
+    System.out.println("HasseDiagramTest 2");
+  
+    ItemSet items = new ItemSet(21);
+    
+    MapPreferenceSet prefs = new MapPreferenceSet(items);
+    prefs.add(10, 4);
+    prefs.add(10, 17);
+    prefs.add(10, 7);
+    prefs.add(17, 20);
+    prefs.add(7, 2);
+    prefs.add(7, 3);
+    
+    HasseDiagram hasse = new HasseDiagram(prefs);
+    for (int i = 0; i < 11; i++) { // check after adding items up to 10
+      Item item = items.get(i);
+      hasse.add(item);
+    }
+    System.out.println(hasse);
+    assertEquals(4, hasse.getPreferenceSet().size());
+    
+    PreferenceSet h = hasse.getPreferenceSet();
+    assertTrue(h.contains(10, 4));
+    assertTrue(h.contains(10, 7));
+    assertTrue(h.contains(7, 3));
+    assertTrue(h.contains(7, 2));
+  }
 }

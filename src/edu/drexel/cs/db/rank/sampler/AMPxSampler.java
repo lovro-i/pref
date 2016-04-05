@@ -6,9 +6,11 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
 import edu.drexel.cs.db.rank.triangle.TriangleRow;
+import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.Map;
 import java.util.Set;
@@ -60,8 +62,10 @@ public class AMPxSampler extends MallowsSampler {
     this.rate = rate;
   }
   
-  
+  @Override
   public Ranking sample(PreferenceSet v) {
+    if (v instanceof Ranking) return this.sample((Ranking) v);
+    
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(model.getItemSet());
     PreferenceSet tc = v.transitiveClosure();

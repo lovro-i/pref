@@ -57,12 +57,12 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
       oldPhi = estimate.getPhi();
       sampler.setModel(estimate);
       if (listener != null) {
-        listener.onIterationStart(i, estimate, sample);
+        listener.onIterationStart(i, estimate);
       }
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
       if (listener != null) {
-        listener.onIterationEnd(i, estimate, resample);
+        listener.onIterationEnd(i, estimate);
       }
       newPhi = estimate.getPhi();
       if (Math.abs(newPhi - oldPhi) < 0.001) {
@@ -83,11 +83,11 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
 
     OnIterationListener listener = new OnIterationListener() {
       @Override
-      public void onIterationStart(int iteration, MallowsModel estimate, Sample trainingSample) {
+      public void onIterationStart(int iteration, MallowsModel estimate) {
       }
 
       @Override
-      public void onIterationEnd(int iteration, MallowsModel estimate, Sample resample) {
+      public void onIterationEnd(int iteration, MallowsModel estimate) {
         Logger.info("Iteration %d: %f", iteration, estimate.getPhi());
       }
 

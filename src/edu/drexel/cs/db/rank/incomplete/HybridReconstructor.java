@@ -38,17 +38,16 @@ public class HybridReconstructor extends EMReconstructor {
     boolean ampxd = true;
     for (int i = 0; i < iterations; i++) {
       double oldPhi = estimate.getPhi();
-      if (listener != null) listener.onIterationStart(i, estimate, sample);
+      if (listener != null) listener.onIterationStart(i, estimate);
       
       MallowsSampler sampler;      
       if (ampxd) sampler = new AMPxDSampler(estimate, sample, alpha);
       else if (ampxdi) sampler = new AMPxDSampler(estimate, resample, alpha);
       else sampler = new AMPxSampler(estimate, resample, alpha);
       
-      
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
-      if (listener != null) listener.onIterationEnd(i, estimate, resample);
+      if (listener != null) listener.onIterationEnd(i, estimate);
       
       double newPhi = estimate.getPhi();
       if (Math.abs(newPhi - oldPhi) < threshold) break;

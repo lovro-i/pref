@@ -39,8 +39,8 @@ public abstract class EMReconstructor implements MallowsReconstructor {
 
   
   public static interface OnIterationListener {
-    public void onIterationStart(int iteration, MallowsModel estimate, Sample trainingSample);
-    public void onIterationEnd(int iteration, MallowsModel estimate, Sample resample);
+    public void onIterationStart(int iteration, MallowsModel estimate);
+    public void onIterationEnd(int iteration, MallowsModel estimate);
   }
   
   public void setOnIterationListener(OnIterationListener listener) {
@@ -64,11 +64,11 @@ public abstract class EMReconstructor implements MallowsReconstructor {
     MallowsSampler sampler = initSampler(sample);
     for (int i = 0; i < iterations; i++) {
       double oldPhi = estimate.getPhi();
-      if (listener != null) listener.onIterationStart(i, estimate, sample);
+      if (listener != null) listener.onIterationStart(i, estimate);
       sampler = updateSampler(sampler, estimate, sample, resample);
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
-      if (listener != null) listener.onIterationEnd(i, estimate, resample);
+      if (listener != null) listener.onIterationEnd(i, estimate);
       double newPhi = estimate.getPhi();
       if (Math.abs(newPhi - oldPhi) < threshold) break;
     }

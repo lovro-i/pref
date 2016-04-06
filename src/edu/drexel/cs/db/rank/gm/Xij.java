@@ -33,7 +33,7 @@ public class Xij extends Variable {
     return index;
   }
   
-  public int getT() {
+  public int getTime() {
     return t;
   }
   
@@ -43,13 +43,13 @@ public class Xij extends Variable {
   
   @Override
   public String getName() {
-    return "X" + item + "/" + (t + 1);
+    return "X" + item + "^" + (t + 1);
   }
 
   @Override
   public boolean equals(Object o) {
     if (!(o instanceof Xij)) return false;
     Xij xij = (Xij) o;
-    return xij.getIndex() == this.getIndex() && xij.getT() == this.getT() && xij.gm.equals(gm);
+    return xij.getIndex() == this.getIndex() && xij.getTime() == this.getTime() && xij.gm.equals(gm);
   }
 }

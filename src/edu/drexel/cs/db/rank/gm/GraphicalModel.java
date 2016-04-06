@@ -4,23 +4,29 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.SingleGraph;
 
 
 public class GraphicalModel {
 
   private final MallowsModel model;
   private final PreferenceSet pref;
+  private final ItemSet items;
 
   private final List<Variable> variables = new ArrayList<Variable>();
   
   public GraphicalModel(MallowsModel model, PreferenceSet pref) {
     this.model = model;
     this.pref = pref;
+    this.items = model.getItemSet();
   }
   
   public MallowsModel getModel() {
@@ -49,6 +55,45 @@ public class GraphicalModel {
       }
     }
   }
+  
+  /** Returns array of times at which each item is last seen */
+  Integer[] getLatest() {
+    Integer[] latest = new Integer[items.size()];
+    for (Variable v: variables) {
+      if (v instanceof Xij) {
+        Xij x = (Xij) v;
+        int id = x.getItem().id;
+        if (latest[id] == null) latest[id] = x.getTime();
+        else latest[id] = Math.max(latest[id], x.getTime());
+      }
+    }
+    return latest;
+  }
+  
+  
+  public void enhance() {
+    Integer[] latest = getLatest();
+    
+    Set<Xii> rims = new HashSet<Xii>();
+    
+    for (int i = 0; i < latest.length-1; i++) {
+      if (latest[i] == null) continue;
+      for (int j = i+1; j < latest.length; j++) {
+        if (latest[j] == null) continue;
+        int min = Math.min(latest[i], latest[j]);
+        for (int k = j; k <= min; k++) {
+          Xii xii = getXii(items.get(k));
+          rims.add(xii);
+        }
+      }
+    }
+    
+    for (Item item: items) {
+      if (latest[item.id] == null) continue;
+      
+    }
+  }
+  
   
   public List<Variable> getVariables() {
     return variables;
@@ -82,7 +127,7 @@ public class GraphicalModel {
     for (Variable var: variables) {
       if (var instanceof Xij) {
         Xij xij = (Xij) var;
-        if (xij.getItem().equals(item) && xij.getT() == t) return xij;
+        if (xij.getItem().equals(item) && xij.getTime() == t) return xij;
       }
     }
     
@@ -99,8 +144,8 @@ public class GraphicalModel {
     for (Variable var: variables) {
       if (var instanceof Xij) {
         Xij xij = (Xij) var;
-        if (xij.getItem().equals(item) && xij.getT() < t) {
-          if (before == null || before.getT() < xij.getT()) before = xij;
+        if (xij.getItem().equals(item) && xij.getTime() < t) {
+          if (before == null || before.getTime() < xij.getTime()) before = xij;
         }
       }
     }
@@ -115,5 +160,52 @@ public class GraphicalModel {
     return sb.toString();
   }
   
+  
+  public void display() {
+    System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		Graph graph = new SingleGraph("Graphical Model for " + pref);
+    String cssNode = "node { fill-color: white; size: 50px; text-size: 20px; stroke-mode: plain; stroke-color: black; stroke-width: 3px; shape: circle; }";
+    String cssEdge = "edge { arrow-size: 20px, 10px; size: 2px; }";
+    graph.addAttribute("ui.stylesheet", cssNode + cssEdge);
 
+    
+    for (Variable v: variables) {
+      graph.addNode(v.getName());
+    }
+    
+    int edgeId = 0;
+    for (Variable v: variables) {
+      for (Variable parent: v.getParents()) {
+        edgeId++;
+        graph.addEdge("Edge "+edgeId, parent.getName(), v.getName(), true);
+      }
+    }
+    
+    for (Node node : graph) {
+      node.addAttribute("ui.label", node.getId());        
+    }
+    
+		graph.display();
+  }
+
+  public static void main(String[] args) {
+    ItemSet items = new ItemSet(25);
+    items.tagOneBased();
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
+    
+    MapPreferenceSet v = new MapPreferenceSet(items);
+    v.add(0, 6);
+    v.add(0, 9);
+    v.add(0, 14);
+    v.add(2, 8);
+    v.add(2, 12);
+    v.add(2, 15);
+    v.add(4, 13);
+    v.add(4, 20);
+    
+    GraphicalModel gm = new GraphicalModel(model, v);
+    gm.build();
+    gm.enhance();
+    gm.display();
+  }
 }

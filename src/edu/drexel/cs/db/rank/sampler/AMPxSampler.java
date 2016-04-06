@@ -64,7 +64,7 @@ public class AMPxSampler extends MallowsSampler {
   
   @Override
   public Ranking sample(PreferenceSet v) {
-    if (v instanceof Ranking) return this.sample((Ranking) v);
+    if (v instanceof Ranking) return this.sample((Ranking) v); // @todo: this line may be removed 
     
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(model.getItemSet());

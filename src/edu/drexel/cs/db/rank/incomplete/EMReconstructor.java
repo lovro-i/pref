@@ -17,6 +17,7 @@ public abstract class EMReconstructor implements MallowsReconstructor {
   
   /** What to do on every iteration */
   protected OnIterationListener listener;
+  protected OnIterationListenerHybrid listenerHybrid;
   
   /** Convergence threshold */
   protected double threshold = 0.001;
@@ -46,6 +47,16 @@ public abstract class EMReconstructor implements MallowsReconstructor {
   public void setOnIterationListener(OnIterationListener listener) {
     this.listener = listener;
   }
+  
+  public static interface OnIterationListenerHybrid {
+    public void onIterationStart(int iteration, MallowsModel estimate, boolean isSwitched);
+    public void onIterationEnd(int iteration, MallowsModel estimate, boolean isSwitched);
+  }
+   
+  public void setOnIterationListenerHybrid(OnIterationListenerHybrid listener) {
+    this.listenerHybrid = listener;
+  }
+
   
   @Override
   public MallowsModel reconstruct(Sample<? extends PreferenceSet> sample) throws Exception {

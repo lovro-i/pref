@@ -38,6 +38,7 @@ public class HybridReconstructor extends EMReconstructor {
     boolean ampxd = true;
     for (int i = 0; i < iterations; i++) {
       double oldPhi = estimate.getPhi();
+      if (listener instanceof OnIterationListener) ((OnIterationListener) listener).onIterationStart(i, estimate);
       if (listener instanceof OnIterationListenerHybrid) ((OnIterationListenerHybrid) listener).onIterationStart(i, estimate, !ampxd);
       
       MallowsSampler sampler;      
@@ -47,6 +48,7 @@ public class HybridReconstructor extends EMReconstructor {
       
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
+      if (listener instanceof OnIterationListener) ((OnIterationListener) listener).onIterationEnd(i, estimate);
       if (listener instanceof OnIterationListenerHybrid) ((OnIterationListenerHybrid) listener).onIterationEnd(i, estimate, !ampxd);
       
       double newPhi = estimate.getPhi();

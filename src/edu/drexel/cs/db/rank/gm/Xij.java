@@ -1,6 +1,7 @@
 package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.Item;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -43,7 +44,7 @@ public class Xij extends Variable {
   
   @Override
   public String getName() {
-    return "X" + item + "^" + (t + 1);
+    return "X" + item + "^" + t;
   }
 
   @Override
@@ -51,5 +52,13 @@ public class Xij extends Variable {
     if (!(o instanceof Xij)) return false;
     Xij xij = (Xij) o;
     return xij.getIndex() == this.getIndex() && xij.getTime() == this.getTime() && xij.gm.equals(gm);
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 5;
+    hash = 59 * hash + Objects.hashCode(this.item);
+    hash = 59 * hash + this.t;
+    return hash;
   }
 }

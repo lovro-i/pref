@@ -9,54 +9,30 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class GraphicalModelTest {
-
   
   @Test
-  public void testBuild1() {
-    System.out.println("GraphicalModel test build 1");
-    
-    ItemSet items = new ItemSet(5);
-    items.tagOneBased();
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
-    
-    Ranking r = new Ranking(items);
-    r.add(items.get(1));
-    r.add(items.get(3));
-    
-    GraphicalModel gm = new GraphicalModel(model, r);
-    gm.build();
-    System.out.println(gm);
-    assertEquals(3, gm.getVariables().size());
-    
-    System.out.println(Arrays.toString(gm.getLatest()));
-  }
-
-  
-  
-  @Test
-  public void testBuild2() {
-    System.out.println("GraphicalModel test build 2");
-    
+  public void testBatya() {
     ItemSet items = new ItemSet(25);
-    items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(0, 6);
-    v.add(0, 9);
-    v.add(0, 14);
-    v.add(2, 8);
-    v.add(2, 12);
-    v.add(2, 15);
-    v.add(4, 13);
-    v.add(4, 20);
+    v.add(3, 7);
+    v.add(3, 5);
+    v.add(3, 20);
+    v.add(5, 2);
     
     GraphicalModel gm = new GraphicalModel(model, v);
-    gm.build();
-    System.out.println(gm);
-    System.out.println(Arrays.toString(gm.getLatest()));
     
-    gm.enhance();
-    System.out.println(gm);
+    gm.alg2();
+    // check number of variables after algorithm 2
+    assertEquals(5, gm.getVariables().size());
+    
+    gm.alg3();
+    // check number of variables after algorithm 3
+    assertEquals(8, gm.getVariables().size());
+    
+    // check number of edges
+    assertEquals(8, gm.getEdges().size());
+    
   }
 }

@@ -1,11 +1,13 @@
 package edu.drexel.cs.db.rank.gm;
 
+import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +20,7 @@ import org.graphstream.graph.implementations.SingleGraph;
 public class GraphicalModel {
 
   private final MallowsModel model;
+  private final Ranking reference;
   private final PreferenceSet pref;
   private final ItemSet items;
 
@@ -25,6 +28,7 @@ public class GraphicalModel {
   
   public GraphicalModel(MallowsModel model, PreferenceSet pref) {
     this.model = model;
+    this.reference = model.getCenter();
     this.pref = pref;
     this.items = model.getItemSet();
   }
@@ -33,8 +37,7 @@ public class GraphicalModel {
     return model;
   }
   
-  public void build() {
-    Ranking reference = model.getCenter();
+  public void alg2() {
     HasseDiagram hasse = new HasseDiagram(pref);
     for (int i = 0; i < reference.length(); i++) {
       Item item = reference.get(i);
@@ -42,18 +45,38 @@ public class GraphicalModel {
         
         hasse.add(item);
         PreferenceSet h = hasse.getPreferenceSet();
-        Xii xii = getXii(item); // create insertion variable
+        // Xii xii = GraphicalModel.this.createXii(item); // create insertion variable
         
         for (Item higher: h.getHigher(item)) {
-          Xij xij = this.getXij(higher, i-1);
-          xii.addParent(xij);
+          Xij xij = this.createXij(higher, i-1);
+          // xii.addParent(xij);
         }
         for (Item lower: h.getLower(item)) {
-          Xij xij = this.getXij(lower, i-1);
-          xii.addParent(xij);
+          Xij xij = this.createXij(lower, i-1);
+          // xii.addParent(xij);
         }
       }
     }
+  }
+  
+  public static class Edge {
+    public final Variable from;
+    public final Variable to;
+    
+    private Edge(Variable from, Variable to) {
+      this.from = from;
+      this.to = to;
+    }
+  }
+  
+  public Set<Edge> getEdges() {
+    Set<Edge> edges = new HashSet<Edge>();
+    for (Variable v: variables) {
+      for (Variable p: v.getParents()) {
+        edges.add(new Edge(p, v));
+      }
+    }
+    return edges;
   }
   
   /** Returns array of times at which each item is last seen */
@@ -71,8 +94,9 @@ public class GraphicalModel {
   }
   
   
-  public void enhance() {
+  public void alg3() {
     Integer[] latest = getLatest();
+    System.out.println(Arrays.toString(latest));
     
     Set<Xii> rims = new HashSet<Xii>();
     
@@ -82,7 +106,7 @@ public class GraphicalModel {
         if (latest[j] == null) continue;
         int min = Math.min(latest[i], latest[j]);
         for (int k = j; k <= min; k++) {
-          Xii xii = getXii(items.get(k));
+          Xii xii = GraphicalModel.this.createXii(items.get(k));
           rims.add(xii);
         }
       }
@@ -90,7 +114,20 @@ public class GraphicalModel {
     
     for (Item item: items) {
       if (latest[item.id] == null) continue;
-      
+      for (int k = item.id + 1; k <= latest[item.id]; k++) {
+        Xii xkk = this.getXii(k);
+        if (xkk != null) {
+           Xij xikm1 = createXij(item, k-1);
+           Xij xik = createXij(item, k);
+           xik.addParent(xikm1);
+           xik.addParent(xkk);
+        }
+        else if (containsXij(item, k)) {
+          Xij xil = getXijBefore(item, k);
+          Xij xik = createXij(item, k);
+          xik.addParent(xil);
+        }        
+      }
     }
   }
   
@@ -108,7 +145,20 @@ public class GraphicalModel {
     return children;
   }
    
+  public Xii createXii(int id) {
+    return GraphicalModel.this.createXii(items.get(id));
+  }
+  
   /** Return Xii of the item. Creates one if it doesn't already exist. */
+  public Xii createXii(Item item) {
+    Xii xii = getXii(item);
+    if (xii == null) {
+      xii = new Xii(this, item);
+      variables.add(xii);
+    }
+    return xii;
+  }
+  
   public Xii getXii(Item item) {
     for (Variable var: variables) {
       if (var instanceof Xii) {
@@ -116,13 +166,27 @@ public class GraphicalModel {
         if (xii.getItem().equals(item)) return xii;
       }
     }
-    
-    Xii xii = new Xii(this, item);
-    variables.add(xii);
-    return xii;
+    return null;
+  }
+  
+  public Xii getXii(int id) {
+    return getXii(items.get(id));
   }
   
   /** Returns Xij of the item at time t. Creates one if it doesn't already exist. */
+  public Xij createXij(Item item, int t) {
+    if (t == reference.indexOf(item)) return createXii(item);
+    
+    Xij xij = getXij(item, t);
+    if (xij == null) {
+      xij = new Xij(this, item, t);
+      variables.add(xij);
+      // Xij before = getXijBefore(item, t);
+      // xij.addParent(before);
+    }
+    return xij;
+  }
+  
   public Xij getXij(Item item, int t) {
     for (Variable var: variables) {
       if (var instanceof Xij) {
@@ -130,12 +194,11 @@ public class GraphicalModel {
         if (xij.getItem().equals(item) && xij.getTime() == t) return xij;
       }
     }
-    
-    Xij xij = new Xij(this, item, t);
-    variables.add(xij);
-    Xij before = getXijBefore(item, t);
-    xij.addParent(before);
-    return xij;
+    return null;
+  }
+  
+  public boolean containsXij(Item item, int t) {
+    return getXij(item, t) != null;
   }
   
   /** Returns the most recent Xij of the item before time t */
@@ -152,6 +215,17 @@ public class GraphicalModel {
     return before;
   }
   
+  /** Returns the latest Xij of the item */
+  public Xij getLatestXij(Item item) {
+    Xij latest = null;
+    for (Variable var: variables) {
+      if (var instanceof Xij) {
+        Xij xij = (Xij) var;
+        if (latest == null || latest.getTime() < xij.getTime()) latest = xij;
+      }
+    }
+    return latest;
+  }
   
   @Override
   public String toString() {
@@ -164,7 +238,7 @@ public class GraphicalModel {
   public void display() {
     System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		Graph graph = new SingleGraph("Graphical Model for " + pref);
-    String cssNode = "node { fill-color: white; size: 50px; text-size: 20px; stroke-mode: plain; stroke-color: black; stroke-width: 3px; shape: circle; }";
+    String cssNode = "node { fill-color: white; size: 60px; text-size: 20px; stroke-mode: plain; stroke-color: black; stroke-width: 3px; shape: circle; }";
     String cssEdge = "edge { arrow-size: 20px, 10px; size: 2px; }";
     graph.addAttribute("ui.stylesheet", cssNode + cssEdge);
 
@@ -190,22 +264,26 @@ public class GraphicalModel {
 
   public static void main(String[] args) {
     ItemSet items = new ItemSet(25);
-    items.tagOneBased();
+    // items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(0, 6);
-    v.add(0, 9);
-    v.add(0, 14);
-    v.add(2, 8);
-    v.add(2, 12);
-    v.add(2, 15);
-    v.add(4, 13);
-    v.add(4, 20);
+    v.add(3, 7);
+    v.add(3, 5);
+    v.add(3, 20);
+    v.add(5, 2);
+//    v.add(0, 6);
+//    v.add(0, 9);
+//    v.add(0, 14);
+//    v.add(2, 8);
+//    v.add(2, 12);
+//    v.add(2, 15);
+//    v.add(4, 13);
+//    v.add(4, 20);
     
     GraphicalModel gm = new GraphicalModel(model, v);
-    gm.build();
-    gm.enhance();
+    gm.alg2();
+    gm.alg3();
     gm.display();
   }
 }

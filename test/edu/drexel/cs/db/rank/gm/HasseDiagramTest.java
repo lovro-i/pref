@@ -74,4 +74,54 @@ public class HasseDiagramTest {
     assertTrue(h.contains(7, 3));
     assertTrue(h.contains(7, 2));
   }
+  
+  
+  /** Batya's test: https://www.dropbox.com/s/fuh49hxkubrw8l6/PositionBNExample.pptx?dl=0 */
+  @Test
+  public void test3() {
+    System.out.println("HasseDiagramTest 3");
+  
+    ItemSet items = new ItemSet(25);
+    
+    MapPreferenceSet prefs = new MapPreferenceSet(items);
+    prefs.add(3, 7);
+    prefs.add(3, 5);
+    prefs.add(3, 20);
+    prefs.add(5, 2);
+    
+    HasseDiagram hasse = new HasseDiagram(prefs);
+    PreferenceSet h;
+    
+    hasse.add(items.get(2));
+    assertEquals(0, hasse.size());
+    h = hasse.getPreferenceSet();
+    System.out.println(h);
+    
+    hasse.add(items.get(3));
+    assertEquals(1, hasse.size());
+    h = hasse.getPreferenceSet();
+    System.out.println(h);
+    
+    hasse.add(items.get(5));
+    assertEquals(2, hasse.size());
+    h = hasse.getPreferenceSet();
+    System.out.println(h);
+    
+    hasse.add(items.get(7));
+    h = hasse.getPreferenceSet();
+    System.out.println(h);
+    assertEquals(3, hasse.size());
+    assertTrue(h.contains(3, 7));
+    assertTrue(h.contains(3, 5));
+    assertTrue(h.contains(5, 2));
+    
+    hasse.add(items.get(20));
+    h = hasse.getPreferenceSet();
+    System.out.println(h);
+    assertEquals(4, hasse.size());    
+    assertTrue(h.contains(3, 7));
+    assertTrue(h.contains(3, 5));
+    assertTrue(h.contains(3, 20));
+    assertTrue(h.contains(5, 2));
+  }
 }

@@ -38,7 +38,7 @@ public class HybridReconstructor extends EMReconstructor {
     boolean ampxd = true;
     for (int i = 0; i < iterations; i++) {
       double oldPhi = estimate.getPhi();
-      if (listenerHybrid != null) listenerHybrid.onIterationStart(i, estimate, !ampxd);
+      if (listener instanceof OnIterationListenerHybrid) ((OnIterationListenerHybrid) listener).onIterationStart(i, estimate, !ampxd);
       
       MallowsSampler sampler;      
       if (ampxd) sampler = new AMPxDSampler(estimate, sample, alpha);
@@ -47,7 +47,7 @@ public class HybridReconstructor extends EMReconstructor {
       
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
-      if (listenerHybrid != null) listenerHybrid.onIterationEnd(i, estimate, !ampxd);
+      if (listener instanceof OnIterationListenerHybrid) ((OnIterationListenerHybrid) listener).onIterationEnd(i, estimate, !ampxd);
       
       double newPhi = estimate.getPhi();
       if (Math.abs(newPhi - oldPhi) < threshold) break;
@@ -79,5 +79,10 @@ public class HybridReconstructor extends EMReconstructor {
   protected MallowsSampler updateSampler(MallowsSampler sampler, MallowsModel estimate, Sample<? extends PreferenceSet> sample, Sample<? extends PreferenceSet> resample) {
     throw new UnsupportedOperationException("Should never be called");
   }
-
+  
+  public static interface OnIterationListenerHybrid extends OnIterationListener {
+    public void onIterationStart(int iteration, MallowsModel estimate, boolean isSwitched);
+    public void onIterationEnd(int iteration, MallowsModel estimate, boolean isSwitched);
+  }
+   
 }

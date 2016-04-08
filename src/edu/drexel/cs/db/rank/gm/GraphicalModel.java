@@ -132,6 +132,46 @@ public class GraphicalModel {
   }
   
   
+  public void alg4() {
+    HasseDiagram hasse = new HasseDiagram(pref);
+    for (int i = 0; i < reference.length(); i++) {
+      Item item = reference.get(i);
+      if (pref.contains(item)) {
+        hasse.add(item);
+        PreferenceSet h = hasse.getPreferenceSet();
+        Xii xii = this.createXii(item);
+        
+        Set<Xij> pas = new HashSet<Xij>();
+        for (Item higher: h.getHigher(item)) {
+          Xij xij = getXij(higher, i-1);
+          if (xij != null) pas.add(xij);
+        }
+        
+        Set<Xij> chs = new HashSet<Xij>();
+        for (Item lower: h.getLower(item)) {
+          Xij xij = getXij(lower, i-1);
+          if (xij != null) chs.add(xij);
+        }
+
+        Variable max = null;
+        if (pas.size() == 1) max = pas.iterator().next();
+        else if (pas.size() > 1) max = createMax(pas);
+        if (max != null) xii.addParent(max);
+        
+        Variable min = null;
+        if (chs.size() == 1) min = chs.iterator().next();
+        else if (chs.size() > 1) min = createMin(chs);
+        if (min != null) xii.addParent(min);        
+      }
+    }
+  }
+  
+  public void build() {
+    this.alg2();
+    this.alg3();
+    this.alg4();
+  }
+  
   public List<Variable> getVariables() {
     return variables;
   }
@@ -199,6 +239,20 @@ public class GraphicalModel {
   
   public boolean containsXij(Item item, int t) {
     return getXij(item, t) != null;
+  }
+  
+  public Max createMax(Set<? extends Variable> vars) {
+    Max max = new Max(this);
+    for (Variable var: vars) max.addParent(var);
+    this.variables.add(max);
+    return max;
+  }
+  
+  public Min createMin(Set<? extends Variable> vars) {
+    Min min = new Min(this);
+    for (Variable var: vars) min.addParent(var);
+    this.variables.add(min);
+    return min;
   }
   
   /** Returns the most recent Xij of the item before time t */
@@ -284,6 +338,7 @@ public class GraphicalModel {
     GraphicalModel gm = new GraphicalModel(model, v);
     gm.alg2();
     gm.alg3();
+    gm.alg4();
     gm.display();
   }
 }

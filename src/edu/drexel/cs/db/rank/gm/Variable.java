@@ -27,12 +27,13 @@ public abstract class Variable {
   
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getName()).append(": ");
-    for (Variable v: parents) sb.append(v.getName()).append('\t');
-    sb.append("\n");
-    for (Row t: rows) sb.append(t).append('\n');
-    return sb.toString();
+    return getName();
+//    StringBuilder sb = new StringBuilder();
+//    sb.append(getName()).append(": ");
+//    for (Variable v: parents) sb.append(v.getName()).append('\t');
+//    sb.append("\n");
+//    for (Row t: rows) sb.append(t).append('\n');
+//    return sb.toString();
   }
   
   

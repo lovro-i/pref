@@ -16,8 +16,6 @@ import java.util.Set;
 public class ConfidentTriangle extends Triangle {
 
   protected final Map<Integer, TriangleRow> rows;  
-  private final Map<Item, Integer> referenceIndex;
-  
 
   
   public ConfidentTriangle(Ranking reference) {
@@ -27,7 +25,6 @@ public class ConfidentTriangle extends Triangle {
       TriangleRow c = new TriangleRow(i);
       rows.put(i, c);
     }
-    this.referenceIndex = reference.getIndexMap();
   }
   
   public ConfidentTriangle(Ranking reference, Sample sample) {

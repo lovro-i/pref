@@ -38,8 +38,12 @@ public class HybridReconstructor extends EMReconstructor {
     boolean ampxd = true;
     for (int i = 0; i < iterations; i++) {
       double oldPhi = estimate.getPhi();
-      if (listener instanceof OnIterationListener) ((OnIterationListener) listener).onIterationStart(i, estimate);
-      if (listener instanceof OnIterationListenerHybrid) ((OnIterationListenerHybrid) listener).onIterationStart(i, estimate, !ampxd);
+      if (listener instanceof OnIterationListenerHybrid) {
+        ((OnIterationListenerHybrid) listener).onIterationStart(i, estimate, !ampxd);
+      } else if (listener instanceof OnIterationListener) {
+        ((OnIterationListener) listener).onIterationStart(i, estimate);
+      }
+      
       
       MallowsSampler sampler;      
       if (ampxd) sampler = new AMPxDSampler(estimate, sample, alpha); // AMPx-D
@@ -48,8 +52,11 @@ public class HybridReconstructor extends EMReconstructor {
       
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
-      if (listener instanceof OnIterationListener) ((OnIterationListener) listener).onIterationEnd(i, estimate);
-      if (listener instanceof OnIterationListenerHybrid) ((OnIterationListenerHybrid) listener).onIterationEnd(i, estimate, !ampxd);
+      if (listener instanceof OnIterationListenerHybrid) {
+        ((OnIterationListenerHybrid) listener).onIterationEnd(i, estimate, !ampxd);
+      } else if (listener instanceof OnIterationListener) {
+        ((OnIterationListener) listener).onIterationEnd(i, estimate);
+      }
       
       double newPhi = estimate.getPhi();
       if (Math.abs(newPhi - oldPhi) < threshold) break;

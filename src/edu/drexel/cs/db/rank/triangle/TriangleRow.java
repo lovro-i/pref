@@ -58,8 +58,21 @@ public class TriangleRow {
     return counts;
   }
   
+  public double getCount(int index) {
+    return counts[index];
+  }
+  
   public double getSum() {
     return sum;
+  }
+  
+  /** Sum of counts between low (inclusive) and high (exclusive) */
+  public double getSum(int low, int high) {
+    double s = 0;
+    for (int i = low; i <= high; i++) {
+      s += counts[i];     
+    }
+    return s;
   }
   
   /** Returns random position with calculated probabilities */

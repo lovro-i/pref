@@ -102,7 +102,7 @@ public class AMPxNSampler extends MallowsSampler {
     TriangleRow row = null;
     if (triangle != null) {
       row = triangle.getRow(i);
-      count = row.getSum(low, high+1);
+      count = row.getSum(low, high);
       beta = count / (alpha + count); // how much should the sample be favored
     }
     for (int j = low; j <= high; j++) {

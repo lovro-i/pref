@@ -41,7 +41,7 @@ public class PolynomialReconstructor implements MallowsReconstructor {
   
 
   @Override
-  public MallowsModel reconstruct(Sample sample) {
+  public MallowsModel reconstruct(Sample<? extends PreferenceSet> sample) {
     Ranking center = CenterReconstructor.reconstruct(sample);
     return this.reconstruct(sample, center);
   }

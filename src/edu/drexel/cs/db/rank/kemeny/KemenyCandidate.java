@@ -14,18 +14,22 @@ import java.util.Set;
 public class KemenyCandidate {
 
   /** Quickly find a good complete candidate to start kemenization from */
-  public static Ranking find(Sample<Ranking> sample) {
+  public static Ranking find(Sample<? extends PreferenceSet> sample) {
     int n = sample.getItemSet().size();
     Ranking longest = null;
     Histogram<Ranking> rankHist = new Histogram();
     for (int i = 0; i < sample.size(); i++) {
-      Ranking r = sample.get(i).p;
-      if (longest == null || r.length() > longest.length()) longest = r;
-      if (r.length() == n) rankHist.add(r, sample.getWeight(i));
+      PreferenceSet pref = sample.get(i).p;
+      if (pref instanceof Ranking) {
+        Ranking r = (Ranking) pref;      
+        if (longest == null || r.length() > longest.length()) longest = r;
+        if (r.length() == n) rankHist.add(r, sample.getWeight(i));
+      }
     }
     
-    if (rankHist.isEmpty()) return complete(longest);
-    else return rankHist.getMostFrequent();
+    if (!rankHist.isEmpty()) return rankHist.getMostFrequent();
+    else if (longest != null) return complete(longest);
+    else return sample.getItemSet().getRandomRanking();
   }
   
   

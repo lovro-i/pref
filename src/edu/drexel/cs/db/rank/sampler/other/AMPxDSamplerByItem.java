@@ -90,7 +90,7 @@ public class AMPxDSamplerByItem extends AMPxSampler {
   /** Create new sample with completions of the rankings in the input one */
   public RankingSample sample(Sample<? extends PreferenceSet> sample) {
     Ranking reference = model.getCenter();
-    Sample<DensePreferenceSet> in = sample.transitiveClosure();
+    Sample<PreferenceSet> in = sample.transitiveClosure();
     
     
     Item first = reference.get(0);

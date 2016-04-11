@@ -67,9 +67,9 @@ public class TriangleRow {
   }
   
   /** Sum of counts between low (inclusive) and high (exclusive) */
-  public double getSum(int low, int high) {
+  public double getCount(int low, int high) {
     double s = 0;
-    for (int i = low; i <= high; i++) {
+    for (int i = low; i < high; i++) {
       s += counts[i];     
     }
     return s;

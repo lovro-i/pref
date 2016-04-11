@@ -1,7 +1,9 @@
 package edu.drexel.cs.db.rank.core;
 
+import java.io.Serializable;
 
-public class Item {
+
+public class Item implements Serializable {
 
   public final int id;
   private Object tag;

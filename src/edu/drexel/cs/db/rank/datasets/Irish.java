@@ -4,6 +4,7 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
 import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
 import edu.drexel.cs.db.rank.core.Sample;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import java.io.File;
 import java.io.IOException;
 
@@ -27,7 +28,7 @@ public class Irish {
     return sample;
   }
   
-  public Sample<DensePreferenceSet> transitiveClosure() {
+  public Sample<PreferenceSet> transitiveClosure() {
     return sample.transitiveClosure();
   }
 

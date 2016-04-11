@@ -1,6 +1,7 @@
 package edu.drexel.cs.db.rank.core;
 
 import edu.drexel.cs.db.rank.util.MathUtils;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /** Set of items (items, alternatives), with id going from 0 to n-1 */
-public class ItemSet implements List<Item> {
+public class ItemSet implements List<Item>, Serializable {
 
   private final List<Item> items = new ArrayList<Item>();
   

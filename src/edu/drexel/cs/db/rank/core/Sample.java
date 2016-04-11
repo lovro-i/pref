@@ -2,6 +2,16 @@ package edu.drexel.cs.db.rank.core;
 
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
@@ -127,8 +137,8 @@ public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
     }
   }  
   
-  public Sample transitiveClosure() {
-    Sample sample = new Sample(itemSet);
+  public Sample<PreferenceSet> transitiveClosure() {
+    Sample<PreferenceSet> sample = new Sample<PreferenceSet>(itemSet);
     for (PW pw: this) {
       sample.add(pw.p.transitiveClosure(), pw.w);
     }
@@ -148,7 +158,7 @@ public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
 
   
   /** PreferenceSet - Weight pair */
-  public static class PW<PS extends PreferenceSet> implements Cloneable {
+  public static class PW<PS extends PreferenceSet> implements Cloneable, Serializable {
 
     public final PS p;
     public final double w;
@@ -186,5 +196,40 @@ public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
 
   }
   
+  
+  public void save(OutputStream out) throws IOException {
+    ObjectOutputStream os = new ObjectOutputStream(out);
+    os.writeObject(this);
+  }
+  
+  public void save(File file) throws IOException {
+    save(new FileOutputStream(file));  
+  } 
+  
+  
+  public static Sample<PreferenceSet> load(InputStream in) throws IOException, ClassNotFoundException {
+    ObjectInputStream is = new ObjectInputStream(in);
+    return (Sample<PreferenceSet>) is.readObject();
+  }
  
+  public static Sample<PreferenceSet> load(File file) throws IOException, ClassNotFoundException {
+    return load(new FileInputStream(file));
+  }
+  
+  public static void main(String[] args) throws IOException, ClassNotFoundException {
+    ItemSet items = new ItemSet(10);
+    RankingSample rankings = MallowsUtils.sample(items.getRandomRanking(), 0.2, 5);
+    rankings.save(new File("rankings.ser"));
+    
+    Sample<PreferenceSet> tc = rankings.transitiveClosure();
+    System.out.println(tc);
+    
+    String filename = "c:/temp/sample.ser";
+    tc.save(new File(filename));
+    
+    Sample<PreferenceSet> loaded = Sample.load(new File(filename));
+    System.out.println(loaded);
+
+  }
+  
 }

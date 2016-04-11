@@ -3,11 +3,12 @@ package edu.drexel.cs.db.rank.preference;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
 /** Set of preferences of one user */
-public interface PreferenceSet extends Cloneable {
+public interface PreferenceSet extends Cloneable, Serializable {
 
   /** Returns the set of items */
   public ItemSet getItemSet();

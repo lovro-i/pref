@@ -1,22 +1,22 @@
 package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
 import edu.drexel.cs.db.rank.triangle.TriangleRow;
 import edu.drexel.cs.db.rank.util.MathUtils;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /** AMP sampler extension that uses the combination of AMP and information from the sample */
-public class AMPxNSampler extends MallowsSampler {
+public class AMPxCNSampler extends MallowsSampler {
 
-  protected ConfidentTriangle triangle;
+  protected List<ConfidentTriangle> triangles = new ArrayList<ConfidentTriangle>();
   protected double alpha;
   
   /** Very low rate (close to zero) favors sample information.
@@ -26,38 +26,23 @@ public class AMPxNSampler extends MallowsSampler {
    * @param sample
    * @param alpha 
    */
-  public AMPxNSampler(MallowsModel model, Sample sample, double alpha) {
+  public AMPxCNSampler(MallowsModel model, double alpha, Sample... samples) {
     super(model);
-    this.setTrainingSample(sample);
     if (alpha < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
     this.alpha = alpha;
+    for (Sample sample: samples) {
+      triangles.add(new ConfidentTriangle(model.getCenter(), sample));
+    }
   }
 
 
   
-  public final void setTrainingSample(Sample sample) {
-    this.triangle = new ConfidentTriangle(model.getCenter(), sample);
+  public final void setTrainingSample(int index, Sample sample) {
+    this.triangles.set(index, new ConfidentTriangle(model.getCenter(), sample));
   }
   
-  public void addTrainingSample(Sample sample) {
-    if (triangle == null) setTrainingSample(sample);
-    else triangle.add(sample);
-  }
-  
-  /** Add single PreferenceSet to training sample (triangle) */
-  public void addTrainingSample(PreferenceSet pref, double weight) {
-    if (triangle == null) {
-      Sample sample = new Sample(pref.getItemSet());
-      sample.add(pref, weight);
-      setTrainingSample(sample);
-    }
-    else {
-      triangle.add(pref, weight);
-    }
-  }
-  
-  public void setRate(double rate) {
-    this.alpha = rate;
+  public void setAlpha(double alpha) {
+    this.alpha = alpha;
   }
   
   @Override
@@ -83,13 +68,13 @@ public class AMPxNSampler extends MallowsSampler {
         if (lower.contains(it) && j < high) high = j;
       }
             
-      samp(r, i, item, low, high); 
+      sampleItem(r, i, item, low, high); 
     }
     return r;
   }
   
   /** Add one item to the ranking between low and high */
-  private void samp(Ranking r, int i, Item item, int low, int high) {
+  private void sampleItem(Ranking r, int i, Item item, int low, int high) {
     if (low == high) {
       r.add(low, item);
       return;
@@ -97,22 +82,27 @@ public class AMPxNSampler extends MallowsSampler {
     
     double sum = 0;
     double[] p = new double[high+1];
-    double beta = 0;
-    double count = 0;
-    TriangleRow row = null;
-    if (triangle != null) {
-      row = triangle.getRow(i);
-      count = row.getCount(low, high+1);
-      beta = count / (alpha + count); // how much should the sample be favored
-    }
-    for (int j = low; j <= high; j++) {
-      p[j] = Math.pow(model.getPhi(), i - j);
-      if (row != null && beta > 0) {
-        p[j] = (1 - beta) * p[j] + beta * row.getCount(j) / count;
+    
+    for (ConfidentTriangle triangle: triangles) {
+      TriangleRow row = triangle.getRow(i);
+      double count = row.getCount(low, high+1);
+    
+      double beta = count / (alpha + count); // how much should the sample be favored
+      for (int j = low; j <= high; j++) {
+        double onep = Math.pow(model.getPhi(), i - j);
+        if (beta > 0) onep = (1 - beta) * onep + beta * row.getCount(j) / count;
+        p[j] += onep;
+        sum += p[j];
       }
-      sum += p[j];
     }
 
+    if (sum == 0) {
+      for (int j = low; j <= high; j++) {
+        p[j] = Math.pow(model.getPhi(), i - j);
+        sum += p[j];
+      }
+    }
+    
     double flip = MathUtils.RANDOM.nextDouble();
     double ps = 0;
     for (int j = low; j <= high; j++) {
@@ -154,31 +144,9 @@ public class AMPxNSampler extends MallowsSampler {
         }
       }
       
-      samp(r, i, item, low, high);
+      sampleItem(r, i, item, low, high);
     }
     return r;
-  }
-
-  
-  public static void main(String[] args) {
-    ItemSet items = new ItemSet(10);
-    Ranking v = new Ranking(items);
-    v.add(items.get(0));    
-    v.add(items.get(1));    
-    v.add(items.get(3));    
-    v.add(items.get(7));
-    v.add(items.get(5));
-    System.out.println(v);
-    
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.8);
-    AMPSampler amp = new AMPSampler(model);
-    RankingSample s1 = amp.sample(v, 1000);
-    
-    
-    
-    AMPxNSampler sampler = new AMPxNSampler(model, s1, 10);
-    RankingSample sample = sampler.sample(v, 1000);
-    
   }
 
   

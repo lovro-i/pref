@@ -31,37 +31,18 @@ public class MallowsMixtureReconstructor {
 
   private int maxClusters = 10;
   private MallowsReconstructor reconstructor;
-  private String reconstructorName;
-  private int maxIterationEM = 100;
-  private int alphaInAMPx = 1;
-  private double initialPhi = 0.5;
   private double alphaDecay = 0.65d; // 0.65d // smaller alphaDecay, more clusters; bigger alpha, more agressive clustering. 0.65 is OK
 
-    public MallowsMixtureReconstructor(MallowsReconstructor reconstructor) {
+  public MallowsMixtureReconstructor(MallowsReconstructor reconstructor) {
     this.reconstructor = reconstructor;
   }
     
-  public MallowsMixtureReconstructor(String reconstructorName) {
-    this.reconstructorName = reconstructorName;
-  }
   
     public MallowsMixtureReconstructor(MallowsReconstructor reconstructor, int maxClusters) {
     this.reconstructor = reconstructor;
     this.maxClusters = maxClusters;
   }
 
-  public MallowsMixtureReconstructor(String reconstructorName, int maxClusters) {
-    this.reconstructorName = reconstructorName;
-    this.maxClusters = maxClusters;
-  }
-
-  public MallowsMixtureReconstructor(String reconstructorName, int maxClusters, int maxIterationEM, int alphaInAMPx, double initialPhi) {
-    this.reconstructorName = reconstructorName;
-    this.maxClusters = maxClusters;
-    this.maxIterationEM = maxIterationEM;
-    this.alphaInAMPx = alphaInAMPx;
-    this.initialPhi = initialPhi;
-  }
 
 //  public ClusteringResult cluster(Sample<PreferenceSet> sample) {
 //    return cluster(sample, 1d);
@@ -320,7 +301,7 @@ public class MallowsMixtureReconstructor {
       Sample<PreferenceSet> s = clustering.samples.get(exemplar);
       Ranking center = KemenyCandidate.complete(exemplar);
       center = kemenizator.kemenize(s, center);
-      loadReconstructor(center);
+      // loadReconstructor(center);
       MallowsModel mm = reconstructor.reconstruct(s, center);
       model.add(mm, s.sumWeights());
       Logger.info("Model %d of %d: %s", m, clustering.samples.size(), mm);
@@ -328,28 +309,28 @@ public class MallowsMixtureReconstructor {
     return model;
   }
 
-  public void loadReconstructor(Ranking center) {
-    MallowsModel initialModel = new MallowsModel(center, 0.5);
-    if (reconstructorName.equals("AMP")) {
-      reconstructor = new AMPReconstructor(initialModel, maxIterationEM);
-    } else if (reconstructorName.equals("AMPx")) {
-      reconstructor = new AMPxReconstructor(initialModel, maxIterationEM, alphaInAMPx);
-    } else if (reconstructorName.equals("AMPx-I")) {
-      reconstructor = new AMPxIReconstructor(initialModel, maxIterationEM, alphaInAMPx);
-    } else if (reconstructorName.equals("AMPx-D")) {
-      reconstructor = new AMPxDReconstructor(initialModel, maxIterationEM, alphaInAMPx);
-    } else if (reconstructorName.equals("AMPx-DI")) {
-      reconstructor = new AMPxDIReconstructor(initialModel, maxIterationEM, alphaInAMPx);
-    } else if (reconstructorName.equals("AMPx-D-I")) {
-      reconstructor = new HybridReconstructor(initialModel, maxIterationEM, alphaInAMPx, false);
-    } else if (reconstructorName.equals("AMPx-D-DI")) {
-      reconstructor = new HybridReconstructor(initialModel, maxIterationEM, alphaInAMPx, true);
-    } else if (reconstructorName.equals("AMPx-N")) {
-      reconstructor = new AMPxNReconstructor(initialModel, maxIterationEM, alphaInAMPx);
-    } else if (reconstructorName.equals("AMPx-IN")) {
-      reconstructor = new AMPxINReconstructor(initialModel, maxIterationEM, alphaInAMPx);
-    }
-  }
+//  public void loadReconstructor(Ranking center) {
+//    MallowsModel initialModel = new MallowsModel(center, 0.5);
+//    if (reconstructorName.equals("AMP")) {
+//      reconstructor = new AMPReconstructor(initialModel, maxIterationEM);
+//    } else if (reconstructorName.equals("AMPx")) {
+//      reconstructor = new AMPxReconstructor(initialModel, maxIterationEM, alphaInAMPx);
+//    } else if (reconstructorName.equals("AMPx-I")) {
+//      reconstructor = new AMPxIReconstructor(initialModel, maxIterationEM, alphaInAMPx);
+//    } else if (reconstructorName.equals("AMPx-D")) {
+//      reconstructor = new AMPxDReconstructor(initialModel, maxIterationEM, alphaInAMPx);
+//    } else if (reconstructorName.equals("AMPx-DI")) {
+//      reconstructor = new AMPxDIReconstructor(initialModel, maxIterationEM, alphaInAMPx);
+//    } else if (reconstructorName.equals("AMPx-D-I")) {
+//      reconstructor = new HybridReconstructor(initialModel, maxIterationEM, alphaInAMPx, false);
+//    } else if (reconstructorName.equals("AMPx-D-DI")) {
+//      reconstructor = new HybridReconstructor(initialModel, maxIterationEM, alphaInAMPx, true);
+//    } else if (reconstructorName.equals("AMPx-N")) {
+//      reconstructor = new AMPxNReconstructor(initialModel, maxIterationEM, alphaInAMPx);
+//    } else if (reconstructorName.equals("AMPx-IN")) {
+//      reconstructor = new AMPxINReconstructor(initialModel, maxIterationEM, alphaInAMPx);
+//    }
+//  }
 
   public int getMaxClusters() {
     return this.maxClusters;

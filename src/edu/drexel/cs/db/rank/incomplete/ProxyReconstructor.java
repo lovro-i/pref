@@ -8,18 +8,18 @@ import edu.drexel.cs.db.rank.reconstruct.CenterReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 
 /** Encapsulates other reconstructors. You specify the type in constructor, and it creates a new one on each reconstruct() call */
-public class FactoryReconstructor implements MallowsReconstructor {
+public class ProxyReconstructor implements MallowsReconstructor {
   
   private final String reconstructorName;
   private final int maxIterationEM;
   private final int alphaInAMPx;
   private final double initialPhi;
 
-  public FactoryReconstructor(String reconstructorName, int maxClusters, int maxIterationEM) {
+  public ProxyReconstructor(String reconstructorName, int maxClusters, int maxIterationEM) {
     this(reconstructorName, maxClusters, maxIterationEM, 1, 0.5d);
   }
   
-  public FactoryReconstructor(String reconstructorName, int maxClusters, int maxIterationEM, int alphaInAMPx, double initialPhi) {
+  public ProxyReconstructor(String reconstructorName, int maxClusters, int maxIterationEM, int alphaInAMPx, double initialPhi) {
     this.reconstructorName = reconstructorName;
     this.maxIterationEM = maxIterationEM;
     this.alphaInAMPx = alphaInAMPx;

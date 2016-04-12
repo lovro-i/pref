@@ -203,7 +203,9 @@ public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
   }
   
   public void save(File file) throws IOException {
-    save(new FileOutputStream(file));  
+    FileOutputStream out = new FileOutputStream(file);
+    save(out);
+    out.close();
   } 
   
   

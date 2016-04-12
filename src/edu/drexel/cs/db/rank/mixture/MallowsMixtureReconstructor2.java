@@ -14,89 +14,121 @@ import edu.drexel.cs.db.rank.util.Logger;
 import fr.lri.tao.apro.ap.Apro;
 import fr.lri.tao.apro.data.DataProvider;
 import fr.lri.tao.apro.data.MatrixProvider;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MallowsMixtureReconstructor {
+/** Variant of MallowsMixtureReconstructor which handles too much clusters (more than maxClusters) in a different way */
+public class MallowsMixtureReconstructor2 {
 
   private int maxClusters = 10;
   private MallowsReconstructor reconstructor;
-  private double alphaDecay = 0.65d; // 0.65d // smaller alphaDecay, more clusters; bigger alpha, more agressive clustering. 0.65 is OK
 
-  public MallowsMixtureReconstructor(MallowsReconstructor reconstructor) {
+  
+  public MallowsMixtureReconstructor2(MallowsReconstructor reconstructor) {
     this.reconstructor = reconstructor;
   }
       
-  public MallowsMixtureReconstructor(MallowsReconstructor reconstructor, int maxClusters) {
+  public MallowsMixtureReconstructor2(MallowsReconstructor reconstructor, int maxClusters) {
     this.reconstructor = reconstructor;
     this.maxClusters = maxClusters;
   }
 
 
   public ClusteringResult cluster(Sample<? extends PreferenceSet> sample) {
-    return cluster(sample, 1d);
-  }
+    double alpha = 0;
+    while (true) {
+      ClusteringResult result = cluster(sample, alpha);
+      Logger.info("Clustering with alpha %f: %d clusters", alpha, result.samples.size());
 
-  private ClusteringResult cluster(Sample<? extends PreferenceSet> sample, double alpha) {
+      try {
+        FileOutputStream out = new FileOutputStream(new File("c:/temp/clresult.sav"));  
+        ObjectOutputStream os = new ObjectOutputStream(out);
+        os.writeObject(result);
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+      }
+      
+      
+      if (result.samples.size() <= maxClusters) return result;
+      alpha += 1d;
+    }
+  }
+  
+  
+  private double[][] matrix;
+  private double minSim;
+  private double maxSim;
+  private List<PreferenceSet> preferences;
+  private Map<PreferenceSet, Double> weights;
+  
+  private void calcSimilarities(Sample<? extends PreferenceSet> sample) {
+    long start = System.currentTimeMillis();
     Histogram<PreferenceSet> hist = new Histogram<PreferenceSet>();
     hist.add(sample.preferenceSets(), sample.weights());
-    Map<PreferenceSet, Double> weights = hist.getMap();
-    List<PreferenceSet> rankings = new ArrayList<PreferenceSet>();
-    rankings.addAll(weights.keySet());
-    System.out.println(String.format("There are %d different rankings out of %d total rankings", rankings.size(), sample.size()));
+    weights = hist.getMap();
+    preferences = new ArrayList<PreferenceSet>();
+    preferences.addAll(weights.keySet());
+    System.out.println(String.format("There are %d different rankings out of %d total rankings", preferences.size(), sample.size()));
 
-    double minSim = Double.POSITIVE_INFINITY;
-    double maxSim = Double.NEGATIVE_INFINITY;
-    double minPref = Double.POSITIVE_INFINITY;
-    double maxPref = Double.NEGATIVE_INFINITY;
+    minSim = Double.POSITIVE_INFINITY;
+    maxSim = Double.NEGATIVE_INFINITY;
 
-    /* Create similarity matrix */
-    long start = System.currentTimeMillis();
-    double[][] matrix = new double[rankings.size()][rankings.size()];
+    /* Create similarity matrix */      
+    matrix = new double[preferences.size()][preferences.size()];
 
     Map<PreferenceSet, PreferenceSet> transitiveClosures = new HashMap<PreferenceSet, PreferenceSet>();
-    for (PreferenceSet r : rankings) {
+    for (PreferenceSet r : preferences) {
       transitiveClosures.put(r, r.transitiveClosure());
     }
 
     double lastPercent = -20;
     int done = 0;
-    double nsquare100 = 200d / (matrix.length * (matrix.length - 1));
+    double total100 = 200d / (matrix.length * (matrix.length - 1));
     for (int i = 0; i < matrix.length; i++) {
 
-      double percent = nsquare100 * done;
+      double percent = total100 * done;
       if (percent > lastPercent + 10) {
         System.out.print(String.format("%.0f%% ", percent));
         lastPercent = percent;
       }
 
-      PreferenceSet mapPairsOneUser = rankings.get(i);
-      double pref = weights.get(mapPairsOneUser);
-      maxPref = Math.max(maxPref, pref);
-      minPref = Math.min(minPref, pref);
-      matrix[i][i] = pref;
+      PreferenceSet mapPairsOneUser = preferences.get(i);
 
       // Similarities
       for (int j = i + 1; j < matrix.length; j++) {
-        double s = PreferenceSimilarity.similarity(transitiveClosures.get(mapPairsOneUser), transitiveClosures.get(rankings.get(j)));
+        double s = PreferenceSimilarity.similarity(transitiveClosures.get(mapPairsOneUser), transitiveClosures.get(preferences.get(j)));
         maxSim = Math.max(maxSim, s);
         minSim = Math.min(minSim, s);
         matrix[i][j] = matrix[j][i] = s;
         done++;
       }
     }
+    
+    Logger.info("Similarity: [%f, %f]", minSim, maxSim);
+    Logger.info("Similarity matrix %d x %d created in %d ms", matrix.length, matrix.length, System.currentTimeMillis() - start);
+  }
+  
+  private ClusteringResult cluster(Sample<? extends PreferenceSet> sample, double alpha) {
+    if (matrix == null) calcSimilarities(sample);
 
+    double minPref = Double.POSITIVE_INFINITY;
+    double maxPref = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < matrix.length; i++) {
-      matrix[i][i] = alpha * matrix[i][i] * minSim - (1 - alpha) * maxSim;
-      //matrix[i][i] *= minSim;
-      //matrix[i][i] = matrix[i][i] - maxSim * (1 - alpha);
+      matrix[i][i] = minSim - alpha * maxSim;
+      minPref = Math.min(matrix[i][i], minPref);
+      maxPref = Math.max(matrix[i][i], maxPref);
     }
-
-    Logger.info("Pref: [%f, %f], Sim: [%f, %f]", minPref, maxPref, minSim, maxSim);
-    Logger.info("Matrix %d x %d created in %d ms", matrix.length, matrix.length, System.currentTimeMillis() - start);
+    Logger.info("Preferences: %.1f, %.1f", minPref, maxPref);
 
     /* Run Affinity Propagation */
     DataProvider provider = new MatrixProvider(matrix);
@@ -108,10 +140,10 @@ public class MallowsMixtureReconstructor {
     /* Get exemplars for each mapPairsOneUser */
     Map<PreferenceSet, PreferenceSet> exemplars = new HashMap<>();
     Map<PreferenceSet, Sample<PreferenceSet>> samples = new HashMap<>(); // a sample for each exemplar
-    for (int i = 0; i < rankings.size(); i++) {
-      PreferenceSet r = rankings.get(i);
+    for (int i = 0; i < preferences.size(); i++) {
+      PreferenceSet r = preferences.get(i);
       int exi = apro.getExemplar(i);
-      PreferenceSet exemplar = (exi != -1) ? rankings.get(exi) : r;
+      PreferenceSet exemplar = (exi != -1) ? preferences.get(exi) : r;
       exemplars.put(r, exemplar);
 
       // put it in the sample      
@@ -121,36 +153,6 @@ public class MallowsMixtureReconstructor {
         samples.put(exemplar, s);
       }
       s.add(r, weights.get(r));
-    }
-
-    /* If there are too much clusters, do it again */
-    if (samples.size() > maxClusters && maxSim > 0) { // && samples.size() < sample.size()) {      
-      Sample<PreferenceSet> more = new Sample<>(sample.getItemSet());
-      // alpha = 0.3 * Math.random();
-      Logger.info("%d exemplars. Compacting more with alpha = %.3f...", samples.size(), alpha);
-      for (PreferenceSet r : samples.keySet()) {
-        double w = samples.get(r).sumWeights();
-        more.add(r, w);
-      }
-
-      ClusteringResult sub = cluster(more, alphaDecay * alpha);
-      Map<PreferenceSet, PreferenceSet> newExs = new HashMap<>();
-      Map<PreferenceSet, Sample<PreferenceSet>> newSamps = new HashMap<>();
-      for (PreferenceSet r : rankings) {
-        PreferenceSet ex1 = exemplars.get(r);
-        PreferenceSet ex2 = sub.exemplars.get(ex1);
-        newExs.put(r, ex2);
-
-        Sample<PreferenceSet> s = newSamps.get(ex2);
-        if (s == null) {
-          s = new Sample<PreferenceSet>(sample.getItemSet());
-          newSamps.put(ex2, s);
-        }
-        s.add(r, weights.get(r));
-      }
-
-      exemplars = newExs;
-      samples = newSamps;
     }
 
     return new ClusteringResult(exemplars, samples);

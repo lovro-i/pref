@@ -83,13 +83,13 @@ public class AMPxNSampler extends MallowsSampler {
         if (lower.contains(it) && j < high) high = j;
       }
             
-      samp(r, i, item, low, high); 
+      insertItem(r, i, item, low, high); 
     }
     return r;
   }
   
   /** Add one item to the ranking between low and high */
-  private void samp(Ranking r, int i, Item item, int low, int high) {
+  private void insertItem(Ranking r, int i, Item item, int low, int high) {
     if (low == high) {
       r.add(low, item);
       return;
@@ -160,7 +160,7 @@ public class AMPxNSampler extends MallowsSampler {
         }
       }
       
-      samp(r, i, item, low, high);
+      insertItem(r, i, item, low, high);
     }
     return r;
   }

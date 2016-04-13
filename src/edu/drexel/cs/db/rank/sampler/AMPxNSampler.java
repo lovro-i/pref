@@ -95,8 +95,6 @@ public class AMPxNSampler extends MallowsSampler {
       return;
     }
     
-    double sum = 0;
-    double[] p = new double[high+1];
     double beta = 0;
     double count = 0;
     TriangleRow row = null;
@@ -105,18 +103,26 @@ public class AMPxNSampler extends MallowsSampler {
       count = row.getCount(low, high+1);
       beta = count / (alpha + count); // how much should the sample be favored
     }
+    
+    double[] pAmp = new double[high+1];
+    double[] pIns = new double[high+1];
     for (int j = low; j <= high; j++) {
-      p[j] = Math.pow(model.getPhi(), i - j);
-      if (row != null && beta > 0) {
-        p[j] = (1 - beta) * p[j] + beta * row.getCount(j) / count;
-      }
-      sum += p[j];
+      pAmp[j] = Math.pow(model.getPhi(), i - j);
+      if (row != null) pIns[j] = row.getCount(j);
     }
 
+    MathUtils.normalize(pAmp, 1d);
+    MathUtils.normalize(pIns, 1d);
+    if (beta > 0) {
+      for (int j = low; j <= high; j++) {
+        pAmp[j] = (1 - beta) * pAmp[j] + beta * pIns[j];
+      }
+    }
+    
     double flip = MathUtils.RANDOM.nextDouble();
     double ps = 0;
     for (int j = low; j <= high; j++) {
-      ps += p[j] / sum;
+      ps += pAmp[j];
       if (ps > flip || j == high) {
         r.add(j, item);
         break;

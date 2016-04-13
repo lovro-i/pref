@@ -1,8 +1,11 @@
 package edu.drexel.cs.db.rank.util;
 
+import cern.colt.Arrays;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 public class MathUtils {
 
@@ -67,9 +70,21 @@ public class MathUtils {
     }
     return min;
   }
+  
+  public static void normalize(double[] a, double sum) {
+    double c = sum / DoubleStream.of(a).sum();
+    for (int i = 0; i < a.length; i++) {
+      a[i] *= c;
+    }
+  }
     
     
   public static void main(String[] args) {
+    double a[] = { 0, 0, 0, 50, 60, 10, 80 };
+    normalize(a, 1d);
+    System.out.println(Arrays.toString(a));
+    
+    
     int n = 220;
     int k = 16;
     BigInteger cbi = choose(n, k);

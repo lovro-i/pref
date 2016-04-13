@@ -1,5 +1,7 @@
 package edu.drexel.cs.db.rank.gm;
 
+import java.util.Arrays;
+
 
 public class Max extends Variable {
 

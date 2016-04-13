@@ -7,6 +7,7 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -121,7 +122,14 @@ public class GraphicalModel {
       for (int k = item.id + 1; k <= latest[item.id]; k++) {
         Xii xkk = this.getXii(k);
         if (xkk != null) {
-           Xij xikm1 = createXij(item, k-1);
+
+          Xij xikm1 = getXij(item, k-1);
+           if (xikm1 == null) {
+             xikm1 = createXij(item, k-1);
+             Xij xil = getXijBefore(item, k-1);
+             xikm1.addParent(xil);
+           }
+           
            Xij xik = createXij(item, k);
            xik.addParent(xikm1);
            xik.addParent(xkk);
@@ -321,7 +329,7 @@ public class GraphicalModel {
   }
 
   public static void main(String[] args) {
-    ItemSet items = new ItemSet(25);
+    ItemSet items = new ItemSet(30);
     // items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
@@ -330,19 +338,14 @@ public class GraphicalModel {
     v.add(3, 5);
     v.add(3, 20);
     v.add(5, 2);
-//    v.add(0, 6);
-//    v.add(0, 9);
-//    v.add(0, 14);
-//    v.add(2, 8);
-//    v.add(2, 12);
-//    v.add(2, 15);
-//    v.add(4, 13);
-//    v.add(4, 20);
+    
+    v.add(20, 25);
+    v.add(22, 25);
+
     
     GraphicalModel gm = new GraphicalModel(model, v);
-    gm.alg2();
-    gm.alg3();
-    gm.alg4();
+    gm.build();
     gm.display();
+    Logger.info("Variables: %d, edges: %d", gm.getVariables().size(), gm.getEdges().size());
   }
 }

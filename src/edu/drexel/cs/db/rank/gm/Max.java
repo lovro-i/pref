@@ -12,4 +12,9 @@ public class Max extends Variable {
     return "Max";
   }
 
+  @Override
+  public void calcFactors() {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
 }

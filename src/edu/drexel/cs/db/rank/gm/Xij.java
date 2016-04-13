@@ -61,4 +61,9 @@ public class Xij extends Variable {
     hash = 59 * hash + this.t;
     return hash;
   }
+
+  @Override
+  public void calcFactors() {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
 }

@@ -29,7 +29,7 @@ public class MallowsMixtureReconstructor {
   public MallowsMixtureReconstructor(MallowsReconstructor reconstructor) {
     this.reconstructor = reconstructor;
   }
-      
+  
   public MallowsMixtureReconstructor(MallowsReconstructor reconstructor, int maxClusters) {
     this.reconstructor = reconstructor;
     this.maxClusters = maxClusters;

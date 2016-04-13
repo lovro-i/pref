@@ -1,7 +1,9 @@
 package edu.drexel.cs.db.rank.gm;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public abstract class Variable {
@@ -28,14 +30,19 @@ public abstract class Variable {
   @Override
   public String toString() {
     return getName();
-//    StringBuilder sb = new StringBuilder();
-//    sb.append(getName()).append(": ");
-//    for (Variable v: parents) sb.append(v.getName()).append('\t');
-//    sb.append("\n");
-//    for (Row t: rows) sb.append(t).append('\n');
-//    return sb.toString();
   }
   
+  /** Return set of values that this variable can have */
+  public Set<Integer> getValues() {
+    if (rows.isEmpty()) calcFactors();
+    Set<Integer> vals = new HashSet<Integer>();
+    for (Row row: rows) {
+      vals.add(row.value);
+    }
+    return vals;
+  }
+  
+  public abstract void calcFactors();
   
   protected class Row {
     

@@ -130,6 +130,14 @@ public class MallowsMixtureModel {
     }
     return p;
   }
+  
+  public double getLogProbabilityMax(Ranking r) {
+    double p = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < this.size(); i++) {
+      p = Math.max(p, models.get(i).getLogProbability(r));
+    }
+    return p;
+  }
 
   public double getLogLikelihoodMean(Sample<Ranking> sample) {
     double ll = 0;
@@ -143,8 +151,8 @@ public class MallowsMixtureModel {
   public double getLogLikelihoodMax(Sample<Ranking> sample) {
     double ll = 0;
     for (PW<Ranking> rw : sample) {
-      double p = getProbabilityMax(rw.p);
-      ll += rw.w * Math.log(p);
+      double p = getLogProbabilityMax(rw.p);
+      ll += rw.w * p;
     }
     return ll / sample.sumWeights();
   }

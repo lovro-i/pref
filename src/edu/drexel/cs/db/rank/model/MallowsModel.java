@@ -77,6 +77,13 @@ public class MallowsModel {
     return Math.pow(phi, d) / z();
   }
   
+  
+  public double getLogProbability(Ranking r) {
+    double d = KendallTauDistance.between(center, r);
+    return d * Math.log(phi) - Math.log(z());
+  }
+    
+    
   public double getLogLikelihood(RankingSample sample) {
     double ll = 0;
     double lnZ = Math.log(z());

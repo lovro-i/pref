@@ -7,7 +7,6 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -106,13 +105,18 @@ public class GraphicalModel {
         if (latest[j] == null) continue;
         int min = Math.min(latest[i], latest[j]);
         for (int k = j; k <= min; k++) {
-          Xii xii = GraphicalModel.this.createXii(items.get(k));
+          Xii xii = this.createXii(items.get(k));
           rims.add(xii);
         }
       }
     }
+
+    for (Item item: pref.getItems()) {
+      Xii xii = this.createXii(item);
+      rims.add(xii);
+    }
     
-    for (Item item: items) {
+    for (Item item: reference.getItems()) {
       if (latest[item.id] == null) continue;
       for (int k = item.id + 1; k <= latest[item.id]; k++) {
         Xii xkk = this.getXii(k);
@@ -126,7 +130,7 @@ public class GraphicalModel {
           Xij xil = getXijBefore(item, k);
           Xij xik = createXij(item, k);
           xik.addParent(xil);
-        }        
+        }
       }
     }
   }
@@ -141,26 +145,26 @@ public class GraphicalModel {
         PreferenceSet h = hasse.getPreferenceSet();
         Xii xii = this.createXii(item);
         
-        Set<Xij> pas = new HashSet<Xij>();
+        Set<Xij> parents = new HashSet<Xij>();
         for (Item higher: h.getHigher(item)) {
           Xij xij = getXij(higher, i-1);
-          if (xij != null) pas.add(xij);
+          if (xij != null) parents.add(xij);
         }
         
-        Set<Xij> chs = new HashSet<Xij>();
+        Set<Xij> children = new HashSet<Xij>();
         for (Item lower: h.getLower(item)) {
           Xij xij = getXij(lower, i-1);
-          if (xij != null) chs.add(xij);
+          if (xij != null) children.add(xij);
         }
 
         Variable max = null;
-        if (pas.size() == 1) max = pas.iterator().next();
-        else if (pas.size() > 1) max = createMax(pas);
+        if (parents.size() == 1) max = parents.iterator().next();
+        else if (parents.size() > 1) max = createMax(parents);
         if (max != null) xii.addParent(max);
         
         Variable min = null;
-        if (chs.size() == 1) min = chs.iterator().next();
-        else if (chs.size() > 1) min = createMin(chs);
+        if (children.size() == 1) min = children.iterator().next();
+        else if (children.size() > 1) min = createMin(children);
         if (min != null) xii.addParent(min);        
       }
     }
@@ -295,7 +299,7 @@ public class GraphicalModel {
     String cssNode = "node { fill-color: white; size: 60px; text-size: 20px; stroke-mode: plain; stroke-color: black; stroke-width: 3px; shape: circle; }";
     String cssEdge = "edge { arrow-size: 20px, 10px; size: 2px; }";
     graph.addAttribute("ui.stylesheet", cssNode + cssEdge);
-
+    graph.addAttribute("ui.title", "Graphical model for Mallows posterior " + pref);
     
     for (Variable v: variables) {
       graph.addNode(v.getName());

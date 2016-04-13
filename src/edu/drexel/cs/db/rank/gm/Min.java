@@ -12,4 +12,9 @@ public class Min extends Variable {
     return "Min";
   }
 
+  @Override
+  public void calcFactors() {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
 }

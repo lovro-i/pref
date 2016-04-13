@@ -47,7 +47,7 @@ public class MallowsMixtureReconstructor2 {
     double alpha = 0;
     while (true) {
       ClusteringResult result = cluster(sample, alpha);
-      Logger.info("Clustering with alpha %f: %d clusters", alpha, result.samples.size());
+      Logger.info("=========================================== Clustering with alpha %f: %d clusters", alpha, result.samples.size());
 
       try {
         FileOutputStream out = new FileOutputStream(new File("c:/temp/clresult.sav"));  
@@ -121,18 +121,15 @@ public class MallowsMixtureReconstructor2 {
   private ClusteringResult cluster(Sample<? extends PreferenceSet> sample, double alpha) {
     if (matrix == null) calcSimilarities(sample);
 
-    double minPref = Double.POSITIVE_INFINITY;
-    double maxPref = Double.NEGATIVE_INFINITY;
+    double pref = minSim - alpha * 5; //maxSim;
     for (int i = 0; i < matrix.length; i++) {
-      matrix[i][i] = minSim - alpha * maxSim;
-      minPref = Math.min(matrix[i][i], minPref);
-      maxPref = Math.max(matrix[i][i], maxPref);
+      matrix[i][i] = pref;
     }
-    Logger.info("Preferences: %.1f, %.1f", minPref, maxPref);
+    Logger.info("Preferences for alpha %.1f set to %.1f", alpha, pref);
 
     /* Run Affinity Propagation */
     DataProvider provider = new MatrixProvider(matrix);
-    provider.addNoise();
+    // provider.addNoise();
     int groupCount = Math.min(8, matrix.length);
     Apro apro = new Apro(provider, groupCount, false);
     apro.run(100);

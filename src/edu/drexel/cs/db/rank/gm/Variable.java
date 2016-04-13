@@ -16,6 +16,9 @@ public abstract class Variable {
     this.gm = gm;
   }
   
+  public String getId() {
+    return getName();
+  }
   
   public abstract String getName();
   
@@ -42,7 +45,28 @@ public abstract class Variable {
     return vals;
   }
   
-  public abstract void calcFactors();
+  public void addRow(int value, double p, Integer... vals) {
+    Row row = new Row(value, p, vals);
+    this.rows.add(row);
+  }
+  
+  /** Calculate factor table */
+  protected abstract void calcFactors();
+  
+  /** Is the factor table already built */
+  public boolean isBuilt() {
+    return !this.rows.isEmpty();
+  }
+  
+  /** Build the factor table
+   * @return true if build now, false if was already built
+   */
+  public boolean build() {
+    if (this.isBuilt()) return false;
+    for (Variable var: parents) var.build();
+    calcFactors();
+    return true;
+  }
   
   protected class Row {
     
@@ -60,6 +84,8 @@ public abstract class Variable {
     public String toString() {
       StringBuilder sb = new StringBuilder();
       for (Integer i: vals) sb.append(i).append('\t');
+      if (!vals.isEmpty()) sb.append("|\t");
+      sb.append(value).append('\t');
       sb.append(p);
       return sb.toString();
     }

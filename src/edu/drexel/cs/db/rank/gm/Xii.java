@@ -12,11 +12,11 @@ public class Xii extends Xij {
   
   
   public Xii(GraphicalModel gm, Item item) {
-    super(gm, gm.getModel().getCenter().indexOf(item), gm.getModel().getCenter().indexOf(item));
+    this(gm, gm.getModel().getCenter().indexOf(item));
   }
   
-  
-  public void calc() {
+  @Override
+  public void calcFactors() {
     for (int i = 0; i <= index; i++) {
       double p = probability(i);
       Row touple = new Row(i, p);

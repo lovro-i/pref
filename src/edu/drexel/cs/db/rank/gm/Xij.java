@@ -8,7 +8,7 @@ import java.util.Set;
 public class Xij extends Variable {
 
   protected final Item item;
-  protected final int index;
+  protected final int index; // Index of the item
   protected final int t;
   
   public Xij(GraphicalModel gm, Item item, int t) {
@@ -64,6 +64,6 @@ public class Xij extends Variable {
 
   @Override
   public void calcFactors() {
-    throw new UnsupportedOperationException("Not supported yet.");
+    System.out.println("Not supported yet.");
   }
 }

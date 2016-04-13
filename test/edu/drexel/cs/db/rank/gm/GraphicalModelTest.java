@@ -58,4 +58,22 @@ public class GraphicalModelTest {
   }
   
   
+  @Test
+  public void testBatya3() {
+    ItemSet items = new ItemSet(10);
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
+    
+    MapPreferenceSet v = new MapPreferenceSet(items);
+    v.add(3, 1);
+    v.add(3, 2);
+    v.add(1, 5);
+    v.add(2, 5);
+    
+    GraphicalModel gm = new GraphicalModel(model, v);
+    gm.build();
+
+    assertEquals(12, gm.getVariables().size());
+    assertEquals(16, gm.getEdges().size());
+  }
+  
 }

@@ -1,22 +1,35 @@
 package edu.drexel.cs.db.rank.gm;
 
-import java.util.Arrays;
-
-
+/** Represents max value of its two parents */
 public class Max extends Variable {
 
+  private static int nextId = 1;
+  private int id;
+  
   public Max(GraphicalModel gm) {
     super(gm);
+    id = nextId++;
   }
 
+  @Override
+  public String getId() {
+    return "Max_" + id;
+  }
+  
   @Override
   public String getName() {
     return "Max";
   }
 
   @Override
-  public void calcFactors() {
-    throw new UnsupportedOperationException("Not supported yet.");
+  protected void calcFactors() {
+    if (parents.size() != 2) throw new IllegalStateException("Max must have two parents");
+    rows.clear();
+    for (Integer i: parents.get(0).getValues()) {
+      for (Integer j: parents.get(1).getValues()) {
+        this.addRow(Math.max(i, j), 1, i, j);
+      }
+    }
   }
 
 }

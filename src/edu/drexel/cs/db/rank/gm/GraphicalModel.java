@@ -4,10 +4,10 @@ import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.gm.Variable.Row;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -96,7 +96,6 @@ public class GraphicalModel {
   
   public void alg3() {
     Integer[] latest = getLatest();
-    System.out.println(Arrays.toString(latest));
     
     Set<Xii> rims = new HashSet<Xii>();
     
@@ -165,9 +164,7 @@ public class GraphicalModel {
           if (xij != null) children.add(xij);
         }
 
-        Variable max = null;
-        if (parents.size() == 1) max = parents.iterator().next();
-        else if (parents.size() > 1) max = createMax(parents);
+        Variable max = createMax(parents);
         if (max != null) xii.addParent(max);
         
         Variable min = null;
@@ -182,6 +179,9 @@ public class GraphicalModel {
     this.alg2();
     this.alg3();
     this.alg4();
+    for (Variable var: variables) {
+      var.build();
+    }
   }
   
   public List<Variable> getVariables() {
@@ -253,17 +253,37 @@ public class GraphicalModel {
     return getXij(item, t) != null;
   }
   
-  public Max createMax(Set<? extends Variable> vars) {
-    Max max = new Max(this);
-    for (Variable var: vars) max.addParent(var);
-    this.variables.add(max);
+  private Variable createMax(Set<? extends Variable> parents) {
+    Variable max = null;
+    for (Variable var: parents) {
+      if (max == null) {
+        max = var;
+      }
+      else {
+        Max max1 = new Max(this);
+        max1.addParent(max);
+        max1.addParent(var);
+        this.variables.add(max1);
+        max = max1;
+      }
+    }
     return max;
   }
   
-  public Min createMin(Set<? extends Variable> vars) {
-    Min min = new Min(this);
-    for (Variable var: vars) min.addParent(var);
-    this.variables.add(min);
+  private Variable createMin(Set<? extends Variable> vars) {
+    Variable min = null;
+    for (Variable var: vars) {
+      if (min == null) {
+        min = var;
+      }
+      else {
+        Min min1 = new Min(this);
+        min1.addParent(min);
+        min1.addParent(var);
+        this.variables.add(min1);
+        min = min1;
+      }
+    }
     return min;
   }
   
@@ -296,7 +316,28 @@ public class GraphicalModel {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (Variable v: variables) sb.append(v);
+    sb.append("Graphical model for Mallows posterior ").append(pref).append("\n");
+    sb.append(String.format("Variables: %d, edges: %d\n", this.getVariables().size(), this.getEdges().size()));
+    for (Variable v: variables) {
+      // variable name
+      sb.append("\n[").append(v.getId()).append("]\n");
+      
+      // variable parents
+      sb.append("Parents: ");
+      boolean first = true;
+      for (Variable p: v.getParents()) {
+        if (!first) sb.append(", ");
+        else first = false;
+        sb.append(p.getId());
+      }
+      sb.append('\n');
+      
+      // factor tables
+      sb.append("Factor table:\n");
+      for (Row row: v.rows) {
+        sb.append(row).append("\n");
+      }
+    }
     return sb.toString();
   }
   
@@ -310,42 +351,35 @@ public class GraphicalModel {
     graph.addAttribute("ui.title", "Graphical model for Mallows posterior " + pref);
     
     for (Variable v: variables) {
-      graph.addNode(v.getName());
+      Node node = graph.addNode(v.getId());
+      node.setAttribute("ui.label", v.getName());
     }
     
     int edgeId = 0;
     for (Variable v: variables) {
       for (Variable parent: v.getParents()) {
         edgeId++;
-        graph.addEdge("Edge "+edgeId, parent.getName(), v.getName(), true);
+        graph.addEdge("Edge "+edgeId, parent.getId(), v.getId(), true);
       }
-    }
-    
-    for (Node node : graph) {
-      node.addAttribute("ui.label", node.getId());        
     }
     
 		graph.display();
   }
 
   public static void main(String[] args) {
-    ItemSet items = new ItemSet(30);
-    // items.tagOneBased();
+    ItemSet items = new ItemSet(10);
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(3, 7);
-    v.add(3, 5);
-    v.add(3, 20);
-    v.add(5, 2);
+    v.add(3, 1);
+    v.add(3, 2);
+    v.add(1, 5);
+    v.add(2, 5);
     
-    v.add(20, 25);
-    v.add(22, 25);
-
     
     GraphicalModel gm = new GraphicalModel(model, v);
     gm.build();
     gm.display();
-    Logger.info("Variables: %d, edges: %d", gm.getVariables().size(), gm.getEdges().size());
+    System.out.println(gm);
   }
 }

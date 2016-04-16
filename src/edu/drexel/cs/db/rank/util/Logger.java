@@ -44,4 +44,7 @@ public class Logger {
     waitKey();
   }
   
+  public static void trace() {
+    Thread.dumpStack();
+  }
 }

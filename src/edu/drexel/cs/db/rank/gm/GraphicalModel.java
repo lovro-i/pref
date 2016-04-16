@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.rank.gm;
 
-import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
@@ -23,6 +22,8 @@ public class GraphicalModel {
   private final Ranking reference;
   private final PreferenceSet pref;
   private final ItemSet items;
+  private int base = 0;
+  final Pos1 pos1;
 
   private final List<Variable> variables = new ArrayList<Variable>();
   
@@ -31,10 +32,26 @@ public class GraphicalModel {
     this.reference = model.getCenter();
     this.pref = pref;
     this.items = model.getItemSet();
+    this.pos1 = new Pos1(model);
   }
   
   public MallowsModel getModel() {
     return model;
+  }
+  
+  public void setOneBased(boolean one) {
+    if (one) {
+      items.tagOneBased();
+      this.base = 1;
+    }
+    else {
+      items.tagZeroBased();
+      this.base = 0;
+    }
+  }
+  
+  public int getBase() {
+    return base;
   }
   
   public void alg2() {
@@ -123,20 +140,19 @@ public class GraphicalModel {
         if (xkk != null) {
 
           Xij xikm1 = getXij(item, k-1);
-           if (xikm1 == null) {
-             xikm1 = createXij(item, k-1);
-             Xij xil = getXijBefore(item, k-1);
-             xikm1.addParent(xil);
-           }
+          if (xikm1 == null) {
+            xikm1 = createXij(item, k-1); // pos1
+            Xij xil = getXijBefore(item, k-1);
+            xikm1.setPos1(xil);
+          }
            
-           Xij xik = createXij(item, k);
-           xik.addParent(xikm1);
-           xik.addParent(xkk);
+          Xij xik = createXij(item, k); // pos2
+          xik.setPos2(xikm1, xkk);
         }
         else if (containsXij(item, k)) {
           Xij xil = getXijBefore(item, k);
           Xij xik = createXij(item, k);
-          xik.addParent(xil);
+          xik.setPos1(xil);
         }
       }
     }
@@ -165,12 +181,11 @@ public class GraphicalModel {
         }
 
         Variable max = createMax(parents);
-        if (max != null) xii.addParent(max);
+        Variable min = createMin(children);
         
-        Variable min = null;
-        if (children.size() == 1) min = children.iterator().next();
-        else if (children.size() > 1) min = createMin(children);
-        if (min != null) xii.addParent(min);        
+        if (max != null && min != null) xii.setIns(max, min);
+        else if (max != null) xii.setAfter(max);
+        else if (min != null) xii.setBefore(min);
       }
     }
   }
@@ -322,6 +337,9 @@ public class GraphicalModel {
       // variable name
       sb.append("\n[").append(v.getId()).append("]\n");
       
+      // type
+      if (v instanceof Xij) sb.append("Type: ").append(((Xij) v).type).append('\n');
+      
       // variable parents
       sb.append("Parents: ");
       boolean first = true;
@@ -334,6 +352,11 @@ public class GraphicalModel {
       
       // factor tables
       sb.append("Factor table:\n");
+      for (Variable var: v.getParents()) {
+        sb.append(var).append('\t');
+      }
+      if (!v.parents.isEmpty()) sb.append("|\t");
+      sb.append(v).append("\tp\n");
       for (Row row: v.rows) {
         sb.append(row).append("\n");
       }
@@ -345,9 +368,10 @@ public class GraphicalModel {
   public void display() {
     System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		Graph graph = new SingleGraph("Graphical Model for " + pref);
-    String cssNode = "node { fill-color: white; size: 60px; text-size: 20px; stroke-mode: plain; stroke-color: black; stroke-width: 3px; shape: circle; }";
+    String cssGraph = "graph { fill-color: white; padding: 80px; }";
+    String cssNode = "node { fill-color: white; size: 80px; text-size: 20px; stroke-mode: plain; stroke-color: black; stroke-width: 3px; shape: circle; }";
     String cssEdge = "edge { arrow-size: 20px, 10px; size: 2px; }";
-    graph.addAttribute("ui.stylesheet", cssNode + cssEdge);
+    graph.addAttribute("ui.stylesheet", cssGraph + cssNode + cssEdge);
     graph.addAttribute("ui.title", "Graphical model for Mallows posterior " + pref);
     
     for (Variable v: variables) {
@@ -367,17 +391,18 @@ public class GraphicalModel {
   }
 
   public static void main(String[] args) {
-    ItemSet items = new ItemSet(10);
+    ItemSet items = new ItemSet(25);
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(3, 1);
-    v.add(3, 2);
-    v.add(1, 5);
-    v.add(2, 5);
+    v.add(3, 7);
+    v.add(3, 5);
+    v.add(3, 20);
+    v.add(5, 2);
     
     
     GraphicalModel gm = new GraphicalModel(model, v);
+    gm.setOneBased(true);
     gm.build();
     gm.display();
     System.out.println(gm);

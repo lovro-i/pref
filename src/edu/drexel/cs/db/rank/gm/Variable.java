@@ -83,9 +83,9 @@ public abstract class Variable {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
-      for (Integer i: vals) sb.append(i).append('\t');
+      for (Integer i: vals) sb.append(i + gm.getBase()).append('\t');
       if (!vals.isEmpty()) sb.append("|\t");
-      sb.append(value).append('\t');
+      sb.append(value + gm.getBase()).append('\t');
       sb.append(p);
       return sb.toString();
     }

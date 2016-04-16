@@ -76,6 +76,12 @@ public class ItemSet implements List<Item>, Serializable {
     }
   }
   
+  public void tagZeroBased() {
+    for (Item e: items) {
+      e.setTag(new Integer(e.getId()));
+    }
+  }
+  
   /** @return random ranking of length len */
   public Ranking getRandomRanking(int len) {
     if (len > items.size()) throw new IllegalArgumentException("Ranking length cannot be greater that the number of items");
@@ -244,4 +250,5 @@ public class ItemSet implements List<Item>, Serializable {
     items.tagSigmas();
     System.out.println(items);
   }
+
 }

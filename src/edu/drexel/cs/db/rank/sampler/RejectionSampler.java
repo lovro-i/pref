@@ -30,6 +30,7 @@ public class RejectionSampler extends MallowsSampler {
     Ranking r = null;
     while (r == null) {
       r = sampler.generate();
+      System.out.println(r);
       if (!r.isConsistent(pref)) r = null;
     }
     return r;
@@ -37,16 +38,22 @@ public class RejectionSampler extends MallowsSampler {
 
   
   public static void main(String[] args) {
-    ItemSet items = new ItemSet(10);
+    ItemSet items = new ItemSet(5);
     Ranking v = new Ranking(items);
-    v.add(items.get(3));    
-    v.add(items.get(7));
-    v.add(items.get(5));
+    v.add(items.get(1));    
+    v.add(items.get(2));
+    v.add(items.get(3));
+    v.add(items.get(4));
     System.out.println(v);
     
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.1);
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.99);
     RejectionSampler sampler = new RejectionSampler(model);
-    RankingSample sample = sampler.sample(v, 10);
-    System.out.println(sample);    
+    RankingSample sample = sampler.sample(v, 100);
+    System.out.println(sample);
+    
+    
+    AMPSampler amp = new AMPSampler(model);
+    RankingSample sample1 = amp.sample(v, 100);
+    //System.out.println(sample1);
   }
 }

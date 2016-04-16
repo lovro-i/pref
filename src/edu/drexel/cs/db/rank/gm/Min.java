@@ -23,7 +23,7 @@ public class Min extends Variable {
 
   @Override
   public void calcFactors() {
-    if (parents.size() != 2) throw new IllegalStateException("Max must have two parents");
+    if (parents.size() != 2) throw new IllegalStateException("MIN must have two parents");
     rows.clear();
     for (Integer i: parents.get(0).getValues()) {
       for (Integer j: parents.get(1).getValues()) {

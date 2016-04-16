@@ -64,12 +64,13 @@ public class GraphicalModelTest {
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(3, 1);
-    v.add(3, 2);
-    v.add(1, 5);
-    v.add(2, 5);
+    v.add(2, 0);
+    v.add(2, 1);
+    v.add(0, 4);
+    v.add(1, 4);
     
     GraphicalModel gm = new GraphicalModel(model, v);
+    gm.setOneBased(true);
     gm.build();
 
     assertEquals(12, gm.getVariables().size());

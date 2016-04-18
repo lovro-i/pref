@@ -16,10 +16,10 @@ public class GraphicalModelTest {
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(3, 7);
-    v.add(3, 5);
-    v.add(3, 20);
-    v.add(5, 2);
+    v.addById(3, 7);
+    v.addById(3, 5);
+    v.addById(3, 20);
+    v.addById(5, 2);
     
     GraphicalModel gm = new GraphicalModel(model, v);
     
@@ -43,12 +43,12 @@ public class GraphicalModelTest {
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(3, 7);
-    v.add(3, 5);
-    v.add(3, 20);
-    v.add(5, 2);
-    v.add(20, 25);
-    v.add(22, 25);
+    v.addById(3, 7);
+    v.addById(3, 5);
+    v.addById(3, 20);
+    v.addById(5, 2);
+    v.addById(20, 25);
+    v.addById(22, 25);
     
     GraphicalModel gm = new GraphicalModel(model, v);
     gm.build();
@@ -64,10 +64,10 @@ public class GraphicalModelTest {
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(2, 0);
-    v.add(2, 1);
-    v.add(0, 4);
-    v.add(1, 4);
+    v.addById(2, 0);
+    v.addById(2, 1);
+    v.addById(0, 4);
+    v.addById(1, 4);
     
     GraphicalModel gm = new GraphicalModel(model, v);
     gm.setOneBased(true);

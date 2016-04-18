@@ -62,15 +62,15 @@ public class AMPxDSamplerByItem extends AMPxSampler {
     else {        
       double sum = 0;
       double[] p = new double[high+1];
-      double alpha = 0;
+      double beta = 0;
       TriangleRow row = null;
       if (triangle != null) {
         row = triangle.getRow(index);
-        alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
+        beta = row.getSum() / (alpha + row.getSum()); // how much should the sample be favored
       }
       for (int j = low; j <= high; j++) {
         p[j] = Math.pow(model.getPhi(), index - j);
-        if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
+        if (row != null && beta > 0) p[j] = (1 - beta) * p[j] + beta * row.getProbability(j);
         sum += p[j];
       }
 

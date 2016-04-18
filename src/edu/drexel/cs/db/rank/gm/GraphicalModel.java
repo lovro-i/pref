@@ -7,6 +7,7 @@ import edu.drexel.cs.db.rank.gm.Variable.Row;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -334,7 +335,7 @@ public class GraphicalModel {
     sb.append("Graphical model for Mallows posterior ").append(pref).append("\n");
     sb.append(String.format("Variables: %d, edges: %d\n", this.getVariables().size(), this.getEdges().size()));
     for (Variable v: variables) {
-      // variable name
+      // variable id
       sb.append("\n[").append(v.getId()).append("]\n");
       
       // type
@@ -391,14 +392,15 @@ public class GraphicalModel {
   }
 
   public static void main(String[] args) {
-    ItemSet items = new ItemSet(25);
+    ItemSet items = new ItemSet(5);
+    items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.add(3, 7);
-    v.add(3, 5);
-    v.add(3, 20);
-    v.add(5, 2);
+    v.addByTag(3, 1);
+    v.addByTag(3, 2);
+    v.addByTag(1, 5);
+    v.addByTag(2, 5);
     
     
     GraphicalModel gm = new GraphicalModel(model, v);

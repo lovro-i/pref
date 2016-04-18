@@ -113,6 +113,7 @@ public class MapPreferenceSet implements MutablePreferenceSet {
 
   @Override
   public boolean add(Item higher, Item lower) {
+    if (higher == null || lower == null) throw new NullPointerException("Item must not be null");
     if (!checkAcyclic(higher, lower)) {
       throw new IllegalStateException(String.format("Cannot add (%s, %s) pair, graph would be cyclic", higher, lower));
     }
@@ -135,10 +136,15 @@ public class MapPreferenceSet implements MutablePreferenceSet {
   }
 
   @Override
-  public boolean add(int higherId, int lowerId) {
+  public boolean addById(int higherId, int lowerId) {
     return add(items.get(higherId), items.get(lowerId));
   }
 
+  @Override
+  public boolean addByTag(Object higherTag, Object lowerTag) {
+    return add(items.getItemByTag(higherTag), items.getItemByTag(lowerTag));
+  }
+  
   @Override
   public Boolean remove(Item item1, Item item2) {
     Boolean preferred = this.isPreferred(item1, item2);

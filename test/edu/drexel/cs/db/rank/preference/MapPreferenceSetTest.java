@@ -34,7 +34,7 @@ public class MapPreferenceSetTest {
     System.out.println("MapPreferenceSet.add() test");
     MapPreferenceSet instance = new MapPreferenceSet(items);
     instance.add(items.get(0), items.get(3));
-    instance.add(2, 5);
+    instance.addById(2, 5);
     instance.add(items.get(5), items.get(7));
     assertEquals(3, instance.size());
 
@@ -47,7 +47,7 @@ public class MapPreferenceSetTest {
     assertFalse(added);
 
     try {
-      instance.add(7, 2);
+      instance.addById(7, 2);
       fail();
     } catch (IllegalStateException e) {
       // must throw IllegalStateException
@@ -60,9 +60,9 @@ public class MapPreferenceSetTest {
   public void testAdd2() {
     System.out.println("MapPreferenceSet.add() test 2");
     MapPreferenceSet instance = new MapPreferenceSet(items);
-    instance.add(0, 3);
+    instance.addById(0, 3);
     try {
-      instance.add(3, 0);
+      instance.addById(3, 0);
       fail();
     } catch (IllegalStateException e) {
       // must throw IllegalStateException
@@ -83,11 +83,11 @@ public class MapPreferenceSetTest {
     assertEquals(10, tc.size());
 
     MapPreferenceSet pref = new MapPreferenceSet(items);
-    pref.add(0, 3);
-    pref.add(2, 5);
-    pref.add(5, 7);
-    pref.add(3, 1);
-    pref.add(3, 2);
+    pref.addById(0, 3);
+    pref.addById(2, 5);
+    pref.addById(5, 7);
+    pref.addById(3, 1);
+    pref.addById(3, 2);
     assertEquals(5, pref.size());
 
     PreferenceSet tc1 = pref.transitiveClosure();

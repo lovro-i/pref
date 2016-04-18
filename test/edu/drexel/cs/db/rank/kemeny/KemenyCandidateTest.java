@@ -19,10 +19,10 @@ public class KemenyCandidateTest {
     System.out.println("toIncompleteRanking");
     
     MapPreferenceSet p = new MapPreferenceSet(items);
-    p.add(3, 5);
-    p.add(5, 7);
-    p.add(5, 8);
-    p.add(7, 9);
+    p.addById(3, 5);
+    p.addById(5, 7);
+    p.addById(5, 8);
+    p.addById(7, 9);
     
     Ranking result = KemenyCandidate.toRanking(p);
     assertEquals(5, result.length());

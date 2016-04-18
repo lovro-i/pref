@@ -54,8 +54,13 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
   }
   
   @Override
-  public boolean add(int higherId, int lowerId) {
+  public boolean addById(int higherId, int lowerId) {
     return this.add(items.get(higherId), items.get(lowerId));
+  }
+  
+    @Override
+  public boolean addByTag(Object higherTag, Object lowerTag) {
+    return add(items.getItemByTag(higherTag), items.getItemByTag(lowerTag));
   }
   
   @Override

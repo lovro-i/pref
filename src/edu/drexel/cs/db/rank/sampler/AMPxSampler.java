@@ -6,11 +6,9 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
 import edu.drexel.cs.db.rank.triangle.TriangleRow;
-import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.Map;
 import java.util.Set;
@@ -19,20 +17,20 @@ import java.util.Set;
 public class AMPxSampler extends MallowsSampler {
 
   protected ConfidentTriangle triangle;
-  protected double rate;
+  protected double alpha;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
    * 
    * @param model
    * @param sample
-   * @param rate 
+   * @param alpha 
    */
-  public AMPxSampler(MallowsModel model, Sample sample, double rate) {
+  public AMPxSampler(MallowsModel model, Sample sample, double alpha) {
     super(model);
     this.setTrainingSample(sample);
-    if (rate < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
-    this.rate = rate;
+    if (alpha < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
+    this.alpha = alpha;
   }
 
 
@@ -59,7 +57,7 @@ public class AMPxSampler extends MallowsSampler {
   }
   
   public void setRate(double rate) {
-    this.rate = rate;
+    this.alpha = rate;
   }
   
   @Override
@@ -85,36 +83,51 @@ public class AMPxSampler extends MallowsSampler {
         if (lower.contains(it) && j < high) high = j;
       }
             
-      if (low == high) {
-        r.add(low, item);
-      }
-      else {        
-        double sum = 0;
-        double[] p = new double[high+1];
-        double alpha = 0;
-        TriangleRow row = null;
-        if (triangle != null) {
-          row = triangle.getRow(i);
-          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
-        }
-        for (int j = low; j <= high; j++) {
-          p[j] = Math.pow(model.getPhi(), i - j);
-          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
-          sum += p[j];
-        }
-        
-        double flip = MathUtils.RANDOM.nextDouble();
-        double ps = 0;
-        for (int j = low; j <= high; j++) {
-          ps += p[j] / sum;
-          if (ps > flip || j == high) {
-            r.add(j, item);
-            break;
-          }
-        }
-      }
+      insertItem(r, i, item, low, high); 
     }
     return r;
+  }
+  
+  /** Add one item to the ranking between low and high */
+  private void insertItem(Ranking r, int i, Item item, int low, int high) {
+    if (low == high) {
+      r.add(low, item);
+      return;
+    }
+    
+    double beta = 0;
+    double count = 0;
+    TriangleRow row = null;
+    if (triangle != null) {
+      row = triangle.getRow(i);
+      count = row.getCount(low, high+1);
+      beta = count / (alpha + count); // how much should the sample be favored
+    }
+    
+    double[] pAmp = new double[high+1];
+    double[] pIns = new double[high+1];
+    for (int j = low; j <= high; j++) {
+      pAmp[j] = Math.pow(model.getPhi(), i - j);
+      if (row != null) pIns[j] = row.getCount(j);
+    }
+
+    MathUtils.normalize(pAmp, 1d);
+    MathUtils.normalize(pIns, 1d);
+    if (beta > 0) {
+      for (int j = low; j <= high; j++) {
+        pAmp[j] = (1 - beta) * pAmp[j] + beta * pIns[j];
+      }
+    }
+    
+    double flip = MathUtils.RANDOM.nextDouble();
+    double ps = 0;
+    for (int j = low; j <= high; j++) {
+      ps += pAmp[j];
+      if (ps > flip || j == high) {
+        r.add(j, item);
+        break;
+      }
+    }
   }
   
 
@@ -147,34 +160,7 @@ public class AMPxSampler extends MallowsSampler {
         }
       }
       
-      if (low == high) {
-        r.add(low, item);
-      }
-      else {        
-        double sum = 0;
-        double[] p = new double[high+1];      
-        TriangleRow row = null;
-        double alpha = 0;
-        if (triangle != null) {
-          row = triangle.getRow(i);
-          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
-        }
-        for (int j = low; j <= high; j++) {
-          p[j] = Math.pow(model.getPhi(), i - j);
-          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
-          sum += p[j];
-        }
-        
-        double flip = MathUtils.RANDOM.nextDouble();
-        double ps = 0;
-        for (int j = low; j <= high; j++) {
-          ps += p[j] / sum;
-          if (ps > flip || j == high) {
-            r.add(j, item);
-            break;
-          }
-        }
-      }
+      insertItem(r, i, item, low, high);
     }
     return r;
   }

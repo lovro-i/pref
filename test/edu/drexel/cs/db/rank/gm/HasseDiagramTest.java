@@ -19,14 +19,14 @@ public class HasseDiagramTest {
     ItemSet items = new ItemSet(5);
     
     MapPreferenceSet prefs = new MapPreferenceSet(items);
-    prefs.add(0, 1);
-    prefs.add(0, 2);
-    prefs.add(0, 3);
-    prefs.add(0, 4);
-    prefs.add(1, 3);
-    prefs.add(2, 3);
-    prefs.add(2, 4);
-    prefs.add(3, 4);
+    prefs.addById(0, 1);
+    prefs.addById(0, 2);
+    prefs.addById(0, 3);
+    prefs.addById(0, 4);
+    prefs.addById(1, 3);
+    prefs.addById(2, 3);
+    prefs.addById(2, 4);
+    prefs.addById(3, 4);
     
     HasseDiagram hasse = new HasseDiagram(prefs);
     
@@ -53,12 +53,12 @@ public class HasseDiagramTest {
     ItemSet items = new ItemSet(21);
     
     MapPreferenceSet prefs = new MapPreferenceSet(items);
-    prefs.add(10, 4);
-    prefs.add(10, 17);
-    prefs.add(10, 7);
-    prefs.add(17, 20);
-    prefs.add(7, 2);
-    prefs.add(7, 3);
+    prefs.addById(10, 4);
+    prefs.addById(10, 17);
+    prefs.addById(10, 7);
+    prefs.addById(17, 20);
+    prefs.addById(7, 2);
+    prefs.addById(7, 3);
     
     HasseDiagram hasse = new HasseDiagram(prefs);
     for (int i = 0; i < 11; i++) { // check after adding items up to 10
@@ -84,10 +84,10 @@ public class HasseDiagramTest {
     ItemSet items = new ItemSet(25);
     
     MapPreferenceSet prefs = new MapPreferenceSet(items);
-    prefs.add(3, 7);
-    prefs.add(3, 5);
-    prefs.add(3, 20);
-    prefs.add(5, 2);
+    prefs.addById(3, 7);
+    prefs.addById(3, 5);
+    prefs.addById(3, 20);
+    prefs.addById(5, 2);
     
     HasseDiagram hasse = new HasseDiagram(prefs);
     PreferenceSet h;

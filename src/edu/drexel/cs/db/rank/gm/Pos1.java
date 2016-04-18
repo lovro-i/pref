@@ -2,11 +2,10 @@ package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
+/** Calculates probabilities of POS1 factors usIng dynamic recursive algorithm (caches previously calculated values) */
 public class Pos1 {
 
   private MallowsModel model;
@@ -16,6 +15,10 @@ public class Pos1 {
     this.model = model;
   }
 
+  public void clear() {
+    cache.clear();
+  }
+  
   /**
    * Probability of Xij = vij given Xik = vik
    */

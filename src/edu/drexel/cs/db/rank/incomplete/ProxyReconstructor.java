@@ -46,9 +46,9 @@ public class ProxyReconstructor implements MallowsReconstructor {
     } else if (reconstructorName.equals("AMPx-D-DI")) {
       reconstructor = new HybridReconstructor(initialModel, maxIterationEM, alphaInAMPx, true);
     } else if (reconstructorName.equals("AMPx-N")) {
-      reconstructor = new AMPxNReconstructor(initialModel, maxIterationEM, alphaInAMPx);
+      reconstructor = new AMPxReconstructorOld(initialModel, maxIterationEM, alphaInAMPx);
     } else if (reconstructorName.equals("AMPx-IN")) {
-      reconstructor = new AMPxINReconstructor(initialModel, maxIterationEM, alphaInAMPx);
+      reconstructor = new AMPxIReconstructorOld(initialModel, maxIterationEM, alphaInAMPx);
     }
     else {
       throw new IllegalArgumentException("Unknown reconstructorName");

@@ -79,7 +79,7 @@ public class DensePreferenceSet implements MutablePreferenceSet {
   }
 
   @Override
-  public boolean add(int higher, int lower) {
+  public boolean addById(int higher, int lower) {
     if (!checkAcyclic(higher, lower)) {
       throw new IllegalStateException(String.format("Cannot add (%s, %s) pair, graph would be cyclic", higher, lower));
     }
@@ -91,11 +91,17 @@ public class DensePreferenceSet implements MutablePreferenceSet {
     return true;
   }
 
+  
+  @Override
+  public boolean addByTag(Object higherTag, Object lowerTag) {
+    return add(items.getItemByTag(higherTag), items.getItemByTag(lowerTag));
+  }
+  
   @Override
   public boolean add(Item higher, Item lower) {
     int hid = higher.getId();
     int lid = lower.getId();
-    return add(hid, lid);
+    return addById(hid, lid);
   }
 
   @Override

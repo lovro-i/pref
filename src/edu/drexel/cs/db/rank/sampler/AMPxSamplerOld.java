@@ -14,23 +14,23 @@ import java.util.Map;
 import java.util.Set;
 
 /** AMP sampler extension that uses the combination of AMP and information from the sample */
-public class AMPxNSampler extends MallowsSampler {
+public class AMPxSamplerOld extends MallowsSampler {
 
   protected ConfidentTriangle triangle;
-  protected double alpha;
+  protected double rate;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
    * 
    * @param model
    * @param sample
-   * @param alpha 
+   * @param rate 
    */
-  public AMPxNSampler(MallowsModel model, Sample sample, double alpha) {
+  public AMPxSamplerOld(MallowsModel model, Sample sample, double rate) {
     super(model);
     this.setTrainingSample(sample);
-    if (alpha < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
-    this.alpha = alpha;
+    if (rate < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
+    this.rate = rate;
   }
 
 
@@ -57,7 +57,7 @@ public class AMPxNSampler extends MallowsSampler {
   }
   
   public void setRate(double rate) {
-    this.alpha = rate;
+    this.rate = rate;
   }
   
   @Override
@@ -83,51 +83,36 @@ public class AMPxNSampler extends MallowsSampler {
         if (lower.contains(it) && j < high) high = j;
       }
             
-      insertItem(r, i, item, low, high); 
+      if (low == high) {
+        r.add(low, item);
+      }
+      else {        
+        double sum = 0;
+        double[] p = new double[high+1];
+        double alpha = 0;
+        TriangleRow row = null;
+        if (triangle != null) {
+          row = triangle.getRow(i);
+          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
+        }
+        for (int j = low; j <= high; j++) {
+          p[j] = Math.pow(model.getPhi(), i - j);
+          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
+          sum += p[j];
+        }
+        
+        double flip = MathUtils.RANDOM.nextDouble();
+        double ps = 0;
+        for (int j = low; j <= high; j++) {
+          ps += p[j] / sum;
+          if (ps > flip || j == high) {
+            r.add(j, item);
+            break;
+          }
+        }
+      }
     }
     return r;
-  }
-  
-  /** Add one item to the ranking between low and high */
-  private void insertItem(Ranking r, int i, Item item, int low, int high) {
-    if (low == high) {
-      r.add(low, item);
-      return;
-    }
-    
-    double beta = 0;
-    double count = 0;
-    TriangleRow row = null;
-    if (triangle != null) {
-      row = triangle.getRow(i);
-      count = row.getCount(low, high+1);
-      beta = count / (alpha + count); // how much should the sample be favored
-    }
-    
-    double[] pAmp = new double[high+1];
-    double[] pIns = new double[high+1];
-    for (int j = low; j <= high; j++) {
-      pAmp[j] = Math.pow(model.getPhi(), i - j);
-      if (row != null) pIns[j] = row.getCount(j);
-    }
-
-    MathUtils.normalize(pAmp, 1d);
-    MathUtils.normalize(pIns, 1d);
-    if (beta > 0) {
-      for (int j = low; j <= high; j++) {
-        pAmp[j] = (1 - beta) * pAmp[j] + beta * pIns[j];
-      }
-    }
-    
-    double flip = MathUtils.RANDOM.nextDouble();
-    double ps = 0;
-    for (int j = low; j <= high; j++) {
-      ps += pAmp[j];
-      if (ps > flip || j == high) {
-        r.add(j, item);
-        break;
-      }
-    }
   }
   
 
@@ -160,7 +145,34 @@ public class AMPxNSampler extends MallowsSampler {
         }
       }
       
-      insertItem(r, i, item, low, high);
+      if (low == high) {
+        r.add(low, item);
+      }
+      else {        
+        double sum = 0;
+        double[] p = new double[high+1];      
+        TriangleRow row = null;
+        double alpha = 0;
+        if (triangle != null) {
+          row = triangle.getRow(i);
+          alpha = row.getSum() / (rate + row.getSum()); // how much should the sample be favored
+        }
+        for (int j = low; j <= high; j++) {
+          p[j] = Math.pow(model.getPhi(), i - j);
+          if (row != null && alpha > 0) p[j] = (1 - alpha) * p[j] + alpha * row.getProbability(j);
+          sum += p[j];
+        }
+        
+        double flip = MathUtils.RANDOM.nextDouble();
+        double ps = 0;
+        for (int j = low; j <= high; j++) {
+          ps += p[j] / sum;
+          if (ps > flip || j == high) {
+            r.add(j, item);
+            break;
+          }
+        }
+      }
     }
     return r;
   }
@@ -182,7 +194,7 @@ public class AMPxNSampler extends MallowsSampler {
     
     
     
-    AMPxNSampler sampler = new AMPxNSampler(model, s1, 10);
+    AMPxSamplerOld sampler = new AMPxSamplerOld(model, s1, 10);
     RankingSample sample = sampler.sample(v, 1000);
     
   }

@@ -27,7 +27,7 @@ public class Max extends Variable {
     rows.clear();
     for (Integer i: parents.get(0).getValues()) {
       for (Integer j: parents.get(1).getValues()) {
-        this.addRow(Math.max(i, j), 1, i, j);
+        if (i != j) this.addRow(Math.max(i, j), 1, i, j);
       }
     }
   }

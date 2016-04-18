@@ -14,7 +14,12 @@ public interface MutablePreferenceSet extends PreferenceSet {
   /** Adds this preference to the set. Returns true if added, returns false if the preference was already there 
    *  @throws IllegalStateException if attempted to add a pair that would make the graph cyclic.
    */
-  public boolean add(int higherId, int lowerId);
+  public boolean addById(int higherId, int lowerId);
+  
+  /** Adds this preference to the set. Returns true if added, returns false if the preference was already there 
+   *  @throws IllegalStateException if attempted to add a pair that would make the graph cyclic.
+   */
+  public boolean addByTag(Object higherTag, Object lowerTag);
   
   /** Remove this pair from the set, whichever order
    * @return previous value

@@ -36,6 +36,7 @@ public class HybridReconstructor extends EMReconstructor {
     Sample resample = sample;
     Double direction = null;
     boolean ampxd = true;
+    MallowsSampler sampler = new AMPxDSampler(estimate, sample, alpha);
     for (int i = 0; i < iterations; i++) {
       double oldPhi = estimate.getPhi();
       if (listener instanceof OnIterationListenerHybrid) {
@@ -45,8 +46,11 @@ public class HybridReconstructor extends EMReconstructor {
       }
       
       
-      MallowsSampler sampler;      
-      if (ampxd) sampler = new AMPxDSampler(estimate, sample, alpha); // AMPx-D
+        
+      if (ampxd) { // AMPx-D
+        sampler.setModel(estimate);
+        ((AMPxDSampler) sampler).reset();
+      } 
       else if (ampxdi) sampler = new AMPxDSampler(estimate, resample, alpha); // AMPx-DI
       else sampler = new AMPxSampler(estimate, resample, alpha); // AMPx-I
       

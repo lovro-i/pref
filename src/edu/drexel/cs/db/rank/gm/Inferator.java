@@ -135,7 +135,7 @@ public class Inferator {
       sparseFactor = new int[rows.size()][];
       int idx = 0;
       for (Row r : rows) {
-        sparseFactor[idx] = r.exportVals();
+        sparseFactor[idx] = r.getValues();
         weights[idx] = r.p;
         idx++;
       }

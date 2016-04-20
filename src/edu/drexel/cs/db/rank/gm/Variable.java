@@ -94,13 +94,13 @@ public abstract class Variable {
         this.vals.add(i);
     }
 
-    protected int[] exportVals() {
-      int[] RV_vals = new int[vals.size() + 1];
+    protected int[] getValues() {
+      int[] values = new int[vals.size() + 1];
       int idx = 0;
       for (int i : vals) //export parent values
-        RV_vals[idx++] = i;
-      RV_vals[idx] = value; //export var value
-      return RV_vals;
+        values[idx++] = i;
+      values[idx] = value; //export var value
+      return values;
     }
 
     @Override

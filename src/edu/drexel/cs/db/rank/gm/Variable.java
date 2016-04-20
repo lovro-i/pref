@@ -80,56 +80,7 @@ public abstract class Variable {
     return true;
   }
 
-  public DimpleSparseFactor exportToDSF() {
-    DimpleSparseFactor DSF = new DimpleSparseFactor(rows);
-    return DSF;
-  }
 
-  /*
-  From: Accelarating Inference: towards a full language, compiler and hardware stack
-  "Sparse factors: specify only those factor function values which are nonzero. Improves performance by orders
-  of magnitude when some variables are deterministic functions of others.
-  
-  
-   */
-  public class DimpleSparseFactor {
-
-    private double[] weights;
-    private int[][] sparseFactor;
-
-    public DimpleSparseFactor(List<Row> rows) {
-      weights = new double[rows.size()];
-      sparseFactor = new int[rows.size()][];
-      int idx = 0;
-      for (Row r : rows) {
-        sparseFactor[idx] = r.exportVals();
-        weights[idx] = r.p;
-        idx++;
-      }
-    }
-
-    public double[] getWeights() {
-      return weights;
-    }
-
-    public int[][] getSparseTable() {
-      return sparseFactor;
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      int i = 0;
-      for (int[] row : sparseFactor) {
-        for (int val : row)
-          sb.append(val).append('\t');
-        sb.append(weights[i++]);
-        sb.append('\n');
-      }
-      return sb.toString();
-    }
-
-  }
 
   protected class Row {
 

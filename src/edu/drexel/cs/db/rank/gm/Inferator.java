@@ -7,7 +7,6 @@ import com.analog.lyric.dimple.model.values.Value;
 import com.analog.lyric.dimple.model.variables.Discrete;
 import com.analog.lyric.dimple.options.BPOptions;
 import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.gm.Variable.DimpleSparseFactor;
 import edu.drexel.cs.db.rank.gm.Variable.Row;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
@@ -15,6 +14,7 @@ import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,34 +43,20 @@ public class Inferator {
 
     // Create factors
     for (Variable var : gm.getVariables()) {
-      DimpleSparseFactor dsf = var.exportToDSF();
-      Discrete[] cptVars = getCPTVars(var);
-      //DEBUG
-      String s = dsf.toString();
-      graph.addFactor(dsf.getSparseTable(), dsf.getWeights(), cptVars);
+      DimpleSparseFactor dsf = new DimpleSparseFactor(var);
+      graph.addFactor(dsf.getSparseTable(), dsf.getWeights(), dsf.getVars());
+
       //MallowsFactorFunction factor = new MallowsFactorFunction(var);
       //graph.addFactor(factor, factor.getVariables());
     }
   }
-
+  
   public FactorGraph getGraph() {
     if (graph == null) build();
     return graph;
   }
 
-  //returns the variables associated with this RVs CPT
-  //as Descrite Dimple objects
-  //Lovro: I assume that the ordering of vals in the row correspond to the 
-  //ordering of the parents in the parents list
-  private Discrete[] getCPTVars(Variable var) {
-    Discrete[] vars = new Discrete[var.getParents().size() + 1];
-    int i = 0;
-    for (Variable parent : var.getParents()) {
-      vars[i++] = variables.get(parent);
-    }
-    vars[i] = variables.get(var);
-    return vars;
-  }
+  
 
   private class MallowsFactorFunction extends FactorFunction {
 
@@ -124,6 +110,70 @@ public class Inferator {
       }
       this.low = low;
       this.high = high;
+    }
+
+  }
+  
+  
+    /*
+  From: Accelarating Inference: towards a full language, compiler and hardware stack
+  "Sparse factors: specify only those factor function values which are nonzero. Improves performance by orders
+  of magnitude when some variables are deterministic functions of others.
+  
+  
+   */
+  private class DimpleSparseFactor {
+
+    private final Variable var;
+    private double[] weights;
+    private int[][] sparseFactor;
+
+    public DimpleSparseFactor(Variable var) {
+      this.var = var;
+      List<Row> rows = var.rows;
+      weights = new double[rows.size()];
+      sparseFactor = new int[rows.size()][];
+      int idx = 0;
+      for (Row r : rows) {
+        sparseFactor[idx] = r.exportVals();
+        weights[idx] = r.p;
+        idx++;
+      }
+    }
+
+    public double[] getWeights() {
+      return weights;
+    }
+
+    public int[][] getSparseTable() {
+      return sparseFactor;
+    }
+    
+    //returns the variables associated with this RVs CPT
+    //as Descrite Dimple objects
+    //Lovro: I assume that the ordering of vals in the row correspond to the 
+    //ordering of the parents in the parents list
+    private Discrete[] getVars() {
+      Discrete[] vars = new Discrete[var.getParents().size() + 1];
+      int i = 0;
+      for (Variable parent : var.getParents()) {
+        vars[i++] = variables.get(parent);
+      }
+      vars[i] = variables.get(var);
+      return vars;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      int i = 0;
+      for (int[] row : sparseFactor) {
+        for (int val : row)
+          sb.append(val).append('\t');
+        sb.append(weights[i++]);
+        sb.append('\n');
+      }
+      return sb.toString();
     }
 
   }

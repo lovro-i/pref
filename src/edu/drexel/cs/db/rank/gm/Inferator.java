@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.rank.gm;
 
-import cern.colt.Arrays;
 import com.analog.lyric.dimple.factorfunctions.core.FactorFunction;
 import com.analog.lyric.dimple.model.core.FactorGraph;
 import com.analog.lyric.dimple.model.domains.DiscreteDomain;
@@ -14,62 +13,65 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Uses Dimple library to do the inference on the previously created GraphicalModel */
+/**
+ * Uses Dimple library to do the inference on the previously created
+ * GraphicalModel
+ */
 public class Inferator {
 
   private final GraphicalModel gm;
   private final Map<Variable, Discrete> variables = new HashMap<Variable, Discrete>();
   private FactorGraph graph;
-  
+
   public Inferator(GraphicalModel gm) {
     this.gm = gm;
   }
-  
-  
+
   public void build() {
     graph = new FactorGraph();
-    
+
     // Create discrete variables
-    for (Variable var: gm.getVariables()) {
+    for (Variable var : gm.getVariables()) {
       Range range = new Range(var);
-      Discrete discrete = new Discrete(DiscreteDomain.range(range.low, range.high));     
+      Discrete discrete = new Discrete(DiscreteDomain.range(range.low, range.high));
       variables.put(var, discrete);
     }
-    
+
     // Create factors
-    for (Variable var: gm.getVariables()) {
-      DimpleSparseFactor DSF = var.exportToDSF();
-      Discrete[] CPTVars=getCPTVars(var);
+    for (Variable var : gm.getVariables()) {
+      DimpleSparseFactor dsf = var.exportToDSF();
+      Discrete[] cptVars = getCPTVars(var);
       //DEBUG
-      String s = DSF.toString();
-      graph.addFactor(DSF.getSparseTable(),DSF.getWeights(),CPTVars);
+      String s = dsf.toString();
+      graph.addFactor(dsf.getSparseTable(), dsf.getWeights(), cptVars);
       //MallowsFactorFunction factor = new MallowsFactorFunction(var);
       //graph.addFactor(factor, factor.getVariables());
     }
   }
-  
+
   public FactorGraph getGraph() {
     if (graph == null) build();
     return graph;
   }
-  
+
   //returns the variables associated with this RVs CPT
   //as Descrite Dimple objects
   //Lovro: I assume that the ordering of vals in the row correspond to the 
   //ordering of the parents in the parents list
-  private Discrete[] getCPTVars(Variable var){
-      Discrete[] vars = new Discrete[var.getParents().size() + 1];
-      int i = 0;
-      for (Variable parent: var.getParents()) {
-        vars[i++] = variables.get(parent);
-      }
-      vars[i] = variables.get(var);
-      return vars;
+  private Discrete[] getCPTVars(Variable var) {
+    Discrete[] vars = new Discrete[var.getParents().size() + 1];
+    int i = 0;
+    for (Variable parent : var.getParents()) {
+      vars[i++] = variables.get(parent);
+    }
+    vars[i] = variables.get(var);
+    return vars;
   }
-  
+
   private class MallowsFactorFunction extends FactorFunction {
 
     private final Variable var;
@@ -77,25 +79,25 @@ public class Inferator {
     private MallowsFactorFunction(Variable var) {
       this.var = var;
     }
-    
+
     private Discrete[] getVariables() {
       Discrete[] vars = new Discrete[var.getParents().size() + 1];
       int i = 0;
-      for (Variable parent: var.getParents()) {
+      for (Variable parent : var.getParents()) {
         vars[i++] = variables.get(parent);
       }
       vars[i] = variables.get(this.var);
       return vars;
     }
-    
+
     @Override
     public double evalEnergy(Value[] values) {
-      for (Row row: var.rows) {
+      for (Row row : var.rows) {
         if (matches(row, values)) return -Math.log(row.p);
       }
       return -Math.log(0);
     }
-    
+
     private boolean matches(Row row, Value[] values) {
       for (int i = 0; i < values.length - 1; i++) {
         int vr = row.vals.get(i);
@@ -105,18 +107,18 @@ public class Inferator {
       int vv = values[values.length - 1].getInt();
       return row.value == vv;
     }
-    
+
   }
-  
+
   private static class Range {
 
     private final int low;
     private final int high;
 
-    public Range(Variable var){
+    public Range(Variable var) {
       int low = Integer.MAX_VALUE;
       int high = Integer.MIN_VALUE;
-      for (int val: var.getValues()) {
+      for (int val : var.getValues()) {
         low = Integer.min(val, low);
         high = Integer.max(val, high);
       }
@@ -125,59 +127,69 @@ public class Inferator {
     }
 
   }
-  
-  
-  public static void main(String[] args) {    
+
+  public static void main(String[] args) {
     testPair();
-    
+
+//    ItemSet items = new ItemSet(5);
+//    items.tagOneBased();
+//    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
+//    
+//    MapPreferenceSet v = new MapPreferenceSet(items);
+//    v.addByTag(3, 1);
+//    v.addByTag(3, 2);
+//    v.addByTag(1, 5);
+//    v.addByTag(2, 5);
+//    
+//    
+//    GraphicalModel gm = new GraphicalModel(model, v);
+//    gm.setOneBased(true);
+//    gm.build();
+//    gm.display();
+//    System.out.println(gm);
+//    
+//    Inferator dimple = new Inferator(gm);
+//    FactorGraph graph = dimple.getGraph();
+//    graph.setOption(BPOptions.iterations, 100);
+//    graph.solve();
+//    
+//    System.out.println(v);
+//    
+//    for (Variable var: dimple.variables.keySet()) {
+//      Discrete discrete = dimple.variables.get(var);
+//      DiscreteDomain domain = discrete.getDomain();
+//      double[] belief = discrete.getBelief();
+//      
+//      System.out.print(var);
+//      for (int i = 0; i < belief.length; i++) {
+//        int va = (Integer) domain.getElement(i);
+//        double be = belief[i];
+//        System.out.print(String.format(" | p(%d) = %f", va + 1, be));
+//      }
+//      System.out.println();
+//      
+//    }
+  }
+
+  public static void testPair() {
     ItemSet items = new ItemSet(5);
     items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
-    
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.addByTag(3, 1);
-    v.addByTag(3, 2);
-    v.addByTag(1, 5);
-    v.addByTag(2, 5);
-    
-    
+    v.addByTag(2, 4);
+
     GraphicalModel gm = new GraphicalModel(model, v);
     gm.setOneBased(true);
     gm.build();
     gm.display();
     System.out.println(gm);
-    
+
     Inferator dimple = new Inferator(gm);
     FactorGraph graph = dimple.getGraph();
     graph.setOption(BPOptions.iterations, 100);
     graph.solve();
-    
-    for (Variable var: dimple.variables.keySet()) {
-      Discrete discrete = dimple.variables.get(var);
-      double[] belief = discrete.getBelief();
-      Logger.info("%s | %s | %s | %f", var, discrete.getDomain(), Arrays.toString(belief), MathUtils.sum(belief));
-    }
-  }
-  
-  public static void testPair(){
-    ItemSet items_pair = new ItemSet(5);
-    items_pair.tagOneBased();
-    MallowsModel model_pair = new MallowsModel(items_pair.getReferenceRanking(), 0.2);
-    MapPreferenceSet v_pair = new MapPreferenceSet(items_pair);
-    v_pair.addByTag(2,4);
-    
-    GraphicalModel gm_pair = new GraphicalModel(model_pair, v_pair);
-    gm_pair.setOneBased(true);
-    gm_pair.build();
-    gm_pair.display();
-    System.out.println(gm_pair);
-    
-    Inferator dimple = new Inferator(gm_pair);
-    FactorGraph graph = dimple.getGraph();
-    graph.setOption(BPOptions.iterations, 100);
-    graph.solve();
-    
-    for (Variable var: dimple.variables.keySet()) {
+
+    for (Variable var : dimple.variables.keySet()) {
       Discrete discrete = dimple.variables.get(var);
       double[] belief = discrete.getBelief();
       Logger.info("%s | %s | %s | %f", var, discrete.getDomain(), Arrays.toString(belief), MathUtils.sum(belief));

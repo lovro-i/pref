@@ -40,7 +40,7 @@ public class Xii extends Xij {
     else if (type == Type.INS) {
       if (this.parents.size() != 2) throw new IllegalStateException("INS must have two parents: " + this);
       Variable after = this.parents.get(0);
-      Variable before = this.parents.get(0); //Lovro: this was this.parents.get(0), shouldn't one of them reference index 1 ???
+      Variable before = this.parents.get(1);
       for (Integer a: after.getValues()) {
         for (Integer b: before.getValues()) {
           for (int i = a+1; i <= b; i++) {
@@ -50,7 +50,7 @@ public class Xii extends Xij {
       }
     }
     else if (type == Type.RIM) {
-      if (this.parents.size() != 0) throw new IllegalStateException("RIM must have zero parents: " + this);
+      if (!this.parents.isEmpty()) throw new IllegalStateException("RIM must have zero parents: " + this);
       for (int i = 0; i <= index; i++) {
         addRow(i, probability(i));
       }

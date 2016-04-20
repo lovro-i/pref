@@ -74,12 +74,11 @@ public abstract class Variable {
    */
   public boolean build() {
     if (this.isBuilt()) return false;
-    for (Variable var : parents) var.build();
+    for (Variable var : parents)
+      var.build();
     calcFactors();
     return true;
   }
-
-
 
   protected class Row {
 
@@ -90,15 +89,15 @@ public abstract class Variable {
     protected Row(int value, double p, Integer... vals) {
       this.value = value;
       this.p = p;
-      for (Integer i : vals)
-        this.vals.add(i);
+      for (Integer i : vals) this.vals.add(i);
     }
 
     protected int[] getValues() {
       int[] values = new int[vals.size() + 1];
       int idx = 0;
-      for (int i : vals) //export parent values
+      for (int i : vals) { //export parent values
         values[idx++] = i;
+      }
       values[idx] = value; //export var value
       return values;
     }
@@ -106,8 +105,9 @@ public abstract class Variable {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
-      for (Integer i : vals)
+      for (Integer i : vals) {
         sb.append(i + gm.getBase()).append('\t');
+      }
       if (!vals.isEmpty()) sb.append("|\t");
       sb.append(value + gm.getBase()).append('\t');
       sb.append(p);

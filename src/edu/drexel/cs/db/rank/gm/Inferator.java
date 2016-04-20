@@ -46,8 +46,8 @@ public class Inferator {
       DimpleSparseFactor dsf = new DimpleSparseFactor(var);
       graph.addFactor(dsf.getSparseTable(), dsf.getWeights(), dsf.getVars());
 
-      //MallowsFactorFunction factor = new MallowsFactorFunction(var);
-      //graph.addFactor(factor, factor.getVariables());
+      // MallowsFactorFunction factor = new MallowsFactorFunction(var);
+      // graph.addFactor(factor, factor.getVariables());
     }
   }
   
@@ -125,34 +125,32 @@ public class Inferator {
   private class DimpleSparseFactor {
 
     private final Variable var;
-    private double[] weights;
-    private int[][] sparseFactor;
+    
 
     public DimpleSparseFactor(Variable var) {
       this.var = var;
-      List<Row> rows = var.rows;
-      weights = new double[rows.size()];
-      sparseFactor = new int[rows.size()][];
-      int idx = 0;
-      for (Row r : rows) {
-        sparseFactor[idx] = r.getValues();
-        weights[idx] = r.p;
-        idx++;
-      }
     }
 
     public double[] getWeights() {
+      double[] weights = new double[var.rows.size()];
+      for (int i = 0; i < weights.length; i++) {
+        weights[i] = var.rows.get(i).p;        
+      }
       return weights;
     }
 
     public int[][] getSparseTable() {
+      int[][] sparseFactor = new int[var.rows.size()][];
+      for (int i = 0; i < sparseFactor.length; i++) {
+        sparseFactor[i] = var.rows.get(i).getValues();        
+      }
       return sparseFactor;
     }
     
-    //returns the variables associated with this RVs CPT
-    //as Descrite Dimple objects
-    //Lovro: I assume that the ordering of vals in the row correspond to the 
-    //ordering of the parents in the parents list
+    // returns the variables associated with this RVs CPT
+    // as Descrite Dimple objects
+    // Lovro: I assume that the ordering of vals in the row correspond to the 
+    // ordering of the parents in the parents list
     private Discrete[] getVars() {
       Discrete[] vars = new Discrete[var.getParents().size() + 1];
       int i = 0;
@@ -162,12 +160,14 @@ public class Inferator {
       vars[i] = variables.get(var);
       return vars;
     }
+    
 
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
       int i = 0;
-      for (int[] row : sparseFactor) {
+      double[] weights = getWeights();
+      for (int[] row : getSparseTable()) {
         for (int val : row)
           sb.append(val).append('\t');
         sb.append(weights[i++]);
@@ -229,7 +229,7 @@ public class Inferator {
     v.addByTag(2, 4);
 
     GraphicalModel gm = new GraphicalModel(model, v);
-    gm.setOneBased(true);
+    gm.setOneBased(false);
     gm.build();
     gm.display();
     System.out.println(gm);

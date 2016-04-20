@@ -3,17 +3,20 @@ package edu.drexel.cs.db.rank.triangle;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /** RIM triangle that contains only certain information from each preference. Preference is discarded as soon as a missing item is reached. */
-public class ConfidentTriangle extends Triangle {
+public class ConfidentTriangle extends Triangle implements Cloneable {
 
   protected final Map<Integer, TriangleRow> rows;  
 
@@ -24,6 +27,25 @@ public class ConfidentTriangle extends Triangle {
     for (int i = 0; i < reference.length(); i++) {
       TriangleRow c = new TriangleRow(i);
       rows.put(i, c);
+    }
+  }
+  
+  @Override
+  public ConfidentTriangle clone() {
+    ConfidentTriangle triangle = new ConfidentTriangle(reference);
+    for (Integer r: rows.keySet()) {
+      TriangleRow src = rows.get(r);
+      TriangleRow dst = triangle.rows.get(r);
+      dst.clone(src);
+    }
+    return triangle;
+  }
+  
+  public void clone(ConfidentTriangle triangle) {
+    for (Integer r: rows.keySet()) {
+      TriangleRow src = triangle.rows.get(r);
+      TriangleRow dst = rows.get(r);      
+      dst.clone(src);
     }
   }
   
@@ -85,17 +107,12 @@ public class ConfidentTriangle extends Triangle {
   }
   
   public static void main(String[] args) {
-    ItemSet items = new ItemSet(6);
-    Ranking ref = items.getReferenceRanking();
-    
-    ConfidentTriangle triangle = new ConfidentTriangle(ref);
-    
-    Ranking r1 = items.getRandomRanking();
-    Filter.removeItems(r1, 0.2);
-    triangle.add(r1, 1);
-    System.out.println(r1);
-    System.out.println(triangle);
-    
+    ItemSet items = new ItemSet(50);
+    RankingSample sample = MallowsUtils.sample(items.getReferenceRanking(), 0.2, 10000);
+
+    long start = System.currentTimeMillis();
+    ConfidentTriangle triangle = new ConfidentTriangle(items.getReferenceRanking(), sample);
+    Logger.info("Done id %d ms", (System.currentTimeMillis() - start));
   }
     
 }

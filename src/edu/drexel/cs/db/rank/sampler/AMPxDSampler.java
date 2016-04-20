@@ -5,10 +5,13 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
 
 /** AMPx variant that immediately updates the Insertion Probability Matrix with a newly sampled ranking */
 public class AMPxDSampler extends AMPxSampler {
 
+  private ConfidentTriangle copy;
+  
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
    * 
@@ -18,8 +21,9 @@ public class AMPxDSampler extends AMPxSampler {
    */
   public AMPxDSampler(MallowsModel model, Sample sample, double rate) {
     super(model, sample, rate);
+    copy = triangle.clone();
   }
-
+  
   public RankingSample sample(PreferenceSet pref, int count) {
     RankingSample out = new RankingSample(pref.getItemSet());
     for (int i = 0; i < count; i++) {
@@ -30,6 +34,9 @@ public class AMPxDSampler extends AMPxSampler {
     return out;
   }
   
+  public void reset() {
+    triangle.clone(copy);
+  }
   
   /** Create new sample with completions of the rankings in the input one */
   public RankingSample sample(Sample<? extends PreferenceSet> sample) {

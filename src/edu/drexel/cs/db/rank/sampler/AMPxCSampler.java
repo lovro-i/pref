@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
@@ -14,10 +15,12 @@ import java.util.Map;
 import java.util.Set;
 
 /** AMP sampler extension that uses the combination of AMP and information from the sample */
-public class AMPxCNSampler extends MallowsSampler {
+public class AMPxCSampler extends MallowsSampler {
 
   protected List<ConfidentTriangle> triangles = new ArrayList<ConfidentTriangle>();
+  protected List<ConfidentTriangle> copies = new ArrayList<ConfidentTriangle>();
   protected double alpha;
+  protected boolean[] dynamic;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -26,19 +29,53 @@ public class AMPxCNSampler extends MallowsSampler {
    * @param sample
    * @param alpha 
    */
-  public AMPxCNSampler(MallowsModel model, double alpha, Sample... samples) {
+  public AMPxCSampler(MallowsModel model, double alpha, Sample... samples) {
     super(model);
     if (alpha < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
     this.alpha = alpha;
     for (Sample sample: samples) {
-      triangles.add(new ConfidentTriangle(model.getCenter(), sample));
+      ConfidentTriangle triangle = new ConfidentTriangle(model.getCenter(), sample);
+      triangles.add(triangle);
+      copies.add(triangle.clone());
     }
+    dynamic = new boolean[samples.length];
   }
 
 
+  public RankingSample sample(PreferenceSet pref, int count) {
+    RankingSample out = new RankingSample(pref.getItemSet());
+    for (int i = 0; i < count; i++) {
+      Ranking r = sample(pref);
+      out.add(r);
+      dynamicUpdate(r, 1);
+    }
+    return out;
+  }
+  
+  
+  /** Create new sample with completions of the rankings in the input one */
+  public RankingSample sample(Sample<? extends PreferenceSet> sample) {
+    RankingSample out = new RankingSample(sample.getItemSet());
+    for (Sample.PW pw: sample) {
+      Ranking r = sample(pw.p);
+      out.add(r, pw.w);
+      dynamicUpdate(r, pw.w);
+    }
+    return out;
+  }
   
   public final void setTrainingSample(int index, Sample sample) {
     this.triangles.set(index, new ConfidentTriangle(model.getCenter(), sample));
+  }
+  
+  public void setDynamic(int index, boolean dyn) {
+    this.dynamic[index] = dyn;
+  }
+  
+  public void reset(int index) {
+    ConfidentTriangle src = copies.get(index);
+    ConfidentTriangle dst = triangles.get(index);
+    dst.clone(src);
   }
   
   public void setAlpha(double alpha) {
@@ -73,6 +110,12 @@ public class AMPxCNSampler extends MallowsSampler {
     return r;
   }
   
+  private void dynamicUpdate(PreferenceSet pref, double w) {
+    for (int i = 0; i < dynamic.length; i++) {
+      if (dynamic[i]) triangles.get(i).add(pref, w);
+    }
+  }
+  
   /** Add one item to the ranking between low and high */
   private void sampleItem(Ranking r, int i, Item item, int low, int high) {
     if (low == high) {
@@ -80,8 +123,14 @@ public class AMPxCNSampler extends MallowsSampler {
       return;
     }
     
-    double sum = 0;
     double[] p = new double[high+1];
+    
+    double[] pAmp = new double[high+1];
+    for (int j = low; j <= high; j++) {
+      pAmp[j] = Math.pow(model.getPhi(), i - j);
+    }
+    MathUtils.normalize(pAmp, 1d);
+    
     
     for (ConfidentTriangle triangle: triangles) {
       TriangleRow row = triangle.getRow(i);
@@ -89,24 +138,25 @@ public class AMPxCNSampler extends MallowsSampler {
     
       double beta = count / (alpha + count); // how much should the sample be favored
       for (int j = low; j <= high; j++) {
-        double onep = Math.pow(model.getPhi(), i - j);
+        double onep = pAmp[j];
         if (beta > 0) onep = (1 - beta) * onep + beta * row.getCount(j) / count;
         p[j] += onep;
-        sum += p[j];
       }
     }
 
-    if (sum == 0) {
-      for (int j = low; j <= high; j++) {
-        p[j] = Math.pow(model.getPhi(), i - j);
-        sum += p[j];
+    if (triangles.isEmpty()) {
+      p = pAmp;
+    }
+    else {
+      for (int j = 0; j < triangles.size(); j++) {
+        p[j] = p[j] / triangles.size();
       }
     }
     
     double flip = MathUtils.RANDOM.nextDouble();
     double ps = 0;
     for (int j = low; j <= high; j++) {
-      ps += p[j] / sum;
+      ps += p[j];
       if (ps > flip || j == high) {
         r.add(j, item);
         break;

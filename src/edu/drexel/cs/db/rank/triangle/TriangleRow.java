@@ -27,6 +27,15 @@ public class TriangleRow {
     empty = false;
   }
   
+  /** Sets this triangle to the values from the given one */
+  void clone(TriangleRow row) {
+    this.sum = row.sum;
+    this.empty = row.empty;
+    for (int i = 0; i < counts.length; i++) {
+      counts[i] = row.counts[i];      
+    }
+  }
+  
   public void inc(int pos) {
     inc(pos, 1);
   }

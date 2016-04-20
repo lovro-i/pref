@@ -74,8 +74,7 @@ public abstract class Variable {
    */
   public boolean build() {
     if (this.isBuilt()) return false;
-    for (Variable var : parents)
-      var.build();
+    for (Variable var : parents) var.build();
     calcFactors();
     return true;
   }

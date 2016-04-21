@@ -78,6 +78,21 @@ public class MathUtils {
     }
   }
     
+  public static String toString(double[][] a) {
+    StringBuilder sb = new StringBuilder();
+    for (double[] row: a) {
+      sb.append(Arrays.toString(row)).append('\n');
+    }
+    return sb.toString();
+  }
+  
+  public static String toString(int[][] a) {
+    StringBuilder sb = new StringBuilder();
+    for (int[] row: a) {
+      sb.append(Arrays.toString(row)).append('\n');
+    }
+    return sb.toString();
+  }
     
   public static void main(String[] args) {
     double a[] = { 0, 0, 0, 50, 60, 10, 80 };

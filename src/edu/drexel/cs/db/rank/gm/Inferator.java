@@ -43,11 +43,11 @@ public class Inferator {
 
     // Create factors
     for (Variable var : gm.getVariables()) {
-      DimpleSparseFactor dsf = new DimpleSparseFactor(var);
-      graph.addFactor(dsf.getSparseTable(), dsf.getWeights(), dsf.getVars());
+      // DimpleSparseFactor dsf = new DimpleSparseFactor(var);
+      // graph.addFactor(dsf.getSparseTable(), dsf.getWeights(), dsf.getVariables());
 
-      // MallowsFactorFunction factor = new MallowsFactorFunction(var);
-      // graph.addFactor(factor, factor.getVariables());
+      MallowsFactorFunction factor = new MallowsFactorFunction(var);
+      graph.addFactor(factor, factor.getVariables());
     }
   }
   
@@ -112,6 +112,10 @@ public class Inferator {
       this.high = high;
     }
 
+    @Override
+    public String toString() {
+      return "[" + low + ", " + high + ']';
+    }
   }
   
   
@@ -151,7 +155,7 @@ public class Inferator {
     // as Descrite Dimple objects
     // Lovro: I assume that the ordering of vals in the row correspond to the 
     // ordering of the parents in the parents list
-    private Discrete[] getVars() {
+    private Discrete[] getVariables() {
       Discrete[] vars = new Discrete[var.getParents().size() + 1];
       int i = 0;
       for (Variable parent : var.getParents()) {
@@ -244,5 +248,8 @@ public class Inferator {
       double[] belief = discrete.getBelief();
       Logger.info("%s | %s | %s | %f", var, discrete.getDomain(), Arrays.toString(belief), MathUtils.sum(belief));
     }
+
+    
+    System.out.println(graph.getScore());
   }
 }

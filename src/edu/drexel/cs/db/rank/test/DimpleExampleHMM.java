@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.rank.test;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.analog.lyric.dimple.factorfunctions.core.FactorFunction;
 import com.analog.lyric.dimple.model.core.FactorGraph;
@@ -13,7 +12,6 @@ import cern.colt.Arrays;
 
 public class DimpleExampleHMM {
 
-  @NonNullByDefault
   @SuppressWarnings("null")
   public static class TransitionFactorFunction extends FactorFunction {
 
@@ -36,7 +34,6 @@ public class DimpleExampleHMM {
     }
   }
 
-  @NonNullByDefault
   @SuppressWarnings("null")
   public static class ObservationFactorFunction extends FactorFunction {
 

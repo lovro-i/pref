@@ -1,13 +1,13 @@
 package edu.drexel.cs.db.rank.gm;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.analog.lyric.dimple.model.domains.DiscreteDomain;
-import com.analog.lyric.dimple.model.values.Value;
-import com.analog.lyric.dimple.model.variables.Discrete;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class Variable {
 
@@ -86,6 +86,12 @@ public abstract class Variable {
     protected final int value;
     protected final double p;
 
+    protected Row(int value, double p, Collection<Integer> vals) {
+      this.value = value;
+      this.p = p;
+      this.vals.addAll(vals);
+    }
+    
     protected Row(int value, double p, Integer... vals) {
       this.value = value;
       this.p = p;
@@ -115,4 +121,23 @@ public abstract class Variable {
     }
 
   }
+  
+  public void fillUp() {
+    Map<List<Integer>, Double> sums = new HashMap<List<Integer>, Double>();
+    for (Row row: rows) {
+      double p = row.p;
+      if (sums.containsKey(row.vals)) p += sums.get(row.vals);
+      sums.put(row.vals, p);
+    }
+    
+    double epsilon = 0.00001;
+    for (List<Integer> vals: sums.keySet()) {
+      double p = 1 - sums.get(vals);
+      if (p > epsilon) {
+        Row row = new Row(-1, p, vals);
+        this.rows.add(row);
+      }
+    }
+  }
+  
 }

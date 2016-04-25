@@ -1,5 +1,6 @@
 package edu.drexel.cs.db.rank.gm;
 
+
 import com.analog.lyric.dimple.factorfunctions.core.FactorFunction;
 import com.analog.lyric.dimple.model.core.FactorGraph;
 import com.analog.lyric.dimple.model.domains.DiscreteDomain;
@@ -7,19 +8,18 @@ import com.analog.lyric.dimple.model.values.Value;
 import com.analog.lyric.dimple.model.variables.Discrete;
 import com.analog.lyric.dimple.options.BPOptions;
 import edu.drexel.cs.db.rank.core.ItemSet;
+import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.gm.Variable.Row;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
+import edu.drexel.cs.db.rank.technion.Expander;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Uses Dimple library to do the inference on the previously created
- * GraphicalModel
+ * Uses Dimple library to perform inference on the previously created GraphicalModel
  */
 public class Inferator {
 
@@ -28,7 +28,7 @@ public class Inferator {
   private FactorGraph graph;
 
   public Inferator(GraphicalModel gm) {
-    this.gm = gm;
+    this.gm = gm; 
   }
 
   public void build() {
@@ -36,8 +36,10 @@ public class Inferator {
 
     // Create discrete variables
     for (Variable var : gm.getVariables()) {
-      Range range = new Range(var);
-      Discrete discrete = new Discrete(DiscreteDomain.range(range.low, range.high));
+      Range range = new Range(var);      
+      // DiscreteDomain domain = DiscreteDomain.range(-1, range.high);
+      DiscreteDomain domain = DiscreteDomain.create(range.toArray(true));
+      Discrete discrete = new Discrete(domain);
       variables.put(var, discrete);
     }
 
@@ -105,6 +107,7 @@ public class Inferator {
       int low = Integer.MAX_VALUE;
       int high = Integer.MIN_VALUE;
       for (int val : var.getValues()) {
+        if (val < 0) continue;
         low = Integer.min(val, low);
         high = Integer.max(val, high);
       }
@@ -112,6 +115,20 @@ public class Inferator {
       this.high = high;
     }
 
+    public Integer[] toArray(boolean dummy) {
+      int size = high - low + 1;
+      if (dummy) size += 1;
+      Integer[] a = new Integer[size];
+      int idx = 0;
+      for (int i = low; i <= high; i++) {
+        a[idx++] = i;        
+      }
+      
+      if (idx < a.length) a[idx++] = -1;
+      Logger.info("Range [%d, %d] %s", low, high, Arrays.toString(a));
+      return a;
+    }
+    
     @Override
     public String toString() {
       return "[" + low + ", " + high + ']';
@@ -183,7 +200,8 @@ public class Inferator {
   }
 
   public static void main(String[] args) {
-    testPair();
+    // testPair();
+    testTwo();
 
 //    ItemSet items = new ItemSet(5);
 //    items.tagOneBased();
@@ -226,14 +244,22 @@ public class Inferator {
   }
 
   public static void testPair() {
-    ItemSet items = new ItemSet(5);
+    ItemSet items = new ItemSet(25);
     items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
-    MapPreferenceSet v = new MapPreferenceSet(items);
-    v.addByTag(2, 4);
-
-    GraphicalModel gm = new GraphicalModel(model, v);
-    gm.setOneBased(false);
+    
+    
+    Ranking r = new Ranking(items);
+    r.add(items.getItemByTag(2));
+    r.add(items.getItemByTag(4));
+    
+    Expander expander = new Expander(model);
+    double p = expander.getProbability(r);
+    Logger.info("%s: %f", r, p);
+    
+    
+    GraphicalModel gm = new GraphicalModel(model, r);
+    gm.setOneBased(true);
     gm.build();
     gm.display();
     System.out.println(gm);
@@ -248,8 +274,42 @@ public class Inferator {
       double[] belief = discrete.getBelief();
       Logger.info("%s | %s | %s | %f", var, discrete.getDomain(), Arrays.toString(belief), MathUtils.sum(belief));
     }
-
+  }
+  
+  public static void testTwo() {
+    ItemSet items = new ItemSet(5);
+    items.tagOneBased();
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
-    System.out.println(graph.getScore());
+    Ranking r = new Ranking(items);    
+    r.add(items.getItemByTag(2));
+    r.add(items.getItemByTag(4));
+    r.add(items.getItemByTag(3));
+    
+    
+    
+    GraphicalModel gm = new GraphicalModel(model, r);
+    gm.setOneBased(true);
+    gm.build();
+    // gm.display();
+    System.out.println(gm);
+
+    Inferator dimple = new Inferator(gm);
+    FactorGraph graph = dimple.getGraph();
+    Logger.info("Solver: %s", graph.getSolver().getClass());
+    graph.setOption(BPOptions.iterations, 100);
+    graph.solve();
+
+    for (Variable var : dimple.variables.keySet()) {
+      Discrete discrete = dimple.variables.get(var);
+      double[] belief = discrete.getBelief();
+      Logger.info("%s | %s | %s | %f", var, discrete.getDomain(), Arrays.toString(belief), MathUtils.sum(belief));
+    }
+    
+    // Check the correct value with Expander
+    Expander expander = new Expander(model);
+    double p = expander.getProbability(r);
+    Logger.info("%s: %f", r, p);    
+    Logger.info("Find: " + (1-p));
   }
 }

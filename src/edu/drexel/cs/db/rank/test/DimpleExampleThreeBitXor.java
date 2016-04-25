@@ -1,11 +1,9 @@
 package edu.drexel.cs.db.rank.test;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.analog.lyric.dimple.factorfunctions.core.FactorFunction;
 import com.analog.lyric.dimple.model.values.Value;
 
-@NonNullByDefault
 public class DimpleExampleThreeBitXor extends FactorFunction
 {
 	@Override

@@ -198,6 +198,10 @@ public class GraphicalModel {
     for (Variable var: variables) {
       var.build();
     }
+    
+    for (Variable var: variables) {
+      var.fillUp();
+    }
   }
   
   public List<Variable> getVariables() {

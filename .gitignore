@@ -1,3 +1,5 @@
 build/
 dist/
 nbproject/private/
+/lib/DimpleSource/nbproject/private/
+/lib/Dimple.source/nbproject/private/

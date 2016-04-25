@@ -97,8 +97,8 @@ public class MallowsExpand {
   /** Calculate the probability of the item being inserted at the given position. Directly from the Mallows model */
   private double probability(int itemIndex, int position) {
     double phi = expander.getModel().getPhi();
-    double r = Math.pow(phi, Math.abs(itemIndex - position));
-    return r;
+    double p = Math.pow(phi, Math.abs(itemIndex - position)) * (1 - phi) / (1 - Math.pow(phi, itemIndex + 1));
+    return p;
   }
   
   

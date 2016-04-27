@@ -118,7 +118,7 @@ public class Xij extends Variable {
       for (int k: prev.getValues()) {
         for (int t = k; t <= this.getTime(); t++) {
           double p = gm.pos1.getProbability(item, this.getTime(), t, prev.getTime(), k);
-          this.addRow(t, p, k);
+          if (p > 0) this.addRow(t, p, k);
         }
       }
     }

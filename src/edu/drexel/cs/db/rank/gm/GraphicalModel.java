@@ -41,14 +41,8 @@ public class GraphicalModel {
   }
   
   public void setOneBased(boolean one) {
-    if (one) {
-      items.tagOneBased();
-      this.base = 1;
-    }
-    else {
-      items.tagZeroBased();
-      this.base = 0;
-    }
+    if (one) this.base = 1;
+    else this.base = 0;
   }
   
   public int getBase() {
@@ -197,10 +191,6 @@ public class GraphicalModel {
     this.alg4();
     for (Variable var: variables) {
       var.build();
-    }
-    
-    for (Variable var: variables) {
-      var.fillUp();
     }
   }
   

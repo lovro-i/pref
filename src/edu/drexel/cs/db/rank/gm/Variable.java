@@ -70,15 +70,16 @@ public abstract class Variable {
   /**
    * Build the factor table
    *
-   * @return true if build now, false if was already built
+   * @return true if built just now, false if was already built
    */
   public boolean build() {
     if (this.isBuilt()) return false;
-    for (Variable var : parents)
-      var.build();
+    for (Variable var : parents) var.build();
     calcFactors();
     return true;
   }
+
+
 
   protected class Row {
 
@@ -122,6 +123,29 @@ public abstract class Variable {
 
   }
   
+  
+  void addDummyRow() {
+    if (parents.size() == 1) {
+      Variable p1 = parents.get(0);
+      for (Integer v1: p1.getValues()) {
+        if (v1 < 0) this.addRow(nextDummy--, 1, v1);
+      }
+    }
+    else if (parents.size() == 2) {
+      Variable p1 = parents.get(0);
+      Variable p2 = parents.get(1);
+      for (Integer v1: p1.getValues()) {        
+        for (Integer v2: p2.getValues()) {
+          if (v1 < 0 || v2 < 0) this.addRow(nextDummy--, 1, v1, v2);
+          // if (v1 == -1 || v2 == -1) this.addRow(-1, 1, v1, v2);
+        }
+      }
+    }
+    else if (parents.size() > 2) throw new UnsupportedOperationException("Hmm...");
+  }
+  
+  private static int nextDummy = -1;
+  
   public void fillUp() {
     Map<List<Integer>, Double> sums = new HashMap<List<Integer>, Double>();
     for (Row row: rows) {
@@ -134,7 +158,7 @@ public abstract class Variable {
     for (List<Integer> vals: sums.keySet()) {
       double p = 1 - sums.get(vals);
       if (p > epsilon) {
-        Row row = new Row(-1, p, vals);
+        Row row = new Row(nextDummy, p, vals);
         this.rows.add(row);
       }
     }

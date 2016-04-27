@@ -4,9 +4,16 @@ package edu.drexel.cs.db.rank.gm;
 import com.analog.lyric.dimple.factorfunctions.core.FactorFunction;
 import com.analog.lyric.dimple.model.core.FactorGraph;
 import com.analog.lyric.dimple.model.domains.DiscreteDomain;
+import com.analog.lyric.dimple.model.factors.DiscreteFactor;
+import com.analog.lyric.dimple.model.factors.Factor;
 import com.analog.lyric.dimple.model.values.Value;
 import com.analog.lyric.dimple.model.variables.Discrete;
 import com.analog.lyric.dimple.options.BPOptions;
+import com.analog.lyric.dimple.solvers.gibbs.GibbsSolver;
+import com.analog.lyric.dimple.solvers.junctiontree.JunctionTreeSolver;
+import com.analog.lyric.dimple.solvers.minsum.MinSumSolver;
+import com.analog.lyric.dimple.solvers.particleBP.ParticleBPSolver;
+import com.analog.lyric.dimple.solvers.sumproduct.SumProductSolver;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.gm.Variable.Row;
@@ -37,8 +44,7 @@ public class Inferator {
     // Create discrete variables
     for (Variable var : gm.getVariables()) {
       Range range = new Range(var);      
-      // DiscreteDomain domain = DiscreteDomain.range(-1, range.high);
-      DiscreteDomain domain = DiscreteDomain.create(range.toArray(true));
+      DiscreteDomain domain = DiscreteDomain.range(range.low, range.high);
       Discrete discrete = new Discrete(domain);
       variables.put(var, discrete);
     }
@@ -96,6 +102,10 @@ public class Inferator {
       return row.value == vv;
     }
 
+    @Override
+    public String toString() {
+      return "FactorFunction for " + var;
+    }
   }
 
   private static class Range {
@@ -115,6 +125,7 @@ public class Inferator {
       this.high = high;
     }
 
+    @Deprecated
     public Integer[] toArray(boolean dummy) {
       int size = high - low + 1;
       if (dummy) size += 1;
@@ -284,8 +295,7 @@ public class Inferator {
     Ranking r = new Ranking(items);    
     r.add(items.getItemByTag(2));
     r.add(items.getItemByTag(4));
-    r.add(items.getItemByTag(3));
-    
+    // r.add(items.getItemByTag(3));
     
     
     GraphicalModel gm = new GraphicalModel(model, r);
@@ -296,7 +306,7 @@ public class Inferator {
 
     Inferator dimple = new Inferator(gm);
     FactorGraph graph = dimple.getGraph();
-    Logger.info("Solver: %s", graph.getSolver().getClass());
+    graph.setSolverFactory(new SumProductSolver());
     graph.setOption(BPOptions.iterations, 100);
     graph.solve();
 
@@ -305,6 +315,27 @@ public class Inferator {
       double[] belief = discrete.getBelief();
       Logger.info("%s | %s | %s | %f", var, discrete.getDomain(), Arrays.toString(belief), MathUtils.sum(belief));
     }
+    
+    
+    System.out.println("\n\n");
+    for (Factor f: graph.getFactors()) {
+      DiscreteFactor df = (DiscreteFactor) f;
+      double[] belief = df.getBelief();
+      int idx[][] = df.getPossibleBeliefIndices();
+      System.out.println();
+      for (int i = 0; i < idx.length; i++) {
+        int[] is = idx[i];
+        for (int j = 0; j < is.length; j++) {
+          int v = 1 + (Integer) df.getDomainList().get(j).getElements()[is[j]];
+          System.out.print(v+"\t");
+        }
+        System.out.println(belief[i]);
+      }
+      // Logger.info("%d x %d", idx.length, idx[0].length);
+      Logger.info("----------------------------------------");
+      Logger.info("Sum: %f", MathUtils.sum(belief));
+    }
+    System.out.println("\n\n\n");
     
     // Check the correct value with Expander
     Expander expander = new Expander(model);

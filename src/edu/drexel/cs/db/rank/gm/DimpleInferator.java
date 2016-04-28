@@ -28,13 +28,13 @@ import java.util.Map;
 /**
  * Uses Dimple library to perform inference on the previously created GraphicalModel
  */
-public class Inferator {
+public class DimpleInferator {
 
   private final GraphicalModel gm;
   private final Map<Variable, Discrete> variables = new HashMap<Variable, Discrete>();
   private FactorGraph graph;
 
-  public Inferator(GraphicalModel gm) {
+  public DimpleInferator(GraphicalModel gm) {
     this.gm = gm; 
   }
 
@@ -173,83 +173,10 @@ public class Inferator {
   }
 
   public static void main(String[] args) {
-    // testPair();
-    testTwo();
-
-//    ItemSet items = new ItemSet(5);
-//    items.tagOneBased();
-//    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
-//    
-//    MapPreferenceSet v = new MapPreferenceSet(items);
-//    v.addByTag(3, 1);
-//    v.addByTag(3, 2);
-//    v.addByTag(1, 5);
-//    v.addByTag(2, 5);
-//    
-//    
-//    GraphicalModel gm = new GraphicalModel(model, v);
-//    gm.setOneBased(true);
-//    gm.build();
-//    gm.display();
-//    System.out.println(gm);
-//    
-//    Inferator dimple = new Inferator(gm);
-//    FactorGraph graph = dimple.getGraph();
-//    graph.setOption(BPOptions.iterations, 100);
-//    graph.solve();
-//    
-//    System.out.println(v);
-//    
-//    for (Variable var: dimple.variables.keySet()) {
-//      Discrete discrete = dimple.variables.get(var);
-//      DiscreteDomain domain = discrete.getDomain();
-//      double[] belief = discrete.getBelief();
-//      
-//      System.out.print(var);
-//      for (int i = 0; i < belief.length; i++) {
-//        int va = (Integer) domain.getElement(i);
-//        double be = belief[i];
-//        System.out.print(String.format(" | p(%d) = %f", va + 1, be));
-//      }
-//      System.out.println();
-//      
-//    }
+    test();
   }
 
-  public static void testPair() {
-    ItemSet items = new ItemSet(25);
-    items.tagOneBased();
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
-    
-    
-    Ranking r = new Ranking(items);
-    r.add(items.getItemByTag(2));
-    r.add(items.getItemByTag(4));
-    
-    Expander expander = new Expander(model);
-    double p = expander.getProbability(r);
-    Logger.info("%s: %f", r, p);
-    
-    
-    GraphicalModel gm = new GraphicalModel(model, r);
-    gm.setOneBased(true);
-    gm.build();
-    gm.display();
-    System.out.println(gm);
-
-    Inferator dimple = new Inferator(gm);
-    FactorGraph graph = dimple.getGraph();
-    graph.setOption(BPOptions.iterations, 20);
-    graph.solve();
-
-    for (Variable var : dimple.variables.keySet()) {
-      Discrete discrete = dimple.variables.get(var);
-      double[] belief = discrete.getBelief();
-      Logger.info("%s | %s | %s | %f", var, discrete.getDomain(), Arrays.toString(belief), MathUtils.sum(belief));
-    }
-  }
-  
-  public static void testTwo() {
+  public static void test() {
     ItemSet items = new ItemSet(5);
     items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
@@ -266,7 +193,7 @@ public class Inferator {
     // gm.display();
     System.out.println(gm);
 
-    Inferator dimple = new Inferator(gm);
+    DimpleInferator dimple = new DimpleInferator(gm);
     FactorGraph graph = dimple.getGraph();
     graph.setSolverFactory(new SumProductSolver());
     graph.setOption(BPOptions.iterations, 100);

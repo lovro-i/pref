@@ -54,7 +54,6 @@ public class SparseFactorTable extends SparseFactorTableBase implements IFactorT
   /*-----------
 	 * Constants
    */
-
   private static final long serialVersionUID = 1L;
 
   /*-------

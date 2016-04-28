@@ -25,6 +25,22 @@ public abstract class Variable {
 
   public abstract String getName();
 
+  public double getProbability(int value, int... vals) {
+    for (Row row: rows) {
+      if (row.value != value) continue;
+      if (vals.length != row.vals.size()) throw new IllegalArgumentException("Number of parameters does not match this factor table");
+      boolean match = true;
+      for (int i = 0; i < vals.length; i++) {
+        if (vals[i] != row.vals.get(i)) {
+          match = false;
+          continue;
+        }        
+      }
+      if (match) return row.p;
+    }  
+    return 0;
+  }
+  
   public void addParent(Variable parent) {
     this.parents.add(parent);
   }

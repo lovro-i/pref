@@ -286,6 +286,7 @@ public class SumProductDiscrete extends SDiscreteVariableDoubleArray {
     double sum = 0;
     for (int i = 0; i < _input.length; i++)
       sum += _input[i];
+    
     for (int i = 0; i < tmp.length; i++)
       tmp[i] = _input[i] / sum;
 

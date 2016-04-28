@@ -69,10 +69,26 @@ public class ConfidentTriangle extends Triangle implements Cloneable {
     return rows.get(e).getRandomPosition();
   }
   
-  public void add(Sample<PreferenceSet> sample) {
+  public void add(Sample<? extends PreferenceSet> sample) {
     if (sample == null) return;
     for (PW pw: sample) {
       this.add(pw.p, pw.w);
+    }
+  }
+  
+  public void add(Insertions ins, double w) {
+    for (int i = 0; i < ins.length; i++) {
+      TriangleRow row = rows.get(i);
+      int pos = ins.ins[i];
+      row.inc(pos, w);
+    }
+  }
+  
+  public void sub(Insertions ins, double w) {
+    for (int i = 0; i < ins.length; i++) {
+      TriangleRow row = rows.get(i);
+      int pos = ins.ins[i];
+      row.inc(pos, -w);
     }
   }
   

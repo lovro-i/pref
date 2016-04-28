@@ -56,7 +56,6 @@ public class FactorTable extends SparseFactorTableBase {
   /*-----------
 	 * Constants
    */
-
   private static final long serialVersionUID = 1L;
 
   // _representation values
@@ -496,23 +495,23 @@ public class FactorTable extends SparseFactorTableBase {
       if (newTable == null) {
         newTable = convertedTable;
       } else // Merge results by adding energies (i.e. multiplying weights)
-      if (tableRep.hasDense()) {
-        for (int ji = 0; ji < toCardinality; ++ji) {
-          double energy = newTable.getEnergyForJointIndex(ji);
-          energy += convertedTable.getEnergyForJointIndex(ji);
-          newTable.setEnergyForJointIndex(energy, ji);
+        if (tableRep.hasDense()) {
+          for (int ji = 0; ji < toCardinality; ++ji) {
+            double energy = newTable.getEnergyForJointIndex(ji);
+            energy += convertedTable.getEnergyForJointIndex(ji);
+            newTable.setEnergyForJointIndex(energy, ji);
+          }
+        } else {
+          final int[] indices = toIndexer.allocateIndices(null);
+          for (int si = 0, end = newTable.sparseSize(); si < end; ++si) {
+            double energy = newTable.getEnergyForSparseIndex(si);
+            newTable.sparseIndexToIndices(si, indices);
+            energy += convertedTable.getEnergyForIndices(indices);
+            newTable.setEnergyForIndices(energy, indices);
+          }
+          // Compact table if it became more sparse
+          newTable.compact();
         }
-      } else {
-        final int[] indices = toIndexer.allocateIndices(null);
-        for (int si = 0, end = newTable.sparseSize(); si < end; ++si) {
-          double energy = newTable.getEnergyForSparseIndex(si);
-          newTable.sparseIndexToIndices(si, indices);
-          energy += convertedTable.getEnergyForIndices(indices);
-          newTable.setEnergyForIndices(energy, indices);
-        }
-        // Compact table if it became more sparse
-        newTable.compact();
-      }
     }
 
     // Convert to target representation

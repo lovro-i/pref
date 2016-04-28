@@ -17,10 +17,8 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.technion.Expander;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -113,51 +111,6 @@ public class DummyInferator {
     }
   }
 
-  private static class Range {
-
-    private final int low;
-    private final int high;
-
-    public Range(Variable var) {
-      int low = Integer.MAX_VALUE;
-      int high = Integer.MIN_VALUE;
-      for (int val : var.getValues()) {
-        if (val < 0) continue;
-        low = Integer.min(val, low);
-        high = Integer.max(val, high);
-      }
-      this.low = low;
-      this.high = high;
-    }
-
-    @Deprecated
-    public Integer[] toArray(boolean dummy) {
-//      int size = high - low + 1;
-//      if (dummy) size += 1;
-//      Integer[] a = new Integer[size];
-//      int idx = 0;
-      List<Integer> list = new ArrayList<Integer>();
-      for (int i = low; i <= high; i++) {
-        list.add(i);        
-      }
-      
-      if (dummy) {
-        for (int i = dummies; i <= -1; i++) {
-          list.add(i);
-        }
-      }
-      Logger.info("Range [%d, %d] %s", low, high, list);
-      Integer[] a = list.toArray(new Integer[list.size()]);
-      return a;
-    }
-    
-    @Override
-    public String toString() {
-      return "[" + low + ", " + high + ']';
-    }
-  }
-  
-  private final static int dummies = -1;
   
     /*
   From: Accelarating Inference: towards a full language, compiler and hardware stack

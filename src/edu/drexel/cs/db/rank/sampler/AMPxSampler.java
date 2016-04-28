@@ -26,7 +26,7 @@ public class AMPxSampler extends MallowsSampler {
    * @param sample
    * @param alpha 
    */
-  public AMPxSampler(MallowsModel model, Sample sample, double alpha) {
+  public AMPxSampler(MallowsModel model, Sample<? extends PreferenceSet> sample, double alpha) {
     super(model);
     this.setTrainingSample(sample);
     if (alpha < 0) throw new IllegalArgumentException("Rate must be greater or equal zero");
@@ -35,11 +35,11 @@ public class AMPxSampler extends MallowsSampler {
 
 
   
-  public final void setTrainingSample(Sample sample) {
+  public final void setTrainingSample(Sample<? extends PreferenceSet> sample) {
     this.triangle = new ConfidentTriangle(model.getCenter(), sample);
   }
   
-  public void addTrainingSample(Sample sample) {
+  public void addTrainingSample(Sample<? extends PreferenceSet> sample) {
     if (triangle == null) setTrainingSample(sample);
     else triangle.add(sample);
   }

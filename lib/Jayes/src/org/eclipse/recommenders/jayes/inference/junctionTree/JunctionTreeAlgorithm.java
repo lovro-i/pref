@@ -94,7 +94,7 @@ public class JunctionTreeAlgorithm extends AbstractInferer {
             MathUtils.exp(beliefs[nodeId]);
         }
         try {
-            beliefs[nodeId] = MathUtils.normalize(beliefs[nodeId]);
+            // Lovro: beliefs[nodeId] = MathUtils.normalize(beliefs[nodeId]);
         } catch (final IllegalArgumentException exception) {
             throw new NumericalInstabilityException("Numerical instability detected for evidence: " + evidence
                     + " and node : " + nodeId

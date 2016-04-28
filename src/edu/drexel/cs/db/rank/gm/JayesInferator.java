@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.gm;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.technion.Expander;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.ArrayList;
@@ -81,6 +82,9 @@ public class JayesInferator {
           }
         }
       }
+      else {
+        throw new IllegalStateException("ToDo, using recursion");
+      }
       
       Logger.info(Arrays.toString(probs));
       node.setProbabilities(probs);
@@ -93,7 +97,7 @@ public class JayesInferator {
 
     for (Variable var: variables.keySet()) {
       double[] beliefs = inferer.getBeliefs(variables.get(var));
-      Logger.info("%s: %s (%f)", var, Arrays.toString(beliefs), MathUtils.sum(beliefs));
+      Logger.info("%s: %s | sum: %f", var, Arrays.toString(beliefs), MathUtils.sum(beliefs));
     }
   }
   
@@ -105,7 +109,8 @@ public class JayesInferator {
     Ranking r = new Ranking(items);    
     r.add(items.getItemByTag(2));
     r.add(items.getItemByTag(4));
-    // r.add(items.getItemByTag(3));
+    r.add(items.getItemByTag(3));
+    r.add(items.getItemByTag(1));
     
     
     GraphicalModel gm = new GraphicalModel(model, r);
@@ -115,6 +120,13 @@ public class JayesInferator {
     
     JayesInferator inferator = new JayesInferator(gm);
     inferator.build();
+    
+    
+    
+    // Check the correct value with Expander (Dynamic Algorithm)
+    Expander expander = new Expander(model);
+    double p = expander.getProbability(r);
+    Logger.info("%s: %f", r, p);    
   }
   
 }

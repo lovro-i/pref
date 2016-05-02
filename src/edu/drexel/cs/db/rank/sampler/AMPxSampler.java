@@ -110,7 +110,7 @@ public class AMPxSampler extends MallowsSampler {
     // beta == 0: use only AMP
     // beta > 0.995: use only evidence
     
-    boolean doAmp = beta < 0.999;
+    boolean doAmp = true; // beta < 0.999;
     boolean doIns = beta > 0;
     
     if (doAmp) {

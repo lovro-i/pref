@@ -106,18 +106,37 @@ public class AMPxSampler extends MallowsSampler {
     
     double[] pAmp = new double[high+1];
     double[] pIns = new double[high+1];
-    for (int j = low; j <= high; j++) {
-      pAmp[j] = Math.pow(model.getPhi(), i - j);
-      if (row != null) pIns[j] = row.getCount(j);
+    
+    // beta == 0: use only AMP
+    // beta > 0.995: use only evidence
+    
+    boolean doAmp = beta < 0.999;
+    boolean doIns = beta > 0;
+    
+    if (doAmp) {
+      for (int j = low; j <= high; j++) {
+        pAmp[j] = Math.pow(model.getPhi(), i - j);
+        pIns[j] = row.getCount(j);
+      }
+      MathUtils.normalize(pAmp, 1d);
+    }
+    
+    if (doIns) {
+      for (int j = low; j <= high; j++) {
+        pIns[j] = row.getCount(j);
+      }
+      MathUtils.normalize(pIns, 1d);
     }
 
-    MathUtils.normalize(pAmp, 1d);
-    MathUtils.normalize(pIns, 1d);
-    if (beta > 0) {
+    if (doAmp && doIns) {
       for (int j = low; j <= high; j++) {
         pAmp[j] = (1 - beta) * pAmp[j] + beta * pIns[j];
       }
     }
+    else if (doIns) {
+      pAmp = pIns;
+    }
+    
     
     double flip = MathUtils.RANDOM.nextDouble();
     double ps = 0;

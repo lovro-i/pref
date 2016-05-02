@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.rank.sampler;
 
-import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
@@ -8,10 +7,6 @@ import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.Insertions;
-import edu.drexel.cs.db.rank.triangle.TriangleRow;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /** AMPx variant that immediately updates the Insertion Probability Matrix with a newly sampled ranking */
 public class AMPxSSampler extends AMPxSampler {

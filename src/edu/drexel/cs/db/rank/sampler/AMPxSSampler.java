@@ -7,6 +7,7 @@ import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.Insertions;
+import edu.drexel.cs.db.rank.util.Logger;
 
 /** AMPx variant that immediately updates the Insertion Probability Matrix with a newly sampled ranking */
 public class AMPxSSampler extends AMPxSampler {
@@ -45,13 +46,10 @@ public class AMPxSSampler extends AMPxSampler {
       Ranking r = sample(pw.p);
       out.add(r, pw.w);
       
-      Insertions prev = insertions[i];
-      triangle.sub(prev, pw.w);
-      Insertions next = new Insertions(r, model.getCenter());
-      triangle.add(next, pw.w);
-      insertions[i] = next;
+      triangle.sub(insertions[i], pw.w);
+      insertions[i].set(r, model.getCenter());
+      triangle.add(insertions[i], pw.w);
     }
-
     return out;
   }
   

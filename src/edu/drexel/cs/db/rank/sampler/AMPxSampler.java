@@ -9,6 +9,7 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
 import edu.drexel.cs.db.rank.triangle.TriangleRow;
+import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class AMPxSampler extends MallowsSampler {
 
   protected ConfidentTriangle triangle;
   protected double alpha;
+  protected boolean ampDiscard = false;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -34,6 +36,12 @@ public class AMPxSampler extends MallowsSampler {
   }
 
 
+  /** Don't calculate AMP if it's less then 0.1% 
+   * @param ampThreshold false to always calculate AMP
+   */
+  public void setDiscardSmallAmp(boolean ampThreshold) {
+    this.ampDiscard = ampThreshold;
+  }
   
   public final void setTrainingSample(Sample<? extends PreferenceSet> sample) {
     this.triangle = new ConfidentTriangle(model.getCenter(), sample);
@@ -88,6 +96,7 @@ public class AMPxSampler extends MallowsSampler {
     return r;
   }
   
+  
   /** Add one item to the ranking between low and high */
   private void insertItem(Ranking r, int i, Item item, int low, int high) {
     if (low == high) {
@@ -109,14 +118,14 @@ public class AMPxSampler extends MallowsSampler {
     
     // beta == 0: use only AMP
     // beta > 0.995: use only evidence
-    
-    boolean doAmp = true; // beta < 0.999;
+
+    double phi = model.getPhi();
+    boolean doAmp = (phi > 0) && (ampDiscard ? beta < 0.999 : true);
     boolean doIns = beta > 0;
     
     if (doAmp) {
       for (int j = low; j <= high; j++) {
-        pAmp[j] = Math.pow(model.getPhi(), i - j);
-        pIns[j] = row.getCount(j);
+        pAmp[j] = Math.pow(phi, i - j);
       }
       MathUtils.normalize(pAmp, 1d);
     }
@@ -138,6 +147,7 @@ public class AMPxSampler extends MallowsSampler {
     }
     
     
+    
     double flip = MathUtils.RANDOM.nextDouble();
     double ps = 0;
     for (int j = low; j <= high; j++) {
@@ -147,6 +157,7 @@ public class AMPxSampler extends MallowsSampler {
         break;
       }
     }
+    
   }
   
 

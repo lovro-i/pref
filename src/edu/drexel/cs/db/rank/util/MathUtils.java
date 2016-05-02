@@ -72,7 +72,9 @@ public class MathUtils {
   }
   
   public static void normalize(double[] a, double sum) {
-    double c = sum / DoubleStream.of(a).sum();
+    double suma = DoubleStream.of(a).sum();
+    if (suma == 0) return;
+    double c = sum / suma;
     for (int i = 0; i < a.length; i++) {
       a[i] *= c;
     }

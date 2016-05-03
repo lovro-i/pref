@@ -11,7 +11,6 @@ import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.Logger;
 
-/**
 
 /** AMPxS
  */

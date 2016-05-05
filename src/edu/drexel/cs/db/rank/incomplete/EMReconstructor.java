@@ -6,7 +6,9 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
+import edu.drexel.cs.db.rank.sampler.AMPxSSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsSampler;
+import edu.drexel.cs.db.rank.triangle.ConfidentTriangle;
 
 public abstract class EMReconstructor implements MallowsReconstructor {
 
@@ -70,8 +72,7 @@ public abstract class EMReconstructor implements MallowsReconstructor {
       resample = sampler.sample(sample);
       estimate = reconstructor.reconstruct(resample, center);
       if (listener != null) listener.onIterationEnd(i, estimate);
-      double newPhi = estimate.getPhi();
-      if (Math.abs(newPhi - oldPhi) < threshold) break;
+      if (Math.abs(estimate.getPhi() - oldPhi) < threshold) break;
     }
 
     return estimate;

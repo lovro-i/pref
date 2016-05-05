@@ -85,15 +85,11 @@ public class ConfidentTriangle extends Triangle implements Cloneable {
   }
   
   public void sub(Insertions ins, double w) {
-    for (int i = 0; i < ins.length; i++) {
-      TriangleRow row = rows.get(i);
-      int pos = ins.ins[i];
-      row.inc(pos, -w);
-    }
+    add(ins, -w);
   }
   
   /** Adds ranking to the triangle with specified weight. Returns true if added, false otherwise */
-  public boolean add(PreferenceSet pref, double weight) {
+  public void add(PreferenceSet pref, double weight) {
     Set<Item> items = new HashSet<Item>();
     for (int i = 0; i < reference.length(); i++) {
       TriangleRow row = rows.get(i); // Triangle row to be updated
@@ -102,10 +98,9 @@ public class ConfidentTriangle extends Triangle implements Cloneable {
       
       Ranking r = pref.toRanking(items);
       int pos = r.indexOf(e);      
-      if (pos == -1) return true;                            
+      if (pos == -1) return;                            
       row.inc(pos, weight);
     }
-    return true;
   }
   
   public void add(int row, int pos, double weight) {

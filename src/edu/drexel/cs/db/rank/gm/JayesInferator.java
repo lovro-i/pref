@@ -28,6 +28,11 @@ public class JayesInferator {
     this.gm = gm; 
   }
 
+  public BayesNet getBayesNet() {
+    if (net == null) build();
+    return net;
+  }
+  
   public void build() {
     net = new BayesNet();
 

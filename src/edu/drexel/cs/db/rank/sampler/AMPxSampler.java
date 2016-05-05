@@ -19,7 +19,6 @@ public class AMPxSampler extends MallowsSampler {
 
   protected ConfidentTriangle triangle;
   protected double alpha;
-  protected boolean ampDiscard = false;
   
   /** Very low rate (close to zero) favors sample information.
    * High rate (close to positive infinity) favors AMP.
@@ -35,12 +34,8 @@ public class AMPxSampler extends MallowsSampler {
     this.alpha = alpha;
   }
 
-
-  /** Don't calculate AMP if it's less then 0.1% 
-   * @param ampThreshold false to always calculate AMP
-   */
-  public void setDiscardSmallAmp(boolean ampThreshold) {
-    this.ampDiscard = ampThreshold;
+  public ConfidentTriangle getTriangle() {
+    return triangle;
   }
   
   public final void setTrainingSample(Sample<? extends PreferenceSet> sample) {
@@ -96,7 +91,6 @@ public class AMPxSampler extends MallowsSampler {
     return r;
   }
   
-  
   /** Add one item to the ranking between low and high */
   private void insertItem(Ranking r, int i, Item item, int low, int high) {
     if (low == high) {
@@ -105,51 +99,27 @@ public class AMPxSampler extends MallowsSampler {
     }
     
     double beta = 0;
-    double count = 0;
     TriangleRow row = null;
     if (triangle != null) {
       row = triangle.getRow(i);
-      count = row.getCount(low, high+1);
+      double count = row.getCount(low, high+1);
       beta = count / (alpha + count); // how much should the sample be favored
     }
     
     double[] pAmp = new double[high+1];
-    
-    
-    // beta == 0: use only AMP
-    // beta > 0.995: use only evidence
-
-    // double phi = model.getPhi();
-    // boolean doAmp = (phi > 0) && (ampDiscard ? beta < 0.999 : true);
-    boolean doAmp = pAmp.length > i;
-//    if (doAmp) {
-//      for (int j = low; j <= high; j++) {
-//        pAmp[j] = Math.pow(phi, i - j);
-//      }
-//      MathUtils.normalize(pAmp, 1d);
-//    }
-    if (doAmp) pAmp[i] = 1;
-    
-    boolean doIns = beta > 0;
     double[] pIns = new double[high+1];
-    
-    if (doIns) {
-      for (int j = low; j <= high; j++) {
-        pIns[j] = row.getCount(j);
-      }
-      MathUtils.normalize(pIns, 1d);
+    for (int j = low; j <= high; j++) {
+      pAmp[j] = Math.pow(model.getPhi(), i - j);
+      if (row != null) pIns[j] = row.getCount(j);
     }
 
-    if (doAmp && doIns) {
+    MathUtils.normalize(pAmp, 1d);
+    MathUtils.normalize(pIns, 1d);
+    if (beta > 0) {
       for (int j = low; j <= high; j++) {
         pAmp[j] = (1 - beta) * pAmp[j] + beta * pIns[j];
       }
     }
-    else if (doIns) {
-      pAmp = pIns;
-    }
-    
-    
     
     double flip = MathUtils.RANDOM.nextDouble();
     double ps = 0;
@@ -160,7 +130,6 @@ public class AMPxSampler extends MallowsSampler {
         break;
       }
     }
-    
   }
   
 

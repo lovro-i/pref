@@ -6,6 +6,8 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.technion.Expander;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import org.eclipse.recommenders.jayes.BayesNet;
 import org.eclipse.recommenders.jayes.BayesNode;
 import org.eclipse.recommenders.jayes.inference.IBayesInferer;
 import org.eclipse.recommenders.jayes.inference.junctionTree.JunctionTreeAlgorithm;
+import org.eclipse.recommenders.jayes.io.XMLBIFWriter;
 
 /** http://www.codetrails.com/blog/introduction-bayesian-networks-jayes */
 public class JayesInferator {
@@ -31,6 +34,13 @@ public class JayesInferator {
   public BayesNet getBayesNet() {
     if (net == null) build();
     return net;
+  }
+  
+  
+  public void saveXML(String filename) throws IOException {
+    if (net == null) build();
+    XMLBIFWriter w = new XMLBIFWriter();
+    w.writeToFile(net, filename);
   }
   
   public void build() {

@@ -34,15 +34,17 @@ public class AMPxSReconstructor extends EMReconstructor {
     //MallowsModel nextModel = new MallowsModel(estimate.getCenter(), 0.9*estimate.getPhi());
     //sampler.setModel(nextModel);
     sampler.setModel(estimate);
+    // double t = Math.max(0, 0.2 * estimate.getPhi() - 0.05);
+    // setThreshold(t);
     return sampler;
   }
 
   
   public static void main(String[] args) throws Exception {
-    double phi = 0.8;
-    double initialPhi = 0d;
+    double phi = 0.2;
+    double initialPhi = 1d;
     double alpha = 0.1d;
-    double miss = 0.2d;
+    double miss = 0.7d;
     
     double sumErr = 0;
     double sumAbsErr = 0;
@@ -57,8 +59,11 @@ public class AMPxSReconstructor extends EMReconstructor {
       AMPxSReconstructor rec = new AMPxSReconstructor(initial, 20, alpha);
       rec.setThreshold(0.005);
       MallowsModel reconstructed = rec.reconstruct(sample);
-      sumErr += reconstructed.getPhi() - phi;
-      sumAbsErr += Math.abs(reconstructed.getPhi() - phi);
+      
+      double de = reconstructed.getPhi() - phi;
+      System.out.println(de);
+      sumErr += de;
+      sumAbsErr += Math.abs(de);
     }
     sumErr /= tests;
     sumAbsErr /= tests;

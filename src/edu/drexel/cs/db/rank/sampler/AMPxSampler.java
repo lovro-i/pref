@@ -92,7 +92,70 @@ public class AMPxSampler extends MallowsSampler {
   }
   
   /** Add one item to the ranking between low and high */
-  private void insertItem(Ranking r, int i, Item item, int low, int high) {
+    private void insertItem(Ranking r, int i, Item item, int low, int high) {
+    if (low == high) {
+      r.add(low, item);
+      return;
+    }
+    
+    double beta = 0;
+    double count = 0;
+    TriangleRow row = null;
+    if (triangle != null) {
+      row = triangle.getRow(i);
+      count = row.getCount(low, high+1);
+      beta = count / (alpha + count); // how much should the sample be favored
+    }
+    
+    double[] pAmp = new double[high+1];
+    double[] pIns = new double[high+1];
+    
+    // beta == 0: use only AMP
+    // beta > 0.995: use only evidence
+
+    double phi = model.getPhi();
+    boolean doAmp = (phi > 0) && (beta < 0.999);
+    boolean doIns = beta > 0;
+    
+    if (doAmp) {
+      for (int j = low; j <= high; j++) {
+        pAmp[j] = Math.pow(phi, i - j);
+      }
+      MathUtils.normalize(pAmp, 1d);
+    }
+    
+    if (doIns) {
+      for (int j = low; j <= high; j++) {
+        pIns[j] = row.getCount(j);
+      }
+      MathUtils.normalize(pIns, 1d);
+    }
+
+    if (doAmp && doIns) {
+      for (int j = low; j <= high; j++) {
+        pAmp[j] = (1 - beta) * pAmp[j] + beta * pIns[j];
+      }
+    }
+    else if (doIns) {
+      pAmp = pIns;
+    }
+    
+    
+    
+    double flip = MathUtils.RANDOM.nextDouble();
+    double ps = 0;
+    for (int j = low; j <= high; j++) {
+      ps += pAmp[j];
+      if (ps > flip || j == high) {
+        r.add(j, item);
+        break;
+      }
+    }
+    
+  }
+  
+    
+  private void insertItemNoCutoff(Ranking r, int i, Item item, int low, int high) {
     if (low == high) {
       r.add(low, item);
       return;

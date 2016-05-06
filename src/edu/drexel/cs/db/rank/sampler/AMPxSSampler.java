@@ -51,8 +51,8 @@ public class AMPxSSampler extends AMPxSampler {
 //      triangle.add(next, pw.w);
 //      insertions[i] = next;
       
-            
-      triangle.sub(insertions[i], pw.w);
+      double damp = 1; // - this.model.getPhi();
+      triangle.sub(insertions[i], damp * pw.w);
       insertions[i].set(r, model.getCenter());
       triangle.add(insertions[i], pw.w);
 

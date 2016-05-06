@@ -107,6 +107,13 @@ public class ConfidentTriangle extends Triangle implements Cloneable {
     rows.get(row).inc(pos, weight);
   }
 
+  public void add(Triangle triangle, double w) {
+    for (Integer i: rows.keySet()) {
+      TriangleRow thisRow = this.getRow(i);
+      TriangleRow thatRow = triangle.getRow(i);
+      thisRow.add(thatRow, w);
+    }
+  }
   
   @Override
   public String toString() {

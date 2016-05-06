@@ -27,6 +27,13 @@ public class TriangleRow {
     empty = false;
   }
   
+  public void add(TriangleRow row, double w) {
+    if (this.counts.length != row.counts.length) throw new IllegalArgumentException("Row sizes do not match");
+    for (int i = 0; i < counts.length; i++) {
+      inc(i, w);
+    }
+  }
+  
   /** Sets this triangle to the values from the given one */
   void clone(TriangleRow row) {
     this.sum = row.sum;

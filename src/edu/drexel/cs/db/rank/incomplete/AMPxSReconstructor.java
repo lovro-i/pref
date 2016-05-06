@@ -34,8 +34,8 @@ public class AMPxSReconstructor extends EMReconstructor {
     //MallowsModel nextModel = new MallowsModel(estimate.getCenter(), 0.9*estimate.getPhi());
     //sampler.setModel(nextModel);
     sampler.setModel(estimate);
-    double t = Math.max(0, 0.2 * estimate.getPhi() - 0.05);
-    setThreshold(t);
+    // double t = Math.max(0, 0.2 * estimate.getPhi() - 0.05);
+    // setThreshold(t);
     return sampler;
   }
 

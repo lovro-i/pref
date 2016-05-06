@@ -28,8 +28,8 @@ public class AMPxDISReconstructor extends EMReconstructor {
 
   @Override
   protected MallowsSampler updateSampler(MallowsSampler sampler, MallowsModel estimate, Sample<? extends PreferenceSet> sample, Sample<? extends PreferenceSet> resample) {
-    double t = Math.max(0, 0.2 * estimate.getPhi() - 0.05);
-    setThreshold(t);
+    // double t = Math.max(0, 0.2 * estimate.getPhi() - 0.05);
+    // setThreshold(t);
     return sampler;
   }
 

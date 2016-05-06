@@ -41,10 +41,10 @@ public class AMPxSReconstructor extends EMReconstructor {
 
   
   public static void main(String[] args) throws Exception {
-    double phi = 0.1;
+    double phi = 0.8;
     double initialPhi = 0d;
     double alpha = 0.1d;
-    double miss = 0.8d;
+    double miss = 0.7d;
     
     double sumErr = 0;
     double sumAbsErr = 0;

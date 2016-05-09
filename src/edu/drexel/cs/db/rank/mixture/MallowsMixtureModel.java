@@ -124,7 +124,7 @@ public class MallowsMixtureModel {
     if (p == 0) {
       Logger.info("Log likelihood of %s is 0", r);
     }
-    return p;
+    return p + 0.000001d;
   }
 
   public double getProbabilityMax(Ranking r) {

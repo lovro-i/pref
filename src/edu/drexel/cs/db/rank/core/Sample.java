@@ -20,7 +20,7 @@ import java.util.Objects;
 public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
 
   protected final ItemSet itemSet;
-  private static final long serialVersionUID = 8757458480341777090L;
+  private static final long serialVersionUID = 8089688392277174718L;
 
 
   public Sample(ItemSet items) {

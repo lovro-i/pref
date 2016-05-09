@@ -20,9 +20,9 @@ public class KL {
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
         if (i != j) {
-          double p = real.getProbabilityBefore(i, j);
+          double p = real.getProbabilityBefore(i, j) + 0.0000001;
           if (p != 0) {
-            double q = model.getProbabilityBefore(i, j);
+            double q = model.getProbabilityBefore(i, j) + 0.0000001;
             if (q != 0) sum += p * Math.log(p / q);
             else return Double.POSITIVE_INFINITY;
           }

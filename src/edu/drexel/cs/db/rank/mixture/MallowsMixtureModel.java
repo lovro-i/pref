@@ -7,6 +7,7 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +120,9 @@ public class MallowsMixtureModel {
     double p = 0;
     for (int i = 0; i < this.size(); i++) {
       p += this.getWeight(i) * models.get(i).getProbability(r);
+    }
+    if (p == 0) {
+      Logger.info("Log likelihood of %s is 0", r);
     }
     return p;
   }

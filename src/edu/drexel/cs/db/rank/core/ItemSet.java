@@ -10,6 +10,8 @@ import java.util.ListIterator;
 
 /** Set of items (items, alternatives), with id going from 0 to n-1 */
 public class ItemSet implements List<Item>, Serializable {
+  
+  private static final long serialVersionUID = -621735148019149586L;
 
   private final List<Item> items = new ArrayList<Item>();
   

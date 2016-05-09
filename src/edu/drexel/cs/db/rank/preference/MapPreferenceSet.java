@@ -21,6 +21,8 @@ import java.util.Set;
  * preferred items and values are preferred items.
  */
 public class MapPreferenceSet implements MutablePreferenceSet {
+  
+  private static final long serialVersionUID = -5964912283917644503L;
 
   private static final Set<Item> EMPTY_ITEM_SET = Collections.unmodifiableSet(new HashSet<Item>());
   

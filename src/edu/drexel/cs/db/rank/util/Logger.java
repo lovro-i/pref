@@ -13,16 +13,28 @@ public class Logger {
     System.out.println(obj.toString());
   }
   
+  public static void warn(Throwable t) {
+    System.err.println(t.getMessage());
+  }
+  
+  public static void warn(String msg, Object... args) {
+    System.err.println(String.format(msg, args));
+  }
+  
+  public static void warn(Throwable t, String msg, Object... args) {
+    System.err.println(t.getMessage() + " " + String.format(msg, args));
+  }
+  
   public static void error(Throwable t) {
-    System.out.println(t.getMessage());
+    System.err.println(t.getMessage());
   }
   
   public static void error(String msg, Object... args) {
-    System.out.println(String.format(msg, args));
+    System.err.println(String.format(msg, args));
   }
   
   public static void error(Throwable t, String msg, Object... args) {
-    System.out.println(t.getMessage() + " " + String.format(msg, args));
+    System.err.println(t.getMessage() + " " + String.format(msg, args));
   }
   
   public static void time(String msg, long start) {
@@ -34,17 +46,8 @@ public class Logger {
     catch (IOException e) {}
   }
   
-  public static void waitKey(String msg, Object... args) {
-    info(msg, args);
-    waitKey();
-  }
-  
-  public static void waitKey(Object obj) {
-    info(obj);
-    waitKey();
-  }
-  
   public static void trace() {
     Thread.dumpStack();
   }
+  
 }

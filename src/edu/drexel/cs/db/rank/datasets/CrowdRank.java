@@ -4,7 +4,12 @@ import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
+import edu.drexel.cs.db.rank.mixture.AMPxSMixtureReconstructor;
+import edu.drexel.cs.db.rank.mixture.ClusteringResult;
+import edu.drexel.cs.db.rank.mixture.MallowsMixtureClusterer;
+import edu.drexel.cs.db.rank.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.rank.util.FileUtils;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -174,5 +179,27 @@ public class CrowdRank {
 //    System.out.println(sample);
 //    System.out.println(crowdRank.reconstructFullSample());
 //  }
+  
+  public void reconstructHits() throws Exception {
+    for (int hitId: hits.keySet()) {
+      Logger.info("Reconstructing hit %d...", hitId);
+      RankingSample sample = hits.get(hitId);
+      
+      MallowsMixtureClusterer clusterer = new MallowsMixtureClusterer(5);
+      ClusteringResult clusters = clusterer.cluster(sample);
+      
+      AMPxSMixtureReconstructor reconstructor = new AMPxSMixtureReconstructor(100, 0.1);
+      MallowsMixtureModel model = reconstructor.reconstruct(clusters);
+      Logger.info("\n==================== Model of hit %d ====================\n%s\n", hitId, model);
+    }
+  }
+  
+  public static void main(String[] args) throws Exception {
+    File data = new File("C:\\Projects\\Rank\\Papers\\prefaggregation\\Mallows_Model\\datasets\\crowdrank\\hit_uid_ranking.csv");
+    CrowdRank crowdRank = new CrowdRank(data);
+    Logger.info("Hits loaded: %d", crowdRank.getHitCount());
+    
+    crowdRank.reconstructHits();
+  }
   
 }

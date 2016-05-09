@@ -57,8 +57,12 @@ public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
   }
 
   public void add(PS pref, double weight) {
-    this.add(new PW(pref, weight));
+    this.add(new PW<PS>(pref, weight));
   }  
+  
+  public void set(int index, PS pref, double weight) {
+    this.set(index, new PW<PS>(pref, weight));
+  }
 
     
   /** Adds weight to the specified PreferenceSet. It also compresses all occurrences of ps into a single one with the total weight 

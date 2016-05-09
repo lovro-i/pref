@@ -113,7 +113,7 @@ public class Reconstruct1 {
   
   private static Ranking perturb(Ranking r, double p) {
     Ranking r1 = new Ranking(r);
-    for (int i = 0; i < r1.size()-1; i++) {
+    for (int i = 0; i < r1.length()-1; i++) {
       double flip = random.nextDouble();
       if (flip < p) r1.swap(i, i+1);
     }

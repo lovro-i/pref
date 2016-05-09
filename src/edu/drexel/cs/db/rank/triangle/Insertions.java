@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.triangle;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class Insertions {
   }
   
   public void set(PreferenceSet pref, Ranking reference) {
-    if (ins == null || ins.length != reference.size()) ins = new Integer[reference.size()];
+    if (ins == null || ins.length != reference.length()) ins = new Integer[reference.length()];
     
     Set<Item> items = new HashSet<Item>();
     int len = 0;
@@ -35,7 +36,7 @@ public class Insertions {
   }
   
   public void set(Ranking pref, Ranking reference) {
-    if (ins == null || ins.length != reference.size()) ins = new Integer[reference.size()];
+    if (ins == null || ins.length != reference.length()) ins = new Integer[reference.length()];
     
     Set<Item> items = new HashSet<Item>();
     int len = 0;

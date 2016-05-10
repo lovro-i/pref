@@ -1,5 +1,7 @@
 package edu.drexel.cs.db.rank.math;
 
+import edu.drexel.cs.db.rank.util.Logger;
+
 
 public class Polynomial {
 
@@ -18,8 +20,12 @@ public class Polynomial {
   public double eval(double x) {
     double p = 1;
     double s = 0;
+    double temp;
     for (int i = 0; i < a.length; i++) {
-      s += p * a[i];
+      temp = s + p * a[i];
+      if (Double.isInfinite(temp) || Double.isNaN(temp)) break;
+      // s += p * a[i];
+      s = temp;
       p *= x;
     }
     return s;
@@ -30,17 +36,29 @@ public class Polynomial {
     return a[i];
   }
   
+
   public double root(double min, double max, double epsilon) {
     double v1 = eval(min);
     double v2 = eval(max);
-    if (v1 * v2 > 0) return Double.NaN;
+    return root(min, max, v1, v2, epsilon);
+  }
+  
+  private double root(double min, double max, double v1, double v2, double epsilon) {
+    Logger.info("v1 = %f, v2 = %f", v1, v2);
+    if (Double.isInfinite(v1) || Double.isNaN(v1)) return Double.NaN;
+    if (Double.isInfinite(v2) || Double.isNaN(v2)) return Double.NaN;
+    double s1 = Math.signum(v1);
+    if (s1 == 0) return min;
+    double s2 = Math.signum(v2);
+    if (s2 == 0) return max;
+    if (s1 == s2) return Double.NaN;
     
     double mid = (min + max) / 2;
     if (max - mid < epsilon) return mid;
     
     double v0 = eval(mid);
-    if (v1 * v0 < 0) return root(min, mid, epsilon);
-    if (v0 * v2 < 0) return root(mid, max, epsilon);    
+    if (Math.signum(v1) * Math.signum(v0) < 0) return root(min, mid, v1, v0, epsilon);
+    if (Math.signum(v0) * Math.signum(v2) < 0) return root(mid, max, v0, v2, epsilon);    
     return mid;
   }
   

@@ -6,6 +6,7 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.filter.Filter;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPxSSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
@@ -46,11 +47,22 @@ public class AMPxSReconstructor extends EMReconstructor {
     double alpha = 0.1d;
     double miss = 0.7d;
     
-    double sumErr = 0;
-    double sumAbsErr = 0;
-    double tests = 15;
-    for (int i = 0; i < tests; i++) {
-      ItemSet items = new ItemSet(20);
+    
+    {
+      long start = System.currentTimeMillis();
+      ItemSet items = new ItemSet(170);
+      MallowsModel model = new MallowsModel(items.getRandomRanking(), phi);
+      RankingSample sample = MallowsUtils.sample(model, 1000);
+      PolynomialReconstructor rec = new PolynomialReconstructor();
+      MallowsModel m2 = rec.reconstruct(sample);
+      Logger.info("Reconstructed %f in %d ms", m2.getPhi(), System.currentTimeMillis() - start);
+    }
+    
+    
+    long prev = 1;
+    for (int its = 160; its <= 300; its += 10) {
+      long start = System.currentTimeMillis();
+      ItemSet items = new ItemSet(its);
       MallowsModel model = new MallowsModel(items.getRandomRanking(), phi);
       RankingSample sample = MallowsUtils.sample(model, 1000);
       Filter.removeItems(sample, miss);
@@ -60,15 +72,11 @@ public class AMPxSReconstructor extends EMReconstructor {
       rec.setThreshold(0.005);
       MallowsModel reconstructed = rec.reconstruct(sample);
       
-      double de = reconstructed.getPhi() - phi;
-      System.out.println(de);
-      sumErr += de;
-      sumAbsErr += Math.abs(de);
+      long t = System.currentTimeMillis() - start;
+      Logger.info("%d items done in %d ms (%.1fx)", its, t, 1d * t / prev);
+      prev = t;
     }
-    sumErr /= tests;
-    sumAbsErr /= tests;
-    System.out.println("Avg. error     : " + sumErr);
-    System.out.println("Avg. abs. error: " + sumAbsErr);
+    
     
     System.exit(0);
   

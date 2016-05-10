@@ -1,14 +1,17 @@
-
 package edu.drexel.cs.db.rank.reconstruct;
 
+import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.distance.KendallTauDistance;
 import edu.drexel.cs.db.rank.distance.KendallTauUtils;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.math.Polynomial;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.sampler.MallowsUtils;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.util.Arrays;
 
 /** Reconstructs phi from the known (reconstructed) center and the sample finding the root of the polynomial
@@ -64,4 +67,15 @@ public class PolynomialReconstructor implements MallowsReconstructor {
     return new MallowsModel(center, phi);
   }
 
+  public static void main(String[] args) {
+    double phi = 0.2;
+    long start = System.currentTimeMillis();
+    ItemSet items = new ItemSet(200);
+    MallowsModel model = new MallowsModel(items.getRandomRanking(), phi);
+    RankingSample sample = MallowsUtils.sample(model, 1000);
+    PolynomialReconstructor rec = new PolynomialReconstructor();
+    MallowsModel m2 = rec.reconstruct(sample);
+    Logger.info("Reconstructed %f in %d ms", m2.getPhi(), System.currentTimeMillis() - start);
+  }
+  
 }

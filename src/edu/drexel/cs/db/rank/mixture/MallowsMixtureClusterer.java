@@ -2,6 +2,7 @@ package edu.drexel.cs.db.rank.mixture;
 
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.distance.PreferenceSimilarity;
+import edu.drexel.cs.db.rank.mixture.MallowsMixtureReconstructor.ClusteringResult;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.util.Histogram;
 import edu.drexel.cs.db.rank.util.Logger;

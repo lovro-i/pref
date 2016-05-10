@@ -1,5 +1,6 @@
 package edu.drexel.cs.db.rank.mixture;
 
+import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
@@ -8,6 +9,8 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.util.Logger;
+import java.io.Serializable;
+import java.util.Map;
 
 public class MallowsMixtureReconstructor {
 
@@ -60,4 +63,25 @@ public class MallowsMixtureReconstructor {
     return this.maxClusters;
   }
 
+  public static class ClusteringResult implements Serializable {
+
+    public final Map<PreferenceSet, PreferenceSet> exemplars;
+    public final Map<PreferenceSet, Sample<PreferenceSet>> samples;
+
+    ClusteringResult(Map<PreferenceSet, PreferenceSet> exemplars, Map<PreferenceSet, Sample<PreferenceSet>> samples) {
+      this.exemplars = exemplars;
+      this.samples = samples;
+    }
+
+    public ItemSet getItemSet() {
+      for (PreferenceSet r : exemplars.keySet()) {
+        return r.getItemSet();
+      }
+      for (PreferenceSet r : samples.keySet()) {
+        return r.getItemSet();
+      }
+      return null;
+    }
+
+  }
 }

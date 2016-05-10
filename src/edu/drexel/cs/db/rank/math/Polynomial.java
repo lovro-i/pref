@@ -44,7 +44,6 @@ public class Polynomial {
   }
   
   private double root(double min, double max, double v1, double v2, double epsilon) {
-    Logger.info("v1 = %f, v2 = %f", v1, v2);
     if (Double.isInfinite(v1) || Double.isNaN(v1)) return Double.NaN;
     if (Double.isInfinite(v2) || Double.isNaN(v2)) return Double.NaN;
     double s1 = Math.signum(v1);

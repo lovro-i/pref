@@ -65,6 +65,7 @@ public class MallowsMixtureReconstructor {
 
   public static class ClusteringResult implements Serializable {
 
+    private static final long serialVersionUID = -6400584493142884637L;
     public final Map<PreferenceSet, PreferenceSet> exemplars;
     public final Map<PreferenceSet, Sample<PreferenceSet>> samples;
 

@@ -160,4 +160,11 @@ public class RatingSet extends HashMap<Item, Float> implements PreferenceSet {
     return size;
   }
 
+  @Override
+  public Set<Ranking> getRankings() {
+    MapPreferenceSet pref = new MapPreferenceSet(this);
+    return pref.getRankings();
+  }
+
+  
 }

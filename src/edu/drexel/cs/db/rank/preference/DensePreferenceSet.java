@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DensePreferenceSet implements MutablePreferenceSet {
+public class DensePreferenceSet extends AbstractPreferenceSet {
 
   private final ItemSet items;
   final boolean[][] higher;

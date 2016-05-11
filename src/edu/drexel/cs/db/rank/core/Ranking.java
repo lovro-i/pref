@@ -353,6 +353,12 @@ public class Ranking implements Comparable, PreferenceSet {
     return prefs;
   }
 
+  @Override
+  public Set<Ranking> getRankings() {
+    Set<Ranking> r = new HashSet<Ranking>();
+    r.add(this);
+    return r;
+  }
   
 }
  

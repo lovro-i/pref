@@ -3,10 +3,11 @@ package edu.drexel.cs.db.rank.gm;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.technion.Expander;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,27 +122,58 @@ public class JayesInferator {
     items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     
-    Ranking r = new Ranking(items);    
-    r.add(items.getItemByTag(2));
-    r.add(items.getItemByTag(4));
-    r.add(items.getItemByTag(3));
-    r.add(items.getItemByTag(1));
+//    Ranking r = new Ranking(items);    
+//    r.add(items.getItemByTag(2));
+//    r.add(items.getItemByTag(4));
+//    r.add(items.getItemByTag(3));
+//    r.add(items.getItemByTag(1));
+//    
+//    
+//    GraphicalModel gm = new GraphicalModel(model, r);
+//    gm.setOneBased(true);
+//    gm.build();
+//    System.out.println(gm);
+//    
+//    JayesInferator inferator = new JayesInferator(gm);
+//    inferator.build();
+//    
+//    
+//    
+//    // Check the correct value with Expander (Dynamic Algorithm)
+//    Expander expander = new Expander(model);
+//    double p = expander.getProbability(r);
+//    Logger.info("%s: %f", r, p);
     
-    
-    GraphicalModel gm = new GraphicalModel(model, r);
-    gm.setOneBased(true);
-    gm.build();
-    System.out.println(gm);
-    
-    JayesInferator inferator = new JayesInferator(gm);
-    inferator.build();
-    
-    
-    
-    // Check the correct value with Expander (Dynamic Algorithm)
-    Expander expander = new Expander(model);
-    double p = expander.getProbability(r);
-    Logger.info("%s: %f", r, p);    
+    {
+      MapPreferenceSet v = new MapPreferenceSet(items);
+      v.add(items.getItemByTag(2), items.getItemByTag(4));
+      v.add(items.getItemByTag(3), items.getItemByTag(4));
+
+      GraphicalModel gm1 = new GraphicalModel(model, v);
+      gm1.setOneBased(true);
+      gm1.build();
+      System.out.println(gm1);
+      
+      JayesInferator inferator1 = new JayesInferator(gm1);
+      inferator1.build();
+      
+      
+      Expander expander1 = new Expander(model);
+      Ranking r1 = new Ranking(items);
+      r1.add(items.getItemByTag(2));
+      r1.add(items.getItemByTag(3));
+      r1.add(items.getItemByTag(4));
+      double p1 = expander1.getProbability(r1);
+      
+      Expander expander2 = new Expander(model);
+      Ranking r2 = new Ranking(items);
+      r2.add(items.getItemByTag(3));
+      r2.add(items.getItemByTag(2));
+      r2.add(items.getItemByTag(4));
+      double p2 = expander2.getProbability(r2);
+      
+      Logger.info("%s + %s: %f", r1, r2, p1+p2);
+    }
   }
   
 }

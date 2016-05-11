@@ -3,6 +3,7 @@ package edu.drexel.cs.db.rank.preference;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
+import edu.drexel.cs.db.rank.util.Logger;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +21,7 @@ import java.util.Set;
  * reverseMap which represents the reverse preference graph, where key is less
  * preferred items and values are preferred items.
  */
-public class MapPreferenceSet implements MutablePreferenceSet {
+public class MapPreferenceSet extends AbstractPreferenceSet {
   
   private static final long serialVersionUID = -5964912283917644503L;
 
@@ -400,5 +401,5 @@ public class MapPreferenceSet implements MutablePreferenceSet {
     items.addAll(lowers.keySet());
     return items;
   }
-
+  
 }

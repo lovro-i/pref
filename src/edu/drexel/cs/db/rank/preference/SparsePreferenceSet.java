@@ -3,7 +3,6 @@ package edu.drexel.cs.db.rank.preference;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,9 +13,10 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class SparsePreferenceSet extends HashSet<Preference> implements MutablePreferenceSet {
+public class SparsePreferenceSet extends AbstractPreferenceSet implements Set<Preference> {
 
   private final ItemSet items;
+  private final Set<Preference> preferences = new HashSet<Preference>();
 
   public SparsePreferenceSet(ItemSet itemSet) {
     this.items = itemSet;
@@ -222,12 +222,12 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
 
   @Override
   public boolean remove(Preference pref) {
-    return super.remove(pref);
+    return preferences.remove(pref);
   }
 
   @Override
   public boolean contains(Preference pref) {
-    return super.contains(pref);
+    return preferences.contains(pref);
   }
 
   @Override
@@ -238,6 +238,71 @@ public class SparsePreferenceSet extends HashSet<Preference> implements MutableP
       items.add(p.lower);
     }
     return items;
+  }
+
+  @Override
+  public int size() {
+    return preferences.size();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return preferences.isEmpty();
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    return preferences.isEmpty();
+  }
+
+  @Override
+  public Iterator<Preference> iterator() {
+    return preferences.iterator();
+  }
+
+  @Override
+  public Object[] toArray() {
+    return preferences.toArray();
+  }
+
+  @Override
+  public <T> T[] toArray(T[] a) {
+    return preferences.toArray(a);
+  }
+
+  @Override
+  public boolean add(Preference e) {
+    return preferences.add(e);
+  }
+
+  @Override
+  public boolean remove(Object o) {
+    return preferences.remove(o);
+  }
+
+  @Override
+  public boolean containsAll(Collection<?> c) {
+    return preferences.containsAll(c);
+  }
+
+  @Override
+  public boolean addAll(Collection<? extends Preference> c) {
+    return preferences.addAll(c);
+  }
+
+  @Override
+  public boolean retainAll(Collection<?> c) {
+    return preferences.retainAll(c);
+  }
+
+  @Override
+  public boolean removeAll(Collection<?> c) {
+    return preferences.removeAll(c);
+  }
+
+  @Override
+  public void clear() {
+    preferences.clear();
   }
 
   

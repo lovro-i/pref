@@ -42,8 +42,8 @@ public class AMPxSReconstructor extends EMReconstructor {
 
   
   public static void main(String[] args) throws Exception {
-    double phi = 0.2;
-    double initialPhi = 1d;
+    double phi = 0.8;
+    double initialPhi = 0d;
     double alpha = 0.1d;
     double miss = 0.7d;
     
@@ -60,7 +60,7 @@ public class AMPxSReconstructor extends EMReconstructor {
     
     
     long prev = 1;
-    for (int its = 160; its <= 300; its += 10) {
+    for (int its = 150; its <= 300; its += 10) {
       long start = System.currentTimeMillis();
       ItemSet items = new ItemSet(its);
       MallowsModel model = new MallowsModel(items.getRandomRanking(), phi);
@@ -68,7 +68,7 @@ public class AMPxSReconstructor extends EMReconstructor {
       Filter.removeItems(sample, miss);
 
       MallowsModel initial = new MallowsModel(model.getCenter(), initialPhi);
-      AMPxSReconstructor rec = new AMPxSReconstructor(initial, 20, alpha);
+      AMPxIReconstructor rec = new AMPxIReconstructor(initial, 20, alpha);
       rec.setThreshold(0.005);
       MallowsModel reconstructed = rec.reconstruct(sample);
       

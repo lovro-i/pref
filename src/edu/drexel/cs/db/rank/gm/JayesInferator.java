@@ -117,6 +117,11 @@ public class JayesInferator {
     }
   }
   
+  public double getProbability() {
+    // take any variable and return MathUtils.sum(beliefs);
+    return -1;
+  }
+  
   public static void main(String[] args) {
     ItemSet items = new ItemSet(5);
     items.tagOneBased();
@@ -145,18 +150,23 @@ public class JayesInferator {
 //    Logger.info("%s: %f", r, p);
     
     {
+      // create preference set
       MapPreferenceSet v = new MapPreferenceSet(items);
       v.add(items.getItemByTag(2), items.getItemByTag(4));
       v.add(items.getItemByTag(3), items.getItemByTag(4));
 
+      // build graphical model
       GraphicalModel gm1 = new GraphicalModel(model, v);
       gm1.setOneBased(true);
       gm1.build();
       System.out.println(gm1);
       
+      // infer on graphical model
       JayesInferator inferator1 = new JayesInferator(gm1);
       inferator1.build();
       
+      // and now compare it to the exact value that dynamic algorithm gives
+      // iterate through v.getRankings() and sum the probabilities that expander gives for each one:
       
       Expander expander1 = new Expander(model);
       Ranking r1 = new Ranking(items);

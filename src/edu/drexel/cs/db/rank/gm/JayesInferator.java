@@ -29,6 +29,7 @@ public class JayesInferator {
   private final Map<Variable, BayesNode> variables = new HashMap<Variable, BayesNode>();
   private final Map<Variable, Range> ranges = new HashMap<Variable, Range>();
   private BayesNet net;
+  private IBayesInferer inferer;
 
   public JayesInferator(GraphicalModel gm) {
     this.gm = gm;
@@ -109,83 +110,20 @@ public class JayesInferator {
 
     }
 
-    IBayesInferer inferer = new JunctionTreeAlgorithm();
+    inferer = new JunctionTreeAlgorithm();
     inferer.setNetwork(net);
 
-    for (Variable var : variables.keySet()) {
-      double[] beliefs = inferer.getBeliefs(variables.get(var));
-      Logger.info("%s: %s | sum: %f", var, Arrays.toString(beliefs), MathUtils.sum(beliefs));
-    }
+//    for (Variable var : variables.keySet()) {
+//      double[] beliefs = inferer.getBeliefs(variables.get(var));
+//      Logger.info("%s: %s | sum: %f", var, Arrays.toString(beliefs), MathUtils.sum(beliefs));
+//    }
   }
 
   public double getProbability() {
-    // take any variable and return MathUtils.sum(beliefs);
-    net = new BayesNet();
-
-    // Create discrete variables
-    for (Variable var : gm.getVariables()) {
-      BayesNode node = net.createNode(var.getId());
-      Range range = new Range(var);
-      for (int i = range.low; i <= range.high; i++) {
-        node.addOutcome("I-" + i);
-      }
-      ranges.put(var, range);
-      variables.put(var, node);
-    }
-
-    // Create factors
-    for (Variable var : gm.getVariables()) {
-      BayesNode node = variables.get(var);
-      List<BayesNode> parents = new ArrayList<BayesNode>();
-      Range range = ranges.get(var);
-      int size = range.size();
-
-      for (Variable parent : var.getParents()) {
-        parents.add(variables.get(parent));
-        size *= ranges.get(parent).size();
-      }
-      node.setParents(parents);
-
-      double[] probs = new double[size];
-
-      int idx = 0;
-      if (parents.size() == 0) {
-        for (int i = range.low; i <= range.high; i++) {
-          probs[idx++] = var.getProbability(i);
-        }
-      } else if (parents.size() == 1) {
-        Range r1 = ranges.get(var.parents.get(0));
-        for (int i = r1.low; i <= r1.high; i++) {
-          for (int j = range.low; j <= range.high; j++) {
-            probs[idx++] = var.getProbability(j, i);
-          }
-        }
-      } else if (parents.size() == 2) {
-        Range r1 = ranges.get(var.parents.get(0));
-        Range r2 = ranges.get(var.parents.get(1));
-        for (int i = r1.low; i <= r1.high; i++) {
-          for (int k = r2.low; k <= r2.high; k++) {
-            for (int j = range.low; j <= range.high; j++) {
-              probs[idx++] = var.getProbability(j, i, k);
-            }
-          }
-        }
-      } else {
-        throw new IllegalStateException("ToDo, using recursion");
-      }
-
-      Logger.info(Arrays.toString(probs));
-      node.setProbabilities(probs);
-
-    }
-
-    IBayesInferer inferer = new JunctionTreeAlgorithm();
-    inferer.setNetwork(net);
-
+    if (inferer == null) build();
     Variable var = variables.keySet().iterator().next();
     double[] beliefs = inferer.getBeliefs(variables.get(var));
     double probability = MathUtils.sum(beliefs);
-    
     return probability;
   }
 

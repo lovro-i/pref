@@ -138,7 +138,7 @@ public class TableFactor extends AbstractTableFactor {
    */
   public Factor normalize ()
   {
-    // probs.oneNormalize ();
+    // Lovro: probs.oneNormalize ();
     return this;
   }
 

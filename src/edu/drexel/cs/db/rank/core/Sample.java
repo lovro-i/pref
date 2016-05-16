@@ -1,20 +1,29 @@
 package edu.drexel.cs.db.rank.core;
 
 import edu.drexel.cs.db.rank.core.Sample.PW;
+import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
 import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
+import edu.drexel.cs.db.rank.util.FileUtils;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.StringTokenizer;
 
 
 public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
@@ -201,42 +210,93 @@ public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
 
   }
   
+  public void save(String filename) throws IOException {
+    save(new File(filename));
+  }
   
-  public void save(OutputStream out) throws IOException {
+  public void save(File file) throws IOException {
+    PrintWriter out = FileUtils.write(file);
+    save(out);
+    out.close();
+  }
+  
+  public void save(PrintWriter out) {
+    for (PW<PS> pw: this) {
+      out.println(String.format("%s, %f", pw.p, pw.w));
+    }
+  }
+  
+  public static Sample<PreferenceSet> load(ItemSet items, String filename) throws IOException {
+    return load(items, new File(filename));  
+  }
+  
+  public static Sample<PreferenceSet> load(ItemSet items, File file) throws IOException {
+    return load(items, new FileReader(file));
+  }
+  
+  public static Sample<PreferenceSet> load(ItemSet items, Reader reader) throws IOException {
+    Sample<PreferenceSet> sample = new Sample<PreferenceSet>(items);
+    BufferedReader br = (reader instanceof BufferedReader) ? (BufferedReader) reader : new BufferedReader(reader);
+    String line = br.readLine();
+    while (line != null) {
+      line = line.trim();
+      if (!line.isEmpty()) {
+        if (line.charAt(0) == '[') {
+          StringTokenizer t = new StringTokenizer(line, "]");
+          MapPreferenceSet pref = MapPreferenceSet.fromStringById(items, t.nextToken());
+          double w = Double.parseDouble(t.nextToken(",]"));
+          sample.add(pref, w);
+        }
+        else {
+          StringTokenizer t = new StringTokenizer(line, ",");
+          Ranking r = Ranking.fromStringById(items, t.nextToken());
+          double w = Double.parseDouble(t.nextToken());
+          sample.add(r, w);
+        }
+      }
+      line = br.readLine();
+    }
+    return sample;
+  }
+  
+  
+  public void serialize(OutputStream out) throws IOException {
     ObjectOutputStream os = new ObjectOutputStream(out);
     os.writeObject(this);
   }
   
-  public void save(File file) throws IOException {
+  public void serialize(File file) throws IOException {
     FileOutputStream out = new FileOutputStream(file);
-    save(out);
+    serialize(out);
     out.close();
   } 
   
   
-  public static Sample<PreferenceSet> load(InputStream in) throws IOException, ClassNotFoundException {
+  public static Sample<PreferenceSet> deserialize(InputStream in) throws IOException, ClassNotFoundException {
     ObjectInputStream is = new ObjectInputStream(in);
     return (Sample<PreferenceSet>) is.readObject();
   }
  
-  public static Sample<PreferenceSet> load(File file) throws IOException, ClassNotFoundException {
-    return load(new FileInputStream(file));
+  public static Sample<PreferenceSet> deserialize(File file) throws IOException, ClassNotFoundException {
+    return deserialize(new FileInputStream(file));
   }
   
   public static void main(String[] args) throws IOException, ClassNotFoundException {
     ItemSet items = new ItemSet(10);
     RankingSample rankings = MallowsUtils.sample(items.getRandomRanking(), 0.2, 5);
-    rankings.save(new File("rankings.ser"));
+    String filename1 = "c:/temp/rankings.csv";
+    rankings.save(new File(filename1));
     
     Sample<PreferenceSet> tc = rankings.transitiveClosure();
-    System.out.println(tc);
+    String filename2 = "c:/temp/prefs.csv";
+    tc.save(new File(filename2));
     
-    String filename = "c:/temp/sample.ser";
-    tc.save(new File(filename));
-    
-    Sample<PreferenceSet> loaded = Sample.load(new File(filename));
-    System.out.println(loaded);
 
+    
+    Sample<PreferenceSet> s1 = Sample.load(items, filename1);
+    System.out.println(s1);
+    Sample<PreferenceSet> s2 = Sample.load(items, filename2);
+    System.out.println(s2);
   }
   
 }

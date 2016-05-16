@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * MapPreferenceSet stores the preferences as two maps between an item and its
@@ -393,6 +394,41 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
   public String toString() {
     return this.getPreferences().toString();
   }
+  
+  public String toStringById() {
+    Set<Preference> prefs = this.getPreferences();
+    List<String> pres = new ArrayList<String>();
+    for (Preference pref: prefs) {
+      pres.add(pref.higher.id + " > " + pref.lower.id);
+    }
+    return pres.toString();
+  }
+  
+  public static MapPreferenceSet fromStringById(ItemSet items, String s) {
+    MapPreferenceSet pref = new MapPreferenceSet(items);
+    StringTokenizer st = new StringTokenizer(s, "[,]");
+    while (st.hasMoreTokens()) {
+      String t = st.nextToken();
+      String[] ss = t.split(">");
+      int high = Integer.parseInt(ss[0].trim());
+      int low = Integer.parseInt(ss[1].trim());
+      pref.addById(high, low);
+    }
+    return pref;
+  }
+  
+  public static MapPreferenceSet fromStringByTag(ItemSet items, String s) {
+    MapPreferenceSet pref = new MapPreferenceSet(items);
+    StringTokenizer st = new StringTokenizer(s, "[,]");
+    while (st.hasMoreTokens()) {
+      String t = st.nextToken();
+      String[] ss = t.split(">");
+      Item high = items.getItemByTag(ss[0].trim());
+      Item low = items.getItemByTag(ss[1].trim());
+      pref.add(high, low);
+    }
+    return pref;
+  }
 
   @Override
   public Set<Item> getItems() {
@@ -402,4 +438,23 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
     return items;
   }
   
+  public static void main(String[] args) {
+    ItemSet items = new ItemSet(10);
+    items.tagLetters();
+    MapPreferenceSet pref = new MapPreferenceSet(items);
+    pref.addById(5, 2);
+    pref.addById(5, 7);
+    pref.addById(2, 1);
+    pref.addById(3, 1);
+    
+    System.out.println(pref);
+    System.out.println(pref.toStringById());
+    
+    
+    Ranking r = new Ranking(items);
+    r.add(items.get(3));
+    r.add(items.get(2));
+    r.add(items.get(8));
+    System.out.println(r);
+  }
 }

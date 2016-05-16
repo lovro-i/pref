@@ -8,8 +8,11 @@ import edu.drexel.cs.db.rank.util.MathUtils;
 import edu.umass.cs.mallet.base.types.LabelAlphabet;
 import edu.umass.cs.mallet.grmm.inference.GibbsSampler;
 import edu.umass.cs.mallet.grmm.inference.Inferencer;
+import edu.umass.cs.mallet.grmm.inference.LoopyBP;
 import edu.umass.cs.mallet.grmm.inference.Sampler;
 import edu.umass.cs.mallet.grmm.inference.SamplingInferencer;
+import edu.umass.cs.mallet.grmm.inference.TreeBP;
+import edu.umass.cs.mallet.grmm.inference.VariableElimination;
 import edu.umass.cs.mallet.grmm.types.FactorGraph;
 import edu.umass.cs.mallet.grmm.types.TableFactor;
 import java.util.Arrays;
@@ -114,10 +117,10 @@ public class GrmmInferator {
     // Inferencer inf = new TreeBP();              // does not work (1.202785)
     // Inferencer inf = new LoopyBP();            // does not work (0)
     // Sampler sampler = new ExactSampler();     // does not work (1) 
-    Sampler sampler = new GibbsSampler();    // Exception
-    inferencer = new SamplingInferencer(sampler, 1000);
+    // Sampler sampler = new GibbsSampler();    // Exception
+    // inferencer = new SamplingInferencer(sampler, 1000);
+    inferencer = new VariableElimination();
     
-    //inferencer = new JunctionTreeInferencer();
     inferencer.computeMarginals(graph);
     
     for (Variable var: variables.keySet()) {

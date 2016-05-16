@@ -1,12 +1,22 @@
 package edu.drexel.cs.db.rank.core;
 
+import edu.drexel.cs.db.rank.util.FileUtils;
 import edu.drexel.cs.db.rank.util.MathUtils;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /** Set of items (items, alternatives), with id going from 0 to n-1 */
 public class ItemSet implements List<Item>, Serializable {
@@ -247,10 +257,58 @@ public class ItemSet implements List<Item>, Serializable {
     return sb.toString();
   }
   
-  public static void main(String[] args) {
-    ItemSet items = new ItemSet(15);
-    items.tagSigmas();
-    System.out.println(items);
+  public void save(String filename) throws IOException {
+    save(new File(filename));
+  }
+    
+  public void save(File file) throws IOException {
+    PrintWriter out = FileUtils.write(file);
+    save(out);
+    out.close();
+  }
+  
+  public void save(PrintWriter out) {
+    for (Item item: this) {
+      out.println(String.format("%d: %s", item.id, item));
+    }
+  }
+  
+  public static ItemSet load(String filename) throws IOException {
+    return load(new File(filename));
+  }
+  
+  public static ItemSet load(File file) throws IOException {
+    return load(new FileReader(file));
+  }
+  
+  public static ItemSet load(Reader reader) throws IOException {
+    BufferedReader br = (reader instanceof BufferedReader) ? (BufferedReader) reader : new BufferedReader(reader);
+    String line = br.readLine();
+    Map<Integer, String> map = new HashMap<Integer, String>();
+    int max = -1;
+    while (line != null) {
+      StringTokenizer tokenizer = new StringTokenizer(line, ":");
+      Integer id = Integer.valueOf(tokenizer.nextToken());
+      String s = tokenizer.nextToken();
+      if (s != null) s = s.trim();
+      map.put(id, s);
+      max = Math.max(max, id);
+      line = br.readLine();
+    }
+    
+    Object[] objects = new Object[max+1];
+    for (Integer i: map.keySet()) {
+      objects[i] = map.get(i);
+    }
+    return new ItemSet(objects);
   }
 
+  public static void main(String[] args) throws IOException {
+//    ItemSet items = new ItemSet(10);
+//    items.tagLetters();
+//    items.save("c:/temp/items.txt");
+
+    ItemSet items = ItemSet.load("c:/temp/items.txt");
+    System.out.println(items);
+  }
 }

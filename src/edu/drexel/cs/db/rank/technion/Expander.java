@@ -3,9 +3,11 @@ package edu.drexel.cs.db.rank.technion;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
+import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.UpTo;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.util.Map;
+import java.util.Set;
 
 /** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities */
 public class Expander {
@@ -59,6 +61,16 @@ public class Expander {
   public double getProbability(Ranking r) {
     expand(r);
     return expands.getProbability();
+  }
+  
+  public double getProbability(PreferenceSet pref){
+    Set<Ranking> subRankings = pref.getRankings();
+    double accumulatedProbability = 0;
+    for (Ranking r: subRankings){
+      expand(r);
+      accumulatedProbability += expands.getProbability();
+    }
+    return accumulatedProbability;
   }
   
   /** Returns the probability of the specific sequence

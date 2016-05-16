@@ -70,12 +70,8 @@ public class JayesInferatorTest {
     JayesInferator inferator = new JayesInferator(gm);
     double probabilityGivenByJayes = inferator.getProbability();
 
-    Set<Ranking> subRankings = v.getRankings();
     Expander expander = new Expander(model);
-    double probabilityGivenByDynamicAlgorithm = 0;
-    for (Ranking subRanking: subRankings){
-      probabilityGivenByDynamicAlgorithm += expander.getProbability(subRanking);
-    }
+    double probabilityGivenByDynamicAlgorithm = expander.getProbability(v);
     
     System.out.println("\n****** Test Case ******");
     System.out.format("user constraint v is: %s\n", v);

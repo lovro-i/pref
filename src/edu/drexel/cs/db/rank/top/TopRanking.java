@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.top;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
+import edu.drexel.cs.db.rank.core.MapPreferenceSet;
 import java.util.HashSet;
 import java.util.Set;
 

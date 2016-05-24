@@ -6,7 +6,7 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.distance.KL;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.RejectionSampler;
 import edu.drexel.cs.db.rank.util.Logger;

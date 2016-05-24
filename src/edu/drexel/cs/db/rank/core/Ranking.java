@@ -1,8 +1,5 @@
 package edu.drexel.cs.db.rank.core;
 
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
-import edu.drexel.cs.db.rank.preference.Preference;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import java.io.Serializable;
 import java.util.*;

@@ -1,8 +1,6 @@
 package edu.drexel.cs.db.rank.core;
 
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import java.io.BufferedReader;

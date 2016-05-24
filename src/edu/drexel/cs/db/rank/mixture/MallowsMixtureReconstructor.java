@@ -6,7 +6,7 @@ import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.Serializable;

@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
+import edu.drexel.cs.db.rank.core.MapPreferenceSet;
 import edu.drexel.cs.db.rank.util.Logger;
 import edu.drexel.cs.db.rank.util.MathUtils;
 import edu.umass.cs.mallet.base.types.LabelAlphabet;

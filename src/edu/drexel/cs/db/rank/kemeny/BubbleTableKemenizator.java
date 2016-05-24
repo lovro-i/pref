@@ -7,8 +7,8 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.sampler.RIMRSampler;
 import edu.drexel.cs.db.rank.util.Histogram;
-import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PairwisePreferenceMatrix;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.MallowsTriangle;
 
 

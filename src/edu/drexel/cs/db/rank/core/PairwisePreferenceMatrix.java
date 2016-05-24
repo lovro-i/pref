@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.rank.preference;
+package edu.drexel.cs.db.rank.core;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Sample;

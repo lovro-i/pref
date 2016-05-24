@@ -2,8 +2,8 @@ package edu.drexel.cs.db.rank.kemeny;
 
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
-import edu.drexel.cs.db.rank.preference.Preference;
+import edu.drexel.cs.db.rank.core.MapPreferenceSet;
+import edu.drexel.cs.db.rank.core.Preference;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

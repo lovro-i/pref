@@ -5,7 +5,7 @@ import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.io.IOException;
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.triangle;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.util.HashSet;
 import java.util.Set;

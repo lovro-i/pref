@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.technion;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.triangle.UpTo;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.util.Map;

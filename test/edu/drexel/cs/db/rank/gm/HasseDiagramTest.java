@@ -2,8 +2,8 @@ package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.MapPreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

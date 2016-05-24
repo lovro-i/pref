@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.gm;
 import edu.drexel.cs.db.rank.core.ItemSet;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
+import edu.drexel.cs.db.rank.core.MapPreferenceSet;
 import java.util.Arrays;
 import org.junit.Test;
 import static org.junit.Assert.*;

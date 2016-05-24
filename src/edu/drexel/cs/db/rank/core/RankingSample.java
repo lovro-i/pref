@@ -1,7 +1,5 @@
 package edu.drexel.cs.db.rank.core;
 
-import edu.drexel.cs.db.rank.preference.MapPreferenceSet;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
 import edu.drexel.cs.db.rank.util.FileUtils;
 import java.io.BufferedReader;
 import java.io.File;

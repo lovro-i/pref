@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.incomplete;
 
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.model.MallowsModel;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.sampler.AMPxDSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 

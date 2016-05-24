@@ -5,8 +5,8 @@ import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
 import edu.drexel.cs.db.rank.incomplete.MissingProbabilities;
-import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.MutablePreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import java.security.SecureRandom;
 import java.util.Random;
 

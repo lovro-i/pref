@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.rank.preference;
+package edu.drexel.cs.db.rank.core;
 
 import cern.colt.Arrays;
 import edu.drexel.cs.db.rank.core.Item;

@@ -2,7 +2,7 @@ package edu.drexel.cs.db.rank.sampler;
 
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.util.MathUtils;
 
 /** Creates new sample by sampling from the current one, with replacement */

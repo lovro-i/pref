@@ -1,15 +1,7 @@
-package edu.drexel.cs.db.rank.preference;
+package edu.drexel.cs.db.rank.core;
 
-import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.core.ItemSet;
-import edu.drexel.cs.db.rank.core.Ranking;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

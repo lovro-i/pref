@@ -1,10 +1,10 @@
 package edu.drexel.cs.db.rank.gm;
 
 import edu.drexel.cs.db.rank.core.Item;
-import edu.drexel.cs.db.rank.preference.MutablePreferenceSet;
-import edu.drexel.cs.db.rank.preference.Preference;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
-import edu.drexel.cs.db.rank.preference.SparsePreferenceSet;
+import edu.drexel.cs.db.rank.core.MutablePreferenceSet;
+import edu.drexel.cs.db.rank.core.Preference;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
+import edu.drexel.cs.db.rank.core.SparsePreferenceSet;
 import java.util.HashSet;
 import java.util.Set;
 

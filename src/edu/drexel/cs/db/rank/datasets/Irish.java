@@ -2,9 +2,9 @@ package edu.drexel.cs.db.rank.datasets;
 
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.loader.SampleLoader;
-import edu.drexel.cs.db.rank.preference.DensePreferenceSet;
+import edu.drexel.cs.db.rank.core.DensePreferenceSet;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import java.io.File;
 import java.io.IOException;
 

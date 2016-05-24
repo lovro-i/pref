@@ -2,8 +2,8 @@ package edu.drexel.cs.db.rank.distance;
 
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.core.Sample;
-import edu.drexel.cs.db.rank.preference.PairwisePreferenceMatrix;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PairwisePreferenceMatrix;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 
 /** Calculates Kullback-Leibler divergence between two PPMs */
 public class KL {

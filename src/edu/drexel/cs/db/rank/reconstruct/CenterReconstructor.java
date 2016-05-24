@@ -4,7 +4,7 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample;
 import edu.drexel.cs.db.rank.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.rank.kemeny.KemenyCandidate;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 
 /** Reconstructs center even from the incomplete sample */
 public class CenterReconstructor {

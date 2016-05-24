@@ -3,7 +3,7 @@ package edu.drexel.cs.db.rank.sampler.other;
 import edu.drexel.cs.db.rank.core.Item;
 import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.Sample.PW;
-import edu.drexel.cs.db.rank.preference.PreferenceSet;
+import edu.drexel.cs.db.rank.core.PreferenceSet;
 import edu.drexel.cs.db.rank.util.Logger;
 import java.util.Collection;
 import java.util.HashMap;

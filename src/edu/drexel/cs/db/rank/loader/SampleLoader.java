@@ -82,6 +82,7 @@ public class SampleLoader {
   private ItemSet getItemSetById(List<String> lines) {
     int maxId = -1;
     for (String line: lines) {
+      line = line.split(", ")[0];
       StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
       while (tokenizer.hasMoreTokens()) {
         int id = Integer.parseInt(tokenizer.nextToken());

@@ -8,6 +8,7 @@ import edu.drexel.cs.db.rank.util.MathUtils;
 import edu.umass.cs.mallet.base.types.LabelAlphabet;
 import edu.umass.cs.mallet.grmm.inference.GibbsSampler;
 import edu.umass.cs.mallet.grmm.inference.Inferencer;
+import edu.umass.cs.mallet.grmm.inference.JunctionTreeInferencer;
 import edu.umass.cs.mallet.grmm.inference.LoopyBP;
 import edu.umass.cs.mallet.grmm.inference.Sampler;
 import edu.umass.cs.mallet.grmm.inference.SamplingInferencer;
@@ -29,6 +30,10 @@ public class GrmmInferator {
   private FactorGraph graph;
   private Inferencer inferencer;
 
+  public GrmmInferator(GraphicalModel gm) {
+    this(gm, new JunctionTreeInferencer());
+  }
+  
   public GrmmInferator(GraphicalModel gm, Inferencer inferencer) {
     this.gm = gm; 
     this.inferencer = inferencer;
@@ -124,12 +129,12 @@ public class GrmmInferator {
     
     inferencer.computeMarginals(graph);
     
-    for (Variable var: variables.keySet()) {
-      edu.umass.cs.mallet.grmm.types.Variable factorVar = variables.get(var);
-      TableFactor f = (TableFactor) inferencer.lookupMarginal(factorVar);
-      double[] beliefs = f.getValues();
-      Logger.info("%s: %s %f", var, Arrays.toString(beliefs), MathUtils.sum(beliefs));
-    }
+//    for (Variable var: variables.keySet()) {
+//      edu.umass.cs.mallet.grmm.types.Variable factorVar = variables.get(var);
+//      TableFactor f = (TableFactor) inferencer.lookupMarginal(factorVar);
+//      double[] beliefs = f.getValues();
+//      Logger.info("%s: %s %f", var, Arrays.toString(beliefs), MathUtils.sum(beliefs));
+//    }
 
   }
   

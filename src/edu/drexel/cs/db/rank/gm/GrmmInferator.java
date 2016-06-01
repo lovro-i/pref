@@ -29,8 +29,9 @@ public class GrmmInferator {
   private FactorGraph graph;
   private Inferencer inferencer;
 
-  public GrmmInferator(GraphicalModel gm) {
+  public GrmmInferator(GraphicalModel gm, Inferencer inferencer) {
     this.gm = gm; 
+    this.inferencer = inferencer;
   }
 
   public FactorGraph getFactorGraph() {
@@ -119,7 +120,7 @@ public class GrmmInferator {
     // Sampler sampler = new ExactSampler();     // does not work (1) 
     // Sampler sampler = new GibbsSampler();    // Exception
     // inferencer = new SamplingInferencer(sampler, 1000);
-    inferencer = new VariableElimination();
+    // inferencer = new VariableElimination();
     
     inferencer.computeMarginals(graph);
     
@@ -158,7 +159,7 @@ public class GrmmInferator {
     System.out.println(gm);
 
     // infer on graphical model
-    GrmmInferator inferator = new GrmmInferator(gm);
+    GrmmInferator inferator = new GrmmInferator(gm, new VariableElimination());
     inferator.build();
     System.out.println(inferator.getProbability());
   }

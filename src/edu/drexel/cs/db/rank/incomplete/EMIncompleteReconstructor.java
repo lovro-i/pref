@@ -11,8 +11,6 @@ import edu.drexel.cs.db.rank.reconstruct.CenterReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.rank.reconstruct.PolynomialReconstructor;
 import edu.drexel.cs.db.rank.sampler.AMPSampler;
-import edu.drexel.cs.db.rank.sampler.other.AMPSamplerPlus;
-import edu.drexel.cs.db.rank.sampler.other.AMPSamplerPlusPlus;
 import edu.drexel.cs.db.rank.sampler.AMPxSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsSampler;
 import edu.drexel.cs.db.rank.sampler.MallowsUtils;
@@ -109,26 +107,6 @@ public class EMIncompleteReconstructor implements MallowsReconstructor {
     {
       long start = System.currentTimeMillis();
       MallowsSampler sampler = new AMPxSampler(initial, sample, 10);
-      EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
-      rec.setIterations(4);
-      rec.setOnIterationListener(listener);
-      MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
-    }
-
-    {
-      long start = System.currentTimeMillis();
-      MallowsSampler sampler = new AMPSamplerPlus(initial, sample, 10);
-      EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
-      rec.setIterations(4);
-      rec.setOnIterationListener(listener);
-      MallowsModel model = rec.reconstruct(sample, ref);
-      Logger.info("%s Done in %d ms", sampler.getClass().getSimpleName(), System.currentTimeMillis() - start);
-    }
-
-    {
-      long start = System.currentTimeMillis();
-      MallowsSampler sampler = new AMPSamplerPlusPlus(initial, sample, 10);
       EMIncompleteReconstructor rec = new EMIncompleteReconstructor(sampler);
       rec.setIterations(4);
       rec.setOnIterationListener(listener);

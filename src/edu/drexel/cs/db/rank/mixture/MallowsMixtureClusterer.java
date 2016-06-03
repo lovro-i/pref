@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class MallowsMixtureClusterer {
 
-  private int maxClusters;
+  private final int maxClusters;
   private double alphaDecay = 0.65d; // 0.65d // smaller alphaDecay, more clusters; bigger alpha, more agressive clustering. 0.65 is OK
   
   public MallowsMixtureClusterer(int maxClusters) {

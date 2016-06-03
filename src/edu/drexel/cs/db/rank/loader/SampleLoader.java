@@ -6,7 +6,6 @@ import edu.drexel.cs.db.rank.core.Ranking;
 import edu.drexel.cs.db.rank.core.RankingSample;
 import edu.drexel.cs.db.rank.top.TopRanking;
 import edu.drexel.cs.db.rank.util.FileUtils;
-import edu.drexel.cs.db.rank.util.Logger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

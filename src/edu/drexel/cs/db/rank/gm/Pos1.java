@@ -5,7 +5,7 @@ import edu.drexel.cs.db.rank.model.MallowsModel;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Calculates probabilities of POS1 factors usIng dynamic recursive algorithm (caches previously calculated values) */
+/** Calculates probabilities of POS1 factors using dynamic recursive algorithm (caches previously calculated values) */
 public class Pos1 {
 
   private MallowsModel model;

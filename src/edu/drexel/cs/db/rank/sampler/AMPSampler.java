@@ -19,7 +19,57 @@ public class AMPSampler extends MallowsSampler {
     super(model);
   }
   
+  // @ToDo
+  public double samplePosterior(PreferenceSet v, int samples) {
+    return 0;
+  }
   
+  
+  // @ToDo
+  private double onePosterior(PreferenceSet v) {
+    Ranking reference = model.getCenter();
+    Ranking r = new Ranking(model.getItemSet());
+    PreferenceSet tc = v.transitiveClosure();
+    
+    Item item = reference.get(0);
+    r.add(item);
+    for (int i = 1; i < reference.length(); i++) {
+      item = reference.get(i);
+      int low = 0;
+      int high = i;
+      
+      Set<Item> higher = tc.getHigher(item);
+      Set<Item> lower = tc.getLower(item);
+      for (int j = 0; j < r.length(); j++) {
+        Item it = r.get(j);
+        if (higher.contains(it)) low = j + 1;
+        if (lower.contains(it) && j < high) high = j;
+      }
+            
+      if (low == high) {
+        r.add(low, item);
+      }
+      else {
+        double sum = 0;
+        double[] p = new double[high+1];                
+        for (int j = low; j <= high; j++) {
+          p[j] = Math.pow(model.getPhi(), i - j);
+          sum += p[j];
+        }
+        
+        double flip = MathUtils.RANDOM.nextDouble();
+        double ps = 0;
+        for (int j = low; j <= high; j++) {
+          ps += p[j] / sum;
+          if (ps > flip || j == high) {
+            r.add(j, item);
+            break;
+          }
+        }
+      }
+    }
+    return 0;
+  }
    
   @Override
   public Ranking sample(PreferenceSet v) {
@@ -46,7 +96,6 @@ public class AMPSampler extends MallowsSampler {
         r.add(low, item);
       }
       else {
-        long t2 = System.currentTimeMillis();
         double sum = 0;
         double[] p = new double[high+1];                
         for (int j = low; j <= high; j++) {

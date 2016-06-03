@@ -11,98 +11,110 @@ import edu.drexel.cs.db.db4pref.util.MathUtils;
 import java.util.Map;
 import java.util.Set;
 
-
 public class AMPSampler extends MallowsSampler {
 
-  
   public AMPSampler(MallowsModel model) {
     super(model);
   }
-  
-  // @ToDo
-  public double samplePosterior(PreferenceSet v, int samples) {
-    return 0;
+
+  // Sample posterior from user preferences pref by running AMP multiple times.
+  public double samplePosterior(PreferenceSet pref, int samplingRepetition) {
+    double posterior = 0;
+    for (int i = 0; i < samplingRepetition; i++) {
+      posterior += samplePosterior(pref);
+    }
+    return posterior / samplingRepetition;
   }
-  
-  
-  // @ToDo
-  private double onePosterior(PreferenceSet v) {
+
+  // Sample posterior from user preferences v by running AMP once.
+  private double samplePosterior(PreferenceSet pref) {
+
     Ranking reference = model.getCenter();
+    double phi = model.getPhi();
+    PreferenceSet tc = pref.transitiveClosure();
+    double posterior = 1;
+
     Ranking r = new Ranking(model.getItemSet());
-    PreferenceSet tc = v.transitiveClosure();
-    
     Item item = reference.get(0);
     r.add(item);
     for (int i = 1; i < reference.length(); i++) {
       item = reference.get(i);
       int low = 0;
       int high = i;
-      
+
       Set<Item> higher = tc.getHigher(item);
       Set<Item> lower = tc.getLower(item);
       for (int j = 0; j < r.length(); j++) {
         Item it = r.get(j);
-        if (higher.contains(it)) low = j + 1;
-        if (lower.contains(it) && j < high) high = j;
+        if (higher.contains(it)) {
+          low = j + 1;
+        }
+        if (lower.contains(it) && j < high) {
+          high = j;
+        }
       }
-            
+
       if (low == high) {
         r.add(low, item);
-      }
-      else {
+        posterior *= ((1 - phi) / (1 - Math.pow(phi, i + 1))) * Math.pow(phi, i - high);
+      } else {
         double sum = 0;
-        double[] p = new double[high+1];                
+        double[] p = new double[high + 1];
         for (int j = low; j <= high; j++) {
           p[j] = Math.pow(model.getPhi(), i - j);
           sum += p[j];
         }
-        
+
         double flip = MathUtils.RANDOM.nextDouble();
         double ps = 0;
         for (int j = low; j <= high; j++) {
           ps += p[j] / sum;
           if (ps > flip || j == high) {
             r.add(j, item);
+            posterior *= ((1 - phi) / (1 - Math.pow(phi, i + 1))) * sum;
             break;
           }
         }
       }
     }
-    return 0;
+    return posterior;
   }
-   
+
   @Override
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();
     Ranking r = new Ranking(model.getItemSet());
     PreferenceSet tc = v.transitiveClosure();
-    
+
     Item item = reference.get(0);
     r.add(item);
     for (int i = 1; i < reference.length(); i++) {
       item = reference.get(i);
       int low = 0;
       int high = i;
-      
+
       Set<Item> higher = tc.getHigher(item);
       Set<Item> lower = tc.getLower(item);
       for (int j = 0; j < r.length(); j++) {
         Item it = r.get(j);
-        if (higher.contains(it)) low = j + 1;
-        if (lower.contains(it) && j < high) high = j;
+        if (higher.contains(it)) {
+          low = j + 1;
+        }
+        if (lower.contains(it) && j < high) {
+          high = j;
+        }
       }
-            
+
       if (low == high) {
         r.add(low, item);
-      }
-      else {
+      } else {
         double sum = 0;
-        double[] p = new double[high+1];                
+        double[] p = new double[high + 1];
         for (int j = low; j <= high; j++) {
           p[j] = Math.pow(model.getPhi(), i - j);
           sum += p[j];
         }
-        
+
         double flip = MathUtils.RANDOM.nextDouble();
         double ps = 0;
         for (int j = low; j <= high; j++) {
@@ -116,57 +128,59 @@ public class AMPSampler extends MallowsSampler {
     }
     return r;
   }
-  
-  
 
   public RankingSample sample(PreferenceSet v, int size) {
     RankingSample sample = new RankingSample(model.getItemSet());
     for (int i = 0; i < size; i++) {
-      sample.add(sample(v));      
+      sample.add(sample(v));
     }
     return sample;
   }
-  
+
   public Ranking sample(Ranking v) {
     Ranking reference = model.getCenter();
     Map<Item, Integer> map = v.getIndexMap();
     Ranking r = new Ranking(model.getItemSet());
-    
+
     Item item = reference.get(0);
     r.add(item);
     for (int i = 1; i < reference.length(); i++) {
       item = reference.get(i);
       int low, high;
-      
+
       Integer ci = map.get(item);
       if (ci == null) {
         low = 0;
         high = i;
-      }
-      else {
+      } else {
         low = 0;
         high = i;
-        
+
         for (int j = 0; j < r.length(); j++) {
           Item t = r.get(j);
           Integer ti = map.get(t);
-          if (ti == null) continue;
-          if (ti < ci) low = j + 1;
-          if (ti > ci && j < high) high = j;
+          if (ti == null) {
+            continue;
+          }
+          if (ti < ci) {
+            low = j + 1;
+          }
+          if (ti > ci && j < high) {
+            high = j;
+          }
         }
       }
-      
+
       if (low == high) {
         r.add(low, item);
-      }
-      else {        
+      } else {
         double sum = 0;
-        double[] p = new double[high+1];                
+        double[] p = new double[high + 1];
         for (int j = low; j <= high; j++) {
           p[j] = Math.pow(model.getPhi(), i - j);
           sum += p[j];
         }
-        
+
         double flip = MathUtils.RANDOM.nextDouble();
         double ps = 0;
         for (int j = low; j <= high; j++) {
@@ -180,16 +194,15 @@ public class AMPSampler extends MallowsSampler {
     }
     return r;
   }
-  
-  
+
   public static void main(String[] args) {
     ItemSet items = new ItemSet(10);
     Ranking v = new Ranking(items);
-    v.add(items.get(3));    
+    v.add(items.get(3));
     v.add(items.get(7));
     v.add(items.get(5));
     System.out.println(v);
-    
+
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.8);
     AMPSampler sampler = new AMPSampler(model);
     RankingSample sample = sampler.sample(v, 1000);
@@ -197,16 +210,17 @@ public class AMPSampler extends MallowsSampler {
 //    for (Ranking r: sample) {
 //      if (!Filter.isConsistent(r, v)) Logger.error("Inconsistent: " + r.toString());
 //    }
-    
-    
+
     // PreferenceSet test
     {
       RankingSample s2 = sampler.sample(v.transitiveClosure(), 1000);
       System.out.println(s2);
-      for (Ranking r: s2.rankings()) {
-        if (!r.isConsistent(v)) Logger.error("Inconsistent: " + r.toString());
+      for (Ranking r : s2.rankings()) {
+        if (!r.isConsistent(v)) {
+          Logger.error("Inconsistent: " + r.toString());
+        }
       }
     }
-    
+
   }
 }

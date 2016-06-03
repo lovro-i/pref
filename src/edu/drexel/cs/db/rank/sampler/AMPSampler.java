@@ -17,21 +17,21 @@ public class AMPSampler extends MallowsSampler {
     super(model);
   }
 
-  // Sample posterior from user preferences v by running AMP multiple times.
-  public double samplePosterior(PreferenceSet v, int samplingTimesInTotal) {
+  // Sample posterior from user preferences pref by running AMP multiple times.
+  public double samplePosterior(PreferenceSet pref, int samplingRepetition) {
     double posterior = 0;
-    for (int i = 0; i < samplingTimesInTotal; i++) {
-      posterior += samplePosterior(v);
+    for (int i = 0; i < samplingRepetition; i++) {
+      posterior += samplePosterior(pref);
     }
-    return posterior / samplingTimesInTotal;
+    return posterior / samplingRepetition;
   }
 
   // Sample posterior from user preferences v by running AMP once.
-  private double samplePosterior(PreferenceSet v) {
+  private double samplePosterior(PreferenceSet pref) {
 
     Ranking reference = model.getCenter();
     double phi = model.getPhi();
-    PreferenceSet tc = v.transitiveClosure();
+    PreferenceSet tc = pref.transitiveClosure();
     double posterior = 1;
 
     Ranking r = new Ranking(model.getItemSet());

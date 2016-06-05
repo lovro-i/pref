@@ -17,13 +17,13 @@ public class AMPSampler extends MallowsSampler {
     super(model);
   }
 
-  // Sample posterior from user preferences pref by running AMP multiple times.
-  public double samplePosterior(PreferenceSet pref, int samplingRepetition) {
-    double posterior = 0;
+  // Sample multiple posteriors from user preferences pref by running AMP multiple times.
+  public double[] samplePosteriors(PreferenceSet pref, int samplingRepetition) {
+    double[] posteriors = new double[samplingRepetition];
     for (int i = 0; i < samplingRepetition; i++) {
-      posterior += samplePosterior(pref);
+      posteriors[i] = samplePosterior(pref);
     }
-    return posterior / samplingRepetition;
+    return posteriors;
   }
 
   // Sample posterior from user preferences v by running AMP once.

@@ -1,13 +1,10 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.core.ItemSet;
-import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.HashSet;
 import java.util.Set;
 
-
+/** Abstract implementation of MutablePreferenceSet, so that you can extend it without implementing some things from the scratch. */
 public abstract class AbstractPreferenceSet implements MutablePreferenceSet {
 
   

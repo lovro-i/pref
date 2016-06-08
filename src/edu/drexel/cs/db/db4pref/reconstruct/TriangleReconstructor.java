@@ -4,12 +4,12 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.sampler.MallowsUtils;
-import edu.drexel.cs.db.db4pref.math.Polynomial;
+import edu.drexel.cs.db.db4pref.util.Polynomial;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
-import edu.drexel.cs.db.db4pref.triangle.SampleTriangle;
-import edu.drexel.cs.db.db4pref.triangle.Triangle;
-import edu.drexel.cs.db.db4pref.triangle.TriangleRow;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.SampleTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.Triangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.TriangleRow;
 import edu.drexel.cs.db.db4pref.util.Logger;
 
 /** One that should reconstruct phi directly from the triangle, without sampling

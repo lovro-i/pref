@@ -2,9 +2,9 @@ package edu.drexel.cs.db.db4pref.mixture;
 
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,22 +20,22 @@ public class MallowsMixtureSampler {
   
   
   /** @return Sample of specified size, sampled from the mixture of models */
-  public RankingSample generate(int size) {
+  public RankingSample sample(int size) {
     RankingSample sample = new RankingSample(model.getItemSet());
     
     // Create samplers for each model
-    final List<RIMRSampler> samplers = new ArrayList<RIMRSampler>();
+    final List<RIMSampler> samplers = new ArrayList<RIMSampler>();
     for (MallowsModel mm: model.getModels()) {
       MallowsTriangle triangle = new MallowsTriangle(mm);
-      RIMRSampler sampler = new RIMRSampler(triangle);
+      RIMSampler sampler = new RIMSampler(triangle);
       samplers.add(sampler);
     }
               
     // Pick a random model and sample a ranking from it
     for (int i = 0; i < size; i++) {
       int index = model.getRandomModel();
-      RIMRSampler sampler = samplers.get(index);
-      Ranking r = sampler.generate();
+      RIMSampler sampler = samplers.get(index);
+      Ranking r = sampler.sample();
       sample.add(r);
     }
     

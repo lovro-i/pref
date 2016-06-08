@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/** MutablePreferenceSet that stores all pairwise preferences in a matrix */
 public class DensePreferenceSet extends AbstractPreferenceSet {
 
   private final ItemSet items;

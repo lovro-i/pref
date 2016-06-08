@@ -1,7 +1,5 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.core.ItemSet;
-import edu.drexel.cs.db.db4pref.core.Sample;
 import edu.drexel.cs.db.db4pref.core.Sample.PW;
 
 

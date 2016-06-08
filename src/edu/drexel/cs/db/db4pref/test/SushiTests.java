@@ -3,7 +3,7 @@ package edu.drexel.cs.db.db4pref.test;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
-import edu.drexel.cs.db.db4pref.datasets.Sushi;
+import edu.drexel.cs.db.db4pref.data.datasets.Sushi;
 import edu.drexel.cs.db.db4pref.filter.Split;
 import edu.drexel.cs.db.db4pref.sampler.MallowsUtils;
 import edu.drexel.cs.db.db4pref.distance.KL;
@@ -11,6 +11,7 @@ import edu.drexel.cs.db.db4pref.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.db4pref.mixture.MallowsMixtureReconstructor;
 import edu.drexel.cs.db.db4pref.core.PairwisePreferenceMatrix;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
+import edu.drexel.cs.db.db4pref.mixture.GenericMixtureReconstructor;
 import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
 import edu.drexel.cs.db.db4pref.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
@@ -59,7 +60,7 @@ public class SushiTests {
 
         // reconstruct
         MallowsReconstructor single = new CompleteReconstructor();
-        MallowsMixtureReconstructor reconstructor = new MallowsMixtureReconstructor(single, max);
+        GenericMixtureReconstructor reconstructor = new GenericMixtureReconstructor(single, max);
         MallowsMixtureModel model = reconstructor.reconstruct(trainSample);          
         
         // measure

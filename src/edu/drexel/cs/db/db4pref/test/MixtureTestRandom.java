@@ -4,12 +4,12 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.filter.Filter;
-import edu.drexel.cs.db.db4pref.loader.SampleLoader;
+import edu.drexel.cs.db.db4pref.data.SampleLoader;
 import edu.drexel.cs.db.db4pref.mixture.MallowsMixtureCompactor;
 import edu.drexel.cs.db.db4pref.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.db4pref.mixture.MallowsMixtureSampler;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
-import edu.drexel.cs.db.db4pref.triangle.Expands;
+import edu.drexel.cs.db.db4pref.sampler.triangle.Expands;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
@@ -58,7 +58,7 @@ public class MixtureTestRandom {
     MallowsMixtureSampler sampler = new MallowsMixtureSampler(model);
     int sampleSize = (MathUtils.RANDOM.nextInt(95) + 5) * 100;
     // sampleSize = 2000;
-    RankingSample sample = sampler.generate(sampleSize);
+    RankingSample sample = sampler.sample(sampleSize);
     
     double missing = Math.max(0, MathUtils.RANDOM.nextDouble() - 0.3); 
     // missing = 0.5;
@@ -99,7 +99,7 @@ public class MixtureTestRandom {
     MallowsMixtureSampler sampler = new MallowsMixtureSampler(model);
     int sampleSize = (MathUtils.RANDOM.nextInt(95) + 5) * 50;
     // sampleSize = 2000;
-    RankingSample sample = sampler.generate(sampleSize);
+    RankingSample sample = sampler.sample(sampleSize);
     
     double missing = Math.max(0, MathUtils.RANDOM.nextDouble() - 0.3); 
     // missing = 0.5;

@@ -5,10 +5,10 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample.PW;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.util.Histogram;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
-import edu.drexel.cs.db.db4pref.triangle.SampleTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.SampleTriangle;
 
 /** Complete each ranking in the sample with a random one(s), consistent with the ranking (the order of the present items is kept) */
 public class SampleCompleter {
@@ -92,8 +92,8 @@ public class SampleCompleter {
     double phi = 0.1;
     
     MallowsTriangle triangle = new MallowsTriangle(center, phi);
-    RIMRSampler sampler = new RIMRSampler(triangle);    
-    RankingSample sample = sampler.generate(10);
+    RIMSampler sampler = new RIMSampler(triangle);    
+    RankingSample sample = sampler.sample(10);
     Filter.removeItems(sample, 0.1);
     
     SampleCompleter completer = new SampleCompleter(sample);

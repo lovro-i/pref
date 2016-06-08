@@ -1,19 +1,6 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.util.FileUtils;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.util.StringTokenizer;
-
-/**
- * Sample of rankings. Can be weighted if rankings are added through add(Ranking
- * ranking, double weight)
- *
- */
+/** Sample of rankings. Can be weighted if rankings are added through add(Ranking ranking, double weight) */
 public class RankingSample extends Sample<Ranking> {
 
   public RankingSample(ItemSet itemSet) {

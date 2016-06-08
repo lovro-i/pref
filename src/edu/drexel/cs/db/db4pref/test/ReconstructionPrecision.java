@@ -2,11 +2,11 @@ package edu.drexel.cs.db.db4pref.test;
 
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.util.TrainUtils;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import java.awt.BasicStroke;
 import java.awt.Color;

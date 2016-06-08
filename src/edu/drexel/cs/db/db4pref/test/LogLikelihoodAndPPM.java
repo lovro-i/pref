@@ -4,7 +4,7 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.sampler.MallowsUtils;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
-import edu.drexel.cs.db.db4pref.plot.ScatterPlot;
+import edu.drexel.cs.db.db4pref.util.ScatterPlot;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.io.File;

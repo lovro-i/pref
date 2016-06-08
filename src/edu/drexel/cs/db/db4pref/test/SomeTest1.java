@@ -5,11 +5,11 @@ import edu.drexel.cs.db.db4pref.distance.KendallTauDistance;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.util.Histogram;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 
 
 public class SomeTest1 {
@@ -37,8 +37,8 @@ public class SomeTest1 {
     int sampleSize = 5000;
     
     MallowsTriangle triangle = new MallowsTriangle(reference, phi);
-    RIMRSampler sampler = new RIMRSampler(triangle);
-    RankingSample sample = sampler.generate(sampleSize); 
+    RIMSampler sampler = new RIMSampler(triangle);
+    RankingSample sample = sampler.sample(sampleSize); 
     
     CompleteReconstructor direct = new CompleteReconstructor();
     MallowsModel mallows = direct.reconstruct(sample);

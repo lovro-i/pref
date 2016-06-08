@@ -5,13 +5,13 @@ import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 
 /** The ground-truth posterior Mallows sampler. Rejection sampler, thus may be slow */
-public class RejectionSampler extends MallowsSampler {
+public class RejectionSampler extends MallowsPosteriorSampler {
 
   
-  private RIMRSampler sampler;
+  private RIMSampler sampler;
     
   public RejectionSampler(MallowsModel model) {
     super(model);
@@ -21,7 +21,7 @@ public class RejectionSampler extends MallowsSampler {
   public void setModel(MallowsModel model) {
     this.model = model;
     MallowsTriangle triangle = new MallowsTriangle(model);
-    this.sampler = new RIMRSampler(triangle);
+    this.sampler = new RIMSampler(triangle);
   }
   
   
@@ -29,7 +29,7 @@ public class RejectionSampler extends MallowsSampler {
   public Ranking sample(PreferenceSet pref) {
     Ranking r = null;
     while (r == null) {
-      r = sampler.generate();
+      r = sampler.sample();
       System.out.println(r);
       if (!r.isConsistent(pref)) r = null;
     }

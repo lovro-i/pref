@@ -2,7 +2,7 @@ package edu.drexel.cs.db.db4pref.core;
 
 import java.io.Serializable;
 
-
+/** One item, alternative, element... */
 public class Item implements Serializable {
 
   public final int id;

@@ -5,12 +5,12 @@ import edu.drexel.cs.db.db4pref.distance.KendallTauDistance;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.util.TrainUtils;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
 import edu.drexel.cs.db.db4pref.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
@@ -48,8 +48,8 @@ public class PolynomialTests {
           Ranking reference = items.getRandomRanking();
 
           MallowsTriangle triangle = new MallowsTriangle(reference, phi);
-          RIMRSampler sampler = new RIMRSampler(triangle);
-          RankingSample sample = sampler.generate(sampleSize);
+          RIMSampler sampler = new RIMSampler(triangle);
+          RankingSample sample = sampler.sample(sampleSize);
           MallowsModel mallows = rec.reconstruct(sample);
           
           double recPhi = mallows.getPhi();
@@ -92,8 +92,8 @@ public class PolynomialTests {
           Ranking reference = items.getRandomRanking();
 
           MallowsTriangle triangle = new MallowsTriangle(reference, phi);
-          RIMRSampler sampler = new RIMRSampler(triangle);
-          RankingSample sample = sampler.generate(sampleSize);
+          RIMSampler sampler = new RIMSampler(triangle);
+          RankingSample sample = sampler.sample(sampleSize);
           MallowsModel mallows = rec.reconstruct(sample);
           
           double recPhi = mallows.getPhi();

@@ -5,11 +5,11 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.util.Histogram;
 import edu.drexel.cs.db.db4pref.core.PairwisePreferenceMatrix;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 
 
 public class BubbleTableKemenizator implements Kemenizator {
@@ -42,8 +42,8 @@ public class BubbleTableKemenizator implements Kemenizator {
     Ranking center = items.getRandomRanking();
     System.out.println(center);
     MallowsTriangle triangle = new MallowsTriangle(center, 0.97);
-    RIMRSampler sampler = new RIMRSampler(triangle);
-    RankingSample sample = sampler.generate(500);
+    RIMSampler sampler = new RIMSampler(triangle);
+    RankingSample sample = sampler.sample(500);
     
     Histogram<Ranking> rankHist = new Histogram(sample);
     Ranking before = rankHist.getMostFrequent();

@@ -2,12 +2,11 @@ package edu.drexel.cs.db.db4pref.reconstruct;
 
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.distance.KendallTauDistance;
-import edu.drexel.cs.db.db4pref.distance.KendallTauUtils;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
 import edu.drexel.cs.db.db4pref.core.Sample.PW;
-import edu.drexel.cs.db.db4pref.math.Polynomial;
+import edu.drexel.cs.db.db4pref.util.Polynomial;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.sampler.MallowsUtils;
@@ -37,7 +36,7 @@ public class PolynomialReconstructor implements MallowsReconstructor {
     int N = n * (n-1) / 2;
     double[] c = new double[N+1];
     for (int i = 0; i < c.length; i++) {
-      c[i] = i * KendallTauUtils.getCount(n, i);
+      c[i] = i * KendallTauDistance.getCount(n, i);
     }
     return new Polynomial(c);
   }

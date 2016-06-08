@@ -17,13 +17,11 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
-
+/** List of PreferenceSets and their weights */
 public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
 
   protected final ItemSet itemSet;

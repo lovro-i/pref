@@ -6,12 +6,11 @@ import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.filter.Filter;
 import edu.drexel.cs.db.db4pref.filter.SampleCompleter;
 import edu.drexel.cs.db.db4pref.sampler.MallowsUtils;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.SampleTriangle;
-import edu.drexel.cs.db.db4pref.triangle.SampleTriangleByRow;
-import edu.drexel.cs.db.db4pref.util.Config;
+import edu.drexel.cs.db.db4pref.sampler.triangle.SampleTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.SampleTriangleByRow;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
@@ -104,8 +103,8 @@ public class IncompleteComponentsTest {
         // First Method: Triangle no row
         long start = System.currentTimeMillis();
         SampleTriangle st1 = new SampleTriangle(center, sample);
-        RIMRSampler resampler1 = new RIMRSampler(st1);
-        RankingSample resample1 = resampler1.generate(resampleSize);
+        RIMSampler resampler1 = new RIMSampler(st1);
+        RankingSample resample1 = resampler1.sample(resampleSize);
         MallowsModel model1 = reconstructor.reconstruct(resample1, center);
         long time1 = System.currentTimeMillis() - start;
         line += String.format("\t%.5f\t%.1f", model1.getPhi(), 0.001 * time1);
@@ -114,8 +113,8 @@ public class IncompleteComponentsTest {
         // First Method: Triangle by row
         start = System.currentTimeMillis();
         SampleTriangleByRow st2 = new SampleTriangleByRow(center, sample);
-        RIMRSampler resampler2 = new RIMRSampler(st2);
-        RankingSample resample2 = resampler2.generate(resampleSize);
+        RIMSampler resampler2 = new RIMSampler(st2);
+        RankingSample resample2 = resampler2.sample(resampleSize);
         MallowsModel model2 = reconstructor.reconstruct(resample2, center);
         long time2 = System.currentTimeMillis() - start;
         line += String.format("\t%.5f\t%.1f", model2.getPhi(), 0.001 * time2);
@@ -147,7 +146,8 @@ public class IncompleteComponentsTest {
   
   
   public static void main(String[] args) throws IOException, InterruptedException {
-    File outFile = new File(Config.RESULTS_FOLDER, "incomplete.components.tsv");
+    File RESULTS_FOLDER = new File("C:\\Projects\\Rank\\Results.3");
+    File outFile = new File(RESULTS_FOLDER, "incomplete.components.tsv");
     IncompleteComponentsTest test = new IncompleteComponentsTest(outFile, 4);
     test.test();
   }

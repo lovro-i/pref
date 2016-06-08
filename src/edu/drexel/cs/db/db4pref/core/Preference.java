@@ -1,10 +1,8 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.core.Item;
 import java.util.Objects;
 
-/** Two items -- one preference 
- */
+/** One preference over a pair of items */
 public class Preference {
 
   public final Item higher;

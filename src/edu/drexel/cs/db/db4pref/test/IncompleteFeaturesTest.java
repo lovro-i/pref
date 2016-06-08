@@ -5,12 +5,12 @@ import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.filter.Filter;
 import edu.drexel.cs.db.db4pref.sampler.MallowsUtils;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.CenterReconstructor;
 import edu.drexel.cs.db.db4pref.reconstruct.PolynomialReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.Expands;
-import edu.drexel.cs.db.db4pref.triangle.SampleTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.Expands;
+import edu.drexel.cs.db.db4pref.sampler.triangle.SampleTriangle;
 
 
 /** Test which features are important for incomplete reconstructor */
@@ -30,8 +30,8 @@ public class IncompleteFeaturesTest {
     {
       Expands.setThreshold(0.001d);
       SampleTriangle st = new SampleTriangle(center, sample);
-      RIMRSampler resampler = new RIMRSampler(st);
-      RankingSample resample = resampler.generate(resampleSize);
+      RIMSampler resampler = new RIMSampler(st);
+      RankingSample resample = resampler.sample(resampleSize);
       MallowsModel mallows = reconstructor.reconstruct(resample, center);
       System.out.println(mallows.getPhi());
     }

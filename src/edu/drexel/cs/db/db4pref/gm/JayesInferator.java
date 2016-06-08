@@ -5,7 +5,7 @@ import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.technion.Expander;
+import edu.drexel.cs.db.db4pref.posterior.FullExpander;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
 import java.io.IOException;
@@ -171,14 +171,14 @@ public class JayesInferator {
 
       // and now compare it to the exact value that dynamic algorithm gives
       // iterate through v.getRankings() and sum the probabilities that expander gives for each one:
-      Expander expander1 = new Expander(model);
+      FullExpander expander1 = new FullExpander(model);
       Ranking r1 = new Ranking(items);
       r1.add(items.getItemByTag(2));
       r1.add(items.getItemByTag(3));
       r1.add(items.getItemByTag(4));
       double p1 = expander1.getProbability(r1);
 
-      Expander expander2 = new Expander(model);
+      FullExpander expander2 = new FullExpander(model);
       Ranking r2 = new Ranking(items);
       r2.add(items.getItemByTag(3));
       r2.add(items.getItemByTag(2));

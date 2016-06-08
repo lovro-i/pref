@@ -7,15 +7,15 @@ import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.triangle.ConfidentTriangle;
-import edu.drexel.cs.db.db4pref.triangle.TriangleRow;
+import edu.drexel.cs.db.db4pref.sampler.triangle.ConfidentTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.TriangleRow;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
 import java.util.Map;
 import java.util.Set;
 
 /** AMP sampler extension that uses the combination of AMP and information from the sample */
-public class AMPxSampler extends MallowsSampler {
+public class AMPxSampler extends MallowsPosteriorSampler {
 
   protected ConfidentTriangle triangle;
   protected double alpha;

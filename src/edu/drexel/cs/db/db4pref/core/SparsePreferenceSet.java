@@ -1,8 +1,5 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.core.ItemSet;
-import edu.drexel.cs.db.db4pref.core.Ranking;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+/** MutablePreferenceSet which stores preference pairs in a list of Preferences */
 public class SparsePreferenceSet extends AbstractPreferenceSet implements Set<Preference> {
 
   private final ItemSet items;

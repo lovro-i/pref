@@ -11,7 +11,7 @@ import edu.drexel.cs.db.db4pref.util.MathUtils;
 import java.util.Map;
 import java.util.Set;
 
-public class AMPSampler extends MallowsSampler {
+public class AMPSampler extends MallowsPosteriorSampler {
 
   public AMPSampler(MallowsModel model) {
     super(model);

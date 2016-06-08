@@ -7,12 +7,12 @@ package edu.drexel.cs.db.db4pref.gm;
 
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
-import edu.drexel.cs.db.db4pref.incomplete.MissingProbabilities;
+import edu.drexel.cs.db.db4pref.filter.MissingProbabilities;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Preference;
-import edu.drexel.cs.db.db4pref.technion.Expander;
+import edu.drexel.cs.db.db4pref.posterior.FullExpander;
 import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -67,7 +67,7 @@ public class JayesInferatorTest {
     JayesInferator inferator = new JayesInferator(gm);
     double probabilityGivenByJayes = inferator.getProbability();
 
-    Expander expander = new Expander(model);
+    FullExpander expander = new FullExpander(model);
     double probabilityGivenByDynamicAlgorithm = expander.getProbability(v);
     
     System.out.println("\n****** Test Case ******");

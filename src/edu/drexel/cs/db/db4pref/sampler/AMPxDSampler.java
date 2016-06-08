@@ -5,7 +5,7 @@ import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.triangle.ConfidentTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.ConfidentTriangle;
 import edu.drexel.cs.db.db4pref.util.Logger;
 
 /** AMPx variant that immediately updates the Insertion Probability Matrix with a newly sampled ranking */

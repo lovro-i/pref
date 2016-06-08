@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.db4pref.filter;
 
-import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
 import edu.drexel.cs.db.db4pref.core.Sample.PW;
@@ -9,7 +8,9 @@ import edu.drexel.cs.db.db4pref.util.MathUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/** For splitting a sample into train and test, and similar */
+/** For splitting a sample into train and test sample (with specified percentage). 
+ * N-fold splitting.
+ */
 public class Split {
 
   

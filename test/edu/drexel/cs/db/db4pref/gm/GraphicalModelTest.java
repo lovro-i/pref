@@ -6,7 +6,7 @@ import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Preference;
-import edu.drexel.cs.db.db4pref.incomplete.MissingProbabilities;
+import edu.drexel.cs.db.db4pref.filter.MissingProbabilities;
 import java.util.Set;
 import org.eclipse.recommenders.jayes.BayesNet;
 import org.eclipse.recommenders.jayes.BayesNode;

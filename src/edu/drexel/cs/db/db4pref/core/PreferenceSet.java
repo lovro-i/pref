@@ -1,8 +1,5 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.core.ItemSet;
-import edu.drexel.cs.db.db4pref.core.Ranking;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;

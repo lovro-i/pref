@@ -5,14 +5,14 @@ import edu.drexel.cs.db.db4pref.distance.KendallTauDistance;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.kemeny.BubbleTableKemenizator;
 import edu.drexel.cs.db.db4pref.kemeny.KemenyCandidate;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
-import edu.drexel.cs.db.db4pref.triangle.SampleTriangle;
-import edu.drexel.cs.db.db4pref.triangle.SampleTriangleByRow;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.SampleTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.SampleTriangleByRow;
 
 
 public class BootstrapCenterTest {
@@ -26,8 +26,8 @@ public class BootstrapCenterTest {
       ItemSet items = new ItemSet(50);
       Ranking center = items.getRandomRanking();
       MallowsTriangle triangle = new MallowsTriangle(center, 0.92);
-      RIMRSampler sampler = new RIMRSampler(triangle);
-      RankingSample sample = sampler.generate(150);
+      RIMSampler sampler = new RIMSampler(triangle);
+      RankingSample sample = sampler.sample(150);
 
       
       Ranking candidate = KemenyCandidate.find(sample);
@@ -40,8 +40,8 @@ public class BootstrapCenterTest {
 
       
       SampleTriangle triangle1 = new SampleTriangle(c1, sample);
-      RIMRSampler resampler1 = new RIMRSampler(triangle1);
-      RankingSample resample1 = resampler1.generate(10000);
+      RIMSampler resampler1 = new RIMSampler(triangle1);
+      RankingSample resample1 = resampler1.sample(10000);
       Ranking c2 = kemenizator.kemenize(resample1, c1);
       double d2 = KendallTauDistance.between(center, c2);
       sum2 += d2;

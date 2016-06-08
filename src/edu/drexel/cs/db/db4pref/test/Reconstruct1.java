@@ -7,10 +7,10 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
 import java.io.BufferedWriter;
@@ -52,14 +52,14 @@ public class Reconstruct1 {
       File out = new File(folder, "values-combined-phi-"+phi+".csv");
       PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(out)));
       MallowsTriangle triangle = new MallowsTriangle(center, phi);
-      RIMRSampler sampler = new RIMRSampler(triangle);
+      RIMSampler sampler = new RIMSampler(triangle);
       
       for (double pert: perts) {
         System.out.println("Tests for phi = " + phi + ", pert = "+ pert);
         
         StringBuilder sb = new StringBuilder();
         for (int t = 0; t < tests; t++) {
-          RankingSample sample = sampler.generate(sampleSize);
+          RankingSample sample = sampler.sample(sampleSize);
 
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int c = 1;
@@ -142,8 +142,8 @@ public class Reconstruct1 {
       for (int t=0; t<tests; t++) {
         if ((t+1) % 100 == 0) System.out.println("Test #" + (t+1));
         MallowsTriangle triangle = new MallowsTriangle(center, phi);
-        RIMRSampler sampler = new RIMRSampler(triangle);
-        RankingSample sample = sampler.generate(samps);
+        RIMSampler sampler = new RIMSampler(triangle);
+        RankingSample sample = sampler.sample(samps);
         // Comb.comb(sample, 0.1);
 
         RankingSample perturbed = perturb(sample, 0.05);
@@ -171,8 +171,8 @@ public class Reconstruct1 {
     for (int t=0; t<tests; t++) {
       if ((t+1) % 100 == 0) System.out.println("Test #" + (t+1));
       MallowsTriangle triangle = new MallowsTriangle(center, phi);
-      RIMRSampler sampler = new RIMRSampler(triangle);
-      RankingSample sample = sampler.generate(samps);
+      RIMSampler sampler = new RIMSampler(triangle);
+      RankingSample sample = sampler.sample(samps);
       Filter.removeItems(sample, 0.1);
       
       StringBuilder sb = new StringBuilder();
@@ -320,9 +320,9 @@ public class Reconstruct1 {
       for (int t=0; t<tests; t++) {
         if ((t+1) % 100 == 0) System.out.println("Test #" + (t+1));
         MallowsTriangle triangle = new MallowsTriangle(center, phi);
-        RIMRSampler sampler = new RIMRSampler(triangle);
+        RIMSampler sampler = new RIMSampler(triangle);
         for (int samps: samples) {        
-          RankingSample sample = sampler.generate(samps);
+          RankingSample sample = sampler.sample(samps);
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           
@@ -397,9 +397,9 @@ public class Reconstruct1 {
       for (int t=1; t<=tests; t++) {
         System.out.println("Test #" + t);
         MallowsTriangle triangle = new MallowsTriangle(center, phi);
-        RIMRSampler sampler = new RIMRSampler(triangle);
+        RIMSampler sampler = new RIMSampler(triangle);
         for (int samps: samples) {        
-          RankingSample sample = sampler.generate(samps);
+          RankingSample sample = sampler.sample(samps);
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           

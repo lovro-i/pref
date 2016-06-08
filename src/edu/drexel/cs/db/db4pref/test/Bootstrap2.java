@@ -3,15 +3,16 @@ package edu.drexel.cs.db.db4pref.test;
 import edu.drexel.cs.db.db4pref.distance.KendallTauDistance;
 import edu.drexel.cs.db.db4pref.distance.RankingDistance;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
+import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.sampler.Resampler;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
 import edu.drexel.cs.db.db4pref.reconstruct.MallowsReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
 import java.io.File;
@@ -56,8 +57,8 @@ public class Bootstrap2 {
         
         for (double phi: phis) {
           MallowsTriangle triangle = new MallowsTriangle(center, phi);
-          RIMRSampler sampler = new RIMRSampler(triangle);
-          RankingSample sample = sampler.generate(samps);
+          RIMSampler sampler = new RIMSampler(triangle);
+          RankingSample sample = sampler.sample(samps);
           
           // No Bootstrap
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
@@ -69,7 +70,7 @@ public class Bootstrap2 {
           Resampler resampler = new Resampler(sample);          
           double phim = 0;
           for (int i = 0; i < bootstraps; i++) {
-            Sample<Ranking> resample = resampler.resample();
+            Sample<? extends PreferenceSet> resample = resampler.resample();
             MallowsModel m = new CompleteReconstructor().reconstruct(resample);
             phim += m.getPhi();
           }

@@ -1,10 +1,5 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.core.ItemSet;
-import edu.drexel.cs.db.db4pref.core.Ranking;
-import edu.drexel.cs.db.db4pref.util.Logger;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,7 +13,7 @@ import java.util.StringTokenizer;
 /**
  * MapPreferenceSet stores the preferences as two maps between an item and its
  * lower / higher items. It records Directed Acyclic Graph (DAG) of preferences.
- * Each entry shows that Item e is preferred to items in HashSet<Item>. It has a
+ * Each entry shows that Item e is preferred to items in HashSet&lt;Item&gt;. It has a
  * reverseMap which represents the reverse preference graph, where key is less
  * preferred items and values are preferred items.
  */

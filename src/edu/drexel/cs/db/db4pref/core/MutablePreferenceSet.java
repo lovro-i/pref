@@ -1,8 +1,6 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.core.Item;
-
-/** Abstract class that represents custom pairwise preference set (not ranking) that can be pairwise edited
+/** Interface that represents custom pairwise preference set (not ranking) that can be pairwise edited
  */
 public interface MutablePreferenceSet extends PreferenceSet {
 

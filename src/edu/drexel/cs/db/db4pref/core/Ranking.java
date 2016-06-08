@@ -1,9 +1,9 @@
 package edu.drexel.cs.db.db4pref.core;
 
 import edu.drexel.cs.db.db4pref.util.MathUtils;
-import java.io.Serializable;
 import java.util.*;
 
+/** An ordering (complete or partial) over the set of items */
 public class Ranking implements Comparable, PreferenceSet {
 
   private static final Random random = new Random();
@@ -180,6 +180,7 @@ public class Ranking implements Comparable, PreferenceSet {
     this.add(index, e);
   }
 
+  /* List of items in this ranking */
   @Override
   public List<Item> getItems() {
     return items;

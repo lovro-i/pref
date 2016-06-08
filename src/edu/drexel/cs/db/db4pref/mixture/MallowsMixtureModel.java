@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Mixture of Mallows models (with weights)
+ * Mixture of Mallows models.
  */
 public class MallowsMixtureModel {
 

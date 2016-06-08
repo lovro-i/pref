@@ -5,11 +5,11 @@ import edu.drexel.cs.db.db4pref.distance.RankingDistance;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
-import edu.drexel.cs.db.db4pref.sampler.RIMRSampler;
+import edu.drexel.cs.db.db4pref.sampler.RIMSampler;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
 import edu.drexel.cs.db.db4pref.reconstruct.MallowsReconstructor;
-import edu.drexel.cs.db.db4pref.triangle.MallowsTriangle;
+import edu.drexel.cs.db.db4pref.sampler.triangle.MallowsTriangle;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
 import java.io.File;
@@ -54,9 +54,9 @@ public class Reconstruct2 {
       for (int t=1; t<=tests; t++) {
         System.out.println("Test #" + t);
         MallowsTriangle triangle = new MallowsTriangle(center, phi);
-        RIMRSampler sampler = new RIMRSampler(triangle);
+        RIMSampler sampler = new RIMSampler(triangle);
         for (int samps: samples) {        
-          RankingSample sample = sampler.generate(samps);
+          RankingSample sample = sampler.sample(samps);
           MallowsModel model = new CompleteReconstructor().reconstruct(sample);
           int centerDistance = (int) dist.distance(center, model.getCenter());          
           

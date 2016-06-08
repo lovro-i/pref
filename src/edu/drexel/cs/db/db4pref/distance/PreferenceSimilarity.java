@@ -4,7 +4,7 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 
-
+/** Similarity between two PreferenceSets, as the number of same pairs. Used in Affinity Propagation clustering. */
 public class PreferenceSimilarity {
 
   public static double similarity(PreferenceSet pref1, PreferenceSet pref2) {
@@ -25,34 +25,6 @@ public class PreferenceSimilarity {
     return similarity;
   }
   
-  
-//  public static double similarity(Ranking r1, Ranking r2) {
-//    int[][] table = table(r1);    
-//    int sim = 0;
-//    for (int i = 0; i < r2.size()-1; i++) {
-//      int e1 = r2.get(i).getId();
-//      for (int j = i+1; j < r2.size(); j++) {
-//        int e2 = r2.get(j).getId();
-//        if (table[e1][e2] > 0) sim++;
-//      }
-//    }   
-//    return sim;
-//  }
-//  
-//  
-//  public static int[][] table(Ranking r) {
-//    int n = r.getItemSet().size();
-//    int[][] table = new int[n][n];
-//    
-//    for (int i = 0; i < r.size()-1; i++) {
-//      int e1 = r.get(i).getId();
-//      for (int j = i+1; j < r.size(); j++) {
-//        int e2 = r.get(j).getId();
-//        table[e1][e2]++;
-//      }
-//    }    
-//    return table;
-//  }
   
   public static void main(String[] args) {
     ItemSet items = new ItemSet(5);

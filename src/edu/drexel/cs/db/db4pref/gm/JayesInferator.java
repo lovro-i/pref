@@ -126,9 +126,9 @@ public class JayesInferator {
   }
 
   private int calcJunctionTreeWidth(final JunctionTree junctionTree) {
-    List<List<Integer>> JTClusters = junctionTree.getClusters();
+    List<List<Integer>> jtClusters = junctionTree.getClusters();
     junctionTreeWidth = 0;
-    for (List<Integer> cluster : JTClusters) {
+    for (List<Integer> cluster : jtClusters) {
       junctionTreeWidth = (cluster.size() > junctionTreeWidth ? cluster.size() : junctionTreeWidth);
     }
     return junctionTreeWidth;

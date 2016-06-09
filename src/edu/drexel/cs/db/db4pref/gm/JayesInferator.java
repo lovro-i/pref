@@ -19,6 +19,7 @@ import org.eclipse.recommenders.jayes.BayesNode;
 import org.eclipse.recommenders.jayes.inference.IBayesInferer;
 import org.eclipse.recommenders.jayes.inference.junctionTree.JunctionTreeAlgorithm;
 import org.eclipse.recommenders.jayes.io.XMLBIFWriter;
+import org.eclipse.recommenders.jayes.inference.junctionTree.JunctionTree;
 
 /**
  * http://www.codetrails.com/blog/introduction-bayesian-networks-jayes
@@ -29,7 +30,9 @@ public class JayesInferator {
   private final Map<Variable, BayesNode> variables = new HashMap<Variable, BayesNode>();
   private final Map<Variable, Range> ranges = new HashMap<Variable, Range>();
   private BayesNet net;
-  private IBayesInferer inferer;
+  private JunctionTreeAlgorithm inferer;
+  
+  private int jtw;
 
   public JayesInferator(GraphicalModel gm) {
     this.gm = gm;
@@ -111,7 +114,10 @@ public class JayesInferator {
     }
 
     inferer = new JunctionTreeAlgorithm();
-    inferer.setNetwork(net);
+    //inferer.setNetwork(net);
+    JunctionTree JT = inferer.setNetworkAndReturnJTree(net);
+    calcJTW(JT);
+    
 
 //    for (Variable var : variables.keySet()) {
 //      double[] beliefs = inferer.getBeliefs(variables.get(var));
@@ -119,6 +125,19 @@ public class JayesInferator {
 //    }
   }
 
+  private int calcJTW(final JunctionTree JT){
+      List<List<Integer>> JTClusters = JT.getClusters();
+      jtw = 0;
+      for(List<Integer> cluster: JTClusters){
+        jtw = (cluster.size() > jtw ? cluster.size(): jtw);
+      }
+      return jtw;
+  }
+  
+  public int getJTW(){
+    return jtw;
+  }
+  
   public double getProbability() {
     if (inferer == null) build();
     Variable var = variables.keySet().iterator().next();
@@ -168,7 +187,7 @@ public class JayesInferator {
       // infer on graphical model
       JayesInferator inferator1 = new JayesInferator(gm1);
       inferator1.build();
-
+      
       // and now compare it to the exact value that dynamic algorithm gives
       // iterate through v.getRankings() and sum the probabilities that expander gives for each one:
       FullExpander expander1 = new FullExpander(model);
@@ -188,6 +207,7 @@ public class JayesInferator {
       Logger.info("%s + %s: %f", r1, r2, p1 + p2);
       
       System.out.println(inferator1.getProbability());
+      System.out.println("The width of the junction tree is: " + inferator1.getJTW());
     }
   }
 

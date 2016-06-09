@@ -66,7 +66,7 @@ public class JunctionTreeAlgorithm extends AbstractInferer {
     public void setJunctionTreeBuilder(JunctionTreeBuilder bldr) {
         this.junctionTreeBuilder = bldr;
     }
-
+        
     @Override
     public double[] getBeliefs(final BayesNode node) {
         if (!beliefsValid) {
@@ -318,7 +318,27 @@ public class JunctionTreeAlgorithm extends AbstractInferer {
         storePotentialValues();
 
     }
+    //Return the junction tree so that we can get the jtw
+    //method is copied from setNetwork(final BayesNet net)
+    public JunctionTree setNetworkAndReturnJTree(final BayesNet net) {
+        super.setNetwork(net);
+        initializeFields(net.getNodes().size());
+        JunctionTree jtree = buildJunctionTree(net);
+        int[] homeClusters = computeHomeClusters(net, jtree.getClusters());
+        initializeClusterFactors(net, jtree.getClusters(), homeClusters);
+        initializeSepsetFactors(jtree.getSepSets());
+        determineConcernedClusters();
+        setQueryFactors();
+        initializePotentialValues();
+        multiplyCPTsIntoPotentials(net, homeClusters);
+        prepareMultiplications();
+        prepareScratch();
+        invokeInitialBeliefUpdate();
+        storePotentialValues();
+        return jtree;
+    }
 
+    
     @SuppressWarnings("unchecked")
     private void determineConcernedClusters() {
         concernedClusters = new int[queryFactors.length][];
@@ -352,10 +372,10 @@ public class JunctionTreeAlgorithm extends AbstractInferer {
         isObserved = new boolean[numNodes];
     }
 
+    
     private JunctionTree buildJunctionTree(BayesNet net) {
-        final JunctionTree jtree = junctionTreeBuilder.buildJunctionTree(net);
+        final JunctionTree jtree = junctionTreeBuilder.buildJunctionTree(net);       
         this.junctionTree = jtree.getGraph();
-
         return jtree;
     }
 

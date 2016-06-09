@@ -32,7 +32,7 @@ public class JayesInferator {
   private BayesNet net;
   private JunctionTreeAlgorithm inferer;
   
-  private int jtw;
+  private int junctionTreeWidth;
 
   public JayesInferator(GraphicalModel gm) {
     this.gm = gm;
@@ -115,8 +115,8 @@ public class JayesInferator {
 
     inferer = new JunctionTreeAlgorithm();
     //inferer.setNetwork(net);
-    JunctionTree JT = inferer.setNetworkAndReturnJTree(net);
-    calcJTW(JT);
+    JunctionTree junctionTree = inferer.setNetworkAndReturnJTree(net);
+    calcJunctionTreeWidth(junctionTree);
     
 
 //    for (Variable var : variables.keySet()) {
@@ -125,17 +125,17 @@ public class JayesInferator {
 //    }
   }
 
-  private int calcJTW(final JunctionTree JT){
-      List<List<Integer>> JTClusters = JT.getClusters();
-      jtw = 0;
-      for(List<Integer> cluster: JTClusters){
-        jtw = (cluster.size() > jtw ? cluster.size(): jtw);
-      }
-      return jtw;
+  private int calcJunctionTreeWidth(final JunctionTree JT) {
+    List<List<Integer>> JTClusters = JT.getClusters();
+    junctionTreeWidth = 0;
+    for (List<Integer> cluster : JTClusters) {
+      junctionTreeWidth = (cluster.size() > junctionTreeWidth ? cluster.size() : junctionTreeWidth);
+    }
+    return junctionTreeWidth;
   }
-  
-  public int getJTW(){
-    return jtw;
+
+  public int getJunctionTreeWidth(){
+    return junctionTreeWidth;
   }
   
   public double getProbability() {
@@ -207,7 +207,7 @@ public class JayesInferator {
       Logger.info("%s + %s: %f", r1, r2, p1 + p2);
       
       System.out.println(inferator1.getProbability());
-      System.out.println("The width of the junction tree is: " + inferator1.getJTW());
+      System.out.println("The width of the junction tree is: " + inferator1.getJunctionTreeWidth());
     }
   }
 

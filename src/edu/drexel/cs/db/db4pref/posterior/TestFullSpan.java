@@ -12,7 +12,7 @@ public class TestFullSpan {
 
   public static void main(String[] args) {
     Random random = new Random();
-    int[] its = { 10, 15, 20, 25 };
+    int[] its = { 30 };
     double[] phis = { 0.2, 0.5, 0.8 };
     double[] misses = { 0.2, 0.4, 0.6, 0.8 };
     
@@ -47,7 +47,7 @@ public class TestFullSpan {
       
       
       
-      Logger.info("%d, %.1f, %d | %f, %d, %d | %f, %d, %d, %d", m, phi, r.length(), pf, tf, full.getMaxStates(), ps, ts, span.getMaxStates(), span.getWidth());
+      Logger.info("%d,%.1f,%d,%f,%d,%d,%f,%d,%d,%d", m, phi, r.length(), pf, tf, full.getMaxStates(), ps, ts, span.getMaxStates(), span.getWidth());
     }
   }
 }

@@ -11,13 +11,9 @@ import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.filter.Filter;
 import edu.drexel.cs.db.db4pref.filter.MissingProbabilities;
 import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
-import edu.drexel.cs.db.db4pref.sampler.triangle.UpTo;
 import edu.drexel.cs.db.db4pref.util.Logger;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities */
 public class PreferenceExpander implements Posterior {
@@ -48,7 +44,7 @@ public class PreferenceExpander implements Posterior {
   }
     
   
-  void calculateSpans() {
+  private void calculateSpans() {
     this.spans = new HashMap<Item, Span>();
     
     for (Item item: pref.getItems()) {
@@ -72,7 +68,7 @@ public class PreferenceExpander implements Posterior {
     }
   }
   
-  /** Returns number of items that are relevant at this step */
+  /** Returns number of items that are relevant at the given step */
   public int getS(int step) {
     int s = 0;
     for (Span span: spans.values()) {

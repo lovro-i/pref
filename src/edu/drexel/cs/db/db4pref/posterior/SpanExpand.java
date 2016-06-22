@@ -1,25 +1,26 @@
 package edu.drexel.cs.db.db4pref.posterior;
 
 import edu.drexel.cs.db.db4pref.core.Item;
+import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.Arrays;
 
 /** One state in the expansion. The state is represented by the ordering of known items, and number of unknown items between them (plus in front and after).
  * Example: 1.A.2.B.1 is ranking xAxxBx, where x are any items
  */
-public class FullMallowsExpand {
+public class SpanExpand {
   
   /** The owner object */
-  private final FullExpander expander;
+  private final SpanExpander expander;
   
   /** Number of missing elements at each position */
-  private final int[] miss;
+  private int[] miss;
   
   /** Array of known items */
-  private final Item[] items;
+  private Item[] items;
 
   
   /** Create the state from a given sequence */
-  public FullMallowsExpand(Sequence seq) {
+  public SpanExpand(Sequence seq) {
     this.items = new Item[seq.size()];
     this.miss = new int[this.items.length + 1];
     this.expander = null;
@@ -38,14 +39,14 @@ public class FullMallowsExpand {
   }
   
   /** Create an empty state */
-  public FullMallowsExpand(FullExpander expander) {
+  public SpanExpand(SpanExpander expander) {
     this.expander = expander;
     this.items = new Item[0];
     this.miss = new int[1];
   }
   
   /** Crate a state with no missing items */
-  private FullMallowsExpand(FullExpander expander, Item[] items) {
+  private SpanExpand(SpanExpander expander, Item[] items) {
     this.expander = expander;
     this.items = new Item[items.length];
     System.arraycopy(items, 0, this.items, 0, items.length);
@@ -53,13 +54,41 @@ public class FullMallowsExpand {
   }
   
   /** Create a clone of the state */
-  private FullMallowsExpand(FullExpander expander, FullMallowsExpand e) {
+  private SpanExpand(SpanExpander expander, SpanExpand e) {
     this.expander = expander;
     this.items = new Item[e.items.length];
     System.arraycopy(e.items, 0, this.items, 0, items.length);    
     this.miss = new int[e.miss.length];
     System.arraycopy(e.miss, 0, this.miss, 0, miss.length);
   }
+  
+  /** Removes the items that won't figure in the future */
+  void compact(int step) {
+    for (int i = 0; i < items.length; i++) {
+      String before = this.toString();
+      Span span = expander.spans.get(items[i]);
+      if (step > span.to) {
+        Item[] items2 = new Item[items.length-1];
+        int[] miss2 = new int[miss.length-1];
+        for (int j = 0; j < items2.length; j++) {
+          if (j < i) items2[j] = items[j];
+          else items2[j] = items[j+1];
+        }
+        for (int j = 0; j < miss2.length; j++) {
+          if (j < i) miss2[j] = miss[j];
+          else if (j == i) miss2[j] = miss[j] + miss[j+1] + 1;
+          else miss2[j] = miss[j+1];
+        }
+        
+        this.items = items2;
+        this.miss = miss2;
+        // Logger.info("Compacting at step %d: %s -> %s", step, before, this);
+        i--;
+      }
+    }
+  }
+  
+  
   
   /** Returns the length of this ranking (missing + fixed) */
   public int length() {
@@ -74,19 +103,22 @@ public class FullMallowsExpand {
    * @param item to insert
    * @return Mapping of states to their probabilities
    */
-  public FullMallowsExpands insertMissing(Item item) {
-    FullMallowsExpands expands = new FullMallowsExpands(expander);
-    
+  public SpanExpands insertMissing(Item item) {
+    SpanExpands expands = new SpanExpands(expander);
+    int step = expander.referenceIndex.get(item);
+    SpanExpand exc = new SpanExpand(expander, this);
+    exc.compact(step);
     int pos = 0;
-    for (int i = 0; i < miss.length; i++) {
-      FullMallowsExpand ex = new FullMallowsExpand(expander, this);
-      ex.miss[i]++;      
+    for (int i = 0; i < exc.miss.length; i++) {
+      SpanExpand ex = new SpanExpand(expander, exc);
+      ex.miss[i]++;
       
       double p = 0;
-      for (int j = 0; j <= miss[i]; j++) {
-        p += probability(item.getId(), pos);
+      for (int j = 0; j <= exc.miss[i]; j++) {
+        p += probability(step, pos);
         pos++;
       }
+      // ex.compact(step);
       expands.add(ex, p);
     }
     // expands.normalize();
@@ -105,8 +137,10 @@ public class FullMallowsExpand {
   /** Adds item e to the right of the item 'prev'.
    *  If (prev == null), it is added at the beginning
    */  
-  public FullMallowsExpands insert(Item e, Item prev) {
-    FullMallowsExpands expands = new FullMallowsExpands(expander);
+  public SpanExpands insert(Item e, Item prev) {
+    SpanExpands expands = new SpanExpands(expander);
+    int step = expander.referenceIndex.get(e);
+    this.compact(step);
     
     int index = indexOf(prev); // index of the previous item
     int n = miss[index + 1] + 1; // how many are missing before the previous and the next, plus one: the number of different new expand states
@@ -127,14 +161,15 @@ public class FullMallowsExpand {
     
     // create n new expand states with their probabilities    
     for (int i = 0; i < n; i++) {
-      FullMallowsExpand ex = new FullMallowsExpand(expander, items1);
+      SpanExpand ex = new SpanExpand(expander, items1);
       for (int j = 0; j < ex.miss.length; j++) {
         if (j <= index) ex.miss[j] = this.miss[j];
         else if (j == index + 1) ex.miss[j] = i;
         else if (j == index + 2) ex.miss[j] = this.miss[index + 1] - i;
         else ex.miss[j] = this.miss[j-1];        
       }
-      double p = probability(e.getId(), posPrev + 1 + i);
+      double p = probability(step, posPrev + 1 + i);
+      // ex.compact(step);
       expands.put(ex, p);
     }
     
@@ -165,8 +200,8 @@ public class FullMallowsExpand {
   
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof FullMallowsExpand)) return false;
-    FullMallowsExpand e = (FullMallowsExpand) o;
+    if (!(o instanceof SpanExpand)) return false;
+    SpanExpand e = (SpanExpand) o;
     if (this.miss.length != e.miss.length) return false;
     for (int i = 0; i < miss.length; i++) {
       if (this.miss[i] != e.miss[i]) return false;      

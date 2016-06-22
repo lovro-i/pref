@@ -1,16 +1,16 @@
 package edu.drexel.cs.db.db4pref.posterior;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.Arrays;
+import java.util.Set;
 
 /** One state in the expansion. The state is represented by the ordering of known items, and number of unknown items between them (plus in front and after).
  * Example: 1.A.2.B.1 is ranking xAxxBx, where x are any items
  */
-public class SpanMallowsExpand {
+public class PreferenceExpand {
   
   /** The owner object */
-  private final SpanExpander expander;
+  private final PreferenceExpander expander;
   
   /** Number of missing elements at each position */
   private int[] miss;
@@ -20,7 +20,7 @@ public class SpanMallowsExpand {
 
   
   /** Create the state from a given sequence */
-  public SpanMallowsExpand(Sequence seq) {
+  public PreferenceExpand(Sequence seq) {
     this.items = new Item[seq.size()];
     this.miss = new int[this.items.length + 1];
     this.expander = null;
@@ -39,14 +39,14 @@ public class SpanMallowsExpand {
   }
   
   /** Create an empty state */
-  public SpanMallowsExpand(SpanExpander expander) {
+  public PreferenceExpand(PreferenceExpander expander) {
     this.expander = expander;
     this.items = new Item[0];
     this.miss = new int[1];
   }
   
   /** Crate a state with no missing items */
-  private SpanMallowsExpand(SpanExpander expander, Item[] items) {
+  private PreferenceExpand(PreferenceExpander expander, Item[] items) {
     this.expander = expander;
     this.items = new Item[items.length];
     System.arraycopy(items, 0, this.items, 0, items.length);
@@ -54,7 +54,7 @@ public class SpanMallowsExpand {
   }
   
   /** Create a clone of the state */
-  private SpanMallowsExpand(SpanExpander expander, SpanMallowsExpand e) {
+  private PreferenceExpand(PreferenceExpander expander, PreferenceExpand e) {
     this.expander = expander;
     this.items = new Item[e.items.length];
     System.arraycopy(e.items, 0, this.items, 0, items.length);    
@@ -103,14 +103,14 @@ public class SpanMallowsExpand {
    * @param item to insert
    * @return Mapping of states to their probabilities
    */
-  public SpanMallowsExpands insertMissing(Item item) {
-    SpanMallowsExpands expands = new SpanMallowsExpands(expander);
+  public PreferenceExpands insertMissing(Item item) {
+    PreferenceExpands expands = new PreferenceExpands(expander);
     int step = expander.referenceIndex.get(item);
-    SpanMallowsExpand exc = new SpanMallowsExpand(expander, this);
+    PreferenceExpand exc = new PreferenceExpand(expander, this);
     exc.compact(step);
     int pos = 0;
     for (int i = 0; i < exc.miss.length; i++) {
-      SpanMallowsExpand ex = new SpanMallowsExpand(expander, exc);
+      PreferenceExpand ex = new PreferenceExpand(expander, exc);
       ex.miss[i]++;
       
       double p = 0;
@@ -137,8 +137,8 @@ public class SpanMallowsExpand {
   /** Adds item e to the right of the item 'prev'.
    *  If (prev == null), it is added at the beginning
    */  
-  public SpanMallowsExpands insert(Item e, Item prev) {
-    SpanMallowsExpands expands = new SpanMallowsExpands(expander);
+  public PreferenceExpands insert(Item e, Item prev) {
+    PreferenceExpands expands = new PreferenceExpands(expander);
     int step = expander.referenceIndex.get(e);
     this.compact(step);
     
@@ -161,7 +161,7 @@ public class SpanMallowsExpand {
     
     // create n new expand states with their probabilities    
     for (int i = 0; i < n; i++) {
-      SpanMallowsExpand ex = new SpanMallowsExpand(expander, items1);
+      PreferenceExpand ex = new PreferenceExpand(expander, items1);
       for (int j = 0; j < ex.miss.length; j++) {
         if (j <= index) ex.miss[j] = this.miss[j];
         else if (j == index + 1) ex.miss[j] = i;
@@ -174,6 +174,72 @@ public class SpanMallowsExpand {
     }
     
     // expands.normalize(); // treba
+    return expands;
+  }
+  
+  
+  // for an item, hasse diagram, and a sequence, returns the list of items directly after which the item can be inserted
+  public Span hilo(Item item) {
+    Set<Item> higher = this.expander.tc.getHigher(item);
+    Set<Item> lower = this.expander.tc.getLower(item);
+    int low = 0;
+    int high = items.length;
+    for (int j = 0; j < items.length; j++) {
+      Item it = items[j];
+      if (higher.contains(it)) {
+        low = j + 1;
+      }
+      if (lower.contains(it) && j < high) {
+        high = j;
+      }
+    }
+    return new Span(low, high);
+  }
+  
+  
+  private void insertOne(PreferenceExpands expands, Item item, int index) {
+    int n = miss[index] + 1; // how many are missing before the previous and the next, plus one: the number of different new expand states
+        
+    
+    int posPrev = index - 1;
+    for (int i = 0; i < index; i++) {
+      posPrev += miss[i];      
+    }
+    
+    // create new array of items, by inserting it after the previous
+    Item[] items1 = new Item[items.length + 1];
+    for (int i = 0; i < items1.length; i++) {
+      if (i < index) items1[i] = items[i];
+      else if (i == index) items1[i] = item;
+      else items1[i] = items[i - 1];
+    }
+    
+    // create n new expand states with their probabilities    
+    for (int i = 0; i < n; i++) {
+      PreferenceExpand ex = new PreferenceExpand(expander, items1);
+      for (int j = 0; j < ex.miss.length; j++) {
+        if (j < index) ex.miss[j] = this.miss[j];
+        else if (j == index) ex.miss[j] = i;
+        else if (j == index + 1) ex.miss[j] = this.miss[index] - i;
+        else ex.miss[j] = this.miss[j-1];        
+      }
+      double p = probability(expander.referenceIndex.get(item), posPrev + 1 + i);
+      // ex.compact(step);
+      expands.put(ex, p);
+    }
+  }
+  
+  
+  public PreferenceExpands insert(Item item) {
+    PreferenceExpands expands = new PreferenceExpands(expander);
+    int step = expander.referenceIndex.get(item);
+    this.compact(step);
+    
+    Span hilo = hilo(item);
+    for (int i = hilo.from; i <= hilo.to; i++) {
+      insertOne(expands, item, i);
+    }
+    
     return expands;
   }
   
@@ -200,8 +266,8 @@ public class SpanMallowsExpand {
   
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof SpanMallowsExpand)) return false;
-    SpanMallowsExpand e = (SpanMallowsExpand) o;
+    if (!(o instanceof PreferenceExpand)) return false;
+    PreferenceExpand e = (PreferenceExpand) o;
     if (this.miss.length != e.miss.length) return false;
     for (int i = 0; i < miss.length; i++) {
       if (this.miss[i] != e.miss[i]) return false;      

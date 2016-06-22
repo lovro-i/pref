@@ -4,22 +4,22 @@ import edu.drexel.cs.db.db4pref.core.Item;
 import java.util.HashMap;
 
 /** Mapping from Expand states to their probabilities */
-public class SpanMallowsExpands extends HashMap<SpanMallowsExpand, Double> {
+public class FullExpands extends HashMap<FullExpand, Double> {
   
   /** The owner of this object */
-  private final SpanExpander expander;
+  private final FullExpander expander;
   
-  public SpanMallowsExpands(SpanExpander expander) {
+  public FullExpands(FullExpander expander) {
     this.expander = expander;
   }
   
   /** Clear this Expands so that it contains only null (empty) expansion */
   public void nullify() {
     this.clear();
-    this.put(new SpanMallowsExpand(expander), 1d);
+    this.put(new FullExpand(expander), 1d);
   }
   
-  public void add(SpanMallowsExpand e, Double p) {
+  public void add(FullExpand e, Double p) {
     Double prev = this.get(e);
     if (prev != null) p += prev;
     this.put(e, p);
@@ -29,11 +29,11 @@ public class SpanMallowsExpands extends HashMap<SpanMallowsExpand, Double> {
    *  If <code>prev</code> is null, it is added at the beginning
    * @return Map of union of the states and their probabilities expanded after adding item e after prev to all expand states
    */  
-  public SpanMallowsExpands insert(Item e, Item prev) {
-    SpanMallowsExpands expands = new SpanMallowsExpands(expander);
-    for (SpanMallowsExpand ex: this.keySet()) {
+  public FullExpands insert(Item e, Item prev) {
+    FullExpands expands = new FullExpands(expander);
+    for (FullExpand ex: this.keySet()) {
       double p = this.get(ex);
-      SpanMallowsExpands exs = ex.insert(e, prev);
+      FullExpands exs = ex.insert(e, prev);
       expands.add(exs, p);
     }
     //expands.normalize();
@@ -48,15 +48,15 @@ public class SpanMallowsExpands extends HashMap<SpanMallowsExpand, Double> {
     for (Double p: this.values()) {
       sum += p;
     }
-    for (SpanMallowsExpand e: this.keySet()) {
+    for (FullExpand e: this.keySet()) {
       Double v = this.get(e);
       this.put(e, v / sum);
     }    
   }
   
   /** Adds all the Expands to this one with weight p */
-  public void add(SpanMallowsExpands expands, double p) {
-    for (SpanMallowsExpand e: expands.keySet()) {
+  public void add(FullExpands expands, double p) {
+    for (FullExpand e: expands.keySet()) {
       double v = expands.get(e);
       this.add(e, p * v);
     }
@@ -67,10 +67,10 @@ public class SpanMallowsExpands extends HashMap<SpanMallowsExpand, Double> {
    * @param item To insert
    * @return Mapping of states to their probabilities
    */
-  public SpanMallowsExpands insertMissing(Item item) {
-    SpanMallowsExpands expands = new SpanMallowsExpands(expander);    
-    for (SpanMallowsExpand ex: this.keySet()) {
-      SpanMallowsExpands exs = ex.insertMissing(item);
+  public FullExpands insertMissing(Item item) {
+    FullExpands expands = new FullExpands(expander);    
+    for (FullExpand ex: this.keySet()) {
+      FullExpands exs = ex.insertMissing(item);
       expands.add(exs, this.get(ex));
     }
     //expands.normalize();
@@ -82,7 +82,7 @@ public class SpanMallowsExpands extends HashMap<SpanMallowsExpand, Double> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (SpanMallowsExpand expand: this.keySet()) {
+    for (FullExpand expand: this.keySet()) {
       sb.append(expand).append(": ").append(this.get(expand)).append("\n");
     }
     return sb.toString();
@@ -93,7 +93,7 @@ public class SpanMallowsExpands extends HashMap<SpanMallowsExpand, Double> {
   public double count(Item e, int pos) {
     double sum = 0;
     for (int i = 0; i < 10; i++) {
-      for (SpanMallowsExpand ex: this.keySet()) {
+      for (FullExpand ex: this.keySet()) {
         if (ex.isAt(e, pos)) sum += this.get(ex);
       }
     }
@@ -104,7 +104,7 @@ public class SpanMallowsExpands extends HashMap<SpanMallowsExpand, Double> {
   public double[] getDistribution(Item e) {
     double[] dist = null;
     double sum = 0;
-    for (SpanMallowsExpand ex: this.keySet()) {
+    for (FullExpand ex: this.keySet()) {
       double p = this.get(ex);
       if (dist == null) dist = new double[ex.length()];
       int pos = ex.position(e);

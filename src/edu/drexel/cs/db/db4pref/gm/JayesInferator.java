@@ -108,7 +108,7 @@ public class JayesInferator {
         throw new IllegalStateException("ToDo, using recursion");
       }
 
-      Logger.info(Arrays.toString(probs));
+      // Logger.info(Arrays.toString(probs));
       node.setProbabilities(probs);
 
     }

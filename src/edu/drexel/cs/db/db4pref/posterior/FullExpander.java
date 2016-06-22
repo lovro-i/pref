@@ -16,13 +16,13 @@ public class FullExpander implements Posterior {
   private final MallowsModel model;
   
   /** Just a utility map of item to its index in the reference ranking */
-  private final Map<Item, Integer> referenceIndex; 
+  final Map<Item, Integer> referenceIndex; 
   
   /** Partial order whose expand states are currently calculated */
   private Ranking ranking;
   
   /** Map of states to their probabilities */
-  FullMallowsExpands expands;
+  FullExpands expands;
   
   private int maxStates;
   
@@ -44,7 +44,7 @@ public class FullExpander implements Posterior {
     // Logger.info("Building expander for ranking " + ranking);
     this.ranking = ranking;
     this.maxStates = 0;
-    expands = new FullMallowsExpands(this);
+    expands = new FullExpands(this);
     expands.nullify();
     Ranking reference = model.getCenter();
     
@@ -74,7 +74,7 @@ public class FullExpander implements Posterior {
   public double getProbability(PreferenceSet pref) {
     Set<Ranking> subRankings = pref.getRankings();
     double accumulatedProbability = 0;
-    for (Ranking r: subRankings){
+    for (Ranking r: subRankings) {
       expand(r);
       accumulatedProbability += expands.getProbability();
     }
@@ -85,7 +85,7 @@ public class FullExpander implements Posterior {
    * @param seq Sequence whose probability we want */
   public double getProbability(Sequence seq) {
     expand(seq.getRanking());
-    FullMallowsExpand ex = new FullMallowsExpand(seq);
+    FullExpand ex = new FullExpand(seq);
     Double p = expands.get(ex);
     if (p == null) return 0;
     return p;

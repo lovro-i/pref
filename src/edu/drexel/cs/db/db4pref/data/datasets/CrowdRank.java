@@ -198,8 +198,12 @@ public class CrowdRank {
     File data = new File("C:\\Projects\\Rank\\Papers\\prefaggregation\\Mallows_Model\\datasets\\crowdrank\\hit_uid_ranking.csv");
     CrowdRank crowdRank = new CrowdRank(data);
     Logger.info("Hits loaded: %d", crowdRank.getHitCount());
+    for (int i = 1; i <= crowdRank.getHitCount(); i++) {
+      RankingSample sample = crowdRank.getHitSample(i);
+      Logger.info("HIT %d: %d users", i, sample.size());
+    }
     
-    crowdRank.reconstructHits();
+    // crowdRank.reconstructHits();
   }
   
 }

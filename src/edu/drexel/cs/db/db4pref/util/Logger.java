@@ -1,6 +1,7 @@
 package edu.drexel.cs.db.db4pref.util;
 
 import java.io.IOException;
+import java.util.Date;
 
 
 public class Logger {
@@ -10,7 +11,7 @@ public class Logger {
   }
   
   public static void info(Object obj) {
-    System.out.println(obj.toString());
+    System.out.println(String.format("[%s] %s", new Date(), obj.toString()));
   }
   
   public static void warn(Throwable t) {

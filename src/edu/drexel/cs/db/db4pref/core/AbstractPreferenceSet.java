@@ -40,7 +40,6 @@ public abstract class AbstractPreferenceSet implements MutablePreferenceSet {
         if (low == high) {
           r.add(low, item);
           rankingsOut.add(r);
-          Logger.info("Adding %s to pos %d in %s", item, low, r);
         }
         else {
           for (int i = low; i <= high; i++) {

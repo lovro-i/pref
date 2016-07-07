@@ -7,7 +7,7 @@ import java.util.Date;
 public class Logger {
 
   public static void info(String msg, Object... args) {
-    System.out.println(String.format(msg, args));
+    System.out.println(String.format("[%s] %s", new Date(), String.format(msg, args)));
   }
   
   public static void info(Object obj) {

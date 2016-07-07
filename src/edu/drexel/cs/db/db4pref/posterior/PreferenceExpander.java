@@ -77,7 +77,7 @@ public class PreferenceExpander implements Posterior {
     return s;
   }
   
-  public int getWidth() {
+  public int getMaxWidth() {
     int w = 0;
     Ranking ref = model.getCenter();
     for (int i = 0; i < ref.length(); i++) {
@@ -86,6 +86,14 @@ public class PreferenceExpander implements Posterior {
     return w;
   }
   
+  public int getSumWidth() {
+    int w = 0;
+    Ranking ref = model.getCenter();
+    for (int i = 0; i < ref.length(); i++) {
+      w += getS(i);
+    }
+    return w;
+  }
 
   /** Executes the dynamic algorithm for this partial order. 
    * Does not have to be called explicitely, it will be called from getProbability() methods when needed (when it's not calculated for the specified ranking).
@@ -119,7 +127,7 @@ public class PreferenceExpander implements Posterior {
     return maxStates;
   }
   
-  public int getTotalStates() {
+  public int getSumStates() {
     return totalStates;
   }
   

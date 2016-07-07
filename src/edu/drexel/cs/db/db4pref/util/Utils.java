@@ -18,4 +18,9 @@ public class Utils {
     return obj1.equals(obj2);
   }
  
+  
+  public static String ellipsis(String s, int len) {
+    if (len >= s.length()) return s;
+    return s.substring(0, len) + "...";
+  }
 }

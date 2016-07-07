@@ -54,6 +54,24 @@ public class MathUtils {
     return sum(a) / a.length;
   }
   
+  public static double median(double[] doubleList) {
+    java.util.Arrays.sort(doubleList);
+    int length = doubleList.length;
+    if (length % 2 == 0) return doubleList[length / 2];
+    else return doubleList[(length - 1) / 2];
+  }
+  
+  public static double[] concat(double[] a, double[] b) {
+    double[] c = new double[a.length + b.length];
+    for (int i = 0; i < a.length; i++) {
+      c[i] = a[i];
+    }
+    for (int i = 0; i < b.length; i++) {
+      c[i + a.length] = b[i];
+    }
+    return c;
+  }
+  
   public static double sum(double[] a) {
     double s = 0;
     for (int i = 0; i < a.length; i++) {

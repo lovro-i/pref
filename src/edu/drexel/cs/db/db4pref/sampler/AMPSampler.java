@@ -26,9 +26,8 @@ public class AMPSampler extends MallowsPosteriorSampler {
     return posteriors;
   }
 
-  // Sample posterior from user preferences v by running AMP once.
+  /** Sample one posterior from user preferences v */
   private double samplePosterior(PreferenceSet pref) {
-
     Ranking reference = model.getCenter();
     double phi = model.getPhi();
     PreferenceSet tc = pref.transitiveClosure();
@@ -46,18 +45,71 @@ public class AMPSampler extends MallowsPosteriorSampler {
       Set<Item> lower = tc.getLower(item);
       for (int j = 0; j < r.length(); j++) {
         Item it = r.get(j);
-        if (higher.contains(it)) {
-          low = j + 1;
+        if (higher.contains(it)) low = j + 1;
+        if (lower.contains(it) && j < high) high = j;
+      }
+
+      
+      int where = high;
+      double sum;
+      if (low == high) {
+        where = low;
+        sum = Math.pow(phi, i - where);
+      }
+      else {
+        sum = 0;
+        double[] p = new double[high + 1];
+        for (int j = low; j <= high; j++) {
+          p[j] = Math.pow(phi, i - j);
+          sum += p[j];
         }
-        if (lower.contains(it) && j < high) {
-          high = j;
+
+        double flip = MathUtils.RANDOM.nextDouble();
+        double ps = 0;
+        for (int j = low; j <= high; j++) {
+          ps += p[j] / sum;
+          if (ps > flip || j == high) {
+            where = j;
+            break;
+          }
         }
+      }
+      
+      r.add(where, item);
+      double z = (1 - phi) / (1 - Math.pow(phi, i + 1));
+      posterior *= z * sum;
+    }
+    return posterior;
+  }
+  
+  /** Sample one posterior from user preferences v */
+  private double samplePosteriorOld(PreferenceSet pref) {
+    Ranking reference = model.getCenter();
+    double phi = model.getPhi();
+    PreferenceSet tc = pref.transitiveClosure();
+    double posterior = 1;
+
+    Ranking r = new Ranking(model.getItemSet());
+    Item item = reference.get(0);
+    r.add(item);
+    for (int i = 1; i < reference.length(); i++) {
+      item = reference.get(i);
+      int low = 0;
+      int high = i;
+
+      Set<Item> higher = tc.getHigher(item);
+      Set<Item> lower = tc.getLower(item);
+      for (int j = 0; j < r.length(); j++) {
+        Item it = r.get(j);
+        if (higher.contains(it)) low = j + 1;
+        if (lower.contains(it) && j < high) high = j;
       }
 
       if (low == high) {
         r.add(low, item);
         posterior *= ((1 - phi) / (1 - Math.pow(phi, i + 1))) * Math.pow(phi, i - high);
-      } else {
+      }
+      else {
         double sum = 0;
         double[] p = new double[high + 1];
         for (int j = low; j <= high; j++) {
@@ -79,6 +131,10 @@ public class AMPSampler extends MallowsPosteriorSampler {
     }
     return posterior;
   }
+  
+  
+  
+  
 
   @Override
   public Ranking sample(PreferenceSet v) {

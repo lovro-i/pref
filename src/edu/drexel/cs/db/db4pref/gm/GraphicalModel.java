@@ -9,6 +9,7 @@ import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ public class GraphicalModel {
 
   private final MallowsModel model;
   private final Ranking reference;
+  final Map<Item, Integer> referenceIndex;
   private final PreferenceSet pref;
   private final ItemSet items;
   private int base = 0;
@@ -32,9 +34,10 @@ public class GraphicalModel {
   public GraphicalModel(MallowsModel model, PreferenceSet pref) {
     this.model = model;
     this.reference = model.getCenter();
+    this.referenceIndex = this.reference.getIndexMap();
     this.pref = pref;
     this.items = model.getItemSet();
-    this.pos1 = new Pos1(model);
+    this.pos1 = new Pos1(this);
   }
 
   public MallowsModel getModel() {
@@ -99,12 +102,12 @@ public class GraphicalModel {
   /**
    * Returns array of times at which each item is last seen
    */
-  Integer[] getLatest() {
+  private Integer[] getLatest() {
     Integer[] latest = new Integer[items.size()];
     for (Variable v : variables) {
       if (v instanceof Xij) {
         Xij x = (Xij) v;
-        int id = x.getItem().id;
+        int id = referenceIndex.get(x.getItem());
         if (latest[id] == null) {
           latest[id] = x.getTime();
         } else {
@@ -120,17 +123,20 @@ public class GraphicalModel {
 
     Set<Xii> rims = new HashSet<Xii>();
 
-    for (int i = 0; i < latest.length - 1; i++) {
+    for (int i = 0; i < reference.length() - 1; i++) {
+      // int idi = reference.get(i).id;
       if (latest[i] == null) {
         continue;
       }
-      for (int j = i + 1; j < latest.length; j++) {
+      
+      for (int j = i + 1; j < reference.length(); j++) {
+        // int idj = reference.get(j).id;
         if (latest[j] == null) {
           continue;
         }
         int min = Math.min(latest[i], latest[j]);
         for (int k = j; k <= min; k++) {
-          Xii xii = this.createXii(items.get(k));
+          Xii xii = this.createXii(reference.get(k));
           rims.add(xii);
         }
       }
@@ -141,24 +147,27 @@ public class GraphicalModel {
       rims.add(xii);
     }
 
-    for (Item item : reference.getItems()) {
-      if (latest[item.id] == null) {
-        continue;
-      }
-      for (int k = item.id + 1; k <= latest[item.id]; k++) {
+    // for (Item item : reference.getItems()) {
+      
+    for (int i = 0; i < reference.length(); i++) {  
+      if (latest[i] == null) continue;
+      Item item = reference.get(i);
+
+      for (int k = i + 1; k <= latest[i]; k++) {
         Xii xkk = this.getXii(k);
         if (xkk != null) {
-
           Xij xikm1 = getXij(item, k - 1);
           if (xikm1 == null) {
-            xikm1 = createXij(item, k - 1); // pos1
             Xij xil = getXijBefore(item, k - 1);
+            xikm1 = createXij(item, k - 1); // pos1
+            Logger.info("=== %s, %d, %d, %s, %s, %d", reference, reference.length(), items.size(), xil, item, k);
             xikm1.setPos1(xil);
           }
 
           Xij xik = createXij(item, k); // pos2
           xik.setPos2(xikm1, xkk);
-        } else if (containsXij(item, k)) {
+        }
+        else if (containsXij(item, k)) {
           Xij xil = getXijBefore(item, k);
           Xij xik = createXij(item, k);
           xik.setPos1(xil);
@@ -233,7 +242,7 @@ public class GraphicalModel {
   }
 
   public Xii createXii(int id) {
-    return GraphicalModel.this.createXii(items.get(id));
+    return GraphicalModel.this.createXii(reference.get(id));
   }
 
   /**
@@ -261,14 +270,14 @@ public class GraphicalModel {
   }
 
   public Xii getXii(int id) {
-    return getXii(items.get(id));
+    return getXii(reference.get(id));
   }
 
   /**
    * Returns Xij of the item at time t. Creates one if it doesn't already exist.
    */
   public Xij createXij(Item item, int t) {
-    if (t == reference.indexOf(item)) {
+    if (t == referenceIndex.get(item)) {
       return createXii(item);
     }
 

@@ -1,18 +1,19 @@
 package edu.drexel.cs.db.db4pref.gm;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import java.util.HashMap;
 import java.util.Map;
 
 /** Calculates probabilities of POS1 factors using dynamic recursive algorithm (caches previously calculated values) */
 public class Pos1 {
 
-  private MallowsModel model;
+  private GraphicalModel gm;
+  private final double phi;
   private Map<Entry, Double> cache = new HashMap<Entry, Double>();
 
-  public Pos1(MallowsModel model) {
-    this.model = model;
+  public Pos1(GraphicalModel gm) {
+    this.gm = gm;
+    phi = gm.getModel().getPhi();
   }
 
   public void clear() {
@@ -23,7 +24,7 @@ public class Pos1 {
    * Probability of Xij = vij given Xik = vik
    */
   public double getProbability(Item item, int j, int vj, int k, int vk) {
-    int i = model.getCenter().indexOf(item);
+    int i = gm.referenceIndex.get(item);
     if (j < i) return 0;
     if (k < i) return 0;
     if (vj < vk) return 0;
@@ -65,7 +66,6 @@ public class Pos1 {
    */
   private double w(int i, int k) {
     if (i == 0) return 1d;
-    double phi = model.getPhi();
     double p = Math.pow(phi, i - k) * (1 - phi) / (1 - Math.pow(phi, i + 1));
     return p;
   }

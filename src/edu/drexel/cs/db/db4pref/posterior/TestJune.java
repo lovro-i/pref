@@ -12,7 +12,6 @@ import edu.drexel.cs.db.db4pref.sampler.AMPSampler;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
-import edu.drexel.cs.db.db4pref.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,8 +35,8 @@ public class TestJune {
     
     while (true) {
       // three(out);
-      four(out);
-      // five(out);
+      // four(out);
+      five(out);
     } 
   }
   
@@ -155,7 +154,7 @@ public class TestJune {
   /** Compare Span and Jayes versions 15x for each random ranking */
   public static void five(PrintWriter out) throws NoSuchAlgorithmException {
     Random random = new Random();
-    int[] its = { 20, 30, 40 }; //,50 , 60, 70, 80, 90, 100 };
+    int[] its = { 20, 30, 40, 50, 50, 50, 50, 50 }; //,50 , 60, 70, 80, 90, 100 };
     double[] phis = { 0.2, 0.5, 0.8 };
     double[] misses = { 0.2, 0.4, 0.6, 0.8 };
     int[] amps = { 100, 1000, 5000, 10000 };

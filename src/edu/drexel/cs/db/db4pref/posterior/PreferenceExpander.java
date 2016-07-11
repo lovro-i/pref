@@ -53,10 +53,11 @@ public class PreferenceExpander implements Posterior {
       spans.put(item, span);
     }
     
+    Ranking reference = model.getCenter();
     HasseDiagram hasse = new HasseDiagram(pref);
-    for (Item item: model.getCenter().getItems()) {
+    for (int step = 0; step < reference.length(); step++) {
+      Item item = reference.get(step);
       if (pref.contains(item)) {
-        int step = referenceIndex.get(item);
         hasse.add(item);
         for (Preference p: hasse.getPreferenceSet()) {
           int il = referenceIndex.get(p.lower);
@@ -132,11 +133,13 @@ public class PreferenceExpander implements Posterior {
   }
   
   /** Returns the sum of probabilities of all sequences with this partial ordering */
+  @Override
   public double getProbability(Ranking r) {
     expand(r);
     return expands.getProbability();
   }
   
+  @Override
   public double getProbability(PreferenceSet pref){
     expand(pref);
     return expands.getProbability();

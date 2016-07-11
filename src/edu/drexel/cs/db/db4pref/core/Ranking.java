@@ -1,5 +1,6 @@
 package edu.drexel.cs.db.db4pref.core;
 
+import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
 import java.util.*;
 
@@ -68,6 +69,9 @@ public class Ranking implements Comparable, PreferenceSet {
    * Adds Item e at the end of the ranking
    */
   public void add(Item e) {
+    if (e == null) {
+      throw new NullPointerException("Trying to add null item");
+    }
     if (this.contains(e)) {
       throw new IllegalArgumentException("Item " + e + " already in the sample: " + this.toString());
     }

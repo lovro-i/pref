@@ -4,6 +4,7 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Sample;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 
 /** Result of preference clustering. */
@@ -20,6 +21,14 @@ public class PreferenceClusters implements Serializable {
     this.clusters = clusters;
   }
 
+  public int size() {
+    return clusters.size();
+  }
+  
+  public Collection<Sample<PreferenceSet>> getClusters() {
+    return this.clusters.values();
+  }
+  
   public ItemSet getItemSet() {
     for (PreferenceSet r : exemplars.keySet()) {
       return r.getItemSet();

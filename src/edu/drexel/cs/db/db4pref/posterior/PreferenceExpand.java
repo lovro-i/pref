@@ -65,7 +65,7 @@ public class PreferenceExpand {
   /** Removes the items that won't figure in the future */
   void compact(int step) {
     for (int i = 0; i < items.length; i++) {
-      String before = this.toString();
+      // String before = this.toString();
       Span span = expander.spans.get(items[i]);
       if (step > span.to) {
         Item[] items2 = new Item[items.length-1];
@@ -115,7 +115,7 @@ public class PreferenceExpand {
       
       double p = 0;
       for (int j = 0; j <= exc.miss[i]; j++) {
-        p += probability(item.getId(), pos);
+        p += probability(step, pos);
         pos++;
       }
       // ex.compact(step);
@@ -168,7 +168,7 @@ public class PreferenceExpand {
         else if (j == index + 2) ex.miss[j] = this.miss[index + 1] - i;
         else ex.miss[j] = this.miss[j-1];        
       }
-      double p = probability(e.getId(), posPrev + 1 + i);
+      double p = probability(step, posPrev + 1 + i);
       // ex.compact(step);
       expands.put(ex, p);
     }

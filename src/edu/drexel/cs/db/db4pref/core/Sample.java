@@ -245,7 +245,7 @@ public class Sample<PS extends PreferenceSet> extends ArrayList<PW<PS>> {
         }
         else {
           StringTokenizer t = new StringTokenizer(line, ",");
-          Ranking r = Ranking.fromStringById(items, t.nextToken());
+          Ranking r = Ranking.fromStringByTag(items, t.nextToken());
           double w = Double.parseDouble(t.nextToken());
           sample.add(r, w);
         }

@@ -13,7 +13,7 @@ public class Xii extends Xij {
   
   
   public Xii(GraphicalModel gm, Item item) {
-    this(gm, gm.getModel().getCenter().indexOf(item));
+    this(gm, gm.referenceIndex.get(item));
   }
   
   @Override

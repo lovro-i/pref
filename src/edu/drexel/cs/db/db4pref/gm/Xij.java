@@ -19,7 +19,7 @@ public class Xij extends Variable {
   public Xij(GraphicalModel gm, Item item, int t) {
     super(gm);
     this.item = item;
-    this.index = gm.getModel().getCenter().indexOf(item);
+    this.index = gm.referenceIndex.get(item);
     this.t = t;
   }
   

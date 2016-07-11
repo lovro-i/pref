@@ -25,21 +25,7 @@ public class PreferenceExpands extends HashMap<PreferenceExpand, Double> {
     this.put(e, p);
   }
   
-  /** Adds item e to the right of the item 'prev' in all the Expands.
-   *  If <code>prev</code> is null, it is added at the beginning
-   * @return Map of union of the states and their probabilities expanded after adding item e after prev to all expand states
-   */  
-  public PreferenceExpands insert(Item e, Item prev) {
-    PreferenceExpands expands = new PreferenceExpands(expander);
-    for (PreferenceExpand ex: this.keySet()) {
-      double p = this.get(ex);
-      PreferenceExpands exs = ex.insert(e, prev);
-      expands.add(exs, p);
-    }
-    //expands.normalize();
-    return expands;
-  }
-  
+
   public PreferenceExpands insert(Item item) {
     PreferenceExpands expands = new PreferenceExpands(expander);
     for (PreferenceExpand ex: this.keySet()) {

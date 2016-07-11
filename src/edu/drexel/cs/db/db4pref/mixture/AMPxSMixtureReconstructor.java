@@ -13,6 +13,10 @@ public class AMPxSMixtureReconstructor implements MallowsMixtureReconstructor {
   private final int iterations;
   private final double alpha;
   
+  public AMPxSMixtureReconstructor() {
+    this(100, 0.1);
+  }
+  
   public AMPxSMixtureReconstructor(int iterations, double alpha) {
     this.iterations = iterations;
     this.alpha = alpha;

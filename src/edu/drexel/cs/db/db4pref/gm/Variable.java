@@ -2,6 +2,7 @@ package edu.drexel.cs.db.db4pref.gm;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +49,7 @@ public abstract class Variable {
   public List<Variable> getParents() {
     return parents;
   }
+  
 
   @Override
   public String toString() {
@@ -65,7 +67,7 @@ public abstract class Variable {
     }
     return vals;
   }
-
+  
   public void addRow(int value, double p, Integer... vals) {
     Row row = new Row(value, p, vals);
     this.rows.add(row);
@@ -139,45 +141,5 @@ public abstract class Variable {
 
   }
   
-  
-  void addDummyRow() {
-    if (parents.size() == 1) {
-      Variable p1 = parents.get(0);
-      for (Integer v1: p1.getValues()) {
-        if (v1 < 0) this.addRow(nextDummy--, 1, v1);
-      }
-    }
-    else if (parents.size() == 2) {
-      Variable p1 = parents.get(0);
-      Variable p2 = parents.get(1);
-      for (Integer v1: p1.getValues()) {        
-        for (Integer v2: p2.getValues()) {
-          if (v1 < 0 || v2 < 0) this.addRow(nextDummy--, 1, v1, v2);
-          // if (v1 == -1 || v2 == -1) this.addRow(-1, 1, v1, v2);
-        }
-      }
-    }
-    else if (parents.size() > 2) throw new UnsupportedOperationException("Hmm...");
-  }
-  
-  private static int nextDummy = -1;
-  
-  public void fillUp() {
-    Map<List<Integer>, Double> sums = new HashMap<List<Integer>, Double>();
-    for (Row row: rows) {
-      double p = row.p;
-      if (sums.containsKey(row.vals)) p += sums.get(row.vals);
-      sums.put(row.vals, p);
-    }
-    
-    double epsilon = 0.00001;
-    for (List<Integer> vals: sums.keySet()) {
-      double p = 1 - sums.get(vals);
-      if (p > epsilon) {
-        Row row = new Row(nextDummy, p, vals);
-        this.rows.add(row);
-      }
-    }
-  }
-  
+
 }

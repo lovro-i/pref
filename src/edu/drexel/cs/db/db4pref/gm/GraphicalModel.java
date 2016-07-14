@@ -471,10 +471,10 @@ public class GraphicalModel {
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
 
     MapPreferenceSet v = new MapPreferenceSet(items);
-    v.addByTag(3, 1);
-    v.addByTag(3, 2);
-    v.addByTag(1, 5);
-    v.addByTag(2, 5);
+    v.addByTag(4, 2);
+    v.addByTag(4, 3);
+    // v.addByTag(1, 5);
+    // v.addByTag(2, 5);
 
     GraphicalModel gm = new GraphicalModel(model, v);
     gm.setOneBased(true);

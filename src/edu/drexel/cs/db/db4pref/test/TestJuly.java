@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Random;
+import java.util.concurrent.TimeoutException;
 
 
 public class TestJuly {
@@ -39,7 +40,7 @@ public class TestJuly {
     negative();
   }
   
-  public static void negative() {
+  public static void negative() throws TimeoutException {
     int m = 10;
     ItemSet items = new ItemSet(m);
     items.tagOneBased();
@@ -108,7 +109,7 @@ public class TestJuly {
   }
   
   
-  public static void crowdRank(String[] args) throws IOException {
+  public static void crowdRank(String[] args) throws IOException, TimeoutException {
     File folder;
     if (args.length == 0) { folder = new File("C:\\Projects\\Rank\\Results\\2016.07"); }
     else { folder = new File(args[0]); }
@@ -175,7 +176,7 @@ public class TestJuly {
     out.close();
   }
   
-  public static void sushi(String[] args) throws IOException {
+  public static void sushi(String[] args) throws IOException, TimeoutException {
     File folder;
     if (args.length == 0) { folder = new File("C:\\Projects\\Rank\\Results\\2016.07\\sushi.3"); }
     else { folder = new File(args[0]); }
@@ -242,7 +243,7 @@ public class TestJuly {
     out.close();
   }
   
-  public static void sushi2(String[] args) throws IOException {
+  public static void sushi2(String[] args) throws IOException, TimeoutException {
     File folder;
     if (args.length == 0) { folder = new File("C:\\Projects\\Rank\\Results\\2016.07\\sushi.3"); }
     else { folder = new File(args[0]); }

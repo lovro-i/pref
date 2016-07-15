@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 
 public class SampleSearchInferator {
@@ -81,13 +82,13 @@ public class SampleSearchInferator {
     }
 
     this.totalTime = System.currentTimeMillis() - totalStart;
-    Logger.info("SampleSearch successfull after %d tries", count);
+    Logger.info("SampleSearch successful after %d tries (%d sec / %d sec)", count, time / 1000, totalTime / 1000);
     return p;
   }
     
   
     
-  public static void main(String[] args) throws UnsupportedEncodingException, IOException, InterruptedException {
+  public static void main(String[] args) throws UnsupportedEncodingException, IOException, InterruptedException, TimeoutException {
     ItemSet items = new ItemSet(10);
     items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);

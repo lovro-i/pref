@@ -2,6 +2,7 @@ package edu.drexel.cs.db.db4pref.posterior;
 
 import edu.drexel.cs.db.db4pref.core.Item;
 import java.util.HashMap;
+import java.util.concurrent.TimeoutException;
 
 /** Mapping from Expand states to their probabilities */
 public class PreferenceExpands extends HashMap<PreferenceExpand, Double> {
@@ -26,9 +27,10 @@ public class PreferenceExpands extends HashMap<PreferenceExpand, Double> {
   }
   
 
-  public PreferenceExpands insert(Item item) {
+  public PreferenceExpands insert(Item item) throws TimeoutException {
     PreferenceExpands expands = new PreferenceExpands(expander);
     for (PreferenceExpand ex: this.keySet()) {
+      if (System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
       double p = this.get(ex);
       PreferenceExpands exs = ex.insert(item);
       expands.add(exs, p);
@@ -63,9 +65,10 @@ public class PreferenceExpands extends HashMap<PreferenceExpand, Double> {
    * @param item To insert
    * @return Mapping of states to their probabilities
    */
-  public PreferenceExpands insertMissing(Item item) {
+  public PreferenceExpands insertMissing(Item item) throws TimeoutException {
     PreferenceExpands expands = new PreferenceExpands(expander);    
     for (PreferenceExpand ex: this.keySet()) {
+      if (System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
       PreferenceExpands exs = ex.insertMissing(item);
       expands.add(exs, this.get(ex));
     }

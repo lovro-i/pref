@@ -3,7 +3,13 @@ package edu.drexel.cs.db.db4pref.util;
 
 public class Utils {
 
-  public static long MB = 1024 * 1024;
+  public static final long MB = 1024 * 1024;
+
+  public static final long ONE_SECOND = 1000;
+  public static final long ONE_MINUTE = 60 * ONE_SECOND;
+  public static final long ONE_HOUR = 60 * ONE_MINUTE;
+  public static final long ONE_DAY = 24 * ONE_HOUR;
+  
   
   public static void memStat() {
     long heapSize = Runtime.getRuntime().totalMemory(); 

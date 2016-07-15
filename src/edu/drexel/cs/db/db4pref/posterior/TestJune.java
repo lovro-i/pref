@@ -17,11 +17,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
+import java.util.concurrent.TimeoutException;
 
 
 public class TestJune {
 
-  public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+  public static void main(String[] args) throws IOException, NoSuchAlgorithmException, TimeoutException {
     PrintWriter out;
     if (args.length > 0) {
       File file = new File(args[0]);
@@ -42,7 +43,7 @@ public class TestJune {
   }
   
   /** Compare Span and Jayes versions 15x for each random ranking */
-  public static void three(PrintWriter out) throws NoSuchAlgorithmException {
+  public static void three(PrintWriter out) throws NoSuchAlgorithmException, TimeoutException {
     Random random = new Random();
     int[] its = { 20, 30, 40 };
     double[] phis = { 0.2, 0.5, 0.8 };
@@ -81,7 +82,7 @@ public class TestJune {
         // EXPANDER
         long starts = System.currentTimeMillis();
         PreferenceExpander expander = new PreferenceExpander(model);
-        double pExpander = expander.getProbability(r);
+        double pExpander = expander.getProbability(v);
         long timeExpander = System.currentTimeMillis() - starts;
 
 
@@ -153,7 +154,7 @@ public class TestJune {
   }
   
   /** Compare Span and Jayes versions 15x for each random ranking */
-  public static void five(PrintWriter out) throws NoSuchAlgorithmException {
+  public static void five(PrintWriter out) throws NoSuchAlgorithmException, TimeoutException {
     Random random = new Random();
     int[] its = {5, 10, 15}; // { 20, 30, 40, 50, 50, 50, 50, 50 }; //,50 , 60, 70, 80, 90, 100 };
     double[] phis = { 0.2, 0.5, 0.8 };
@@ -194,7 +195,7 @@ public class TestJune {
         // EXPANDER
         long starts = System.currentTimeMillis();
         PreferenceExpander expander = new PreferenceExpander(model);
-        double pExpander = expander.getProbability(r);
+        double pExpander = expander.getProbability(v);
         long timeExpander = System.currentTimeMillis() - starts;
         Logger.info("Expander done in %d sec", timeExpander / 1000);
 
@@ -262,7 +263,7 @@ public class TestJune {
   }
   
   /** Compare Span and Jayes versions 15x for each random ranking */
-  public static void six(PrintWriter out) throws NoSuchAlgorithmException {
+  public static void six(PrintWriter out) throws NoSuchAlgorithmException, TimeoutException {
     Random random = new Random();
     int[] its = { 10, 20, 30, 40, 50 }; //, 60, 70, 80, 90, 100 };
     double[] phis = { 0.2, 0.5, 0.8 };
@@ -366,7 +367,7 @@ public class TestJune {
   }
   
   /** Compare Span and Jayes versions 15x for each random ranking */
-  public static void four(PrintWriter out) {
+  public static void four(PrintWriter out) throws TimeoutException {
     Random random = new Random();
     int[] its = { 70, 80, 90, 100 };
     double[] phis = { 0.2, 0.5, 0.8 };
@@ -393,7 +394,7 @@ public class TestJune {
       // EXPANDER
       long starts = System.currentTimeMillis();
       PreferenceExpander expander = new PreferenceExpander(model);
-      double pExpander = expander.getProbability(r);
+      double pExpander = expander.getProbability(v);
       long timeExpander = System.currentTimeMillis() - starts;
 
 

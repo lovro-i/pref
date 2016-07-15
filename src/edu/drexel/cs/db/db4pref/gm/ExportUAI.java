@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 /** Saves graphical model in UAI format */
 public class ExportUAI {
@@ -268,7 +269,7 @@ public class ExportUAI {
     return sb.toString();
   }
   
-  public static void main(String[] args) throws UnsupportedEncodingException {
+  public static void main(String[] args) throws UnsupportedEncodingException, TimeoutException {
     ItemSet items = new ItemSet(10);
     items.tagOneBased();
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);

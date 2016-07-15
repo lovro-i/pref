@@ -12,8 +12,10 @@ import edu.drexel.cs.db.db4pref.filter.Filter;
 import edu.drexel.cs.db.db4pref.filter.MissingProbabilities;
 import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.util.Logger;
+import edu.drexel.cs.db.db4pref.util.Utils;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities */
 public class PreferenceExpander implements Posterior {
@@ -26,6 +28,10 @@ public class PreferenceExpander implements Posterior {
   
   /** Partial order whose expand states are currently calculated */
   private PreferenceSet pref;
+  
+  /** Timeout in milliseconds */
+  long start;
+  long timeout = Utils.ONE_HOUR;
   
   MutablePreferenceSet tc;
   
@@ -43,6 +49,10 @@ public class PreferenceExpander implements Posterior {
     this.referenceIndex = model.getCenter().getIndexMap();
   }
     
+  public void setTimeout(long ms) {
+    this.timeout = ms;
+  }
+  
   
   private void calculateSpans() {
     this.spans = new HashMap<Item, Span>();
@@ -99,12 +109,13 @@ public class PreferenceExpander implements Posterior {
   /** Executes the dynamic algorithm for this partial order. 
    * Does not have to be called explicitely, it will be called from getProbability() methods when needed (when it's not calculated for the specified ranking).
    */
-  public void expand(PreferenceSet pref) {
+  public void expand(PreferenceSet pref) throws TimeoutException {
     if (pref.equals(this.pref)) {
       Logger.info("Expander already available for PreferenceSet " + pref);
       return;
     }
     // Logger.info("Building expander for ranking " + ranking);
+    this.start = System.currentTimeMillis();
     this.pref = pref;
     this.tc = pref.transitiveClosure();
     this.maxStates = this.totalStates = 0;
@@ -114,6 +125,7 @@ public class PreferenceExpander implements Posterior {
     Ranking reference = model.getCenter();
     
     for (int i = 0; i < reference.length(); i++) {
+      Logger.info("Expanding item %d of %d", i+1, reference.length());
       Item item = reference.get(i);
       
       if (this.pref.contains(item)) expands = expands.insert(item);
@@ -134,20 +146,20 @@ public class PreferenceExpander implements Posterior {
   
   /** Returns the sum of probabilities of all sequences with this partial ordering */
   @Override
-  public double getProbability(Ranking r) {
+  public double getProbability(Ranking r) throws TimeoutException {
     expand(r);
     return expands.getProbability();
   }
   
   @Override
-  public double getProbability(PreferenceSet pref){
+  public double getProbability(PreferenceSet pref) throws TimeoutException{
     expand(pref);
     return expands.getProbability();
   }
   
   /** Returns the probability of the specific sequence
    * @param seq Sequence whose probability we want */
-  public double getProbability(Sequence seq) {
+  public double getProbability(Sequence seq) throws TimeoutException {
     expand(seq.getRanking());
     FullExpand ex = new FullExpand(seq);
     Double p = expands.get(ex);
@@ -161,7 +173,7 @@ public class PreferenceExpander implements Posterior {
   }
  
   
-  public static void main(String args[]) {
+  public static void main(String args[]) throws TimeoutException {
     ItemSet items = new ItemSet(6);    
     items.tagLetters();
 

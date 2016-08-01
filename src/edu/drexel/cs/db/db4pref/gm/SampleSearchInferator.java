@@ -4,6 +4,7 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.PreferenceExpander;
+import edu.drexel.cs.db.db4pref.util.ExecUtils;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.io.File;
@@ -20,69 +21,62 @@ public class SampleSearchInferator {
   
   private final GraphicalModel gm;
   
-  private int count;
-  private long totalTime;
+  private Integer i = null;
+  
+  private long timeout = 0;
   private long time;
   
   public SampleSearchInferator(GraphicalModel gm) {
     this.gm = gm;
   }
   
-  public int getCount() {
-    return count;
-  }
-  
-  public long getTotalTime() {
-    return totalTime;
-  }
-  
   public long getTime() {
     return time;
   }
   
-  public double exec(int sec) throws IOException, InterruptedException {
-    long totalStart = System.currentTimeMillis();
-    PrintWriter empty = FileUtils.write(new File("no.evidence"));
-    empty.close();
+  public void setI(Integer i) {
+    this.i = i;
+  }
+  
+  /** Process timeout in milliseconds. 0 for no timeout */
+  public void setTimeout(long timeout) {
+    this.timeout = timeout;
+  }
+  
+  /** @returns log probability (natural logarithm) */
+  public Double exec(int sec) throws IOException, InterruptedException {
+    File evidence = new File("no.evidence");
+    if (!evidence.exists()) {
+      PrintWriter empty = FileUtils.write(evidence);
+      empty.write("0");
+      empty.close();
+    }
     
+    long start = System.currentTimeMillis();
     Double p = null;
-    {
-      PrintWriter uai = FileUtils.write(new File("bn.uai"));
-      ExportUAI export = new ExportUAI(gm);
-      uai.write(export.toString());
-      uai.close();
-    
-      ProcessBuilder pb = new ProcessBuilder();
-      pb.command(bin, "bn.uai", "no.evidence", String.valueOf(sec), "PR");
-      Process process = pb.start();
-      process.waitFor();
-    
-      List<String> lines = FileUtils.readLines(new File("bn.uai.PR"));
-      if (process.exitValue() == 0 || lines.size() == 2) p = Double.valueOf(lines.get(1));
-    }
-    
-    count = 1;
-    while (p == null) {
-      count++;
-      if (count % 10 == 0) Logger.info("Try #%d", count);
-      PrintWriter uai = FileUtils.write(new File("bn.uai"));
-      ExportUAI export = new ExportUAI(gm);
-      uai.write(export.toStringRandom());
-      uai.close();
-      
-      ProcessBuilder pb = new ProcessBuilder();
-      pb.command(bin, "bn.uai", "no.evidence", String.valueOf(sec), "PR");
-      long startTime = System.currentTimeMillis();
-      Process process = pb.start();
-      process.waitFor();
-      time = System.currentTimeMillis() - startTime;
-      
-      List<String> lines = FileUtils.readLines(new File("bn.uai.PR"));
-      if (process.exitValue() == 0 || lines.size() == 2) p = Double.valueOf(lines.get(1));
-    }
+    PrintWriter uai = FileUtils.write(new File("bn.uai"));
+    ExportUAI export = new ExportUAI(gm);
+    uai.write(export.toString());
+    uai.close();
 
-    this.totalTime = System.currentTimeMillis() - totalStart;
-    Logger.info("SampleSearch successful after %d tries (%d sec / %d sec)", count, time / 1000, totalTime / 1000);
+    ProcessBuilder pb = new ProcessBuilder();
+    if (i == null) pb.command(bin, "bn.uai", "no.evidence", String.valueOf(sec), "PR");
+    else pb.command(bin, "-i", String.valueOf(i), "bn.uai", "no.evidence", String.valueOf(sec), "PR");
+    
+    int exitValue;
+    if (timeout > 0) exitValue = ExecUtils.execute(pb, timeout, null, null);
+    else exitValue = ExecUtils.execute(pb, null, null);
+    // Process process = pb.start();
+    // process.waitFor();
+
+    List<String> lines = FileUtils.readLines(new File("bn.uai.PR"));
+    try {
+      if (exitValue == 0 && lines.size() == 2) p = Double.valueOf(lines.get(1));
+    }
+    catch (NumberFormatException e) {}
+    this.time = System.currentTimeMillis() - start;
+    
+    if (p != null) p = p / Math.log10(Math.E);
     return p;
   }
     

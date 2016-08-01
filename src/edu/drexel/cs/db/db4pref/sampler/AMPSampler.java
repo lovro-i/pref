@@ -27,7 +27,7 @@ public class AMPSampler extends MallowsPosteriorSampler {
   }
 
   /** Sample one posterior from user preferences v */
-  private double samplePosterior(PreferenceSet pref) {
+  public double samplePosterior(PreferenceSet pref) {
     Ranking reference = model.getCenter();
     double phi = model.getPhi();
     PreferenceSet tc = pref.transitiveClosure();

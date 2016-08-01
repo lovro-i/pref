@@ -14,13 +14,16 @@ import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.Utils;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
-/** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities 
-  * Version 3: Items are tracked only during span times (same as Span version); preference sets are expanded only once (from low to high on every level)
+/** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities
+ * Version 4: Items are tracked only during span times, and dynamically removed when not needed (static span + dynamic span); preference sets are expanded only once (from low to high on every level)
  */
-public class PreferenceExpander implements Posterior {
+public class DynamicPreferenceExpander implements Posterior {
 
   /** Model that this Expander calculates */
   private final MallowsModel model;
@@ -38,15 +41,19 @@ public class PreferenceExpander implements Posterior {
   MutablePreferenceSet tc;
   
   /** Map of states to their probabilities */
-  private PreferenceExpands expands;
+  private DynamicPreferenceExpands expands;
   
   Map<Item, Span> spans;
   
   private int maxStates;
   private int totalStates;
   
+  HashMap<Item, HashSet<Item>> lowers = new HashMap<>();
+  HashMap<Item, HashSet<Item>> highers = new HashMap<>();
+
+  
   /** Creates an Expander for the give Mallows model */
-  public PreferenceExpander(MallowsModel model) {
+  public DynamicPreferenceExpander(MallowsModel model) {
     this.model = model;
     this.referenceIndex = model.getCenter().getIndexMap();
   }
@@ -108,6 +115,53 @@ public class PreferenceExpander implements Posterior {
     return w;
   }
 
+  private void initHighersLowers() {
+    for (Item item: tc.getItems()) {
+      Set<Item> lower1 = tc.getLower(item);
+      HashSet<Item> lower2 = new HashSet<Item>(lower1);
+      this.lowers.put(item, lower2);
+      Set<Item> higher1 = tc.getHigher(item);
+      HashSet<Item> higher2 = new HashSet<Item>(higher1);
+      this.highers.put(item, higher2);
+    }
+  }
+  
+  void pruneLowers(int step) {
+    Iterator<Item> it = lowers.keySet().iterator();
+    while (it.hasNext()) {
+      Item item1 = it.next();
+      int idx1 = this.referenceIndex.get(item1);
+      if (idx1 >= step) continue;
+      
+      Iterator<Item> iter = lowers.get(item1).iterator();
+      while (iter.hasNext()) {
+        Item item2 = iter.next();
+        int idx2 = this.referenceIndex.get(item2);
+        if (idx2 < step) iter.remove();
+      }
+      
+      if (lowers.get(item1).isEmpty()) it.remove();
+    }
+  }
+  
+  void pruneHighers(int step) {
+    Iterator<Item> it = highers.keySet().iterator();
+    while (it.hasNext()) {
+      Item item1 = it.next();
+      int idx1 = this.referenceIndex.get(item1);
+      if (idx1 >= step) continue;
+      
+      Iterator<Item> iter = highers.get(item1).iterator();
+      while (iter.hasNext()) {
+        Item item2 = iter.next();
+        int idx2 = this.referenceIndex.get(item2);
+        if (idx2 < step) iter.remove();
+      }
+      
+      if (highers.get(item1).isEmpty()) it.remove();
+    }
+  }
+  
   /** Executes the dynamic algorithm for this partial order. 
    * Does not have to be called explicitely, it will be called from getProbability() methods when needed (when it's not calculated for the specified ranking).
    */
@@ -122,12 +176,15 @@ public class PreferenceExpander implements Posterior {
     this.tc = pref.transitiveClosure();
     this.maxStates = this.totalStates = 0;
     calculateSpans();
-    expands = new PreferenceExpands(this);
+    initHighersLowers();
+    expands = new DynamicPreferenceExpands(this);
     expands.nullify();
     Ranking reference = model.getCenter();
     
     for (int i = 0; i < reference.length(); i++) {
       // Logger.info("Expanding item %d of %d", i+1, reference.length());
+      pruneHighers(i);
+      pruneLowers(i);
       Item item = reference.get(i);
       
       if (this.pref.contains(item)) expands = expands.insert(item);
@@ -176,11 +233,11 @@ public class PreferenceExpander implements Posterior {
  
   
   public static void main(String args[]) throws TimeoutException {
-    ItemSet items = new ItemSet(6);    
+    ItemSet items = new ItemSet(15);    
     items.tagLetters();
 
     
-    double phi = 0.2;
+    double phi = 0.85;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
     
     // This is one ranking / partial order
@@ -193,24 +250,25 @@ public class PreferenceExpander implements Posterior {
     Ranking r = items.getRandomRanking();
     MapPreferenceSet pref = r.transitiveClosure();
     Filter.removePreferences(pref, MissingProbabilities.uniform(items, 0.5));
-//    Filter.removeItems(r, 0.5);
-//    PreferenceSet pref = r;
+
+    // Logger.info(pref);
     
-//    long startFull = System.currentTimeMillis();
-//    FullExpander expander = new FullExpander(model);
-//    Logger.info("FullExpander: Total probability of %s: %f in %d ms", pref, expander.getProbability(pref), System.currentTimeMillis() - startFull);
-
-    Logger.info(pref);
-
+    long startDynPref = System.currentTimeMillis();
+    DynamicPreferenceExpander pex = new DynamicPreferenceExpander(model);
+    double pdp = Math.log(pex.getProbability(pref));
+    Logger.info("DynamicPreferenceExpander: Total probability: %f in %d ms", pdp, System.currentTimeMillis() - startDynPref);
+    
+        
     long startPref = System.currentTimeMillis();
-    PreferenceExpander pex = new PreferenceExpander(model);
-    Logger.info("PreferenceExpander: Total probability: %f in %d ms", pex.getProbability(pref), System.currentTimeMillis() - startPref);
+    PreferenceExpander sex = new PreferenceExpander(model);
+    double pp = Math.log(sex.getProbability(pref));
+    Logger.info("PreferenceExpander: Total probability: %f in %d ms\n\n", pp, System.currentTimeMillis() - startPref);
     
-    long startSpan = System.currentTimeMillis();
-    SpanExpander sex = new SpanExpander(model);
-    Logger.info("SpanExpander: Total probability: %f in %d ms\n\n", sex.getProbability(pref), System.currentTimeMillis() - startSpan);
-    
-    
+
+    if (pp != pdp) {
+      Logger.info("ERROR! %f != %f", pp, pdp);
+      Logger.waitKey();
+    }
   }
   
 }

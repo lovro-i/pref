@@ -5,40 +5,36 @@ import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
 /** Mapping from Expand states to their probabilities */
-public class SpanExpands extends HashMap<SpanExpand, Double> {
+public class DynamicPreferenceExpands extends HashMap<DynamicPreferenceExpand, Double> {
   
   /** The owner of this object */
-  private final SpanExpander expander;
+  private final DynamicPreferenceExpander expander;
   
-  public SpanExpands(SpanExpander expander) {
+  public DynamicPreferenceExpands(DynamicPreferenceExpander expander) {
     this.expander = expander;
   }
   
   /** Clear this Expands so that it contains only null (empty) expansion */
   public void nullify() {
     this.clear();
-    this.put(new SpanExpand(expander), 1d);
+    this.put(new DynamicPreferenceExpand(expander), 1d);
   }
   
-  public void add(SpanExpand e, Double p) {
+  public void add(DynamicPreferenceExpand e, Double p) {
     Double prev = this.get(e);
     if (prev != null) p += prev;
     this.put(e, p);
   }
   
-  /** Adds item e to the right of the item 'prev' in all the Expands.
-   *  If <code>prev</code> is null, it is added at the beginning
-   * @return Map of union of the states and their probabilities expanded after adding item e after prev to all expand states
-   */  
-  public SpanExpands insert(Item e, Item prev) throws TimeoutException {
-    SpanExpands expands = new SpanExpands(expander);
-    for (SpanExpand ex: this.keySet()) {
+
+  public DynamicPreferenceExpands insert(Item item) throws TimeoutException {
+    DynamicPreferenceExpands expands = new DynamicPreferenceExpands(expander);
+    for (DynamicPreferenceExpand ex: this.keySet()) {
       if (System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
       double p = this.get(ex);
-      SpanExpands exs = ex.insert(e, prev);
+      DynamicPreferenceExpands exs = ex.insert(item);
       expands.add(exs, p);
     }
-    //expands.normalize();
     return expands;
   }
   
@@ -50,15 +46,15 @@ public class SpanExpands extends HashMap<SpanExpand, Double> {
     for (Double p: this.values()) {
       sum += p;
     }
-    for (SpanExpand e: this.keySet()) {
+    for (DynamicPreferenceExpand e: this.keySet()) {
       Double v = this.get(e);
       this.put(e, v / sum);
     }    
   }
   
   /** Adds all the Expands to this one with weight p */
-  public void add(SpanExpands expands, double p) {
-    for (SpanExpand e: expands.keySet()) {
+  public void add(DynamicPreferenceExpands expands, double p) {
+    for (DynamicPreferenceExpand e: expands.keySet()) {
       double v = expands.get(e);
       this.add(e, p * v);
     }
@@ -69,11 +65,11 @@ public class SpanExpands extends HashMap<SpanExpand, Double> {
    * @param item To insert
    * @return Mapping of states to their probabilities
    */
-  public SpanExpands insertMissing(Item item) throws TimeoutException {
-    SpanExpands expands = new SpanExpands(expander);    
-    for (SpanExpand ex: this.keySet()) {
+  public DynamicPreferenceExpands insertMissing(Item item) throws TimeoutException {
+    DynamicPreferenceExpands expands = new DynamicPreferenceExpands(expander);    
+    for (DynamicPreferenceExpand ex: this.keySet()) {
       if (System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
-      SpanExpands exs = ex.insertMissing(item);
+      DynamicPreferenceExpands exs = ex.insertMissing(item);
       expands.add(exs, this.get(ex));
     }
     //expands.normalize();
@@ -85,7 +81,7 @@ public class SpanExpands extends HashMap<SpanExpand, Double> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (SpanExpand expand: this.keySet()) {
+    for (DynamicPreferenceExpand expand: this.keySet()) {
       sb.append(expand).append(": ").append(this.get(expand)).append("\n");
     }
     return sb.toString();
@@ -96,7 +92,7 @@ public class SpanExpands extends HashMap<SpanExpand, Double> {
   public double count(Item e, int pos) {
     double sum = 0;
     for (int i = 0; i < 10; i++) {
-      for (SpanExpand ex: this.keySet()) {
+      for (DynamicPreferenceExpand ex: this.keySet()) {
         if (ex.isAt(e, pos)) sum += this.get(ex);
       }
     }
@@ -107,7 +103,7 @@ public class SpanExpands extends HashMap<SpanExpand, Double> {
   public double[] getDistribution(Item e) {
     double[] dist = null;
     double sum = 0;
-    for (SpanExpand ex: this.keySet()) {
+    for (DynamicPreferenceExpand ex: this.keySet()) {
       double p = this.get(ex);
       if (dist == null) dist = new double[ex.length()];
       int pos = ex.position(e);

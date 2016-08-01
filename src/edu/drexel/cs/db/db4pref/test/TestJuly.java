@@ -13,6 +13,7 @@ import edu.drexel.cs.db.db4pref.filter.Filter;
 import edu.drexel.cs.db.db4pref.filter.MissingProbabilities;
 import edu.drexel.cs.db.db4pref.gm.GraphicalModel;
 import edu.drexel.cs.db.db4pref.gm.JayesInferator;
+import edu.drexel.cs.db.db4pref.gm.SampleSearchInferator;
 import edu.drexel.cs.db.db4pref.mixture.AMPxSMixtureReconstructor;
 import edu.drexel.cs.db.db4pref.mixture.MallowsMixtureModel;
 import edu.drexel.cs.db.db4pref.mixture.MallowsMixtureReconstructor;
@@ -35,9 +36,10 @@ import java.util.concurrent.TimeoutException;
 public class TestJuly {
 
   public static void main(String[] args) throws Exception {
-    // sushi2(args);
-    while (true)
-    negative();
+    sushi2(args, 2);
+    sushi2(args, 5);
+    sushi2(args, 8);
+    // while (true) negative();
   }
   
   public static void negative() throws TimeoutException {
@@ -243,7 +245,7 @@ public class TestJuly {
     out.close();
   }
   
-  public static void sushi2(String[] args) throws IOException, TimeoutException {
+  public static void sushi2(String[] args, Integer iParam) throws IOException, TimeoutException, InterruptedException {
     File folder;
     if (args.length == 0) { folder = new File("C:\\Projects\\Rank\\Results\\2016.07\\sushi.3"); }
     else { folder = new File(args[0]); }
@@ -258,10 +260,10 @@ public class TestJuly {
     int[] amps = { 10, 50, 100, 1000, 5000, 10000, 50000 };
     double[] misses = { 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 };
     
-    PrintWriter out = FileUtils.write(new File(folder, "sushi.out.csv"));
+    PrintWriter out = FileUtils.append(new File(folder, "sushi.out.csv"));
     
     for (double miss: misses) {
-      MissingProbabilities missing = MissingProbabilities.uniform(items, miss);
+      MissingProbabilities missing = MissingProbabilities.uniformPairwise(items, miss);
       
       for (Sample.PW<PreferenceSet> pw: sample) {
 
@@ -279,6 +281,7 @@ public class TestJuly {
         long startJayes = System.currentTimeMillis();
         GraphicalModel gm = new GraphicalModel(model, v);
         gm.build();
+        long timeGM = System.currentTimeMillis() - startJayes;
         int networkSize = gm.getNetworkSize();
         JayesInferator jayesInferator = new JayesInferator(gm);
         double pJayes = jayesInferator.getProbability();
@@ -302,18 +305,26 @@ public class TestJuly {
           timeAmps[k] = System.currentTimeMillis() - startAmp;
         }
 
+        // SampleSearch
+        SampleSearchInferator ss1 = new SampleSearchInferator(gm);
+        ss1.setI(iParam);
+        Double pss1 = ss1.exec(1);
 
 
         String line = String.format("%d,%.3f,%s,%.1f,%s,%d", items.size(), model.getPhi(), pw.p, miss, vName, v.size());
         line += String.format(",%f,%d,%d,%d,%d,%d", Math.log(pExpander), timeExpander, expander.getMaxWidth(), expander.getSumWidth(), expander.getMaxStates(), expander.getSumStates());
-        line += String.format(",%d,%d,%f,%d", networkSize, treeWidth, Math.log(pJayes), timeJayes);
+        line += String.format(",%d,%d,%f,%d,%d,%d", networkSize, treeWidth, Math.log(pJayes), timeGM, timeJayes, timeGM+timeJayes);
 
         for (int k = 0; k < amps.length; k++) {
           line += String.format(",%d,%f,%d", amps[k], Math.log(pAmps[k]), timeAmps[k]);
         }
+        
+        line += String.format(",%d,%f,%d,%d", 1, pss1, ss1.getTime(), ss1.getTime() + timeGM);
+        line += String.format(",%d", iParam);
 
         Logger.info(line);
         out.println(line);
+        out.flush();
       }
     }
     out.close();

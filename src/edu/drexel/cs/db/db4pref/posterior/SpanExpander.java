@@ -8,11 +8,15 @@ import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.gm.Range;
 import edu.drexel.cs.db.db4pref.sampler.triangle.UpTo;
 import edu.drexel.cs.db.db4pref.util.Logger;
+import edu.drexel.cs.db.db4pref.util.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
-/** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities */
+/** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities 
+ * Version 2: Items are tracked only during span times; preference sets are converted to list of compatible rankings
+ */
 public class SpanExpander implements Posterior {
 
   /** Model that this Expander calculates */
@@ -32,12 +36,19 @@ public class SpanExpander implements Posterior {
   private int maxStates;
   private int totalStates;
   
+  /** Timeout in milliseconds */
+  long start;
+  long timeout = Utils.ONE_HOUR;
+  
   /** Creates an Expander for the give Mallows model */
   public SpanExpander(MallowsModel model) {
     this.model = model;
     this.referenceIndex = model.getCenter().getIndexMap();
   }
     
+  public void setTimeout(long ms) {
+    this.timeout = ms;
+  }
   
   private void calculateSpans() {
     this.spans = new HashMap<Item, Span>();
@@ -79,7 +90,7 @@ public class SpanExpander implements Posterior {
   /** Executes the dynamic algorithm for this partial order. 
    * Does not have to be called explicitely, it will be called from getProbability() methods when needed (when it's not calculated for the specified ranking).
    */
-  public void expand(Ranking ranking) {
+  public void expand(Ranking ranking) throws TimeoutException {
     if (ranking.equals(this.ranking)) {
       Logger.info("Expander already available for ranking " + ranking);
       return;
@@ -115,29 +126,42 @@ public class SpanExpander implements Posterior {
   }
   
   /** Returns the sum of probabilities of all sequences with this partial ordering */
-  public double getProbability(Ranking r) {
+  public double getProbability(Ranking r) throws TimeoutException {
+    this.start = System.currentTimeMillis();
     expand(r);
+    rankingCount = 1;
     return expands.getProbability();
   }
   
-  public double getProbability(PreferenceSet pref){
+  private int rankingCount = 0;
+  
+  /** How many rankings were expanded */
+  public int getRankingCount() {
+    return rankingCount;
+  }
+  
+  public double getProbability(PreferenceSet pref) throws TimeoutException {
+    this.start = System.currentTimeMillis();
     Set<Ranking> subRankings = pref.getRankings();
     double accumulatedProbability = 0;
-    int count = 0;
-    for (Ranking r: subRankings){
+    rankingCount = 0;
+    for (Ranking r: subRankings) {
+      if (System.currentTimeMillis() - start > timeout) throw new TimeoutException("Expander timeout exceeded");
       expand(r);
       accumulatedProbability += expands.getProbability();
-      count++;
+      rankingCount++;
     }
-    Logger.info("Expanded %d rankings", count);
+    Logger.info("Expanded %d rankings", rankingCount);
     return accumulatedProbability;
   }
   
   /** Returns the probability of the specific sequence
    * @param seq Sequence whose probability we want */
-  public double getProbability(Sequence seq) {
+  public double getProbability(Sequence seq) throws TimeoutException {
+    this.start = System.currentTimeMillis();
     expand(seq.getRanking());
-    FullExpand ex = new FullExpand(seq);
+    rankingCount = 1;
+    SpanExpand ex = new SpanExpand(seq);
     Double p = expands.get(ex);
     if (p == null) return 0;
     return p;
@@ -149,7 +173,7 @@ public class SpanExpander implements Posterior {
   }
  
   
-  public static void main(String args[]) {
+  public static void main(String args[]) throws TimeoutException {
     ItemSet items = new ItemSet(6); // Create a set of 6 items (elements, alternatives), IDs 0 to 5    
     items.tagLetters(); // Name items by letters (A, B, C...). Otherwise names (tags) of items are their IDs (zero based)
     // items.tagSigmas();

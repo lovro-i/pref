@@ -13,11 +13,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Random;
+import java.util.concurrent.TimeoutException;
 
 
 public class TestFullSpan {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, TimeoutException {
     PrintWriter out;
     if (args.length > 0) {
       File file = new File(args[0]);
@@ -39,7 +40,7 @@ public class TestFullSpan {
   }
   
   /** Compare Span and Jayes versions 15x for each random ranking */
-  public static void three(PrintWriter out) {
+  public static void three(PrintWriter out) throws TimeoutException {
     Random random = new Random();
     int[] its = { 20, 30, 40, 50 };
     double[] phis = { 0.2, 0.5, 0.8 };
@@ -120,7 +121,7 @@ public class TestFullSpan {
   }
   
   /** Compare Full and Span versions 15x for each random ranking */
-  public static void two(PrintWriter out) {
+  public static void two(PrintWriter out) throws TimeoutException {
     Random random = new Random();
     int[] its = { 30 };
     double[] phis = { 0.2, 0.5, 0.8 };
@@ -190,7 +191,7 @@ public class TestFullSpan {
   }
   
   /** Compare Full and Span versions for a random ranking */
-  public static void one() {
+  public static void one() throws TimeoutException {
     Random random = new Random();
     int[] its = { 30 };
     double[] phis = { 0.2, 0.5, 0.8 };

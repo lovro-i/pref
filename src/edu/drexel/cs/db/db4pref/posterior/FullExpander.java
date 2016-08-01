@@ -9,7 +9,9 @@ import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.Map;
 import java.util.Set;
 
-/** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities */
+/** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities 
+ * Version 1: Everything is expanded; preference sets are converted to list of compatible rankings
+ */
 public class FullExpander implements Posterior {
 
   /** Model that this Expander calculates */

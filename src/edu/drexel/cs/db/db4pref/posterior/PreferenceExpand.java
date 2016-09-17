@@ -2,6 +2,7 @@ package edu.drexel.cs.db.db4pref.posterior;
 
 import edu.drexel.cs.db.db4pref.core.Item;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Set;
 
 /** One state in the expansion. The state is represented by the ordering of known items, and number of unknown items between them (plus in front and after).
@@ -115,7 +116,7 @@ public class PreferenceExpand {
       
       double p = 0;
       for (int j = 0; j <= exc.miss[i]; j++) {
-        p += probability(step, pos);
+        p += expander.probability(step, pos);
         pos++;
       }
       // ex.compact(step);
@@ -125,13 +126,7 @@ public class PreferenceExpand {
     return expands;
   }
   
-
-  /** Calculate the probability of the item being inserted at the given position. Directly from the Mallows model */
-  private double probability(int itemIndex, int position) {
-    double phi = expander.getModel().getPhi();
-    double p = Math.pow(phi, Math.abs(itemIndex - position)) * (1 - phi) / (1 - Math.pow(phi, itemIndex + 1));
-    return p;
-  }
+  
   
   
   /** Adds item e to the right of the item 'prev'.
@@ -168,7 +163,7 @@ public class PreferenceExpand {
         else if (j == index + 2) ex.miss[j] = this.miss[index + 1] - i;
         else ex.miss[j] = this.miss[j-1];        
       }
-      double p = probability(step, posPrev + 1 + i);
+      double p = expander.probability(step, posPrev + 1 + i);
       // ex.compact(step);
       expands.put(ex, p);
     }
@@ -178,7 +173,6 @@ public class PreferenceExpand {
   }
   
   
-  // for an item, hasse diagram, and a sequence, returns the list of items directly after which the item can be inserted
   public Span hilo(Item item) {
     Set<Item> higher = this.expander.tc.getHigher(item);
     Set<Item> lower = this.expander.tc.getLower(item);
@@ -223,7 +217,7 @@ public class PreferenceExpand {
         else if (j == index + 1) ex.miss[j] = this.miss[index] - i;
         else ex.miss[j] = this.miss[j-1];        
       }
-      double p = probability(expander.referenceIndex.get(item), posPrev + 1 + i);
+      double p = expander.probability(expander.referenceIndex.get(item), posPrev + 1 + i);
       // ex.compact(step);
       expands.put(ex, p);
     }

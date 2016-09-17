@@ -30,7 +30,7 @@ public class PreferenceExpands extends HashMap<PreferenceExpand, Double> {
   public PreferenceExpands insert(Item item) throws TimeoutException {
     PreferenceExpands expands = new PreferenceExpands(expander);
     for (PreferenceExpand ex: this.keySet()) {
-      if (System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
+      if (expander.timeout > 0 && System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
       double p = this.get(ex);
       PreferenceExpands exs = ex.insert(item);
       expands.add(exs, p);
@@ -68,7 +68,7 @@ public class PreferenceExpands extends HashMap<PreferenceExpand, Double> {
   public PreferenceExpands insertMissing(Item item) throws TimeoutException {
     PreferenceExpands expands = new PreferenceExpands(expander);    
     for (PreferenceExpand ex: this.keySet()) {
-      if (System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
+      if (expander.timeout > 0 && System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
       PreferenceExpands exs = ex.insertMissing(item);
       expands.add(exs, this.get(ex));
     }

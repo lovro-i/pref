@@ -113,10 +113,10 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
   @Override
   public boolean add(Item higher, Item lower) {
     if (higher == null || lower == null) throw new NullPointerException("Item must not be null");
-    if (!checkAcyclic(higher, lower)) {
-      throw new IllegalStateException(String.format("Cannot add (%s, %s) pair, graph would be cyclic", higher, lower));
-    }
+    if (higher.equals(lower)) throw new IllegalStateException("Cannot add same items");
+    if (!checkAcyclic(higher, lower)) throw new IllegalStateException(String.format("Cannot add (%s, %s) pair, graph would be cyclic", higher, lower));
 
+    
     HashSet<Item> lo = lowers.get(higher);
     if (lo == null) {
       lo = new HashSet<Item>();

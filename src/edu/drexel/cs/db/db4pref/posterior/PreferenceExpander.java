@@ -33,7 +33,7 @@ public class PreferenceExpander implements Posterior {
   
   /** Timeout in milliseconds */
   long start;
-  long timeout = Utils.ONE_HOUR;
+  long timeout = 0;
   
   MutablePreferenceSet tc;
   
@@ -43,7 +43,7 @@ public class PreferenceExpander implements Posterior {
   Map<Item, Span> spans;
   
   private int maxStates;
-  private int totalStates;
+  private long totalStates;
   
   /** Creates an Expander for the give Mallows model */
   public PreferenceExpander(MallowsModel model) {
@@ -107,6 +107,25 @@ public class PreferenceExpander implements Posterior {
     }
     return w;
   }
+  
+  public long getProductWidth() {
+    long w = 1;
+    Ranking ref = model.getCenter();
+    for (int i = 0; i < ref.length(); i++) {
+      int s = this.getS(i);
+      if (s > 0) w *= s;
+    }
+    return w;
+  }
+  
+  /** Returns the index of highest sigma_i in the preference set */
+  private int getMaxItem(PreferenceSet pref) {
+    int i = 0;
+    for (Item item: pref.getItems()) {
+      i = Math.max(i, referenceIndex.get(item));
+    }
+    return i;
+  }
 
   /** Executes the dynamic algorithm for this partial order. 
    * Does not have to be called explicitely, it will be called from getProbability() methods when needed (when it's not calculated for the specified ranking).
@@ -120,29 +139,35 @@ public class PreferenceExpander implements Posterior {
     this.start = System.currentTimeMillis();
     this.pref = pref;
     this.tc = pref.transitiveClosure();
-    this.maxStates = this.totalStates = 0;
+    this.maxStates = 0;
+    this.totalStates = 0;
     calculateSpans();
     expands = new PreferenceExpands(this);
     expands.nullify();
     Ranking reference = model.getCenter();
     
-    for (int i = 0; i < reference.length(); i++) {
-      // Logger.info("Expanding item %d of %d", i+1, reference.length());
+    int maxIndex = getMaxItem(pref);
+    for (int i = 0; i <= maxIndex; i++) {
+      
       Item item = reference.get(i);
       
       if (this.pref.contains(item)) expands = expands.insert(item);
       else expands = expands.insertMissing(item);
       
       maxStates = Math.max(maxStates, expands.size());
+      // Logger.info("Expanded item %d of %d: %d states", i+1, reference.length(), expands.size());
+      // if (expands.size() < 100) Logger.info(expands);
       totalStates += expands.size();
     }
   }
+  
+  
   
   public int getMaxStates() {
     return maxStates;
   }
   
-  public int getSumStates() {
+  public long getSumStates() {
     return totalStates;
   }
   
@@ -154,7 +179,7 @@ public class PreferenceExpander implements Posterior {
   }
   
   @Override
-  public double getProbability(PreferenceSet pref) throws TimeoutException{
+  public double getProbability(PreferenceSet pref) throws TimeoutException {
     expand(pref);
     return expands.getProbability();
   }
@@ -174,13 +199,29 @@ public class PreferenceExpander implements Posterior {
     return model;
   }
  
+  private HashMap<Span, Double> probs = new HashMap<>();
+
+  /** Calculate the probability of the item being inserted at the given position. Directly from the Mallows model */
+  double probability(int itemIndex, int position) {
+    Span span = new Span(itemIndex, position);
+    if (probs.containsKey(span)) {
+      return probs.get(span);
+    }
+    else {
+      double phi = getModel().getPhi();
+      double p = Math.pow(phi, Math.abs(itemIndex - position)) * (1 - phi) / (1 - Math.pow(phi, itemIndex + 1));
+      probs.put(span, p);
+      return p;
+    }
+  }
+
   
   public static void main(String args[]) throws TimeoutException {
-    ItemSet items = new ItemSet(6);    
-    items.tagLetters();
+    ItemSet items = new ItemSet(20);    
+    items.tagOneBased();
 
     
-    double phi = 0.2;
+    double phi = 0.8;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
     
     // This is one ranking / partial order
@@ -192,25 +233,12 @@ public class PreferenceExpander implements Posterior {
     
     Ranking r = items.getRandomRanking();
     MapPreferenceSet pref = r.transitiveClosure();
-    Filter.removePreferences(pref, MissingProbabilities.uniform(items, 0.5));
-//    Filter.removeItems(r, 0.5);
-//    PreferenceSet pref = r;
-    
-//    long startFull = System.currentTimeMillis();
-//    FullExpander expander = new FullExpander(model);
-//    Logger.info("FullExpander: Total probability of %s: %f in %d ms", pref, expander.getProbability(pref), System.currentTimeMillis() - startFull);
-
+    Filter.removePreferences(pref, MissingProbabilities.uniform(items, 0.8));
     Logger.info(pref);
 
     long startPref = System.currentTimeMillis();
     PreferenceExpander pex = new PreferenceExpander(model);
     Logger.info("PreferenceExpander: Total probability: %f in %d ms", pex.getProbability(pref), System.currentTimeMillis() - startPref);
-    
-    long startSpan = System.currentTimeMillis();
-    SpanExpander sex = new SpanExpander(model);
-    Logger.info("SpanExpander: Total probability: %f in %d ms\n\n", sex.getProbability(pref), System.currentTimeMillis() - startSpan);
-    
-    
   }
   
 }

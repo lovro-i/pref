@@ -160,7 +160,7 @@ public class GraphicalModel {
           if (xikm1 == null) {
             Xij xil = getXijBefore(item, k - 1);
             xikm1 = createXij(item, k - 1); // pos1
-            Logger.info("=== %s, %d, %d, %s, %s, %d", reference, reference.length(), items.size(), xil, item, k);
+            // Logger.info("=== %s, %d, %d, %s, %s, %d", reference, reference.length(), items.size(), xil, item, k);
             xikm1.setPos1(xil);
           }
 
@@ -462,6 +462,37 @@ public class GraphicalModel {
 
       networkSize += size;
     }
+    return networkSize;
+  }
+  
+  public int getNonZeroNetworkSize() {
+    int networkSize = 0;
+
+    Map<Variable, Range> ranges = new HashMap<Variable, Range>();
+    for (Variable var : getVariables()) {
+      Range range = new Range(var);
+      ranges.put(var, range);
+    }
+
+    for (Variable var : getVariables()) {
+      List<Variable> parents = var.getParents();
+      if (parents.isEmpty()) {
+        for (int v: var.getValues())
+          if (var.getProbability(v) != 0) networkSize++;
+      }
+      else if (parents.size() == 1) {
+        for (int v0: var.getValues())
+          for (int v1: parents.get(0).getValues())
+            if (var.getProbability(v0, v1) != 0) networkSize++;
+      }
+      else if (parents.size() == 2) {
+        for (int v0: var.getValues())
+          for (int v1: parents.get(0).getValues())
+            for (int v2: parents.get(1).getValues())
+              if (var.getProbability(v0, v1, v2) != 0) networkSize++;
+      }
+    }
+      
     return networkSize;
   }
 

@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.db4pref.core;
 
-import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,6 +9,13 @@ public abstract class AbstractPreferenceSet implements MutablePreferenceSet {
   
   public abstract AbstractPreferenceSet clone();
 
+  
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof PreferenceSet)) return false;
+    PreferenceSet pref = (PreferenceSet) o;
+    return pref.getPreferences().equals(this.getPreferences());
+  }
     
     /** @return Set of rankings consistent with this PreferenceSet */
   public Set<Ranking> getRankings() {

@@ -30,7 +30,7 @@ public class DynamicPreferenceExpands extends HashMap<DynamicPreferenceExpand, D
   public DynamicPreferenceExpands insert(Item item) throws TimeoutException {
     DynamicPreferenceExpands expands = new DynamicPreferenceExpands(expander);
     for (DynamicPreferenceExpand ex: this.keySet()) {
-      if (System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
+      if (expander.timeout > 0 && System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
       double p = this.get(ex);
       DynamicPreferenceExpands exs = ex.insert(item);
       expands.add(exs, p);
@@ -68,7 +68,7 @@ public class DynamicPreferenceExpands extends HashMap<DynamicPreferenceExpand, D
   public DynamicPreferenceExpands insertMissing(Item item) throws TimeoutException {
     DynamicPreferenceExpands expands = new DynamicPreferenceExpands(expander);    
     for (DynamicPreferenceExpand ex: this.keySet()) {
-      if (System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
+      if (expander.timeout > 0 && System.currentTimeMillis() - expander.start > expander.timeout) throw new TimeoutException("Expander timeout exceeded");
       DynamicPreferenceExpands exs = ex.insertMissing(item);
       expands.add(exs, this.get(ex));
     }

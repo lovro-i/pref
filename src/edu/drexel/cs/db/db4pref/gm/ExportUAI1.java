@@ -4,6 +4,7 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.PreferenceExpander;
+import edu.drexel.cs.db.db4pref.posterior.Span;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,18 +15,25 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 /** Saves graphical model in UAI format */
-public class ExportUAI {
+public class ExportUAI1 {
 
   private final GraphicalModel gm;
 
-  public ExportUAI(GraphicalModel gm) {
+  public ExportUAI1(GraphicalModel gm) {
     this.gm = gm;
   }
   
  
-  private int cardinality(Variable var) {
-    return Collections.max(var.getValues()) + 1; // +1 because it's zero indexed
+  private Span getSpan(Variable var) {
+    int min = Integer.MAX_VALUE;
+    int max = Integer.MIN_VALUE;
+    for (int v: var.getValues()) {
+      min = Math.min(min, v);
+      max = Math.max(max, v);
+    }
+    return new Span(min, max);
   }
+  
 
   /** Returns true if all var's parents are in the to set */
   private boolean containsParents(Variable var, Set<Variable> to) {
@@ -98,7 +106,7 @@ public class ExportUAI {
     
     // Cardinalities
     for (Variable var: vars) {
-      sb.append(cardinality(var));
+      sb.append(getSpan(var).size());
       sb.append(' ');
     }
     sb.append('\n');
@@ -131,11 +139,11 @@ public class ExportUAI {
     for (Variable var: vars) {
       sb.append('\n');
       List<Variable> parents = var.getParents();
-      int car = cardinality(var);
+      Span span = getSpan(var);
       
       if (parents.isEmpty()) {
-        sb.append(car).append('\n');
-        for (int v = 0; v < car; v++) {
+        sb.append(span.size()).append('\n');
+        for (int v = span.from; v <= span.to; v++) {
           double p = var.getProbability(v);
           sb.append(p);
           sb.append(' ');
@@ -144,10 +152,10 @@ public class ExportUAI {
       }
       else if (parents.size() == 1) {
         Variable parent = parents.get(0);
-        int car1 = cardinality(parent);
-        sb.append(car * car1).append('\n');
-        for (int v = 0; v < car; v++) {
-          for (int v1 = 0; v1 < car1; v1++) {
+        Span span1 = getSpan(parent);
+        sb.append(span.size() * span1.size()).append('\n');
+        for (int v = span.from; v <= span.to; v++) {
+          for (int v1 = span1.from; v1 <= span1.to; v1++) {
             double p = var.getProbability(v, v1);
             sb.append(p).append(' ');
           }
@@ -156,13 +164,13 @@ public class ExportUAI {
       }
       else if (parents.size() == 2) {
         Variable parent1 = parents.get(0);
-        int car1 = cardinality(parent1);
+        Span span1 = getSpan(parent1);
         Variable parent2 = parents.get(1);
-        int car2 = cardinality(parent2);
-        sb.append(car * car1 * car2).append('\n');
-        for (int v = 0; v < car; v++) {
-          for (int v1 = 0; v1 < car1; v1++) {
-            for (int v2 = 0; v2 < car2; v2++) {
+        Span span2 = getSpan(parent2);
+        sb.append(span.size() * span1.size() * span2.size()).append('\n');
+        for (int v = span.from; v <= span.to; v++) {
+          for (int v1 = span1.from; v1 <= span1.to; v1++) {
+            for (int v2 = span2.from; v2 <= span2.to; v2++) {
               double p = var.getProbability(v, v1, v2);
               sb.append(p);
               sb.append(' ');
@@ -198,7 +206,7 @@ public class ExportUAI {
     gm.setOneBased(true);
     gm.build();
 //    gm.display();
-    ExportUAI uai = new ExportUAI(gm);
+    ExportUAI1 uai = new ExportUAI1(gm);
     System.out.println(uai);
 
   }

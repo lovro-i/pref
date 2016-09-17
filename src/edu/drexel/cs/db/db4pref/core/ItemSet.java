@@ -52,6 +52,13 @@ public class ItemSet implements List<Item>, Serializable {
     return null;
   }
   
+  public Item getItemByTag(String tag) {
+    for (Item e: items) {
+      if (tag.equals(e.getTag().toString())) return e;
+    }
+    return null;
+  }
+  
   @Override
   public int size() {
     return items.size();

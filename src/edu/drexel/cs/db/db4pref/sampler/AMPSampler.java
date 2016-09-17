@@ -8,6 +8,7 @@ import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +26,17 @@ public class AMPSampler extends MallowsPosteriorSampler {
     }
     return posteriors;
   }
-
+  
+    /** Returns the index of highest sigma_i in the preference set */
+  private int getMaxItem(PreferenceSet pref) {
+    int max = 0;
+    Map<Item, Integer> referenceIndex = model.getCenter().getIndexMap();
+    for (Item item: pref.getItems()) {
+      max = Math.max(max, referenceIndex.get(item));
+    }
+    return max;
+  }
+  
   /** Sample one posterior from user preferences v */
   public double samplePosterior(PreferenceSet pref) {
     Ranking reference = model.getCenter();
@@ -36,7 +47,9 @@ public class AMPSampler extends MallowsPosteriorSampler {
     Ranking r = new Ranking(model.getItemSet());
     Item item = reference.get(0);
     r.add(item);
-    for (int i = 1; i < reference.length(); i++) {
+    Set<Item> items = new HashSet(pref.getItems());
+    int max = getMaxItem(pref);
+    for (int i = 1; i <= max; i++) {
       item = reference.get(i);
       int low = 0;
       int high = i;
@@ -83,7 +96,7 @@ public class AMPSampler extends MallowsPosteriorSampler {
   }
   
   /** Sample one posterior from user preferences v */
-  private double samplePosteriorOld(PreferenceSet pref) {
+  public double samplePosteriorOptimized(PreferenceSet pref) {
     Ranking reference = model.getCenter();
     double phi = model.getPhi();
     PreferenceSet tc = pref.transitiveClosure();
@@ -92,50 +105,72 @@ public class AMPSampler extends MallowsPosteriorSampler {
     Ranking r = new Ranking(model.getItemSet());
     Item item = reference.get(0);
     r.add(item);
-    for (int i = 1; i < reference.length(); i++) {
+    Set<Item> items = new HashSet(pref.getItems());
+    int max = getMaxItem(pref);
+    for (int i = 1; i <= max; i++) {
       item = reference.get(i);
       int low = 0;
       int high = i;
-
-      Set<Item> higher = tc.getHigher(item);
-      Set<Item> lower = tc.getLower(item);
-      for (int j = 0; j < r.length(); j++) {
-        Item it = r.get(j);
-        if (higher.contains(it)) low = j + 1;
-        if (lower.contains(it) && j < high) high = j;
-      }
-
-      if (low == high) {
-        r.add(low, item);
-        posterior *= ((1 - phi) / (1 - Math.pow(phi, i + 1))) * Math.pow(phi, i - high);
-      }
-      else {
-        double sum = 0;
-        double[] p = new double[high + 1];
-        for (int j = low; j <= high; j++) {
-          p[j] = Math.pow(model.getPhi(), i - j);
-          sum += p[j];
+      
+      if (items.contains(item)) {
+        Set<Item> higher = tc.getHigher(item);
+        Set<Item> lower = tc.getLower(item);
+        for (int j = 0; j < r.length(); j++) {
+          Item it = r.get(j);
+          if (higher.contains(it)) low = j + 1;
+          if (lower.contains(it) && j < high) high = j;
         }
 
+
+        int where = high;
+        double sum;
+        if (low == high) {
+          where = low;
+          sum = Math.pow(phi, i - where);
+        }
+        else {
+          sum = 0;
+          double[] p = new double[high + 1];
+          for (int j = low; j <= high; j++) {
+            p[j] = Math.pow(phi, i - j);
+            sum += p[j];
+          }
+
+          double flip = MathUtils.RANDOM.nextDouble();
+          double ps = 0;
+          for (int j = low; j <= high; j++) {
+            ps += p[j] / sum;
+            if (ps > flip || j == high) {
+              where = j;
+              break;
+            }
+          }
+        }
+
+        r.add(where, item);
+        double z = (1 - phi) / (1 - Math.pow(phi, i + 1));
+        posterior *= z * sum;
+      }
+      else {
         double flip = MathUtils.RANDOM.nextDouble();
         double ps = 0;
+        int where = high;
+        double s = (1 - Math.pow(phi, i+1)) / (1 - phi);
         for (int j = low; j <= high; j++) {
-          ps += p[j] / sum;
+          double p = Math.pow(phi, i - j) / s;
+          ps += p;
           if (ps > flip || j == high) {
-            r.add(j, item);
-            posterior *= ((1 - phi) / (1 - Math.pow(phi, i + 1))) * sum;
+            where = j;
             break;
           }
         }
+        r.add(where, item);
       }
     }
     return posterior;
   }
   
   
-  
-  
-
   @Override
   public Ranking sample(PreferenceSet v) {
     Ranking reference = model.getCenter();

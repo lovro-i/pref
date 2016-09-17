@@ -16,6 +16,7 @@ import edu.drexel.cs.db.db4pref.sampler.AMPSampler;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
+import edu.drexel.cs.db.db4pref.util.TestUtils;
 import edu.drexel.cs.db.db4pref.util.Utils;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeoutException;
 public class TestNine {
 
   public static void main(String[] args) throws IOException, InterruptedException {
-    PrintWriter out = getWriter(args);
+    PrintWriter out = TestUtils.getWriter(args);
     // one(out);
     // two(out);
     // four(out);
@@ -35,20 +36,7 @@ public class TestNine {
     six(out);
   }
   
-  public static PrintWriter getWriter(String[] args) throws IOException {
-    PrintWriter out;
-    if (args.length > 0) {
-      File file = new File(args[0]);
-      Logger.info("Writing to %s", file);
-      out = FileUtils.append(file);
-    }
-    else {
-      Logger.warn("No file specified, writing to console");
-      out = new PrintWriter(System.out);
-    }
-    return out;
-  }
-  
+
   /** Random preference pairs */
   public static void one(PrintWriter out) throws IOException, InterruptedException {
     Random random = new Random();
@@ -327,7 +315,7 @@ public class TestNine {
         long time = Math.round(times[k] * timeExpander);
         long dt = time - tt;
         tt = time;
-        double pAmp = ampInferator.sample(dt);
+        double pAmp = ampInferator.sampleMillis(dt);
         pAmp = Math.log(pAmp);
         long tAmp = System.currentTimeMillis() - startAmp;
         Logger.info("%d ms of AMP: %f", tAmp, pAmp);
@@ -438,7 +426,7 @@ public class TestNine {
         long time = Math.round(times[k] * timeExpander);
         long dt = time - tt;
         tt = time;
-        double pAmp = ampInferator.sample(dt);
+        double pAmp = ampInferator.sampleMillis(dt);
         pAmp = Math.log(pAmp);
         long tAmp = System.currentTimeMillis() - startAmp;
         Logger.info("%d ms of AMP: %f", tAmp, pAmp);

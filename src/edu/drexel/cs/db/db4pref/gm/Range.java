@@ -23,21 +23,7 @@ public class Range {
   public int size() {
     return high - low + 1;
   }
-  
-  @Deprecated
-  public Integer[] toArray(boolean dummy) {
-    int size = high - low + 1;
-    if (dummy) size += 1;
-    Integer[] a = new Integer[size];
-    int idx = 0;
-    for (int i = low; i <= high; i++) {
-      a[idx++] = i;
-    }
-
-    if (idx < a.length) a[idx++] = -1;
-    Logger.info("Range [%d, %d] %s", low, high, Arrays.toString(a));
-    return a;
-  }
+ 
 
   @Override
   public String toString() {

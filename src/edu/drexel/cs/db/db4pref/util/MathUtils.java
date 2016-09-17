@@ -27,6 +27,11 @@ public class MathUtils {
     return p;
   }
   
+  /** Number of combinations to put n balls into m buckets */
+  public static BigInteger ballsInBuckets(int balls, int buckets) {
+    return MathUtils.factorial(balls + buckets - 1).divide(MathUtils.factorial(balls)).divide(MathUtils.factorial(buckets - 1));
+  }
+  
   private static long mixes(int fixed, int missing) {
     long p = 1;
     for (int i = 1; i <= missing; i++) {

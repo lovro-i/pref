@@ -36,7 +36,7 @@ public class DynamicPreferenceExpander implements Posterior {
   
   /** Timeout in milliseconds */
   long start;
-  long timeout = Utils.ONE_HOUR;
+  long timeout = 0;
   
   MutablePreferenceSet tc;
   

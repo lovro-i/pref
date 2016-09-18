@@ -47,7 +47,7 @@ Ranking referenceRanking = items.getReferenceRanking();
 Ranking randomRanking = items.getRandomRanking();
 ```
 
-`Ranking` implements `PreferenceSet` interface. However, there are other types of preference sets that implement `PreferenceSet` interface. If we want to state pairwise preferences, such as { A > B, A > D, C > D } (that cannot be represented by a ranking), we can use `MapPreferenceSet`:
+`Ranking` implements `PreferenceSet` interface. However, there are other types of preference sets that implement `PreferenceSet` interface. If we want to specify pairwise preferences, such as { A > B, A > D, C > D } (that cannot be represented by a ranking), we can use `MapPreferenceSet`:
 ```java
 MapPreferenceSet pref = new MapPreferenceSet(items);
 pref.add(items.get(0), items.get(1));
@@ -67,7 +67,7 @@ Now the sample has two rankings in it.
 
 ## 3. Mallows Model
 
-Mallows model is a istance-based ranking model, which is a kind of Gaussian distribution for rankings, at least by its ubiquity in the world of preferences. It has two parameters: central ranking (σ) and spread (ϕ).
+Mallows model is an instance-based ranking model, which is a kind of Gaussian distribution for rankings, at least by its ubiquity in the world of preferences. It has two parameters: central ranking (σ) and spread (ϕ).
 
 
 You can create a Mallows model object:

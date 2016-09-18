@@ -32,16 +32,6 @@ public class AMPInferator {
     return sum / count;
   }
   
-  public double sampleMillisOptimized(long millis) {
-    long start = System.currentTimeMillis();
-    AMPSampler ampSampler = new AMPSampler(model);
-    do {
-      sum += ampSampler.samplePosteriorOptimized(v);
-      count++;
-    }
-    while (System.currentTimeMillis() - start < millis);
-    return sum / count;
-  }
   
   /** Get result of sampling for <i>c</i> samples
    * For multiple calls, it aggregates all results
@@ -55,15 +45,7 @@ public class AMPInferator {
     return sum / count;
   }
   
-  public double sampleCountOptimized(int c) {
-    AMPSampler ampSampler = new AMPSampler(model);
-    for (int i = 0; i < c; i++) {
-      sum += ampSampler.samplePosteriorOptimized(v);
-      count++;
-    }
-    return sum / count;
-  }
-  
+
   
   public double getProbability() {
     return sum / count;

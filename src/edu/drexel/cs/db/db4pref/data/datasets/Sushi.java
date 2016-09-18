@@ -14,7 +14,6 @@ import edu.drexel.cs.db.db4pref.reconstruct.CompleteReconstructor;
 import edu.drexel.cs.db.db4pref.reconstruct.MallowsReconstructor;
 import edu.drexel.cs.db.db4pref.util.FileUtils;
 import edu.drexel.cs.db.db4pref.util.Logger;
-import edu.drexel.cs.db.db4pref.util.ScatterPlot;
 import edu.drexel.cs.db.db4pref.core.PairwisePreferenceMatrix;
 import edu.drexel.cs.db.db4pref.mixture.GenericMixtureReconstructor;
 import java.io.File;
@@ -22,7 +21,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-/** Class used for loading and accessing Sushi dataset */
+/** Class used for loading and accessing Sushi dataset 
+ *  Get dataset at http://www.kamishima.net/sushi/
+ */
 public class Sushi {
 
   private RankingSample sample;
@@ -142,20 +143,6 @@ public class Sushi {
     out.close();
   }
   
-  public static void plotThird() throws IOException {
-    File folder = new File("C:\\Projects\\Rank\\Results.3");
-    File results = new File(folder, "Sushi.results.2.txt");
-    File png = new File(folder, "Sushi.results.2.png");
-    
-    ScatterPlot scatterPlot = new ScatterPlot(results);
-    scatterPlot.setXIndex(1);
-    scatterPlot.setYIndex(2);
-    scatterPlot.setTitle("Sushi Mixture of Mallows");
-    scatterPlot.setXLabel("Models in the mixture");
-    scatterPlot.setYLabel("Model distance");
-    
-    scatterPlot.plot(png);
-  }
   
   
   /**

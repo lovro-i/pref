@@ -16,7 +16,9 @@ import java.util.concurrent.TimeoutException;
 
 /** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities 
  * Version 2: Items are tracked only during span times; preference sets are converted to list of compatible rankings
+ * @deprecated: Use PreferenceExpander instead
  */
+@Deprecated
 public class SpanExpander implements Posterior {
 
   /** Model that this Expander calculates */

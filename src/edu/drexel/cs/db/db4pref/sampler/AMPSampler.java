@@ -53,64 +53,6 @@ public class AMPSampler extends MallowsPosteriorSampler {
       item = reference.get(i);
       int low = 0;
       int high = i;
-
-      Set<Item> higher = tc.getHigher(item);
-      Set<Item> lower = tc.getLower(item);
-      for (int j = 0; j < r.length(); j++) {
-        Item it = r.get(j);
-        if (higher.contains(it)) low = j + 1;
-        if (lower.contains(it) && j < high) high = j;
-      }
-
-      
-      int where = high;
-      double sum;
-      if (low == high) {
-        where = low;
-        sum = Math.pow(phi, i - where);
-      }
-      else {
-        sum = 0;
-        double[] p = new double[high + 1];
-        for (int j = low; j <= high; j++) {
-          p[j] = Math.pow(phi, i - j);
-          sum += p[j];
-        }
-
-        double flip = MathUtils.RANDOM.nextDouble();
-        double ps = 0;
-        for (int j = low; j <= high; j++) {
-          ps += p[j] / sum;
-          if (ps > flip || j == high) {
-            where = j;
-            break;
-          }
-        }
-      }
-      
-      r.add(where, item);
-      double z = (1 - phi) / (1 - Math.pow(phi, i + 1));
-      posterior *= z * sum;
-    }
-    return posterior;
-  }
-  
-  /** Sample one posterior from user preferences v */
-  public double samplePosteriorOptimized(PreferenceSet pref) {
-    Ranking reference = model.getCenter();
-    double phi = model.getPhi();
-    PreferenceSet tc = pref.transitiveClosure();
-    double posterior = 1;
-
-    Ranking r = new Ranking(model.getItemSet());
-    Item item = reference.get(0);
-    r.add(item);
-    Set<Item> items = new HashSet(pref.getItems());
-    int max = getMaxItem(pref);
-    for (int i = 1; i <= max; i++) {
-      item = reference.get(i);
-      int low = 0;
-      int high = i;
       
       if (items.contains(item)) {
         Set<Item> higher = tc.getHigher(item);
@@ -286,32 +228,4 @@ public class AMPSampler extends MallowsPosteriorSampler {
     return r;
   }
 
-  public static void main(String[] args) {
-    ItemSet items = new ItemSet(10);
-    Ranking v = new Ranking(items);
-    v.add(items.get(3));
-    v.add(items.get(7));
-    v.add(items.get(5));
-    System.out.println(v);
-
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.8);
-    AMPSampler sampler = new AMPSampler(model);
-    RankingSample sample = sampler.sample(v, 1000);
-//    System.out.println(sample);
-//    for (Ranking r: sample) {
-//      if (!Filter.isConsistent(r, v)) Logger.error("Inconsistent: " + r.toString());
-//    }
-
-    // PreferenceSet test
-    {
-      RankingSample s2 = sampler.sample(v.transitiveClosure(), 1000);
-      System.out.println(s2);
-      for (Ranking r : s2.rankings()) {
-        if (!r.isConsistent(v)) {
-          Logger.error("Inconsistent: " + r.toString());
-        }
-      }
-    }
-
-  }
 }

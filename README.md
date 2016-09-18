@@ -30,10 +30,12 @@ item.setTag("Twelve Monkeys");
 
 You can also use convenience methods for naming items (starting with `.tag...()`). This one will name items with letters A, B, C...:
 ```java
-items.tagLetters();
+items.tagSigmas(); // Items will be named σ₁, σ₂, σ₃... (one-based)
+items.tagLetters(); // Change item names to A, B, C...
 ```
 
 Class `Ranking` represents a ranking (complete or incomplete) of items:
+
 ```java
 Ranking ranking = new Ranking(items); // create an empty ranking
 ranking.add(items.getItemById(3));
@@ -42,12 +44,14 @@ ranking.add(items.get(0)); // same as .getItemById()
 ```
 
 Or, you can get the reference ranking (complete ranking with items in order by their ids), or a random ranking directly from the `ItemSet`:
+
 ```java
 Ranking referenceRanking = items.getReferenceRanking();
 Ranking randomRanking = items.getRandomRanking();
 ```
 
 `Ranking` implements `PreferenceSet` interface. However, there are other types of preference sets that implement `PreferenceSet` interface. If we want to specify pairwise preferences, such as { A > B, A > D, C > D } (that cannot be represented by a ranking), we can use `MapPreferenceSet`:
+
 ```java
 MapPreferenceSet pref = new MapPreferenceSet(items);
 pref.add(items.get(0), items.get(1));
@@ -56,6 +60,7 @@ pref.addByTag("C", "D");
 ```
 
 `Sample` is a (weighted or unweighted) set of `PreferenceSets`:
+
 ```java
 Sample<PreferenceSet> sample = new Sample<PreferenceSet>(items);
 sample.add(ranking);

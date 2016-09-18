@@ -10,8 +10,10 @@ This Java library provides means for managing, mining and modeling preference da
 
 Clone this project, and include `pref.jar` and other required (and provided) `.jars` from `dist` folder into your project.
 
-## Usage
+## Documentation
 
 1. [Getting Started](doc/01.getting.started.md)
-
+2. [Mallows Model](doc/02.mallows.model.md)
+3. [Model Reconstruction](doc/03.model.reconstruction.md)
+4. [Posterior Probability](doc/04.posterior.probability.md)
 

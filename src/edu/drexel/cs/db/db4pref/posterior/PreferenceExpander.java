@@ -1,5 +1,6 @@
 package edu.drexel.cs.db.db4pref.posterior;
 
+import edu.drexel.cs.db.db4pref.posterior.old.FullExpand;
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
@@ -12,7 +13,6 @@ import edu.drexel.cs.db.db4pref.filter.Filter;
 import edu.drexel.cs.db.db4pref.filter.MissingProbabilities;
 import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.util.Logger;
-import edu.drexel.cs.db.db4pref.util.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;

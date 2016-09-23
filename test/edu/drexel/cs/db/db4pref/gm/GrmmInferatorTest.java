@@ -12,7 +12,7 @@ import edu.drexel.cs.db.db4pref.core.Preference;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.filter.MissingProbabilities;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
-import edu.drexel.cs.db.db4pref.posterior.FullExpander;
+import edu.drexel.cs.db.db4pref.posterior.old.FullExpander;
 import edu.umass.cs.mallet.grmm.inference.BruteForceInferencer;
 import edu.umass.cs.mallet.grmm.inference.Inferencer;
 import edu.umass.cs.mallet.grmm.inference.JunctionTreeInferencer;

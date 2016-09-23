@@ -5,7 +5,7 @@ import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.posterior.FullExpander;
+import edu.drexel.cs.db.db4pref.posterior.old.FullExpander;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.MathUtils;
 import java.io.IOException;

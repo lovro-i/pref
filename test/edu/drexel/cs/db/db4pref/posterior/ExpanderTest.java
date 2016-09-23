@@ -1,7 +1,7 @@
 package edu.drexel.cs.db.db4pref.posterior;
 
 import edu.drexel.cs.db.db4pref.posterior.Sequence;
-import edu.drexel.cs.db.db4pref.posterior.FullExpander;
+import edu.drexel.cs.db.db4pref.posterior.old.FullExpander;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;

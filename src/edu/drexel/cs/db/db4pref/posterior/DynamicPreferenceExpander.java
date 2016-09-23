@@ -1,5 +1,6 @@
 package edu.drexel.cs.db.db4pref.posterior;
 
+import edu.drexel.cs.db.db4pref.posterior.old.FullExpand;
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;

@@ -12,7 +12,7 @@ import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Preference;
-import edu.drexel.cs.db.db4pref.posterior.FullExpander;
+import edu.drexel.cs.db.db4pref.posterior.old.FullExpander;
 import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

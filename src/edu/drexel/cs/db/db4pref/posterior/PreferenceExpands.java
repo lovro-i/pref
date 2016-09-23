@@ -72,7 +72,6 @@ public class PreferenceExpands extends HashMap<PreferenceExpand, Double> {
       PreferenceExpands exs = ex.insertMissing(item);
       expands.add(exs, this.get(ex));
     }
-    //expands.normalize();
     return expands;
   }
 

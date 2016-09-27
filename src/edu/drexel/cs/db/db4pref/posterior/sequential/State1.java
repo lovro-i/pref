@@ -3,9 +3,6 @@ package edu.drexel.cs.db.db4pref.posterior.sequential;
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.posterior.Sequence;
 import edu.drexel.cs.db.db4pref.posterior.Span;
-import edu.drexel.cs.db.db4pref.posterior.parallel.ParallelExpand;
-import edu.drexel.cs.db.db4pref.posterior.parallel.ParallelExpander;
-import edu.drexel.cs.db.db4pref.posterior.parallel.ParallelExpands;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -108,15 +105,14 @@ public class State1 {
    */
   public void insertMissing(Expands1 expands, Item item, double p1) {
     int step = expander.referenceIndex.get(item);
-    State1 exc = new State1(expander, this);
-    exc.compact(step);
+    this.compact(step);
     int pos = 0;
-    for (int i = 0; i < exc.miss.length; i++) {
-      State1 ex = new State1(expander, exc);
+    for (int i = 0; i < this.miss.length; i++) {
+      State1 ex = new State1(expander, this);
       ex.miss[i]++;
       
       double p = 0;
-      for (int j = 0; j <= exc.miss[i]; j++) {
+      for (int j = 0; j <= this.miss[i]; j++) {
         p += expander.probability(step, pos);
         pos++;
       }

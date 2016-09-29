@@ -3,7 +3,7 @@ package edu.drexel.cs.db.db4pref.core;
 import java.io.Serializable;
 
 /** One item, alternative, element... */
-public class Item implements Serializable {
+public class Item implements Serializable, Comparable<Item> {
 
   public final int id;
   private Object tag;
@@ -46,6 +46,11 @@ public class Item implements Serializable {
     int hash = 5;
     hash = 97 * hash + this.id;
     return hash;
+  }
+
+  @Override
+  public int compareTo(Item o) {
+    return this.id - o.id;
   }
   
 }

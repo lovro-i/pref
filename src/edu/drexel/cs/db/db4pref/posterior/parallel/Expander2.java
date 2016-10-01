@@ -9,10 +9,10 @@ import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
-import edu.drexel.cs.db.db4pref.posterior.PreferenceExpander;
 import edu.drexel.cs.db.db4pref.posterior.Span;
+import edu.drexel.cs.db.db4pref.posterior.app.Test;
+import edu.drexel.cs.db.db4pref.posterior.sequential.Expander1;
 import edu.drexel.cs.db.db4pref.util.Logger;
-import edu.drexel.cs.db.db4pref.util.TestUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -114,7 +114,7 @@ public class Expander2 {
   }
   
   public static void main(String args[]) throws TimeoutException, InterruptedException {
-    MapPreferenceSet pref = TestUtils.generate(30, 4, 5);
+    MapPreferenceSet pref = Test.pref3(); // Utils.generate(30, 4, 5);
     
 //    ItemSet its = new ItemSet(30);
 //    its.tagOneBased();
@@ -137,7 +137,7 @@ public class Expander2 {
 
     {
       long startPref = System.currentTimeMillis();
-      PreferenceExpander pex = new PreferenceExpander(model);
+      Expander1 pex = new Expander1(model);
       double p = pex.getProbability(pref);
       Logger.info("PreferenceExpander: Total probability: %f in %d ms", Math.log(p), System.currentTimeMillis() - startPref);
     }

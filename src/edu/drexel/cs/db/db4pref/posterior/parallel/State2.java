@@ -63,7 +63,8 @@ public class State2 {
   }
   
   /** Removes the items that won't figure in the future */
-  void compact(int step) {
+  void compact() {
+    int step = this.length();
     for (int i = 0; i < items.length; i++) {
       // String before = this.toString();
       Span span = expander.spans.get(items[i]);
@@ -106,18 +107,18 @@ public class State2 {
   public void insertMissing(Expands2 expands, Item item, double p1) {
     int step = expander.referenceIndex.get(item);
     State2 exc = new State2(expander, this);
-    exc.compact(step);
     int pos = 0;
     for (int i = 0; i < exc.miss.length; i++) {
-      State2 ex = new State2(expander, exc);
-      ex.miss[i]++;
+      State2 state = new State2(expander, exc);
+      state.miss[i]++;
       
       double p = 0;
       for (int j = 0; j <= exc.miss[i]; j++) {
         p += expander.probability(step, pos);
         pos++;
       }
-      expands.add(ex, p * p1);
+      state.compact();
+      expands.add(state, p * p1);
     }
     
   }
@@ -167,22 +168,22 @@ public class State2 {
     
     // create n new expand states with their probabilities    
     for (int i = 0; i < n; i++) {
-      State2 ex = new State2(expander, items1);
-      for (int j = 0; j < ex.miss.length; j++) {
-        if (j < index) ex.miss[j] = this.miss[j];
-        else if (j == index) ex.miss[j] = i;
-        else if (j == index + 1) ex.miss[j] = this.miss[index] - i;
-        else ex.miss[j] = this.miss[j-1];        
+      State2 state = new State2(expander, items1);
+      for (int j = 0; j < state.miss.length; j++) {
+        if (j < index) state.miss[j] = this.miss[j];
+        else if (j == index) state.miss[j] = i;
+        else if (j == index + 1) state.miss[j] = this.miss[index] - i;
+        else state.miss[j] = this.miss[j-1];        
       }
       double p = expander.probability(expander.referenceIndex.get(item), posPrev + 1 + i);
-      expands.add(ex, p * p1);
+      state.compact();
+      expands.add(state, p * p1);
     }
   }
   
   
   public void insert(Expands2 expands, Item item, double p1) {
     int step = expander.referenceIndex.get(item);
-    this.compact(step);
     
     Span hilo = hilo(item);
     for (int i = hilo.from; i <= hilo.to; i++) {

@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.db4pref.posterior.sequential1;
+package edu.drexel.cs.db.db4pref.posterior.app;
 
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
@@ -10,22 +10,20 @@ import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.Span;
-import edu.drexel.cs.db.db4pref.posterior.app.Test;
 import edu.drexel.cs.db.db4pref.posterior.sequential.Expander1;
+import edu.drexel.cs.db.db4pref.posterior.sequential.State1;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.TestUtils;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeoutException;
 
-/** Version that uses Queue for all states, breath first.
- * It was a step towards custom scheduling (depth first, too), but turns out to be faster than old sequential
- * @author Lovro
- */
-public class Expander {
+public class Expander implements Comparator<StateKey> {
 
   final MallowsModel model;
   final Ranking reference;
@@ -38,7 +36,8 @@ public class Expander {
   final StateKey root;
   final int maxIndex;
   final Set<StateData> leaves = new HashSet<StateData>();
-  final TreeSet<StateKey> queue = new TreeSet<StateKey>();
+  final TreeSet<StateKey> queue = new TreeSet<StateKey>(this);
+  final Set<StateKey> done = new HashSet<StateKey>();
   
   
   public Expander(MallowsModel model, PreferenceSet pref) {
@@ -105,11 +104,13 @@ public class Expander {
   }
   
   
-  public void exec() {
+  private void exec() {
     queue.add(root);
     
+    int count = 1;
     while (!queue.isEmpty()) {
       StateKey state = queue.pollFirst();
+      done.add(state);
       StateData data = states.get(state);
             
       if (state.length() == this.maxIndex + 1) {
@@ -119,14 +120,18 @@ public class Expander {
       
       boolean expanded = state.expand();
       if (expanded) {
-        queue.addAll(data.children);
+        count++;
+        for (Entry<StateKey, Double> child: data.children.entrySet()) {
+          StateKey childState = child.getKey();
+          if (!done.contains(childState)) queue.add(childState);
+        }
       }
-      states.remove(state);
+      // states.remove(state);
     }
+    Logger.info("States through queue: %d", count);
   }
   
   public double getProbability() {
-    if (leaves.isEmpty()) exec();
     double p = 0;
     for (StateData data: leaves) {
       p += data.p;
@@ -145,35 +150,120 @@ public class Expander {
     }
   }
   
+  public void set(StateKey state, double p) {
+    StateData data = states.get(state);
+    if (data == null) {
+      data = new StateData(p);
+      states.put(state, data);
+    }
+    else {
+      data.p = p;      
+    }
+  }
+  
+ 
+  
+  @Override
+  public int compare(StateKey state1, StateKey state2) {
+    if (state1.equals(state2)) return 0;
+    
+    int len1 = state1.length();
+    int len2 = state2.length();
+    if (len1 > len2) return -1;
+    else if (len2 > len1) return 1;
+    
+    double p1 = states.get(state1).p;
+    double p2 = states.get(state2).p;
+    if (p1 > p2) return -1;
+    else if (p1 < p2) return 1;
+    
+    int diff = state1.miss.length - state2.miss.length;
+    if (diff != 0) return diff;
+    
+    for (int i = 0; i < state1.miss.length; i++) {
+      diff = state1.miss[i] - state2.miss[i];
+      if (diff != 0) return diff;      
+    }
+    
+    for (int i = 0; i < state1.items.length; i++) {
+      diff = state1.items[i].compareTo(state2.items[i]);
+      if (diff != 0) return diff;
+    }
+    return 0;
+  }
+  
+  
   public static void main(String[] args) throws TimeoutException, InterruptedException {
-    MapPreferenceSet pref = Test.pref3(); //TestUtils.generate(30, 4, 5);
+    MapPreferenceSet pref = TestUtils.generate(30, 4, 5);
     
-//    ItemSet its = new ItemSet(3);
+//    ItemSet its = new ItemSet(5);
 //    its.tagOneBased();
-//    Ranking pref = new Ranking(its);  //its.getReferenceRanking();
-//    pref.add(its.get(2));
-//    pref.add(its.get(0));
+//    MapPreferenceSet pref = new MapPreferenceSet(its);  //its.getReferenceRanking();
+//    pref.addById(4, 0);
+//    pref.addById(2, 3);
+    //pref.addById(4, 3);
     
-    Logger.info(pref);
+    
     ItemSet items = pref.getItemSet();    
     items.tagOneBased();
+    Logger.info(pref);
 
     double phi = 0.8;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
+    
+    long t1, t2;
     
     {
       long startPref = System.currentTimeMillis();
       Expander1 pex = new Expander1(model);
       double p = pex.getProbability(pref);
-      Logger.info("Expander1: Total probability: %f in %d ms", Math.log(p), System.currentTimeMillis() - startPref);
+      Logger.info("States total: %d", State1.count);
+      t1 = System.currentTimeMillis() - startPref;
+      Logger.info("Expander1: Total probability: %f in %d ms", Math.log(p), t1);
     }
     
     {
       long startPref = System.currentTimeMillis();
       Expander pex = new Expander(model, pref);
+      Writer writer = new Writer(pex);
+      writer.start();
+      pex.exec();
+      writer.done();
       double p = pex.getProbability();
-      Logger.info("Expander app: Total probability: %f in %d ms", Math.log(p), System.currentTimeMillis() - startPref);
+      t2 = System.currentTimeMillis() - startPref;
+      Logger.info("Expander app: Total probability: %f in %d ms <-", Math.log(p), t2);
     }
+    
+    Logger.info("%.1f x slower", 1d * t2 / t1);
+  }
+
+
+  static class Writer extends Thread {
+    
+    private volatile boolean done;
+    private Expander expander;
+    
+    private Writer(Expander expander) {
+      this.expander = expander;
+    }
+    
+    
+    public void done() {
+      this.done = true;
+    }
+    
+    public void run() {
+      long start = System.currentTimeMillis();
+      try {
+        while (true) {
+          sleep(1000);
+          if (done) break;
+          Logger.info("Probability after %d ms: %f", System.currentTimeMillis() - start, Math.log(expander.getProbability()));
+        }
+      } catch (InterruptedException ex) {}
+    }  
   }
   
 }
+
+

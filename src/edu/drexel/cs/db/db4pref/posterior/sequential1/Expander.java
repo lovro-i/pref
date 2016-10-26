@@ -13,7 +13,6 @@ import edu.drexel.cs.db.db4pref.posterior.Span;
 import edu.drexel.cs.db.db4pref.posterior.app.Test;
 import edu.drexel.cs.db.db4pref.posterior.sequential.Expander1;
 import edu.drexel.cs.db.db4pref.util.Logger;
-import edu.drexel.cs.db.db4pref.util.TestUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -22,7 +21,7 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeoutException;
 
 /** Version that uses Queue for all states, breath first.
- * It was a step towards custom scheduling (depth first, too), but turns out to be faster than old sequential
+ * It was a step towards custom scheduling (depth first, too), but turns out to be faster than old sequential (check this!)
  * @author Lovro
  */
 public class Expander {

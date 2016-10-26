@@ -1,14 +1,13 @@
 package edu.drexel.cs.db.db4pref.posterior.sequential;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
+import edu.drexel.cs.db.db4pref.core.Preference;
+import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
-import java.util.concurrent.TimeoutException;
+import java.util.Set;
 
 
 public class Expands1 {
@@ -63,6 +62,48 @@ public class Expands1 {
       state.insert(expands, item, missing, p);
     }
     return expands;
+  }
+  
+  public double getUpperBound1() {
+    double p = 0;
+    double z = expander.model.z();
+    // Logger.info("Upper Bound: %d states", states.size());
+    for (State1 state: states.keySet()) {
+      double pState = states.get(state);
+      MapPreferenceSet pref = new MapPreferenceSet(expander.pref);
+      Set<Preference> prfs = state.getRanking().getPreferences();
+      for (Preference pr: prfs) {
+        pref.add(pr.higher, pr.lower);
+      }
+      p += pState * expander.model.getUpperBound(pref);
+      // if (states.size() == 1) 
+      // Logger.info("    State: %s", state);
+      // else Logger.info("States: %d", states.size());
+    }
+    return p / z;
+  }
+  
+  public double getUpperBound(Item item) {
+    double p = 0;
+    double z = expander.model.z();
+    int step = expander.referenceIndex.get(item);
+    
+    MapPreferenceSet pref = new MapPreferenceSet(expander.pref.getItemSet());
+    for (Preference pr: expander.pref.getPreferences()) {
+      int i1 = expander.referenceIndex.get(pr.lower);
+      int i2 = expander.referenceIndex.get(pr.higher);
+      if (i1 > step || i2 > step) {
+        pref.add(pr.higher, pr.lower);
+      }
+    }
+    double ub = expander.model.getUpperBound(pref);
+    
+    for (State1 state: states.keySet()) {
+      p += states.get(state);
+    }
+    Logger.info("After inserting item %s: Preference set %s", item, pref);
+    Logger.info("Total states log probability: %f, Upper bound: %f, Z: %f, log(ub / z): %f, log(p * ub / z): %f", Math.log(p), ub, z, Math.log(ub / z), Math.log(p * ub / z));
+    return p * ub / z;
   }
   
 }

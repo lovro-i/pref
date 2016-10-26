@@ -2,10 +2,17 @@ package edu.drexel.cs.db.db4pref.model;
 
 import edu.drexel.cs.db.db4pref.distance.KendallTauDistance;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
+import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
+import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
+import edu.drexel.cs.db.db4pref.core.Preference;
+import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample.PW;
-import edu.drexel.cs.db.db4pref.sampler.MallowsUtils;
+import edu.drexel.cs.db.db4pref.util.Logger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 
 public class MallowsModel {
@@ -64,7 +71,7 @@ public class MallowsModel {
     double phip = 1;
     for (int i = 1; i < this.getItemSet().size(); i++) {
       phip *= phi;
-      s  += phip;
+      s += phip;
       z *= s;
     }
     return z;
@@ -93,19 +100,42 @@ public class MallowsModel {
     }
     return ll / sample.sumWeights();
   }
+
+  /** Upper probability bound on normalization constant, Lu & Boutilier, Theorem 17 */
+  public double getUpperBound(PreferenceSet pref) {
+    MutablePreferenceSet tcPref = pref.transitiveClosure();
+    int d = 0;
+    int s = 0;
+    for (Preference p: tcPref.getPreferences()) {
+      if (center.contains(p)) s++;
+      else d++;
+    }
+    
+    double ub = Math.pow(phi, d) * Math.pow((1 + phi), this.center.size() - s - d);
+    return ub;
+  }
     
   public static void main(String[] args) {
+    Random random = new Random();
     ItemSet items = new ItemSet(10);
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.3);
-    RankingSample sample = MallowsUtils.sample(model, 1000);
-    System.out.println(model.getLogLikelihood(sample));
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
+    Ranking r = model.getItemSet().getRandomRanking();
+    List<Preference> pset = new ArrayList<>(r.transitiveClosure().getPreferences());
+    int size = (int) (0.8 * pset.size());
+    while (pset.size() > size) {
+      pset.remove(random.nextInt(pset.size()));
+    }
     
+    MapPreferenceSet pref = new MapPreferenceSet(items);
+    for (Preference p: pset) pref.add(p.higher, p.lower);
     
-    MallowsModel model2 = new MallowsModel(items.getReferenceRanking(), 0.7);
-    System.out.println(model2.getLogLikelihood(sample));
+    double p = 0;
+    for (Ranking r1: pref.getRankings()) {
+      p += model.getProbability(r1);
+    }
     
-    MallowsModel model3 = new MallowsModel(items.getRandomRanking(), 0.3);
-    System.out.println(model3.getLogLikelihood(sample));
+    double ub = model.getUpperBound(pref);
+    Logger.info("P = %f, UB = %f, UB/Z = %f", Math.log(p), Math.log(ub), Math.log(ub/model.z()));
   }
   
 }

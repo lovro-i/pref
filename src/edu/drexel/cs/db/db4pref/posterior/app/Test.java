@@ -44,7 +44,7 @@ public class Test {
     return pref;
   }
   
-  /** Around 7 seconds */
+  /** Around 3 seconds; -4.583774 */
   public static MapPreferenceSet pref4() {
     ItemSet its = new ItemSet(30);
     its.tagOneBased();
@@ -70,4 +70,17 @@ public class Test {
     return pref;
   }
 
+  /** Around 70 seconds */
+  public static MapPreferenceSet pref6() {
+    ItemSet its = new ItemSet(30);
+    its.tagOneBased();
+    MapPreferenceSet pref = new MapPreferenceSet(its);
+    pref.addByTag(34, 30);
+    pref.addByTag(35, 1);
+    pref.addByTag(31, 32);
+    pref.addByTag(16, 35);
+    pref.addByTag(36, 26);
+    return pref;
+  }
+  
 }

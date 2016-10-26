@@ -115,8 +115,10 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
     if (higher == null || lower == null) throw new NullPointerException("Item must not be null");
     if (higher.equals(lower)) throw new IllegalStateException("Cannot add same items");
     if (!checkAcyclic(higher, lower)) throw new IllegalStateException(String.format("Cannot add (%s, %s) pair, graph would be cyclic", higher, lower));
-
-    
+    return addQuick(higher, lower);
+  }
+  
+  private boolean addQuick(Item higher, Item lower) {
     HashSet<Item> lo = lowers.get(higher);
     if (lo == null) {
       lo = new HashSet<Item>();
@@ -134,15 +136,18 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
     return added;
   }
 
+  
   @Override
   public boolean addById(int higherId, int lowerId) {
     return add(items.get(higherId), items.get(lowerId));
   }
 
+  
   @Override
   public boolean addByTag(Object higherTag, Object lowerTag) {
     return add(items.getItemByTag(higherTag), items.getItemByTag(lowerTag));
   }
+  
   
   @Override
   public Boolean remove(Item item1, Item item2) {
@@ -227,7 +232,7 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
         }
       }
       for (Preference pref : add) {
-        this.add(pref.higher, pref.lower);
+        this.addQuick(pref.higher, pref.lower);
       }
       done = add.isEmpty();
     }

@@ -21,7 +21,7 @@ public class SparsePreferenceSet extends AbstractPreferenceSet implements Set<Pr
   
   public SparsePreferenceSet(PreferenceSet prefs) {
     this(prefs.getItemSet());
-    for (Preference pref: prefs.getPreferences()) this.add(pref.higher, pref.lower);
+    for (Preference pref: prefs.getPreferences()) this.add(pref); // .higher, pref.lower);
   }
 
   @Override

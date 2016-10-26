@@ -1,6 +1,7 @@
 package edu.drexel.cs.db.db4pref.posterior.sequential;
 
 import edu.drexel.cs.db.db4pref.core.Item;
+import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.posterior.Sequence;
 import edu.drexel.cs.db.db4pref.posterior.Span;
 import java.util.Arrays;
@@ -43,6 +44,12 @@ public class State1 {
     this.expander = expander;
     this.items = new Item[0];
     this.miss = new int[1];
+  }
+  
+  public Ranking getRanking() {
+    Ranking ranking = new Ranking(expander.model.getItemSet());
+    for (Item item: items) ranking.add(item);
+    return ranking;
   }
   
   /** Crate a state with no missing items */

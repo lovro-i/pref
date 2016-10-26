@@ -5,32 +5,47 @@ import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Preference;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.core.SparsePreferenceSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 
 public class HasseDiagram {
 
   private SparsePreferenceSet preferences;
-  private Set<Item> items = new HashSet<Item>();
+  private final Set<Item> items = new HashSet<Item>();
   
+  private final Map<Item, Set<Preference>> prefs = new HashMap<>();
   
-  public PreferenceSet v;
-  public MutablePreferenceSet tc;
+  public final PreferenceSet v;
+  public final MutablePreferenceSet tc;
+
   
   public HasseDiagram(PreferenceSet v) {
+    this(v, v.transitiveClosure());
+  }
+
+  /** Provide preference set and its TC, in case you have it already. Not to calculate it again */
+  public HasseDiagram(PreferenceSet v, MutablePreferenceSet tc) {
     this.preferences = new SparsePreferenceSet(v.getItemSet());
     this.v = v;
-    this.tc = v.transitiveClosure();
+    this.tc = tc;
+
+    for (Item item: v.getItemSet()) {
+      prefs.put(item, new HashSet<Preference>());
+    }
+    
+    for (Preference pref: tc.getPreferences()) {
+      prefs.get(pref.higher).add(pref);
+      prefs.get(pref.lower).add(pref);
+    }
   }
   
   
   public void add(Item item) {
     // Add new edges
-    items.add(item);
-    for (Preference pref: tc.getPreferences()) {
-      if (items.contains(pref.higher) && items.contains(pref.lower)) preferences.add(pref);
-    }
+    preferences.addAll(prefs.get(item));
       
     // Remove edges
     SparsePreferenceSet next = new SparsePreferenceSet(preferences);      
@@ -39,6 +54,7 @@ public class HasseDiagram {
         if (tc.contains(p.higher, inter) && tc.contains(inter, p.lower)) next.remove(p);
       }
     }
+    items.add(item);
     this.preferences = next;
   }
   

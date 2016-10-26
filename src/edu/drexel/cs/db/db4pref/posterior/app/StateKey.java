@@ -82,6 +82,10 @@ public class StateKey implements Comparable<StateKey> {
     }
   }
   
+  
+  public StateData getData() {
+    return expander.getData(this);
+  }
 
   
   /** Returns the length of this ranking (missing + fixed) */
@@ -132,8 +136,8 @@ public class StateKey implements Comparable<StateKey> {
   
   
   public boolean expand() {
-    StateData data = expander.getState(this);
-    if (data == null) return false;
+    StateData data = this.getData();
+    // if (data == null) return false;
 
     if (data.children != null) return false;
     // data.children = new HashSet<Child>();
@@ -164,7 +168,7 @@ public class StateKey implements Comparable<StateKey> {
   
   
   private void propagate(double p) {
-    StateData data = expander.getState(this);
+    StateData data = expander.getData(this);
     if (data.children == null) return;
     for (Entry<StateKey, Double> child: data.children.entrySet()) {
       double p1 = p * child.getValue();

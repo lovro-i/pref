@@ -13,7 +13,7 @@ import edu.drexel.cs.db.db4pref.sampler.MallowsUtils;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.Arrays;
 
-/** Reconstructs phi from the known (reconstructed) center and the sample finding the root of the polynomial
+/** Reconstructs phi from the known (reconstructed) center and the sample of complete rankings finding the root of the polynomial
   * If the center is not specified, uses CenterReconstructor */
 public class PolynomialReconstructor implements MallowsReconstructor {
 

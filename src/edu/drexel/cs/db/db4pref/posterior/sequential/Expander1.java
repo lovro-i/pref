@@ -76,6 +76,18 @@ public class Expander1 {
     return i;
   }
   
+  public double getUpperBound() {
+    double ub = model.getUpperBound(pref); //getUpperBound(expander.model, expander.pref, 1, 1);
+    double result = ub / model.z();
+    return result;
+  }
+  
+  public double getLowerBound() {
+    double lb = model.getLowerBound(pref);
+    double result = lb / model.z();
+    return result;
+  }
+    
   public void expand(PreferenceSet pref) throws TimeoutException, InterruptedException {
     if (pref.equals(this.pref)) {
       Logger.info("Expander already available for PreferenceSet " + pref);
@@ -89,13 +101,20 @@ public class Expander1 {
     Ranking reference = model.getCenter();
     
     int maxIndex = getMaxItem(pref);
+    double minub1 = 1;
+    double minub2 = 1;
+    Logger.info("First estimate upper / lower bound: %f, %f", Math.log(this.getUpperBound()), Math.log(this.getLowerBound()));
     for (int i = 0; i <= maxIndex; i++) {
       Item item = reference.get(i);
       
       boolean missing = !this.pref.contains(item);
       expands = expands.insert(item, missing);
-      // double ub = expands.getUpperBound(item);
-      // Logger.info("Upper bound after item %s: %f", item, Math.log(expands.getUpperBound(item)));
+      double ub1 = expands.getUpperBoundUnion();
+      minub1 = Math.min(minub1, ub1);
+      double ub2 = expands.getUpperBound(item, 3);
+      minub2 = Math.min(minub2, ub2);
+      double lb1 = expands.getLowerBoundUnion();
+      Logger.info("Upper bound after item %s: %f | %f | %f | %f | %f", item, Math.log(minub1), Math.log(ub1), Math.log(minub2), Math.log(ub2), Math.log(lb1));
     }
   }
 

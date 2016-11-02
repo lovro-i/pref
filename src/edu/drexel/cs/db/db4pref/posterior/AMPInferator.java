@@ -4,7 +4,7 @@ import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.sampler.AMPSampler;
 
-
+/** Approximate posterior probability by using AMP and importance sampling */
 public class AMPInferator {
 
   private final MallowsModel model;

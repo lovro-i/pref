@@ -4,10 +4,9 @@ import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.core.Ranking;
 import java.util.StringTokenizer;
 
-
+/** Used for converting string representation of a preference set into format suitable for CSV files (removes commas) */
 public class PreferenceIO {
 
   /** Serialize preference set into string suitable for CVS files (contains no commas) */

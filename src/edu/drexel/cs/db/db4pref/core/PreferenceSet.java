@@ -62,6 +62,9 @@ public interface PreferenceSet extends Cloneable, Serializable {
   /** @return Number of pairs */
   public int size();
   
+  /** @return True if this preference set has no preference pairs */
+  public boolean isEmpty();
+  
   /** @return Set of rankings consistent with this PreferenceSet */
   public Set<Ranking> getRankings();
 }

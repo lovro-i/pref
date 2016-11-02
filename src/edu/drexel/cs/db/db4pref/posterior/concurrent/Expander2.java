@@ -42,6 +42,7 @@ public class Expander2 {
     return expands.getProbability();
   }
   
+  
   private void calculateSpans() {
     this.spans = new HashMap<Item, Span>();
     Ranking reference = model.getCenter();
@@ -86,27 +87,22 @@ public class Expander2 {
       return;
     }
     
-    
-    
     this.pref = pref;
-    long t1 = System.currentTimeMillis();
     this.tc = pref.transitiveClosure();
-    Logger.info("TC: %d ms", System.currentTimeMillis() - t1);
     calculateSpans();
     expands = new Expands2(this);
     expands.nullify();
     Ranking reference = model.getCenter();
     int maxIndex = getMaxItem(pref);
     
-    
-    
+    Workers workers = new Workers(threads);
     for (int i = 0; i <= maxIndex; i++) {
       Item item = reference.get(i);
       
       boolean missing = !this.pref.contains(item);
-      // Logger.info("Expanding %d states", expands.size());
-      expands = expands.insert(item, missing);
+      expands = expands.insert(item, missing, workers);
     }
+    workers.stop();
   }
 
   private HashMap<Span, Double> probs = new HashMap<>();

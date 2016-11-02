@@ -9,6 +9,11 @@ public interface MutablePreferenceSet extends PreferenceSet {
    */
   public boolean add(Item higher, Item lower);
   
+  /** Adds this preference to the set. Returns true if added, returns false if the preference was already there.
+   *  @throws IllegalStateException if attempted to add a pair that would make the graph cyclic.
+   */
+  public boolean add(Preference p);
+  
   /** Adds this preference to the set. Returns true if added, returns false if the preference was already there 
    *  @throws IllegalStateException if attempted to add a pair that would make the graph cyclic.
    */

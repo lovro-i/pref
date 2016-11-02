@@ -433,4 +433,9 @@ public class Ranking implements Comparable, PreferenceSet {
     return r;
   }
 
+  @Override
+  public boolean isEmpty() {
+    return items.isEmpty();
+  }
+
 }

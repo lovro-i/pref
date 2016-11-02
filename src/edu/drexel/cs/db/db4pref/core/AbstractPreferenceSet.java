@@ -16,6 +16,16 @@ public abstract class AbstractPreferenceSet implements MutablePreferenceSet {
     PreferenceSet pref = (PreferenceSet) o;
     return pref.getPreferences().equals(this.getPreferences());
   }
+  
+  @Override
+  public boolean isEmpty() {
+    return size() == 0;
+  }
+  
+  @Override
+  public boolean add(Preference p) {
+    return add(p.higher, p.lower);
+  }
     
     /** @return Set of rankings consistent with this PreferenceSet */
   public Set<Ranking> getRankings() {

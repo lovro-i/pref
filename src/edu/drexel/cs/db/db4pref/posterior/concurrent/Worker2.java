@@ -7,42 +7,56 @@ import java.util.Queue;
 
 public class Worker2 extends Thread {
 
-  private final Queue<Map.Entry<State2, Double>> queue;
-  private final Item item;
-  private final boolean missing;
-  
-  private final Expands2 dstExpands;
-  
   private static int nextId = 1;
   private int id = nextId++;
+
+  private final Workers workers;
   
-  private long wait = 0;
-  private long work = 0;
+  private Queue<Map.Entry<State2, Double>> queue;
+  private Item item;
+  private boolean missing;
+  private Expands2 dstExpands;
+  
   private int count = 0;
+  private boolean done = false;
   
-  Worker2(Queue<Map.Entry<State2, Double>> queue, Expands2 exs, Item item, boolean missing) {
+  Worker2(Workers workers) {
+    this.workers = workers;
+  }
+  
+  public synchronized void run(Queue<Map.Entry<State2, Double>> queue, Expands2 exs, Item item, boolean missing) {
     this.queue = queue;
     this.dstExpands = exs;
     this.item = item;
     this.missing = missing;
+    notify();
   }
   
   @Override
   public void run() {
-    while (true) {
-      Map.Entry<State2, Double> entry;
-      long s1 = System.currentTimeMillis();
-      synchronized (queue) {
-        entry = queue.poll();
+    while (!done) {
+      synchronized (this) {
+        while (queue == null && !done) {
+          try { wait(); }
+          catch (InterruptedException e) {}
+        }
       }
-      this.wait += System.currentTimeMillis() - s1;
-      if (entry == null) break;
-      long start = System.currentTimeMillis();
-      State2 state = entry.getKey();
-      double p = entry.getValue();
-      state.insert(dstExpands, item, missing, p);
-      work += System.currentTimeMillis() - start;
-      count++;
+      
+      while (!done) {
+        Map.Entry<State2, Double> entry;
+        synchronized (queue) {
+          entry = queue.poll();
+        }
+        if (entry == null) break;
+
+        State2 state = entry.getKey();
+        double p = entry.getValue();
+        state.insert(dstExpands, item, missing, p);
+        count++;
+      }
+      
+      this.queue = null;
+      workers.onWorkerDone(this);
     }
   }
   
@@ -50,9 +64,14 @@ public class Worker2 extends Thread {
     return dstExpands;
   }
   
+  public synchronized void done() {
+    this.done = true;
+    notify();
+  }
+  
   @Override
   public String toString() {
-    return String.format("Worker %d did %d states: %d ms wait + %d ms work", id, count, wait, work);
+    return String.format("Worker %d did %d states", id, count);
   }
   
 }

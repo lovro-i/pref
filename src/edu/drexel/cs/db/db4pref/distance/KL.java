@@ -1,6 +1,5 @@
 package edu.drexel.cs.db.db4pref.distance;
 
-import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample;
 import edu.drexel.cs.db.db4pref.core.PairwisePreferenceMatrix;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;

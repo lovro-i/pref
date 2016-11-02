@@ -1,5 +1,6 @@
 package edu.drexel.cs.db.db4pref.model;
 
+import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.distance.KendallTauDistance;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
@@ -11,8 +12,11 @@ import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.core.Sample.PW;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 
 public class MallowsModel {
@@ -37,11 +41,6 @@ public class MallowsModel {
     return phi;
   }
   
-  /** Expected distance from the center, depends only on phi */
-  public double getE() {
-    return phiToE(phi);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof MallowsModel)) return false;
@@ -52,16 +51,6 @@ public class MallowsModel {
   @Override
   public String toString() {
     return "Center: " + center + "; phi: " + phi;
-  }
-  
-  /** Convert phi to expected distance */
-  public static double phiToE(double phi) {
-    return phi / (1 - phi);
-  }
-  
-  /** Convert expected distance to phi */
-  public static double eToPhi(double e) {
-    return e / (e+1);
   }
   
   /** Normalization factor */
@@ -114,7 +103,90 @@ public class MallowsModel {
     double ub = Math.pow(phi, d) * Math.pow((1 + phi), this.center.size() - s - d);
     return ub;
   }
+  
+  public static Set<Item> getAntiChain(PreferenceSet tc) {
+    Set<Item> x = new HashSet<Item>();
+    while (!tc.isEmpty() && x.size() > tc.getItems().size()) {
+      Set<Item> y = new HashSet<Item>();
+      for (Item item: tc.getItems()) {
+        Collection<Item> higher = tc.getHigher(item);
+        if (higher.isEmpty()) y.add(item);
+      }
+      
+      if (y.size() > x.size()) x = y;
+      for (Item item: y) tc.remove(item);
+    }
+    return x;
+  }
+  
+  /** Lower probability bound on normalization constant, Lu & Boutilier, Theorem 19 */
+  public double getLowerBound(PreferenceSet pref) {
+    MutablePreferenceSet tc = pref.transitiveClosure();
+    Set<Item> X = getAntiChain(tc);
+    Set<Item> Y = new HashSet<Item>();
+    Set<Item> Z = new HashSet<Item>();
+    for (Item item: X) {
+      Y.addAll(pref.getHigher(item));
+      Z.addAll(pref.getLower(item));
+    }
+
+    MapPreferenceSet tcy = new MapPreferenceSet(pref.getItemSet());
+    MapPreferenceSet tcz = new MapPreferenceSet(pref.getItemSet());
+    for (Preference p: tc.getPreferences()) {
+      if (Y.contains(p.higher) && Y.contains(p.lower)) tcy.add(p);
+      if (Z.contains(p.higher) && Z.contains(p.lower)) tcz.add(p);
+    }
     
+    Set<Ranking> omegaY = tcy.getRankings();
+    Set<Ranking> omegaZ = tcz.getRankings();
+    
+    int delta = 0;
+    for (Item itemX: X) {
+      for (Item itemY: Y) {
+        if (center.isPreferred(itemX, itemY)) delta++;
+      }
+    }
+    for (Item itemX: X) {
+      for (Item itemZ: Z) {
+        if (center.isPreferred(itemZ, itemX)) delta++;
+      }
+    }
+    for (Item itemY: Y) {
+      for (Item itemZ: Z) {
+        if (center.isPreferred(itemZ, itemY)) delta++;
+      }
+    }
+    
+    // Consistent rankings over Y
+    double cy = 0;
+    Ranking sigmaY = center.toRanking(Y);
+    for (Ranking r: omegaY) {
+      double d = KendallTauDistance.between(r, sigmaY);
+      cy += Math.pow(phi, d);
+    }
+    
+    // Consistent rankings over Z
+    double cz = 0;
+    Ranking sigmaZ = center.toRanking(Z);
+    for (Ranking r: omegaZ) {
+      double d = KendallTauDistance.between(r, sigmaZ);
+      cy += Math.pow(phi, d);
+    }
+    
+    double pu = 1;
+    for (int i = 1; i <= X.size(); i++) {
+      double s = 0;
+      for (int j = 0; j <= i-1; j++) {
+        s += Math.pow(phi, j);
+      }
+      pu *= s;
+    }
+    
+    double lb = Math.pow(phi, delta) * cy * cz * pu;
+    return lb;
+  } 
+  
+  
   public static void main(String[] args) {
     Random random = new Random();
     ItemSet items = new ItemSet(10);

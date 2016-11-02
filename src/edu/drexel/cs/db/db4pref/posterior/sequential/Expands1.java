@@ -2,9 +2,13 @@ package edu.drexel.cs.db.db4pref.posterior.sequential;
 
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
+import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Preference;
+import edu.drexel.cs.db.db4pref.core.PreferenceSet;
+import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -64,9 +68,10 @@ public class Expands1 {
     return expands;
   }
   
-  public double getUpperBound1() {
+  public double getUpperBoundUnion() {
     double p = 0;
-    double z = expander.model.z();
+    double sump = 0;
+    double maxub = 0;
     // Logger.info("Upper Bound: %d states", states.size());
     for (State1 state: states.keySet()) {
       double pState = states.get(state);
@@ -75,15 +80,46 @@ public class Expands1 {
       for (Preference pr: prfs) {
         pref.add(pr.higher, pr.lower);
       }
-      p += pState * expander.model.getUpperBound(pref);
+      
+      double ub = expander.model.getUpperBound(pref);
+      p += pState * ub;
+      sump += pState;
+      maxub = Math.max(maxub, ub);
       // if (states.size() == 1) 
       // Logger.info("    State: %s", state);
       // else Logger.info("States: %d", states.size());
     }
-    return p / z;
+    // return sump;
+    return maxub / expander.model.z();
   }
   
-  public double getUpperBound(Item item) {
+  public double getLowerBoundUnion() {
+    double p = 0;
+    double sump = 0;
+    double minlb = 0;
+    // Logger.info("Upper Bound: %d states", states.size());
+    for (State1 state: states.keySet()) {
+      double pState = states.get(state);
+      MapPreferenceSet pref = new MapPreferenceSet(expander.pref);
+      Set<Preference> prfs = state.getRanking().getPreferences();
+      for (Preference pr: prfs) {
+        pref.add(pr.higher, pr.lower);
+      }
+      
+      double lb = expander.model.getLowerBound(pref);
+      p += pState * lb;
+      sump += pState;
+      minlb = Math.min(minlb, lb);
+      // if (states.size() == 1) 
+      // Logger.info("    State: %s", state);
+      // else Logger.info("States: %d", states.size());
+    }
+    // return sump;
+    return minlb / expander.model.z();
+  }
+  
+  @Deprecated
+  public double getUpperBound1(Item item) {
     double p = 0;
     double z = expander.model.z();
     int step = expander.referenceIndex.get(item);
@@ -101,9 +137,68 @@ public class Expands1 {
     for (State1 state: states.keySet()) {
       p += states.get(state);
     }
-    Logger.info("After inserting item %s: Preference set %s", item, pref);
-    Logger.info("Total states log probability: %f, Upper bound: %f, Z: %f, log(ub / z): %f, log(p * ub / z): %f", Math.log(p), ub, z, Math.log(ub / z), Math.log(p * ub / z));
-    return p * ub / z;
+    // Logger.info("After inserting item %s: Preference set %s", item, pref);
+    // Logger.info("Total states log probability: %f, Upper bound: %f, Z: %f, log(ub / z): %f, log(p * ub / z): %f", Math.log(p), ub, z, Math.log(ub / z), Math.log(p * ub / z));
+    
+    double result = p * ub / z;
+    Logger.info("Upper bound: %f", Math.log(result));
+    return result;
   }
+  
+  public double getUpperBound(Item item, int ver) {
+    double z = expander.model.z();
+    int step = expander.referenceIndex.get(item);    
+    
+    MapPreferenceSet pref = new MapPreferenceSet(expander.pref.getItemSet());
+    for (Preference pr: expander.pref.getPreferences()) {
+      int i1 = expander.referenceIndex.get(pr.lower);
+      int i2 = expander.referenceIndex.get(pr.higher);
+      if (i1 > step || i2 > step) {
+        pref.add(pr.higher, pr.lower);
+      }
+    }
+    double ub = getUpperBound(expander.model, pref, step+1, ver);
+    
+    double p = 0;
+    for (State1 state: states.keySet()) {
+      p += states.get(state);
+    }
+    // Logger.info("After inserting item %s: Preference set %s", item, pref);
+    // Logger.info("Total states log probability: %f, Upper bound: %f, Z: %f, log(ub / z): %f, log(p * ub / z): %f", Math.log(p), ub, z, Math.log(ub / z), Math.log(p * ub / z));
+    
+    double result = ub / z;
+    //Logger.info("Upper bound %d after step %d: %f", ver, step, Math.log(result));
+    return result;
+  }
+  
+
+  
+  
+  public double getUpperBound(MallowsModel model, PreferenceSet pref, int step, int ver) {
+    MutablePreferenceSet tcPref = pref.transitiveClosure();
+    int d = 0;
+    int s = 0;
+    int less = 0;
+    Set<Item> lesser = new HashSet<Item>();
+    for (Preference p: tcPref.getPreferences()) {
+      if (model.getCenter().contains(p)) s++;
+      else d++;
+      int i1 = expander.referenceIndex.get(p.lower);
+      int i2 = expander.referenceIndex.get(p.higher);
+      if (i1 < step) lesser.add(p.lower);
+      if (i2 < step) lesser.add(p.higher);
+    }
+    
+    double phi = model.getPhi();
+    
+    int remaining = model.getCenter().length();
+    if (ver > 1) remaining = remaining - step;
+    else if (ver == 3) remaining += lesser.size();
+    int size = remaining * (remaining - 1) / 2;
+    
+    double ub = Math.pow(phi, d) * Math.pow((1 + phi), size - s - d);
+    return ub;
+  }
+  
   
 }

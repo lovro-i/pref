@@ -84,7 +84,7 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
     }
     return size;
   }
-
+  
   /**
    * Removes the empty sets
    */
@@ -109,7 +109,7 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
       this.highers.remove(i);
     }
   }
-
+  
   @Override
   public boolean add(Item higher, Item lower) {
     if (higher == null || lower == null) throw new NullPointerException("Item must not be null");

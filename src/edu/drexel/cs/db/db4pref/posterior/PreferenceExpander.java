@@ -19,6 +19,7 @@ import java.util.concurrent.TimeoutException;
 
 /** Main class of the Dynamic Algorithm. Expands the states and calculates the probabilities 
   * Version 3: Items are tracked only during span times (same as Span version); preference sets are expanded only once (from low to high on every level)
+  * See edu.drexel.cs.db.db4pref.posterior.sequential.Expander for a faster implementation
  */
 @Deprecated
 public class PreferenceExpander implements Posterior {

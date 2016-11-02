@@ -1,7 +1,6 @@
 package edu.drexel.cs.db.db4pref.posterior.concurrent;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,11 +47,13 @@ public class Expands2 {
     return this.expander;
   }
   
+  static long init = 0;
+  
     /** Expand possible states if the specified item is missing (can be inserted between any two present items)
    * @param item To insert
    * @return Mapping of states to their probabilities
    */
-  public Expands2 insert(Item item, boolean missing) throws InterruptedException {
+  public Expands2 insert(Item item, boolean missing, Workers workers) throws InterruptedException {
     
     // if (item.getTag().equals(26)) {
     //  System.out.println("============================================================================");
@@ -60,19 +61,8 @@ public class Expands2 {
     // }
     
     Expands2 expands = new Expands2(expander);
-    
     Queue<Entry<State2, Double>> q = new ArrayDeque<>(states.entrySet());
-    List<Worker2> workers = new ArrayList<Worker2>();
-    for (int i = 0; i < expander.threads; i++) {
-      Worker2 worker = new Worker2(q, expands, item, missing);
-      worker.start();
-      workers.add(worker);
-    }
-    
-    for (Worker2 worker: workers) {
-      worker.join();
-    }
-    
+    workers.run(q, expands, item, missing);
     return expands;
   }
   

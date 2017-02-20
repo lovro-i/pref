@@ -80,9 +80,7 @@ public class Item implements Serializable, Comparable<Item> {
 
   @Override
   public int hashCode() {
-    int hash = 5;
-    hash = 97 * hash + this.id;
-    return hash;
+    return 485 + this.id;
   }
 
   @Override

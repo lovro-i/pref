@@ -1,4 +1,4 @@
-package edu.drexel.cs.db.db4pref.posterior.parallel;
+package edu.drexel.cs.db.db4pref.posterior.concurrent6;
 
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
@@ -11,41 +11,47 @@ import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.Span;
 import edu.drexel.cs.db.db4pref.posterior.app.Test;
-import edu.drexel.cs.db.db4pref.posterior.sequential.Expander1;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+/** Best parallel so far */
+public class Expander6 {
 
-public class Expander2 {
-
-  private final MallowsModel model;
+  final MallowsModel model;
   final Map<Item, Integer> referenceIndex;
   final int threads;
+  final int mapsPerThread;
   
   private PreferenceSet pref;
   MutablePreferenceSet tc;
-  private Expands2 expands;
+  private Expands6 expands;
   Map<Item, Span> spans;
+  long timeout = 0; // millis
 
   
   /** Creates a parallelized Expander for the given Mallows model with specified number of threads */
-  public Expander2(MallowsModel model, int threads) {
+  public Expander6(MallowsModel model, int threads, int mapsPerThread) {
     this.model = model;
     this.referenceIndex = model.getCenter().getIndexMap();
     this.threads = threads;
+    this.mapsPerThread = mapsPerThread;
   }
-  
+
   
   public double getProbability(PreferenceSet pref) throws TimeoutException, InterruptedException {
     expand(pref);
     return expands.getProbability();
   }
   
+  public void setTimeout(long timeout) {
+    this.timeout = timeout;
+  }
   
   private void calculateSpans() {
     this.spans = new HashMap<Item, Span>();
+    Ranking reference = model.getCenter();
     
     for (Item item: pref.getItems()) {
       int from = referenceIndex.get(item);
@@ -53,8 +59,9 @@ public class Expander2 {
       spans.put(item, span);
     }
     
-    Ranking reference = model.getCenter();
-    HasseDiagram hasse = new HasseDiagram(pref);
+    HasseDiagram hasse = new HasseDiagram(pref, tc);
+    
+    
     for (int step = 0; step < reference.length(); step++) {
       Item item = reference.get(step);
       if (pref.contains(item)) {
@@ -68,6 +75,8 @@ public class Expander2 {
       }
     }
   }
+  
+  
 
   /** Returns the index of highest sigma_i in the preference set */
   private int getMaxItem(PreferenceSet pref) {
@@ -78,24 +87,55 @@ public class Expander2 {
     return i;
   }
   
+  /** Returns number of items that are relevant at the given step */
+  private int getS(int step) {
+    int s = 0;
+    for (Span span: spans.values()) {
+      if (step >= span.from && step <= span.to) s++;
+    }
+    return s;
+  }
+  
+  public int getMaxWidth() {
+    int w = 0;
+    Ranking ref = model.getCenter();
+    for (int i = 0; i < ref.length(); i++) {
+      w = Math.max(w, getS(i));
+    }
+    return w;
+  }
+  
+  public int getSumWidth() {
+    int w = 0;
+    Ranking ref = model.getCenter();
+    for (int i = 0; i < ref.length(); i++) {
+      w += getS(i);
+    }
+    return w;
+  }
+  
   public void expand(PreferenceSet pref) throws TimeoutException, InterruptedException {
     if (pref.equals(this.pref)) {
       Logger.info("Expander already available for PreferenceSet " + pref);
       return;
     }
+    
+    long start = System.currentTimeMillis();
     this.pref = pref;
     this.tc = pref.transitiveClosure();
     calculateSpans();
-    expands = new Expands2(this);
+    expands = new Expands6(this);
     expands.nullify();
     Ranking reference = model.getCenter();
-    
     int maxIndex = getMaxItem(pref);
+    
+    Workers6 workers = new Workers6(threads);
     for (int i = 0; i <= maxIndex; i++) {
+      if (timeout > 0 && System.currentTimeMillis() - start > timeout) throw new TimeoutException("Expander timeout");
       Item item = reference.get(i);
       
       boolean missing = !this.pref.contains(item);
-      expands = expands.insert(item, missing);
+      expands = expands.insert(item, missing, workers);
     }
   }
 
@@ -113,41 +153,6 @@ public class Expander2 {
     return p1;
   }
   
-  public static void main(String args[]) throws TimeoutException, InterruptedException {
-    MapPreferenceSet pref = Test.pref3(); // Utils.generate(30, 4, 5);
-    
-//    ItemSet its = new ItemSet(30);
-//    its.tagOneBased();
-//    MapPreferenceSet pref = new MapPreferenceSet(its);
-//    pref.addByTag(24, 19);
-//    pref.addByTag(26, 11);
-//    pref.addByTag(25, 14);
-//    pref.addByTag(25, 15);
-//    pref.addByTag(22, 13);
-    
 
-    
-    Logger.info(pref);
-    ItemSet items = pref.getItemSet();    
-    items.tagOneBased();
-
-    double phi = 0.8;
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
-    
-
-    {
-      long startPref = System.currentTimeMillis();
-      Expander1 pex = new Expander1(model, pref);
-      double p = pex.expand();
-      Logger.info("PreferenceExpander: Total probability: %f in %d ms", Math.log(p), System.currentTimeMillis() - startPref);
-    }
-    
-    for (int threads = 1; threads <= Runtime.getRuntime().availableProcessors(); threads++) {
-      long startPref = System.currentTimeMillis();
-      Expander2 pex = new Expander2(model, threads);
-      double p = pex.getProbability(pref);
-      Logger.info("ParallelExpander x%d: Total probability: %f in %d ms", threads, Math.log(p), System.currentTimeMillis() - startPref);
-    }
-  }
   
 }

@@ -57,7 +57,7 @@ public class Test {
     return pref;
   }
   
-  /** Around 110 seconds */
+  /** Around 15 seconds */
   public static MapPreferenceSet pref5() {
     ItemSet its = new ItemSet(30);
     its.tagOneBased();

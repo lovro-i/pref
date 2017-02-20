@@ -376,15 +376,22 @@ public class MapPreferenceSet extends AbstractPreferenceSet {
   @Override
   public boolean remove(Item item) {
     boolean removed = false;
-    if (this.lowers.containsKey(item)) {
-      removed = true;
-      this.lowers.remove(item);
-    }
-
-    if (this.highers.containsKey(item)) {
-      removed = true;
-      this.highers.remove(item);
-    }
+    Set<Item> items = new HashSet<Item>(this.getHigher(item));
+    items.addAll(this.getLower(item));
+    for (Item it: items) remove(it, item);
+    
+    this.highers.remove(item);
+    this.lowers.remove(item);
+    
+//    if (this.lowers.containsKey(item)) {
+//      removed = true;
+//      this.lowers.remove(item);
+//    }
+//
+//    if (this.highers.containsKey(item)) {
+//      removed = true;
+//      this.highers.remove(item);
+//    }
 
     return removed;
   }

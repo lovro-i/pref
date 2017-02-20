@@ -1,19 +1,19 @@
 package edu.drexel.cs.db.db4pref.sampler;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.RankingSample;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.util.Logger;
-import edu.drexel.cs.db.db4pref.util.MathUtils;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 public class AMPSampler extends MallowsPosteriorSampler {
 
+  private Random random = new Random();
+  
   public AMPSampler(MallowsModel model) {
     super(model);
   }
@@ -78,7 +78,7 @@ public class AMPSampler extends MallowsPosteriorSampler {
             sum += p[j];
           }
 
-          double flip = MathUtils.RANDOM.nextDouble();
+          double flip = random.nextDouble();
           double ps = 0;
           for (int j = low; j <= high; j++) {
             ps += p[j] / sum;
@@ -94,7 +94,7 @@ public class AMPSampler extends MallowsPosteriorSampler {
         posterior *= z * sum;
       }
       else {
-        double flip = MathUtils.RANDOM.nextDouble();
+        double flip = random.nextDouble();
         double ps = 0;
         int where = high;
         double s = (1 - Math.pow(phi, i+1)) / (1 - phi);
@@ -148,7 +148,7 @@ public class AMPSampler extends MallowsPosteriorSampler {
           sum += p[j];
         }
 
-        double flip = MathUtils.RANDOM.nextDouble();
+        double flip = random.nextDouble();
         double ps = 0;
         for (int j = low; j <= high; j++) {
           ps += p[j] / sum;
@@ -214,7 +214,7 @@ public class AMPSampler extends MallowsPosteriorSampler {
           sum += p[j];
         }
 
-        double flip = MathUtils.RANDOM.nextDouble();
+        double flip = random.nextDouble();
         double ps = 0;
         for (int j = low; j <= high; j++) {
           ps += p[j] / sum;

@@ -104,31 +104,49 @@ public class MallowsModel {
     return ub;
   }
   
-  public static Set<Item> getAntiChain(PreferenceSet tc) {
+  public static Set<Item> getAntiChain(PreferenceSet pref) {
+    MutablePreferenceSet tc = pref.transitiveClosure();
     Set<Item> x = new HashSet<Item>();
-    while (!tc.isEmpty() && x.size() > tc.getItems().size()) {
-      Set<Item> y = new HashSet<Item>();
+    Set<Item> y = new HashSet<Item>();
+    int c = 0;
+    while (!tc.isEmpty()) { // || x.size() > tc.getItems().size()) {
+      y.clear();
       for (Item item: tc.getItems()) {
         Collection<Item> higher = tc.getHigher(item);
         if (higher.isEmpty()) y.add(item);
       }
+//      Logger.info("Y %d: %s", y.size(), y);
+//      Logger.info("X %d: %s", x.size(), x);
+//      Logger.info("TC %d %s: %s", tc.size(), tc.isEmpty(), tc);
+//      Logger.waitKey();
       
-      if (y.size() > x.size()) x = y;
-      for (Item item: y) tc.remove(item);
+      if (y.size() > x.size()) {
+        x.clear();
+        x.addAll(y);
+      }
+      for (Item item: y) {
+        tc.remove(item);
+      }
     }
     return x;
   }
   
   /** Lower probability bound on normalization constant, Lu & Boutilier, Theorem 19 */
   public double getLowerBound(PreferenceSet pref) {
+    Set<Item> X = getAntiChain(pref);
+    // Logger.info("Anitchain: %s", X);
     MutablePreferenceSet tc = pref.transitiveClosure();
-    Set<Item> X = getAntiChain(tc);
     Set<Item> Y = new HashSet<Item>();
     Set<Item> Z = new HashSet<Item>();
     for (Item item: X) {
-      Y.addAll(pref.getHigher(item));
-      Z.addAll(pref.getLower(item));
+      Y.addAll(tc.getHigher(item));
+      Z.addAll(tc.getLower(item));
     }
+    
+    Set<Item> union = new HashSet<Item>(Y);
+    union.addAll(Z);
+    // Logger.info("%d %d %d %d", X.size(), Y.size(), Z.size(), union.size());
+    if (union.size() != Y.size() + Z.size()) Logger.warn("PROBLEM!");
 
     MapPreferenceSet tcy = new MapPreferenceSet(pref.getItemSet());
     MapPreferenceSet tcz = new MapPreferenceSet(pref.getItemSet());
@@ -137,8 +155,13 @@ public class MallowsModel {
       if (Z.contains(p.higher) && Z.contains(p.lower)) tcz.add(p);
     }
     
+    // Logger.info("TCY: %s", tcy);
+    // Logger.info("TCZ: %s", tcz);
+    
     Set<Ranking> omegaY = tcy.getRankings();
     Set<Ranking> omegaZ = tcz.getRankings();
+    // Logger.info("Omega Y: %s", omegaY);
+    // Logger.info("Omega Z: %s", omegaZ);
     
     int delta = 0;
     for (Item itemX: X) {
@@ -156,6 +179,7 @@ public class MallowsModel {
         if (center.isPreferred(itemZ, itemY)) delta++;
       }
     }
+    // Logger.info("Delta: %d", delta);
     
     // Consistent rankings over Y
     double cy = 0;
@@ -170,7 +194,7 @@ public class MallowsModel {
     Ranking sigmaZ = center.toRanking(Z);
     for (Ranking r: omegaZ) {
       double d = KendallTauDistance.between(r, sigmaZ);
-      cy += Math.pow(phi, d);
+      cz += Math.pow(phi, d);
     }
     
     double pu = 1;
@@ -182,14 +206,17 @@ public class MallowsModel {
       pu *= s;
     }
     
-    double lb = Math.pow(phi, delta) * cy * cz * pu;
+    // Logger.info("CY %f, CZ %f, PU %f", cy, cz, pu);
+    double lb = Math.pow(phi, delta) * pu;
+    if (cz > 0) lb *= cz;
+    if (cy > 0) lb *= cy;
     return lb;
   } 
   
   
   public static void main(String[] args) {
     Random random = new Random();
-    ItemSet items = new ItemSet(10);
+    ItemSet items = new ItemSet(20);
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
     Ranking r = model.getItemSet().getRandomRanking();
     List<Preference> pset = new ArrayList<>(r.transitiveClosure().getPreferences());
@@ -199,7 +226,7 @@ public class MallowsModel {
     }
     
     MapPreferenceSet pref = new MapPreferenceSet(items);
-    for (Preference p: pset) pref.add(p.higher, p.lower);
+    for (Preference p: pset) pref.add(p);
     
     double p = 0;
     for (Ranking r1: pref.getRankings()) {
@@ -208,6 +235,7 @@ public class MallowsModel {
     
     double ub = model.getUpperBound(pref);
     Logger.info("P = %f, UB = %f, UB/Z = %f", Math.log(p), Math.log(ub), Math.log(ub/model.z()));
+    Logger.info("LB/Z = %f", Math.log(model.getLowerBound(pref)/model.z()));
   }
   
 }

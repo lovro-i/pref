@@ -4,6 +4,7 @@ import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Preference;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
+import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.core.SparsePreferenceSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,11 @@ public class HasseDiagram {
     }
   }
   
+  public void add(Ranking ranking) {
+    for (Item item: ranking.getItems()) {
+      if (v.contains(item)) this.add(item);
+    }
+  }
   
   public void add(Item item) {
     // Add new edges

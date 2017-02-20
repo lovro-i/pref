@@ -17,7 +17,7 @@ import java.util.Set;
 public class Expands1 {
 
   private final Expander1 expander;
-  private Map<State1, Double> states = new HashMap<>();
+  Map<State1, Double> states = new HashMap<>();
   
   public Expands1(Expander1 expander) {
     this.expander = expander;
@@ -37,6 +37,10 @@ public class Expands1 {
   
   public void put(State1 e, double p) {
     states.put(e, p);
+  }
+  
+  public Map<State1, Double> getStates() {
+    return states;
   }
   
   /** Adds all the Expands to this one with weight p */
@@ -68,6 +72,7 @@ public class Expands1 {
     return expands;
   }
   
+  @Deprecated
   public double getUpperBoundUnion() {
     double p = 0;
     double sump = 0;
@@ -75,13 +80,13 @@ public class Expands1 {
     // Logger.info("Upper Bound: %d states", states.size());
     for (State1 state: states.keySet()) {
       double pState = states.get(state);
-      MapPreferenceSet pref = new MapPreferenceSet(expander.pref);
+      MapPreferenceSet pref = new MapPreferenceSet(expander.getPreferenceSet());
       Set<Preference> prfs = state.getRanking().getPreferences();
       for (Preference pr: prfs) {
         pref.add(pr.higher, pr.lower);
       }
       
-      double ub = expander.model.getUpperBound(pref);
+      double ub = expander.getModel().getUpperBound(pref);
       p += pState * ub;
       sump += pState;
       maxub = Math.max(maxub, ub);
@@ -90,9 +95,10 @@ public class Expands1 {
       // else Logger.info("States: %d", states.size());
     }
     // return sump;
-    return maxub / expander.model.z();
+    return maxub / expander.getModel().z();
   }
   
+  @Deprecated
   public double getLowerBoundUnion() {
     double p = 0;
     double sump = 0;
@@ -100,13 +106,13 @@ public class Expands1 {
     // Logger.info("Upper Bound: %d states", states.size());
     for (State1 state: states.keySet()) {
       double pState = states.get(state);
-      MapPreferenceSet pref = new MapPreferenceSet(expander.pref);
+      MapPreferenceSet pref = new MapPreferenceSet(expander.getPreferenceSet());
       Set<Preference> prfs = state.getRanking().getPreferences();
       for (Preference pr: prfs) {
         pref.add(pr.higher, pr.lower);
       }
       
-      double lb = expander.model.getLowerBound(pref);
+      double lb = expander.getModel().getLowerBound(pref);
       p += pState * lb;
       sump += pState;
       minlb = Math.min(minlb, lb);
@@ -115,24 +121,24 @@ public class Expands1 {
       // else Logger.info("States: %d", states.size());
     }
     // return sump;
-    return minlb / expander.model.z();
+    return minlb / expander.getModel().z();
   }
   
   @Deprecated
   public double getUpperBound1(Item item) {
     double p = 0;
-    double z = expander.model.z();
-    int step = expander.referenceIndex.get(item);
+    double z = expander.getModel().z();
+    int step = expander.getReferenceIndex(item);
     
-    MapPreferenceSet pref = new MapPreferenceSet(expander.pref.getItemSet());
-    for (Preference pr: expander.pref.getPreferences()) {
-      int i1 = expander.referenceIndex.get(pr.lower);
-      int i2 = expander.referenceIndex.get(pr.higher);
+    MapPreferenceSet pref = new MapPreferenceSet(expander.getPreferenceSet().getItemSet());
+    for (Preference pr: expander.getPreferenceSet().getPreferences()) {
+      int i1 = expander.getReferenceIndex(pr.lower);
+      int i2 = expander.getReferenceIndex(pr.higher);
       if (i1 > step || i2 > step) {
         pref.add(pr.higher, pr.lower);
       }
     }
-    double ub = expander.model.getUpperBound(pref);
+    double ub = expander.getModel().getUpperBound(pref);
     
     for (State1 state: states.keySet()) {
       p += states.get(state);
@@ -145,19 +151,20 @@ public class Expands1 {
     return result;
   }
   
+  @Deprecated
   public double getUpperBound(Item item, int ver) {
-    double z = expander.model.z();
-    int step = expander.referenceIndex.get(item);    
+    double z = expander.getModel().z();
+    int step = expander.getReferenceIndex(item);    
     
-    MapPreferenceSet pref = new MapPreferenceSet(expander.pref.getItemSet());
-    for (Preference pr: expander.pref.getPreferences()) {
-      int i1 = expander.referenceIndex.get(pr.lower);
-      int i2 = expander.referenceIndex.get(pr.higher);
+    MapPreferenceSet pref = new MapPreferenceSet(expander.getPreferenceSet().getItemSet());
+    for (Preference pr: expander.getPreferenceSet().getPreferences()) {
+      int i1 = expander.getReferenceIndex(pr.lower);
+      int i2 = expander.getReferenceIndex(pr.higher);
       if (i1 > step || i2 > step) {
         pref.add(pr.higher, pr.lower);
       }
     }
-    double ub = getUpperBound(expander.model, pref, step+1, ver);
+    double ub = getUpperBound(expander.getModel(), pref, step+1, ver);
     
     double p = 0;
     for (State1 state: states.keySet()) {
@@ -173,7 +180,7 @@ public class Expands1 {
   
 
   
-  
+  @Deprecated
   public double getUpperBound(MallowsModel model, PreferenceSet pref, int step, int ver) {
     MutablePreferenceSet tcPref = pref.transitiveClosure();
     int d = 0;
@@ -183,8 +190,8 @@ public class Expands1 {
     for (Preference p: tcPref.getPreferences()) {
       if (model.getCenter().contains(p)) s++;
       else d++;
-      int i1 = expander.referenceIndex.get(p.lower);
-      int i2 = expander.referenceIndex.get(p.higher);
+      int i1 = expander.getReferenceIndex(p.lower);
+      int i2 = expander.getReferenceIndex(p.higher);
       if (i1 < step) lesser.add(p.lower);
       if (i2 < step) lesser.add(p.higher);
     }

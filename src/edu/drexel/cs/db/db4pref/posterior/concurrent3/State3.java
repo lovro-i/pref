@@ -1,22 +1,29 @@
-package edu.drexel.cs.db.db4pref.posterior.sequential;
+package edu.drexel.cs.db.db4pref.posterior.concurrent3;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.posterior.Sequence;
 import edu.drexel.cs.db.db4pref.posterior.Span;
-import edu.drexel.cs.db.db4pref.posterior.expander.State;
 import java.util.Arrays;
 import java.util.Set;
 
 
-public class State1 extends State {
+public class State3 {
+
+  /** The owner object */
+  private final Expander3 expander;
+  
+  /** Number of missing elements at each position */
+  private int[] miss;
+  
+  /** Array of known items */
+  private Item[] items;
 
   
   /** Create the state from a given sequence */
-  public State1(Sequence seq) {
-    super(null);
+  public State3(Sequence seq) {
     this.items = new Item[seq.size()];
     this.miss = new int[this.items.length + 1];
+    this.expander = null;
     
     int ie = 0;
     int im = 0;
@@ -31,30 +38,15 @@ public class State1 extends State {
     }
   }
   
-  /** Create an empty state
-   * @param expander */
-  public State1(Expander1 expander) {
+  /** Create an empty state */
+  public State3(Expander3 expander) {
     this.expander = expander;
     this.items = new Item[0];
     this.miss = new int[1];
   }
   
-  public State1(Expander1 expander, Item[] items, int[] miss) {
-    super(expander, items, miss);
-  }
-  
-  public State1(Expander1 expander, int[] itemIds, int[] miss) {
-    super(expander, itemIds, miss);
-  }
-  
-  public Ranking getRanking() {
-    Ranking ranking = new Ranking(expander.getModel().getItemSet());
-    for (Item item: items) ranking.add(item);
-    return ranking;
-  }
-  
   /** Crate a state with no missing items */
-  private State1(Expander1 expander, Item[] items) {
+  private State3(Expander3 expander, Item[] items) {
     this.expander = expander;
     this.items = new Item[items.length];
     System.arraycopy(items, 0, this.items, 0, items.length);
@@ -62,7 +54,7 @@ public class State1 extends State {
   }
   
   /** Create a clone of the state */
-  private State1(Expander1 expander, State1 e) {
+  private State3(Expander3 expander, State3 e) {
     this.expander = expander;
     this.items = new Item[e.items.length];
     System.arraycopy(e.items, 0, this.items, 0, items.length);    
@@ -70,55 +62,81 @@ public class State1 extends State {
     System.arraycopy(e.miss, 0, this.miss, 0, miss.length);
   }
   
+  /** Removes the items that won't figure in the future */
+  void compact() {
+    int step = this.length();
+    for (int i = 0; i < items.length; i++) {
+      // String before = this.toString();
+      Span span = expander.spans.get(items[i]);
+      if (step > span.to) {
+        Item[] items2 = new Item[items.length-1];
+        int[] miss2 = new int[miss.length-1];
+        for (int j = 0; j < items2.length; j++) {
+          if (j < i) items2[j] = items[j];
+          else items2[j] = items[j+1];
+        }
+        for (int j = 0; j < miss2.length; j++) {
+          if (j < i) miss2[j] = miss[j];
+          else if (j == i) miss2[j] = miss[j] + miss[j+1] + 1;
+          else miss2[j] = miss[j+1];
+        }
+        
+        this.items = items2;
+        this.miss = miss2;
+        // Logger.info("Compacting at step %d: %s -> %s", step, before, this);
+        i--;
+      }
+    }
+  }
   
-  public State1 clone() {
-   return new State1((Expander1) expander, this); 
+  
+  
+  /** Returns the length of this ranking (missing + fixed) */
+  public int length() {
+    int len = this.items.length;
+    for (int i = 0; i < miss.length; i++) {
+      len += miss[i];      
+    }
+    return len;
   }
   
   /** Expand possible states from this one, if the specified item is missing (can be inserted between any two present items)
    * @param item to insert
    * @return Mapping of states to their probabilities
    */
-  
-  // private State1 temp = new State1(expander);
-  
-  public static long timeMissing = 0;
-  public static long timeLoopMissing = 0;
-  
-  public void insertMissing(Expands1 expands, Item item, double p1) {
-    long start = System.currentTimeMillis();
-    int step = expander.getReferenceIndex(item);
+  public void insertMissing(Expands3 expands, Item item, double p1) {
+    int step = expander.referenceIndex.get(item);
     int pos = 0;
     for (int i = 0; i < this.miss.length; i++) {
-      State1 state = this.clone();
+      State3 state = new State3(expander, this);
       state.miss[i]++;
       
       double p = 0;
-      long start1 = System.currentTimeMillis();
       for (int j = 0; j <= this.miss[i]; j++) {
         p += expander.probability(step, pos);
         pos++;
       }
-      timeLoopMissing += System.currentTimeMillis() - start1;
       state.compact();
       expands.add(state, p * p1);
     }
-    timeMissing += System.currentTimeMillis() - start;
+    
   }
   
-  public static int count = 0;
-  public void insert(Expands1 expands, Item item, boolean missing, double p) {
-    count++;
+  
+  public static long inserting = 0;
+  public void insert(Expands3 expands, Item item, boolean missing, double p) {
+    long start = System.currentTimeMillis();
     if (missing) this.insertMissing(expands, item, p);
     else this.insert(expands, item, p);
+    inserting += System.currentTimeMillis() - start;
   }
   
   
   
   
   public Span hilo(Item item) {
-    Set<Item> higher = this.expander.getTransitiveClosure().getHigher(item);
-    Set<Item> lower = this.expander.getTransitiveClosure().getLower(item);
+    Set<Item> higher = this.expander.tc.getHigher(item);
+    Set<Item> lower = this.expander.tc.getLower(item);
     int low = 0;
     int high = items.length;
     for (int j = 0; j < items.length; j++) {
@@ -134,12 +152,7 @@ public class State1 extends State {
   }
   
   
-  protected State1 createState(Item[] items) {
-    return new State1((Expander1) expander, items);
-  }
-  
-  
-  private void insertOne(Expands1 expands, Item item, int index, double p1) {
+  private void insertOne(Expands3 expands, Item item, int index, double p1) {
     int n = miss[index] + 1; // how many are missing before the previous and the next, plus one: the number of different new expand states
         
     
@@ -158,23 +171,21 @@ public class State1 extends State {
     
     // create n new expand states with their probabilities    
     for (int i = 0; i < n; i++) {
-      State1 state = this.createState(items1);
+      State3 state = new State3(expander, items1);
       for (int j = 0; j < state.miss.length; j++) {
         if (j < index) state.miss[j] = this.miss[j];
         else if (j == index) state.miss[j] = i;
         else if (j == index + 1) state.miss[j] = this.miss[index] - i;
         else state.miss[j] = this.miss[j-1];        
       }
-      double p = expander.probability(expander.getReferenceIndex(item), posPrev + 1 + i);
+      double p = expander.probability(expander.referenceIndex.get(item), posPrev + 1 + i);
       state.compact();
       expands.add(state, p * p1);
     }
   }
   
   
-  public void insert(Expands1 expands, Item item, double p1) {
-    int step = expander.getReferenceIndex(item);
-    
+  public void insert(Expands3 expands, Item item, double p1) {
     Span hilo = hilo(item);
     for (int i = hilo.from; i <= hilo.to; i++) {
       insertOne(expands, item, i, p1);
@@ -196,8 +207,8 @@ public class State1 extends State {
   
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof State1)) return false;
-    State1 e = (State1) o;
+    if (!(o instanceof State3)) return false;
+    State3 e = (State3) o;
     if (this.miss.length != e.miss.length) return false;
     for (int i = 0; i < miss.length; i++) {
       if (this.miss[i] != e.miss[i]) return false;      
@@ -210,6 +221,26 @@ public class State1 extends State {
     return true;
   }
 
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 73 * hash + Arrays.hashCode(this.miss);
+    hash = 73 * hash + Arrays.deepHashCode(this.items);
+    return hash;
+  }
+  
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();    
+    sb.append(miss[0]);
+    for (int i = 0; i < items.length; i++) {
+      sb.append('.').append(items[i]);
+      sb.append('.').append(miss[i+1]);      
+    }
+    return sb.toString();
+  }
+  
+
   /** @return Is Item e at position pos */
   public boolean isAt(Item e, int pos) {
     int i = 0;
@@ -220,5 +251,5 @@ public class State1 extends State {
     }
     return false;
   }
-
+  
 }

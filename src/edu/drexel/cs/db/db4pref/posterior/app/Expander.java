@@ -13,7 +13,6 @@ import edu.drexel.cs.db.db4pref.posterior.Span;
 import edu.drexel.cs.db.db4pref.posterior.sequential.Expander1;
 import edu.drexel.cs.db.db4pref.posterior.sequential.State1;
 import edu.drexel.cs.db.db4pref.util.Logger;
-import edu.drexel.cs.db.db4pref.util.TestUtils;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -216,8 +215,8 @@ public class Expander implements Comparator<StateKey> {
     
     {
       long startPref = System.currentTimeMillis();
-      Expander1 pex = new Expander1(model);
-      double p = pex.getProbability(pref);
+      Expander1 pex = new Expander1(model, pref);
+      double p = pex.expand();
       Logger.info("States total: %d", State1.count);
       t1 = System.currentTimeMillis() - startPref;
       Logger.info("Expander1: Total probability: %f in %d ms", Math.log(p), t1);

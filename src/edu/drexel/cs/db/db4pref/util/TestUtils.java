@@ -6,10 +6,63 @@ import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 
 public class TestUtils {
 
+  
+  public static MapPreferenceSet generate(int m, double pVertex, double pEdge) {
+    ItemSet items = new ItemSet(m);
+    items.tagOneBased();
+    Item lastItem = items.get(items.size()-1);
+    
+    MapPreferenceSet pref = new MapPreferenceSet(items);
+    
+    Random random = new Random();
+    List<Item> its = new ArrayList<Item>();
+    for (int i = 0; i < items.size()-1; i++) {
+      double flip = random.nextDouble();
+      if (flip < pVertex) its.add(items.get(i));
+    }
+    its.add(lastItem);
+    if (its.size() == 1) its.add(items.get(random.nextInt(items.size()-1)));
+    Collections.shuffle(its);
+    
+    for (int i = 0; i < its.size() - 1; i++) {
+      Item higher = its.get(i);
+      for (int j = i+1; j < its.size(); j++) {
+        double flip = random.nextDouble();
+        if (flip < pEdge) {
+          Item lower = its.get(j);
+          pref.add(higher, lower);
+        }
+      }
+    }
+    
+    while (!pref.contains(lastItem)) {
+      int i = its.indexOf(lastItem);
+      int j = (i + 1) % its.size();
+      if (i < j) pref.add(lastItem, its.get(j));
+      else pref.add(its.get(j), lastItem);
+    }
+    
+    return pref;
+  }
+  
+  public static void main(String[] args) {
+    MapPreferenceSet pref = generate(10, 0.2, 0.3);
+    System.out.println(pref);
+  }
+  
+  
+  public static MapPreferenceSet generate(int m, int pairs) {
+    return generate(m, 4, pairs);
+  }
+  
   /** Generate random PreferenceSet */
   public static MapPreferenceSet generate(int m, int type, int pairs) {
     int box = Math.min(10, m/2);

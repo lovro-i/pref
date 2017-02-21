@@ -10,7 +10,6 @@ import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.Span;
-import edu.drexel.cs.db.db4pref.posterior.app.Test;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.HashMap;
 import java.util.Map;

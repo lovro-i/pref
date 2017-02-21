@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 /** Not any more the best sequential */
+@Deprecated
 public class Expander1 extends Expander {
 
   private Expands1 expands;

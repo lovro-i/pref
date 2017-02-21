@@ -101,7 +101,7 @@ public class Expander {
     return p1;
   }
   
-  private double expand() {
+  public double expand() {
     this.p = 0;
     queue.clear();
     queue.add(root);

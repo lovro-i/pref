@@ -25,7 +25,6 @@ public class PreferenceIO {
       
       String i2 = tokenizer.nextToken();
       Item it2 = items.getItemByTag(i2);
-      
       pref.add(it1, it2);
     }
     return pref;

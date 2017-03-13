@@ -22,14 +22,13 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Labeled RIM is a RIM model for items with labels. Labels describe some attributes of the items. For example,
- * a person is 30 years old. Here 30 is a label for the age attribute of the person. Currently it only supports
- * Mallows Model.
- * 
- * Labeled RIM supports label preferences (as path) and min-max of labels. Example query,
- *  Q():P(v;c1,c2),V(v, sex),C(c1,sex,_),C(c2,_,age), age &gt; 30, c1.max &gt; 20, c2.min &lt; 5
- * where v is voter, c1 is candidate1, c2 is candidate2. The query is to compute the probability of a voter prefers
- * to a candidate of the same sex to a candidate older than 30.
+ * Labeled RIM is a RIM model for items with labels. Labels describe some attributes of the items. For example, a person
+ * is 30 years old. Here 30 is a label for the age attribute of the person. Currently it only supports Mallows Model.
+ *
+ * Labeled RIM supports label preferences (as path) and min-max of labels. Example query, Q():P(v;c1,c2),V(v,
+ * sex),C(c1,sex,_),C(c2,_,age), age &gt; 30, c1.max &gt; 20, c2.min &lt; 5 where v is voter, c1 is candidate1, c2 is
+ * candidate2. The query is to compute the probability of a voter prefers to a candidate of the same sex to a candidate
+ * older than 30.
  *
  * @author hping
  */
@@ -42,26 +41,26 @@ public class LabeledRIM {
   }
 
   public double evaluateLabelQuery(ItemsetPreferences itemsetPrefs, LabelRanges labelRanges) {
-    
+
     // The partial order of labels is first converted into a set of rankings.
     // A ranking of labels is denoted by a list of their itemset ID.
     Set<List<Integer>> linearExtensions = linearExtensions(itemsetPrefs.getItemSetPreferences());
-    
+
     // start running RIM sampling
     double p = 0;
     // for each topMatching item combination
     for (List<Item> topMatchingItems : Sets.cartesianProduct(itemsetPrefs.getItemSetList())) {
       // for each sub-ranking compatible with the partial order
-      for (List<Integer> linearExtension: linearExtensions){
-        
+      for (List<Integer> linearExtension : linearExtensions) {
+
         Map<Integer, Integer> latestParents = latestParents(linearExtension, itemsetPrefs.getItemSetPreferences());
-        
+
         // subRanking is an item-level ranking for label-level rankings.
         Ranking initialRanking = new Ranking(model.getItemSet());
-        for(Integer labelNumber: linearExtension){
+        for (Integer labelNumber : linearExtension) {
           initialRanking.add(topMatchingItems.get(labelNumber));
         }
-        
+
         Expander expander = new Expander(model, initialRanking, itemsetPrefs, topMatchingItems, latestParents, labelRanges);
         p += expander.expand();
       }
@@ -69,16 +68,16 @@ public class LabeledRIM {
 
     return p;
   }
-  
-  public Map<Integer, Integer> latestParents(List<Integer> labelRanking, Set<List<Integer>> labelPrefs){
+
+  public Map<Integer, Integer> latestParents(List<Integer> labelRanking, Set<List<Integer>> labelPrefs) {
     Map<Integer, Integer> latestParents = new HashMap<>();
-    for(List<Integer> pair: labelPrefs){
+    for (List<Integer> pair : labelPrefs) {
       int parent = pair.get(0);
       int child = pair.get(1);
       int parentPosition = labelRanking.indexOf(parent);
-      if(latestParents.containsKey(child)){
+      if (latestParents.containsKey(child)) {
         int tempParentPosition = labelRanking.indexOf(latestParents.get(child));
-        if (parentPosition>tempParentPosition) {
+        if (parentPosition > tempParentPosition) {
           latestParents.put(child, parent);
         }
       } else {
@@ -90,8 +89,9 @@ public class LabeledRIM {
 
   /**
    * Compute compatible rankings of a partial order of labels. Such rankings are as input in TopProb algorithm.
+   *
    * @param prefs a set of pairwise preferences
-   * @return 
+   * @return
    */
   public Set<List<Integer>> linearExtensions(Set<List<Integer>> prefs) {
     Set<List<Integer>> s = new HashSet<>();
@@ -134,6 +134,10 @@ public class LabeledRIM {
 
   public static void main(String[] args) throws TimeoutException, InterruptedException {
     ItemSet items = new ItemSet(10);
+    Ranking center = items.getReferenceRanking();
+    double phi = 0.6;
+    MallowsModel model = new MallowsModel(center, phi);
+
     Set<Item> set1 = new HashSet<>();
     set1.add(items.get(0));
     set1.add(items.get(8));
@@ -142,23 +146,37 @@ public class LabeledRIM {
     set2.add(items.get(5));
     Set<Item> set3 = new HashSet<>();
     set3.add(items.get(1));
-    set3.add(items.get(7));
     set3.add(items.get(6));
+    set3.add(items.get(7));
 
-    ItemsetPreferences itemSetPrefs = new ItemsetPreferences();
-    itemSetPrefs.add(set1, set2);
-    itemSetPrefs.add(set1, set3);
+    ItemsetPreferences itemSetPrefs1 = new ItemsetPreferences();
+    itemSetPrefs1.add(set1, set2); // {0, 8} > {2, 5}
+    itemSetPrefs1.add(set1, set3); // {0, 8} > {1, 6, 7}
 
-    Ranking center = items.getReferenceRanking();
-    double phi = 0.6;
-    MallowsModel model = new MallowsModel(center, phi);
+    Set<Item> set4 = new HashSet<>();
+    set4.add(items.get(8));
+    Set<Item> set5 = new HashSet<>();
+    set5.add(items.get(2));
+    Set<Item> set6 = new HashSet<>();
+    set6.add(items.get(6));
+
+    ItemsetPreferences itemSetPrefs2 = new ItemsetPreferences();
+    itemSetPrefs2.add(set4, set5); // {8} > {2}
+    itemSetPrefs2.add(set4, set6); // {8} > {6}
+
     LabeledRIM posterior = new LabeledRIM(model);
-    System.out.println(posterior.evaluateLabelQuery(itemSetPrefs,null));
-    
+    double pLabelPrefs1 = posterior.evaluateLabelQuery(itemSetPrefs1, null);
+    double pLabelPrefs2 = posterior.evaluateLabelQuery(itemSetPrefs2, null);
+
     MapPreferenceSet pref = new MapPreferenceSet(items);
-    pref.addById(8, 2);
-    pref.addById(8, 1);
+    pref.addById(8, 2); // 8 > 2
+    pref.addById(8, 6); // 8 > 6
     Expander2 expander2 = new Expander2(model, pref);
-    System.out.println(expander2.expand());
+    double pItemPrefs = expander2.expand();
+    
+    
+    System.out.format("The probability of pLabelPrefs1 = %f\n", pLabelPrefs1);
+    System.out.println("The second label preferences are essentially the same as the item preferences. Their probabilities are");
+    System.out.format("    pLabelPrefs2 = %f \n    pItemPrefs   = %f \n", pLabelPrefs2, pItemPrefs);
   }
 }

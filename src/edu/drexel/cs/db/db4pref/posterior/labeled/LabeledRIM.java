@@ -50,12 +50,12 @@ public class LabeledRIM {
     double p = 0;
     // for each topMatching item combination
     for (List<Item> topMatchingItems : Sets.cartesianProduct(itemsetPrefs.getItemSetList())) {
-      // for each sub-ranking compatible with the partial order
+      // for each label ranking compatible with the partial order
       for (List<Integer> linearExtension : linearExtensions) {
 
         Map<Integer, Integer> latestParents = latestParents(linearExtension, itemsetPrefs.getItemSetPreferences());
 
-        // subRanking is an item-level ranking for label-level rankings.
+        // initialRanking is an item-level ranking for the label-level ranking.
         Ranking initialRanking = new Ranking(model.getItemSet());
         for (Integer labelNumber : linearExtension) {
           initialRanking.add(topMatchingItems.get(labelNumber));

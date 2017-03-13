@@ -8,14 +8,18 @@ package edu.drexel.cs.db.db4pref.posterior.labeled;
 import com.google.common.collect.Sets;
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
+import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
+import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
+import edu.drexel.cs.db.db4pref.posterior.sequential2.Expander2;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Labeled RIM is a RIM model for items with labels. Labels describe some attributes of the items. For example,
@@ -32,38 +36,56 @@ import java.util.Set;
 public class LabeledRIM {
 
   protected final MallowsModel model;
-  private ItemSetPreferences itemSetPrefs;
-  private Map<Integer, Item> topMatching = new HashMap<>(); // ItemSet number -> Item
 
   public LabeledRIM(MallowsModel model) {
     this.model = model;
   }
 
-  public double evaluateLabelQuery(ItemSetPreferences itemSetPrefs, LabelRanges labelRanges) {
-    this.itemSetPrefs = itemSetPrefs;
-
-    // list of itemset numbers
-    Set<List<Integer>> linearExtensions = linearExtensions(itemSetPrefs.getItemSetPreferences());
+  public double evaluateLabelQuery(ItemsetPreferences itemsetPrefs, LabelRanges labelRanges) {
     
+    // The partial order of labels is first converted into a set of rankings.
+    // A ranking of labels is denoted by a list of their itemset ID.
+    Set<List<Integer>> linearExtensions = linearExtensions(itemsetPrefs.getItemSetPreferences());
+    
+    // start running RIM sampling
     double p = 0;
-    // for each combination of indicator items
-    for (List<Item> topMatchingList : Sets.cartesianProduct(itemSetPrefs.getItemSetList())) {
-      // for each compatible sub-ranking of the partial order
+    // for each topMatching item combination
+    for (List<Item> topMatchingItems : Sets.cartesianProduct(itemsetPrefs.getItemSetList())) {
+      // for each sub-ranking compatible with the partial order
       for (List<Integer> linearExtension: linearExtensions){
         
-        // compute the sub-ranking
-        Ranking subRanking = new Ranking(model.getItemSet());
-        for (Integer i: linearExtension){
-          subRanking.add(topMatchingList.get(i));
+        Map<Integer, Integer> latestParents = latestParents(linearExtension, itemsetPrefs.getItemSetPreferences());
+        
+        // subRanking is an item-level ranking for label-level rankings.
+        Ranking initialRanking = new Ranking(model.getItemSet());
+        for(Integer labelNumber: linearExtension){
+          initialRanking.add(topMatchingItems.get(labelNumber));
         }
-        System.out.println(subRanking);
         
-        Expander expander = new Expander();
-        
+        Expander expander = new Expander(model, initialRanking, itemsetPrefs, topMatchingItems, latestParents, labelRanges);
+        p += expander.expand();
       }
     }
 
     return p;
+  }
+  
+  public Map<Integer, Integer> latestParents(List<Integer> labelRanking, Set<List<Integer>> labelPrefs){
+    Map<Integer, Integer> latestParents = new HashMap<>();
+    for(List<Integer> pair: labelPrefs){
+      int parent = pair.get(0);
+      int child = pair.get(1);
+      int parentPosition = labelRanking.indexOf(parent);
+      if(latestParents.containsKey(child)){
+        int tempParentPosition = labelRanking.indexOf(latestParents.get(child));
+        if (parentPosition>tempParentPosition) {
+          latestParents.put(child, parent);
+        }
+      } else {
+        latestParents.put(child, parent);
+      }
+    }
+    return latestParents;
   }
 
   /**
@@ -110,7 +132,7 @@ public class LabeledRIM {
     return s;
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws TimeoutException, InterruptedException {
     ItemSet items = new ItemSet(10);
     Set<Item> set1 = new HashSet<>();
     set1.add(items.get(0));
@@ -123,7 +145,7 @@ public class LabeledRIM {
     set3.add(items.get(7));
     set3.add(items.get(6));
 
-    ItemSetPreferences itemSetPrefs = new ItemSetPreferences();
+    ItemsetPreferences itemSetPrefs = new ItemsetPreferences();
     itemSetPrefs.add(set1, set2);
     itemSetPrefs.add(set1, set3);
 
@@ -131,6 +153,12 @@ public class LabeledRIM {
     double phi = 0.6;
     MallowsModel model = new MallowsModel(center, phi);
     LabeledRIM posterior = new LabeledRIM(model);
-    posterior.evaluateLabelQuery(itemSetPrefs,null);
+    System.out.println(posterior.evaluateLabelQuery(itemSetPrefs,null));
+    
+    MapPreferenceSet pref = new MapPreferenceSet(items);
+    pref.addById(8, 2);
+    pref.addById(8, 1);
+    Expander2 expander2 = new Expander2(model, pref);
+    System.out.println(expander2.expand());
   }
 }

@@ -19,7 +19,7 @@ import java.util.Set;
  * 
  * @author hping
  */
-public class ItemSetPreferences {
+public class ItemsetPreferences {
 
   // a list of item sets, each set is corresponding to a label.
   private List<Set<Item>> itemSetList = new ArrayList<>();

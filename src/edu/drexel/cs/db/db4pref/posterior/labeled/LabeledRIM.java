@@ -178,5 +178,12 @@ public class LabeledRIM {
     System.out.format("The probability of pLabelPrefs1 = %f\n", pLabelPrefs1);
     System.out.println("The second label preferences are essentially the same as the item preferences. Their probabilities are");
     System.out.format("    pLabelPrefs2 = %f \n    pItemPrefs   = %f \n", pLabelPrefs2, pItemPrefs);
+    
+    /* System output:
+    The probability of pLabelPrefs1 = 0.918532
+    The second label preferences are essentially the same as the item preferences. Their probabilities are
+        pLabelPrefs2 = 0.061300 
+        pItemPrefs   = 0.061300
+    */
   }
 }

@@ -6,15 +6,12 @@
 package edu.drexel.cs.db.db4pref.posterior.labeled;
 
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
-import edu.drexel.cs.db.db4pref.distance.KendallTauDistance;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -30,7 +27,6 @@ public class NaiveLabeledRIM {
 
   public double evaluateLabelQuery(ItemsetPreferences itemsetPrefs, LabelRanges labelRanges) {
 
-    KendallTauDistance dist = new KendallTauDistance();
     double p = 0;
     for (List<Item> list : Collections2.orderedPermutations(model.getItemSet())) {
       for (List<Item> topMatchingItems : Sets.cartesianProduct(itemsetPrefs.getItemSetList())) {
@@ -59,14 +55,5 @@ public class NaiveLabeledRIM {
       }
     }
     return p;
-  }
-
-  public static void main(String[] args) {
-    ItemSet items = new ItemSet(5);
-    Ranking center = items.getReferenceRanking();
-    double phi = 0.6;
-    MallowsModel model = new MallowsModel(center, phi);
-    NaiveLabeledRIM posterior = new NaiveLabeledRIM(model);
-    posterior.evaluateLabelQuery(null, null);
   }
 }

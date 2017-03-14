@@ -167,6 +167,9 @@ public class LabeledRIM {
     LabeledRIM posterior = new LabeledRIM(model);
     double pLabelPrefs1 = posterior.evaluateLabelQuery(itemSetPrefs1, null);
     double pLabelPrefs2 = posterior.evaluateLabelQuery(itemSetPrefs2, null);
+    
+    NaiveLabeledRIM naive = new NaiveLabeledRIM(model);
+    double pLabelPrefs1Naive = naive.evaluateLabelQuery(itemSetPrefs1, null); // A brutal force algorithm.
 
     MapPreferenceSet pref = new MapPreferenceSet(items);
     pref.addById(8, 2); // 8 > 2
@@ -174,16 +177,18 @@ public class LabeledRIM {
     Expander2 expander2 = new Expander2(model, pref);
     double pItemPrefs = expander2.expand();
     
-    
-    System.out.format("The probability of pLabelPrefs1 = %f\n", pLabelPrefs1);
+    System.out.println("The correctness of LabeledRIM is verified by NaiveLabeledRIM.");
+    System.out.format("    pLabelPrefs1        = %f \n    pLabelPrefs1(Naive) = %f \n", pLabelPrefs1, pLabelPrefs1Naive);
     System.out.println("The second label preferences are essentially the same as the item preferences. Their probabilities are");
     System.out.format("    pLabelPrefs2 = %f \n    pItemPrefs   = %f \n", pLabelPrefs2, pItemPrefs);
     
-    /* System output:
-    The probability of pLabelPrefs1 = 0.918532
-    The second label preferences are essentially the same as the item preferences. Their probabilities are
-        pLabelPrefs2 = 0.061300 
-        pItemPrefs   = 0.061300
+    /*System output:
+      The correctness of LabeledRIM is verified by NaiveLabeledRIM.
+          pLabelPrefs1        = 0.918532 
+          pLabelPrefs1(Naive) = 0.918532 
+      The second label preferences are essentially the same as the item preferences. Their probabilities are
+          pLabelPrefs2 = 0.061300 
+          pItemPrefs   = 0.061300 
     */
   }
 }

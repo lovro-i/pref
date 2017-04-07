@@ -30,7 +30,7 @@ public abstract class Expander {
   
   public Expander(MallowsModel model, PreferenceSet pref) {
     this.model = model;
-    this.pref = pref;
+    this.pref = pref.clone();
     this.referenceIndex = model.getCenter().getIndexMap();
     init();
   }

@@ -7,7 +7,7 @@ public interface ExpanderListener {
   
   public void onStepBegin(Expander expander, int step);
 
-  public void onStepEnd(Expander expnader, int step);
+  public void onStepEnd(Expander expander, int step);
 
   public void onEnd(Expander expander, double p);
 

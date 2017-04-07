@@ -107,6 +107,7 @@ public class Expander2 extends Expander {
       if (timeout > 0 && System.currentTimeMillis() - start > timeout) throw new TimeoutException("Expander timeout");
       if (listener != null) listener.onStepBegin(this, i);
   
+      relax(i);
       expanded += expands.states.size();
       expands = expands.insert(i);
       // Logger.info("Items tracked at step %d: %s", i+1, getTrackedItems(i));
@@ -149,21 +150,48 @@ public class Expander2 extends Expander {
   
   
   public void setMaxWidth(int maxWidth) {
-    int maxIndex = getMaxItem(pref);
-    List<Item> tracked;
-    for (int step = 0; step <= maxIndex; step++) {
+    this.maxWidth = maxWidth;
+  }
+  
+  /** Sets the maximum allowed width, and the step from which item removal can start */
+  public void setMaxWidth(int maxWidth, int start) {
+    this.maxWidth = maxWidth;
+    this.startRelax = start;
+  }
+  
+  
+//  
+//  public void setMaxWidth(int maxWidth, int start) {
+//    int maxIndex = getMaxItem(pref);
+//    List<Item> tracked;
+//    for (int step = start; step <= maxIndex; step++) {
+//      tracked = this.getTrackedItems(step);
+//      // Logger.info("Step %d: width %d", step, tracked.size());
+//      while (tracked.size() > maxWidth) {
+//        Item toRemove = tracked.get(0);
+//        pref.remove(toRemove);
+//        // Logger.info("Removing item %s at step %d, %d remaining", toRemove, step, tracked.size() - 1);
+//        this.calculateSpans();
+//        tracked = this.getTrackedItems(step);
+//      }
+//    }
+//  }
+
+  private int maxWidth = 0;
+  private int startRelax = 0;
+  
+  private void relax(int step) {
+    if (maxWidth <= 0) return;
+    if (step < startRelax) return;
+    
+    List<Item> tracked = this.getTrackedItems(step);
+    while (tracked.size() > maxWidth) {
+      Item toRemove = tracked.get(0);
+      pref.remove(toRemove);
+      this.calculateSpans();
       tracked = this.getTrackedItems(step);
-      // Logger.info("Step %d: width %d", step, tracked.size());
-      while (tracked.size() > maxWidth) {
-        Item toRemove = tracked.get(0);
-        pref.remove(toRemove);
-        // Logger.info("Removing item %s at step %d, %d remaining", toRemove, step, tracked.size() - 1);
-        this.calculateSpans();
-        tracked = this.getTrackedItems(step);
-      }
     }
   }
-
   
   public static void main(String args[]) throws TimeoutException, InterruptedException {
     MapPreferenceSet pref = TestUtils.generate(20, 4, 5);

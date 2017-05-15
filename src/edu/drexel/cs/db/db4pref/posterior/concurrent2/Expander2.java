@@ -70,7 +70,14 @@ public class Expander2 {
     }
   }
   
+  public Span getSpan(Item item) {
+    return spans.get(item);
+  }
   
+  /** Index of the item in the reference (center) ranking */
+  public int getReferenceIndex(Item item) {
+    return referenceIndex.get(item);
+  }
 
   /** Returns the index of highest sigma_i in the preference set */
   private int getMaxItem(PreferenceSet pref) {

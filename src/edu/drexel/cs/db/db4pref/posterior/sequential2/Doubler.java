@@ -9,7 +9,7 @@ public class Doubler {
     this.p = p;
   }
   
-  public void add(double p) {
+  public synchronized void add(double p) {
     this.p += p;
   }
   

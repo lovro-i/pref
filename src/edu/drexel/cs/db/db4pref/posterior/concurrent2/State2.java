@@ -123,15 +123,11 @@ public class State2 {
   }
   
   
-  public static long inserting = 0;
+
   public void insert(Expands2 expands, Item item, boolean missing, double p) {
-    long start = System.currentTimeMillis();
     if (missing) this.insertMissing(expands, item, p);
-    else this.insert(expands, item, p);
-    inserting += System.currentTimeMillis() - start;
+    else this.insertPresent(expands, item, p);
   }
-  
-  
   
   
   public Span hilo(Item item) {
@@ -192,6 +188,48 @@ public class State2 {
     }
   }
   
+  public void insertNonTracked(Expands2 expands, Item item, double p1) {
+    int step = expander.getReferenceIndex(item);
+    Span hilo = hilo(item);
+    for (int i = hilo.from; i <= hilo.to; i++) {
+      this.insertOneMissing(expands, step, i, p1);
+    }
+  }
+  
+  public State2 clone() {
+   return new State2((Expander2) expander, this); 
+  }
+    
+  private void insertOneMissing(Expands2 expands, int step, int idx, double p1) {
+    int pos = 0;
+    for (int i = 0; i < idx; i++) {
+      pos += miss[i] + 1;
+    }
+
+    State2 state = this.clone();
+    state.miss[idx]++;
+
+    double p = 0;
+    for (int j = 0; j <= this.miss[idx]; j++) {
+      p += expander.probability(step, pos);
+      pos++;
+    }
+    state.compact();
+    expands.add(state, p * p1);
+  }
+  
+  public void insertPresent(Expands2 expands, Item item, double p1) {
+    Span track = expander.getSpan(item);
+    if (track.from == track.to) {
+      insertNonTracked(expands, item, p1);
+    }
+    else {
+      Span hilo = hilo(item);
+      for (int i = hilo.from; i <= hilo.to; i++) {
+        insertOne(expands, item, i, p1);
+      }
+    }
+  }
   
   /** @return Index of item e in the array of all (fixed + missed) items */
   public int position(Item e) {

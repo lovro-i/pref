@@ -1,6 +1,7 @@
 package edu.drexel.cs.db.db4pref.posterior.concurrent2;
 
 import edu.drexel.cs.db.db4pref.core.Item;
+import edu.drexel.cs.db.db4pref.posterior.sequential2.Doubler;
 import java.util.Map;
 import java.util.Queue;
 
@@ -12,7 +13,7 @@ public class Worker2 extends Thread {
 
   private final Workers2 workers;
   
-  private Queue<Map.Entry<State2, Double>> queue;
+  private Queue<Map.Entry<State2, Doubler>> queue;
   private Item item;
   private boolean missing;
   private Expands2 dstExpands;
@@ -24,7 +25,7 @@ public class Worker2 extends Thread {
     this.workers = workers;
   }
   
-  public synchronized void run(Queue<Map.Entry<State2, Double>> queue, Expands2 exs, Item item, boolean missing) {
+  public synchronized void run(Queue<Map.Entry<State2, Doubler>> queue, Expands2 exs, Item item, boolean missing) {
     this.queue = queue;
     this.dstExpands = exs;
     this.item = item;
@@ -49,11 +50,11 @@ public class Worker2 extends Thread {
       
       long t2 = System.currentTimeMillis();
       while (!done) {
-        Map.Entry<State2, Double> entry = queue.poll();
+        Map.Entry<State2, Doubler> entry = queue.poll();
         if (entry == null) break;
 
         State2 state = entry.getKey();
-        double p = entry.getValue();
+        double p = entry.getValue().get();
         state.insert(dstExpands, item, missing, p);
         count++;
       }

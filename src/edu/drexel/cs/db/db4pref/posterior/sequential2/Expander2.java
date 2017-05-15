@@ -22,28 +22,19 @@ public class Expander2 extends Expander {
   
   private long timeout = 0; // milliseconds
   
-  private long parentStates = 0;
-  private long childStates = 0;
-  
   /** Creates an Expander for the given Mallows model with specified number of threads */
   public Expander2(MallowsModel model, PreferenceSet pref) {
     super(model, pref);
   }
   
   
-  public void incStates(int children) {
-    this.parentStates++;
-    this.childStates += children;
-  }
-  
-  public double getAvgChildren() {
-    return 1d * childStates / parentStates;
-  }
-  
   public void setTimeout(long timeout) {
     this.timeout = timeout;
   }
   
+  public long getTimeout() {
+    return timeout;
+  }
   
   public int getMaxWidth() {
     int w = 0;
@@ -93,9 +84,11 @@ public class Expander2 extends Expander {
     return expand(new State2(this));
   }
     
+  long startExpand;
+  
   @Override
   public double expand(State state) throws TimeoutException, InterruptedException {
-    long start = System.currentTimeMillis();
+    startExpand = System.currentTimeMillis();
     expands = new Expands2(this);
     expands.put((State2) state, 1d);
     // Ranking reference = model.getCenter();
@@ -104,7 +97,7 @@ public class Expander2 extends Expander {
     
     int maxIndex = getMaxItem(pref);
     for (int i = 0; i <= maxIndex; i++) {
-      if (timeout > 0 && System.currentTimeMillis() - start > timeout) throw new TimeoutException("Expander timeout");
+      if (timeout > 0 && System.currentTimeMillis() - startExpand > timeout) throw new TimeoutException("Expander timeout");
       if (listener != null) listener.onStepBegin(this, i);
   
       relax(i);

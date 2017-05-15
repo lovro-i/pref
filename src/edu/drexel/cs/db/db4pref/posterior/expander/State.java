@@ -60,7 +60,7 @@ public abstract class State implements Cloneable {
   }
   
   /** Crate a state with no missing items */
-  private State(Expander expander, Item[] items) {
+  protected State(Expander expander, Item[] items) {
     this.expander = expander;
     this.items = new Item[items.length];
     System.arraycopy(items, 0, this.items, 0, items.length);

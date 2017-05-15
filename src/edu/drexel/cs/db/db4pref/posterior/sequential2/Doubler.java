@@ -5,15 +5,15 @@ public class Doubler {
 
   private double p;
   
-  Doubler(double p) {
+  public Doubler(double p) {
     this.p = p;
   }
   
-  void add(double p) {
+  public void add(double p) {
     this.p += p;
   }
   
-  void set(double p) {
+  public void set(double p) {
     this.p = p;
   }
   

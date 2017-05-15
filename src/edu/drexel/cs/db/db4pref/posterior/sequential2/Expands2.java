@@ -3,8 +3,10 @@ package edu.drexel.cs.db.db4pref.posterior.sequential2;
 import edu.drexel.cs.db.db4pref.core.Item;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeoutException;
 
 
 public class Expands2 {
@@ -63,11 +65,15 @@ public class Expands2 {
     return sum;
   }
   
-  public Expands2 insert(int step) {
+  public Expands2 insert(int step) throws TimeoutException {
     Item item = expander.getModel().getCenter().get(step);
     boolean missing = !expander.getPreferenceSet().contains(item);
     Expands2 expands = new Expands2(expander);
+    long startExpand = expander.startExpand;
+    long timeout = expander.getTimeout();
+    
     for (Entry<State2, Doubler> entry: states.entrySet()) {
+      if (timeout > 0 && System.currentTimeMillis() - startExpand > timeout) throw new TimeoutException("Expander timeout");
       State2 state = entry.getKey();
       double p = entry.getValue().get();
       state.insert(expands, item, missing, p);

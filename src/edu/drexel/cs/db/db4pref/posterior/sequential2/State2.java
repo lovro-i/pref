@@ -95,7 +95,6 @@ public class State2 extends State {
       state.compact();
       expands.add(state, p * p1);
     }
-    ((Expander2) expander).incStates(miss.length);
   }
   
   private void insertOneMissing(Expands2 expands, int step, int idx, double p1) {
@@ -177,7 +176,6 @@ public class State2 extends State {
       state.compact();
       expands.add(state, p * p1);
     }
-    ((Expander2) expander).incStates(n);
   }
 
   
@@ -200,7 +198,6 @@ public class State2 extends State {
     for (int i = hilo.from; i <= hilo.to; i++) {
       this.insertOneMissing(expands, step, i, p1);
     }
-    ((Expander2) expander).incStates(hilo.to - hilo.from + 1);
   }
   
   /** @return Index of item e in the array of all (fixed + missed) items */

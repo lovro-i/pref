@@ -30,16 +30,16 @@ public class Expander2 {
 
   
   /** Creates a parallelized Expander for the given Mallows model with specified number of threads */
-  public Expander2(MallowsModel model, int threads) {
+  public Expander2(MallowsModel model, PreferenceSet pref, int threads) {
     this.model = model;
     this.referenceIndex = model.getCenter().getIndexMap();
     this.threads = threads;
+    this.pref = pref.clone();
   }
   
   
   public double getProbability(PreferenceSet pref) throws TimeoutException, InterruptedException {
-    expand(pref);
-    return expands.getProbability();
+    return expand();    
   }
   
   
@@ -88,13 +88,7 @@ public class Expander2 {
     return i;
   }
   
-  public void expand(PreferenceSet pref) throws TimeoutException, InterruptedException {
-    if (pref.equals(this.pref)) {
-      Logger.info("Expander already available for PreferenceSet " + pref);
-      return;
-    }
-    
-    this.pref = pref;
+  public double expand() throws TimeoutException, InterruptedException {
     this.tc = pref.transitiveClosure();
     calculateSpans();
     expands = new Expands2(this);
@@ -110,6 +104,7 @@ public class Expander2 {
       expands = expands.insert(item, missing, workers);
     }
     workers.stop();
+    return expands.getProbability();
   }
 
   private HashMap<Span, Double> probs = new HashMap<>();
@@ -126,44 +121,5 @@ public class Expander2 {
     return p1;
   }
   
-  public static void main(String args[]) throws TimeoutException, InterruptedException {
-    MapPreferenceSet pref = TestUtils.pref4(); // TestUtils.generate(30, 4, 5);
-    
-//    ItemSet its = new ItemSet(30);
-//    its.tagOneBased();
-//    MapPreferenceSet pref = new MapPreferenceSet(its);
-//    pref.addByTag(24, 19);
-//    pref.addByTag(26, 11);
-//    pref.addByTag(25, 14);
-//    pref.addByTag(25, 15);
-//    pref.addByTag(22, 13);
-    
-
-    
-    Logger.info(pref);
-    ItemSet items = pref.getItemSet();    
-    items.tagOneBased();
-
-    double phi = 0.8;
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
-    
-
-    
-    for (int threads = 1; threads <= Runtime.getRuntime().availableProcessors(); threads++) {
-      {
-        long startPref = System.currentTimeMillis();
-        edu.drexel.cs.db.db4pref.posterior.parallel.Expander2 pex = new edu.drexel.cs.db.db4pref.posterior.parallel.Expander2(model, threads);
-        double p = pex.getProbability(pref);
-        Logger.info("Parallel Expander x%d: Total probability: %f in %d ms", threads, Math.log(p), System.currentTimeMillis() - startPref);
-      }
-      
-      {
-        long startPref = System.currentTimeMillis();
-        Expander2 pex = new Expander2(model, threads);
-        double p = pex.getProbability(pref);
-        Logger.info("Concurrent Expander x%d: Total probability: %f in %d ms", threads, Math.log(p), System.currentTimeMillis() - startPref);
-      }
-    }
-  }
   
 }

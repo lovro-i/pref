@@ -1,15 +1,15 @@
 package edu.drexel.cs.db.db4pref.posterior.concurrent2;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.posterior.sequential2.Doubler;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.DoubleAdder;
 
 
 public class Expands2 {
 
   private final Expander2 expander;
-  private ConcurrentMap<State2, Doubler> states = new ConcurrentHashMap<>();
+  private ConcurrentMap<State2, DoubleAdder> states = new ConcurrentHashMap<>();
   
   public Expands2(Expander2 expander) {
     this.expander = expander;
@@ -18,7 +18,9 @@ public class Expands2 {
   /** Clear this Expands so that it contains only null (empty) expansion */
   public void nullify() {
     states.clear();
-    states.put(new State2(expander), new Doubler(1d));
+    DoubleAdder one = new DoubleAdder();
+    one.add(1d);
+    states.put(new State2(expander), one);
   }
   
   public int size() {
@@ -26,7 +28,7 @@ public class Expands2 {
   }
   
   public void add(State2 e, double p) {
-    states.putIfAbsent(e, new Doubler(0));
+    states.putIfAbsent(e, new DoubleAdder());
     // states.compute(e, (key, value) -> value + p);
     // states.merge(e, p, (oldVal, newVal) -> newVal + oldVal);
     states.get(e).add(p);
@@ -36,7 +38,7 @@ public class Expands2 {
   /** Returns the total probability of all the expanded states */
   public double getProbability() {
     double sum = 0;
-    for (Doubler p: states.values()) sum += p.get();
+    for (DoubleAdder p: states.values()) sum += p.doubleValue();
     return sum;
   }
   

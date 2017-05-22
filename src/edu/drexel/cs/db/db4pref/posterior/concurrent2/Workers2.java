@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.atomic.DoubleAdder;
 
 
 public class Workers2 {
@@ -26,14 +27,14 @@ public class Workers2 {
   }
   
   
-  public synchronized void run(Set<Map.Entry<State2, Doubler>> entrySet, Expands2 expands, Item item, boolean missing) {
+  public synchronized void run(Set<Map.Entry<State2, DoubleAdder>> entrySet, Expands2 expands, Item item, boolean missing) {
     this.pending = workers.size();
 
 
     int block = entrySet.size() / workers.size();
-    Iterator<Entry<State2, Doubler>> it = entrySet.iterator();
+    Iterator<Entry<State2, DoubleAdder>> it = entrySet.iterator();
     for (int i = 0; i < workers.size(); i++) {
-      Queue<Entry<State2, Doubler>> queue = new LinkedList<>();
+      Queue<Entry<State2, DoubleAdder>> queue = new LinkedList<>();
       for (int j = 0; j < block + workers.size() - i && it.hasNext(); j++) {
         queue.add(it.next());
       }

@@ -8,3 +8,7 @@ nbproject/private/
 /lib/GRMM/nbproject/private/
 /lib/GRMM/dist/
 /lib/Jayes/dist/
+
+# for intellij IDEA
+.idea/
+out/

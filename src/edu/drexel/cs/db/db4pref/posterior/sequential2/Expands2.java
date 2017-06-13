@@ -1,9 +1,7 @@
 package edu.drexel.cs.db.db4pref.posterior.sequential2;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
@@ -79,6 +77,12 @@ public class Expands2 {
       state.insert(expands, item, missing, p);
     }
     return expands;
+  }
+
+  /** Length of the states in this expander */
+  public int length() {
+    State2 state = states.keySet().iterator().next();
+    return state.length();
   }
   
   

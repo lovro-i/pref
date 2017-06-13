@@ -9,6 +9,8 @@ import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.Span;
 import edu.drexel.cs.db.db4pref.posterior.sequential.Expander1;
 import edu.drexel.cs.db.db4pref.posterior.sequential.State1;
+import edu.drexel.cs.db.db4pref.posterior.sequential2.Expander2;
+import edu.drexel.cs.db.db4pref.posterior.sequential2.Expands2;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import java.util.Set;
 
@@ -51,7 +53,21 @@ public class LowerBoundBest extends LowerBound {
     return (step >= span.from) && (step <= span.to);
   }
   
+  
   @Override
+  public double getLowerBound() {
+    Expands2 expands = ((Expander2) expander).getExpands();
+    int from = expands.length();
+    int to = expander.getMaxItem();
+    for (int idx = from; idx <= to; idx++) {
+      // instead of expands = expands.insert(idx);
+      // now there's a similar implementation that inserts only at the last set of positions
+    }
+    return expands.getProbability();
+  }
+  
+  /** Calculates lower bound for one state only */
+  @Deprecated
   public double getLowerBound(State state) {
     int from = state.length();
     int to = expander.getMaxItem();
@@ -144,7 +160,7 @@ public class LowerBoundBest extends LowerBound {
     
     
     LowerBound lb = new LowerBoundBest(expander);
-    double l = lb.getLowerBound(state);
+    double l = lb.getLowerBound();
     System.out.println(l);
   }
   

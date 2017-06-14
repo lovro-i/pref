@@ -84,7 +84,7 @@ public class Expander2 extends Expander {
     return expand(new State2(this));
   }
     
-  long startExpand;
+  public long startExpand;
   
   @Override
   public double expand(State state) throws TimeoutException, InterruptedException {

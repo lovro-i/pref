@@ -146,7 +146,7 @@ public class State2 extends State {
   }
   
   
-  private void insertOne(Expands2 expands, Item item, int index, double p1) {
+  public void insertOne(Expands2 expands, Item item, int index, double p1) {
     int n = miss[index] + 1; // how many are missing before the previous and the next, plus one: the number of different new expand states
         
     

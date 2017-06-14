@@ -85,5 +85,11 @@ public class Expands2 {
     return state.length();
   }
   
-  
+  public Expands2 copy(){
+    Expands2 expands = new Expands2(expander);
+    for (Entry<State2, Doubler>entry: states.entrySet()){
+      expands.put(entry.getKey().clone(), entry.getValue().get());
+    }
+    return expands;
+  }
 }

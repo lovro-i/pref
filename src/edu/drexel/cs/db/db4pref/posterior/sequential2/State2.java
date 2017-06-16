@@ -97,7 +97,7 @@ public class State2 extends State {
     }
   }
   
-  private void insertOneMissing(Expands2 expands, int step, int idx, double p1) {
+  public void insertOneMissing(Expands2 expands, int step, int idx, double p1) {
     int pos = 0;
     for (int i = 0; i < idx; i++) {
       pos += miss[i] + 1;

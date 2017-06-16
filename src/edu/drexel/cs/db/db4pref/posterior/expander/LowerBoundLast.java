@@ -84,17 +84,17 @@ public class LowerBoundLast {
 
           double prob = 0;
           for (int j = 0; j <= state.miss[state.miss.length-1]; j++) {
-            prob += expander.probability(idx, j);
+            prob += expander.probability(idx, idx-j);
           }
           stateTemp.compact();
           expandsTemp.add(stateTemp, prob * p);
         } else {
           // public void insertPresent(Expands2 expands, Item item, double p1) {
           Span track = expander.getSpan(item);
+          Span hilo = hilo(state, item);
           if (track.from == track.to) {
-            state.insertNonTracked(expandsTemp, item, p);
+            state.insertOneMissing(expandsTemp, idx, hilo.to, p);
           } else {
-            Span hilo = hilo(state, item);
             state.insertOne(expandsTemp, item, hilo.to, p);
           }
         }

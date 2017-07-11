@@ -8,13 +8,10 @@ import edu.drexel.cs.db.db4pref.core.Ranking;
 import edu.drexel.cs.db.db4pref.data.PreferenceIO;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.Span;
-import edu.drexel.cs.db.db4pref.posterior.sequential.Expander1;
-import edu.drexel.cs.db.db4pref.posterior.sequential.State1;
 import edu.drexel.cs.db.db4pref.posterior.sequential2.Doubler;
 import edu.drexel.cs.db.db4pref.posterior.sequential2.Expander2;
 import edu.drexel.cs.db.db4pref.posterior.sequential2.Expands2;
 import edu.drexel.cs.db.db4pref.posterior.sequential2.State2;
-import edu.drexel.cs.db.db4pref.util.Logger;
 
 import java.util.Map;
 import java.util.Set;

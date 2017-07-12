@@ -1,7 +1,6 @@
 package edu.drexel.cs.db.db4pref.posterior.concurrent2;
 
 import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.posterior.sequential2.Doubler;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.DoubleAdder;

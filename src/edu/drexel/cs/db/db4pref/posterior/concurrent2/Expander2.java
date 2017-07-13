@@ -233,8 +233,20 @@ public class Expander2 {
     return pref;
   }
   
-  public static void main(String[] args) {
+  public static void main(String[] args) throws TimeoutException, InterruptedException {
+    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
     
+    Logger.info(pref);
+    ItemSet items = pref.getItemSet();    
+    items.tagOneBased();
+
+    double phi = 0.5;
+    MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
+    
+    
+    Expander2 expander2 = new Expander2(model, pref, 2);
+    expander2.setMaxWidth(3, 5);
+    System.out.println(expander2.expand());
   }
   
   ;

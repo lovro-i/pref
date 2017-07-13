@@ -121,7 +121,8 @@ public class ParallelLowerBoundLast {
     public void onStepBegin(Expander expander, int step) throws TimeoutException {
       if (this.step == step) {
         this.timeBeforeLB = System.currentTimeMillis();
-        LowerBoundLast lbb = new LowerBoundLast((Expander2) expander);
+//        LowerBoundLast lbb = new LowerBoundLast((Expander2) expander);
+        LowerBoundLast lbb = null;
         lb = lbb.getLowerBound();
         this.timeAfterLB = System.currentTimeMillis();
       }
@@ -136,48 +137,49 @@ public class ParallelLowerBoundLast {
     }
   };
   
-  public static void main(String[] args) throws Exception {
-    ItemSet items = new ItemSet(100);
-    items.tagOneBased();
-    
-    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
-    
-//    MapPreferenceSet pref = new MapPreferenceSet(items);
-//    pref.addById(3, 2);[25>100 1>77 43>25 63>33 43>13 63>66 25>13 13>100 73>1]
-//    pref.addById(6, 3);
-//    pref.addById(3, 4);
-//    pref.addById(7, 6);
-//    Logger.info(pref);
-    String prefString10 = "[25>100 1>77 43>25 63>33 43>13 63>66 25>13 13>100 73>1]";
-    String prefString = "[4>7 7>9]";
-    MapPreferenceSet pref = PreferenceIO.fromString(prefString10, items);
-
-    LowerBoundListener listener = new LowerBoundListener(8);
-    Expander2 expander = new Expander2(model, pref);
-    expander.setListener(listener);
-    long startTime = System.currentTimeMillis();
-    double p = expander.expand();
-    long endTime = System.currentTimeMillis();
-
-    long timeStep = listener.timeBeforeLB - startTime;
-    long timeLB = listener.timeAfterLB - listener.timeBeforeLB;
-    long timeRelax = endTime - listener.timeAfterLB;
-    long timeTotal = endTime - startTime;
-
-    System.out.printf("timeStep = %d \ntimeLB = %d \ntimeRelax = %d \np = %f, lb = %f",
-            timeStep, timeLB, timeRelax, p, listener.lb);
-    
-//    int[] miss = { 1, 1, 0 };
-//    int[] its = {2, 3};
-//    State state = new State2(expander, its, miss);
-//    Logger.info("State: %s", state);
-//    Logger.info("List: %s", state.toList());
-//    Logger.info("TC: %s", expander.getTransitiveClosure());
+//  public static void main(String[] args) throws Exception {
+//    ItemSet items = new ItemSet(100);
+//    items.tagOneBased();
+//    
+//    MallowsModel model = new MallowsModel(items.getReferenceRanking(), 0.2);
+//    
+////    MapPreferenceSet pref = new MapPreferenceSet(items);
+////    pref.addById(3, 2);[25>100 1>77 43>25 63>33 43>13 63>66 25>13 13>100 73>1]
+////    pref.addById(6, 3);
+////    pref.addById(3, 4);
+////    pref.addById(7, 6);
+////    Logger.info(pref);
+//    String prefString10 = "[25>100 1>77 43>25 63>33 43>13 63>66 25>13 13>100 73>1]";
+//    String prefString = "[4>7 7>9]";
+//    MapPreferenceSet pref = PreferenceIO.fromString(prefString10, items);
 //
+//    LowerBoundListener listener = new LowerBoundListener(8);
+//    Expander2 expander = new Expander2(model, pref);
+//    expander.setListener(listener);
+//    long startTime = System.currentTimeMillis();
+//    double p = expander.expand();
+//    long endTime = System.currentTimeMillis();
 //
+//    long timeStep = listener.timeBeforeLB - startTime;
+//    long timeLB = listener.timeAfterLB - listener.timeBeforeLB;
+//    long timeRelax = endTime - listener.timeAfterLB;
+//    long timeTotal = endTime - startTime;
 //
-//    LowerBoundLast lb = new LowerBoundLast(expander);
-//    double l = lb.getLowerBound();
-//    System.out.println(l);
-//    System.out.println(p);
-  }
+//    System.out.printf("timeStep = %d \ntimeLB = %d \ntimeRelax = %d \np = %f, lb = %f",
+//            timeStep, timeLB, timeRelax, p, listener.lb);
+//    
+////    int[] miss = { 1, 1, 0 };
+////    int[] its = {2, 3};
+////    State state = new State2(expander, its, miss);
+////    Logger.info("State: %s", state);
+////    Logger.info("List: %s", state.toList());
+////    Logger.info("TC: %s", expander.getTransitiveClosure());
+////
+////
+////
+////    LowerBoundLast lb = new LowerBoundLast(expander);
+////    double l = lb.getLowerBound();
+////    System.out.println(l);
+////    System.out.println(p);
+//  }
+}

@@ -7,6 +7,7 @@ import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Preference;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
+import edu.drexel.cs.db.db4pref.data.PreferenceIO;
 import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.Span;
@@ -65,7 +66,7 @@ public class Expander2 {
       spans.put(item, span);
     }
 
-    HasseDiagram hasse = new HasseDiagram(pref, tc);
+    HasseDiagram hasse = new HasseDiagram(pref);
 
     for (int step = 0; step < reference.length(); step++) {
       Item item = reference.get(step);
@@ -234,19 +235,38 @@ public class Expander2 {
   }
   
   public static void main(String[] args) throws TimeoutException, InterruptedException {
-    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
-    
+//    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
+    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
+
     Logger.info(pref);
     ItemSet items = pref.getItemSet();    
-    items.tagOneBased();
 
     double phi = 0.5;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
     
-    
-    Expander2 expander2 = new Expander2(model, pref, 2);
-    expander2.setMaxWidth(3, 5);
-    System.out.println(expander2.expand());
+    {
+      Expander2 expander2 = new Expander2(model, pref, 2);
+      System.out.println(expander2.expand());
+    }
+
+    {
+      Expander2 expander2 = new Expander2(model, pref, 2);
+      expander2.setMaxWidth(3, 5);
+      System.out.println(expander2.expand());
+    }
+
+    {
+      Expander2 expander2 = new Expander2(model, pref, 2);
+      expander2.setMaxWidth(2, 5);
+      System.out.println(expander2.expand());
+    }
+
+    {
+      Expander2 expander2 = new Expander2(model, pref, 2);
+      expander2.setMaxWidth(1, 5);
+      System.out.println(expander2.expand());
+    }
+
   }
   
   ;

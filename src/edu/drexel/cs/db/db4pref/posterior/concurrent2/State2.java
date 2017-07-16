@@ -67,24 +67,26 @@ public class State2 {
     int step = this.length();
     for (int i = 0; i < items.length; i++) {
       // String before = this.toString();
-      Span span = expander.spans.get(items[i]);
-      if (step > span.to) {
-        Item[] items2 = new Item[items.length-1];
-        int[] miss2 = new int[miss.length-1];
-        for (int j = 0; j < items2.length; j++) {
-          if (j < i) items2[j] = items[j];
-          else items2[j] = items[j+1];
+      if (expander.spans.containsKey(items[i])){
+        Span span = expander.spans.get(items[i]);
+        if (step > span.to) {
+          Item[] items2 = new Item[items.length-1];
+          int[] miss2 = new int[miss.length-1];
+          for (int j = 0; j < items2.length; j++) {
+            if (j < i) items2[j] = items[j];
+            else items2[j] = items[j+1];
+          }
+          for (int j = 0; j < miss2.length; j++) {
+            if (j < i) miss2[j] = miss[j];
+            else if (j == i) miss2[j] = miss[j] + miss[j+1] + 1;
+            else miss2[j] = miss[j+1];
+          }
+
+          this.items = items2;
+          this.miss = miss2;
+          // Logger.info("Compacting at step %d: %s -> %s", step, before, this);
+          i--;
         }
-        for (int j = 0; j < miss2.length; j++) {
-          if (j < i) miss2[j] = miss[j];
-          else if (j == i) miss2[j] = miss[j] + miss[j+1] + 1;
-          else miss2[j] = miss[j+1];
-        }
-        
-        this.items = items2;
-        this.miss = miss2;
-        // Logger.info("Compacting at step %d: %s -> %s", step, before, this);
-        i--;
       }
     }
   }

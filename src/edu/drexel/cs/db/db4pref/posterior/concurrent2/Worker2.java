@@ -16,6 +16,7 @@ public class Worker2 extends Thread {
   private Queue<Map.Entry<State2, DoubleAdder>> queue;
   private Item item;
   private boolean missing;
+  private boolean isLowerBound;
   private Expands2 dstExpands;
   
   private int count = 0;
@@ -25,11 +26,12 @@ public class Worker2 extends Thread {
     this.workers = workers;
   }
   
-  public synchronized void run(Queue<Map.Entry<State2, DoubleAdder>> queue, Expands2 exs, Item item, boolean missing) {
+  public synchronized void run(Queue<Map.Entry<State2, DoubleAdder>> queue, Expands2 exs, Item item, boolean missing, boolean isLowerBound) {
     this.queue = queue;
     this.dstExpands = exs;
     this.item = item;
     this.missing = missing;
+    this.isLowerBound = isLowerBound;
     notify();
   }
   
@@ -55,7 +57,7 @@ public class Worker2 extends Thread {
 
         State2 state = entry.getKey();
         double p = entry.getValue().doubleValue();
-        state.insert(dstExpands, item, missing, p);
+        state.insert(dstExpands, item, missing, isLowerBound, p);
         count++;
       }
       working += System.currentTimeMillis() - t2;

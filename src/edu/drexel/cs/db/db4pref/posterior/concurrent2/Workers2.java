@@ -26,7 +26,7 @@ public class Workers2 {
   }
   
   
-  public synchronized void run(Set<Map.Entry<State2, DoubleAdder>> entrySet, Expands2 expands, Item item, boolean missing) {
+  public synchronized void run(Set<Map.Entry<State2, DoubleAdder>> entrySet, Expands2 expands, Item item, boolean missing, boolean isLowerBound) {
     this.pending = workers.size();
 
 
@@ -43,7 +43,7 @@ public class Workers2 {
       
       
       Worker2 worker = workers.get(i);
-      worker.run(queue, expands, item, missing);
+      worker.run(queue, expands, item, missing, isLowerBound);
     }
     
     while (pending > 0) {

@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.DoubleAdder;
 
-public class Expands2 {
+public class Expands2 implements Cloneable {
 
   private final Expander2 expander;
   private ConcurrentMap<State2, DoubleAdder> states = new ConcurrentHashMap<>();
@@ -59,14 +59,14 @@ public class Expands2 {
    * @param item To insert
    * @return Mapping of states to their probabilities
    */
-  public Expands2 insert(Item item, boolean missing, Workers2 workers) throws InterruptedException {
+  public Expands2 insert(Item item, boolean missing, boolean isLowerBound, Workers2 workers) throws InterruptedException {
 
     // if (item.getTag().equals(26)) {
     //  System.out.println("============================================================================");
     //  Logger.info("Item %s, missing %s, %d threads", item, missing, expander.threads);
     // }
     Expands2 expands = new Expands2(expander);
-    workers.run(states.entrySet(), expands, item, missing);
+    workers.run(states.entrySet(), expands, item, missing, isLowerBound);
     return expands;
   }
 
@@ -82,7 +82,7 @@ public class Expands2 {
     return states;
   }
   
-  public Expands2 copy() {
+  public Expands2 clone() {
     Expands2 expands = new Expands2(expander);
     for (State2 state: states.keySet()){
       expands.add(state.clone(), states.get(state).doubleValue());

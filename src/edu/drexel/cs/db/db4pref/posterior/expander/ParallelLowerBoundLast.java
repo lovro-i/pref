@@ -60,7 +60,7 @@ public class ParallelLowerBoundLast {
     
 
   public double getLowerBound() throws TimeoutException {
-    Expands2 expands = expander.getExpands().copy();
+    Expands2 expands = expander.getExpands().clone();
     int from = expands.length();
     int to = expander.getMaxItem(expander.getPreferenceSet());
     Ranking reference = expander.getModel().getCenter();

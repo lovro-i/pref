@@ -106,10 +106,15 @@ public class State2 {
    * @param item to insert
    * @return Mapping of states to their probabilities
    */
-  public void insertMissing(Expands2 expands, Item item, double p1) {
+  public void insertMissing(Expands2 expands, Item item, boolean isLowerBound, double p1) {
     int step = expander.referenceIndex.get(item);
     int pos = 0;
-    for (int i = 0; i < this.miss.length; i++) {
+
+    int initial = 0;
+    if (isLowerBound) {
+      initial = this.miss.length - 1;
+    }
+    for (int i = initial; i < this.miss.length; i++) {
       State2 state = new State2(expander, this);
       state.miss[i]++;
       
@@ -121,14 +126,13 @@ public class State2 {
       state.compact();
       expands.add(state, p * p1);
     }
-    
   }
   
   
 
-  public void insert(Expands2 expands, Item item, boolean missing, double p) {
-    if (missing) this.insertMissing(expands, item, p);
-    else this.insertPresent(expands, item, p);
+  public void insert(Expands2 expands, Item item, boolean missing, boolean isLowerBound, double p) {
+    if (missing) this.insertMissing(expands, item, isLowerBound, p);
+    else this.insertPresent(expands, item, isLowerBound, p);
   }
   
   
@@ -220,14 +224,19 @@ public class State2 {
     expands.add(state, p * p1);
   }
   
-  public void insertPresent(Expands2 expands, Item item, double p1) {
+  public void insertPresent(Expands2 expands, Item item, boolean isLowerBound, double p1) {
     Span track = expander.getSpan(item);
     if (track.from == track.to) {
       insertNonTracked(expands, item, p1);
     }
     else {
       Span hilo = hilo(item);
-      for (int i = hilo.from; i <= hilo.to; i++) {
+
+      int initial = hilo.from;
+      if (isLowerBound) {
+        initial = hilo.to;
+      }
+      for (int i = initial; i <= hilo.to; i++) {
         insertOne(expands, item, i, p1);
       }
     }

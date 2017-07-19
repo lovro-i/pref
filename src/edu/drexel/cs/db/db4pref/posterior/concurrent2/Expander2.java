@@ -26,7 +26,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Best parallel so far
  */
-public class Expander2 {
+public class Expander2 implements Cloneable{
 
   private final MallowsModel model;
   final Map<Item, Integer> referenceIndex;
@@ -108,35 +108,48 @@ public class Expander2 {
   }
 
   public double expand() throws TimeoutException, InterruptedException {
+    return expand(false);
+  }
+
+  public double expand(boolean isLowerBound) throws TimeoutException, InterruptedException {
+    if (expands == null) {
+      expands = new Expands2(this);
+      expands.nullify();
+    }
+    return mallowsDP(isLowerBound);
+  }
+
+  public double mallowsDP(boolean isLowerBound) throws TimeoutException, InterruptedException {
+
     this.tc = pref.transitiveClosure();
     calculateSpans();
-    
-    expands = new Expands2(this);
-    expands.nullify();
+
     Ranking reference = model.getCenter();
     int maxIndex = getMaxItem(pref);
-    
+
     startExpand = System.currentTimeMillis();
-    if (listener != null) {
-      listener.onStart(this);
+    if (listener != null) listener.onStart(this);
+
+    int initialLength = expands.getStates().keySet().iterator().next().length();
+    if (initialLength <= maxIndex) {
+      Workers2 workers = new Workers2(threads);
+      for (int i = initialLength; i <= maxIndex; i++) {
+        if (listener != null) {
+          listener.onStepBegin(this, i+1);
+        }
+        relax(i);
+
+        Item item = reference.get(i);
+        boolean missing = !this.pref.contains(item);
+        expands = expands.insert(item, missing, isLowerBound, workers);
+
+        if (listener != null) {
+          listener.onStepEnd(this, i+1);
+        }
+      }
+      workers.stop();
     }
 
-    Workers2 workers = new Workers2(threads);
-    for (int i = 0; i <= maxIndex; i++) {
-      if (listener != null) {
-        listener.onStepBegin(this, i);
-      }
-      relax(i);
-
-      Item item = reference.get(i);
-      boolean missing = !this.pref.contains(item);
-      expands = expands.insert(item, missing, workers);
-
-      if (listener != null) {
-        listener.onStepEnd(this, i);
-      }
-    }
-    workers.stop();
     double p = expands.getProbability();
     if (listener != null) {
       listener.onEnd(this, p);
@@ -167,17 +180,21 @@ public class Expander2 {
    * Starting from here, add approximation.
    */
   public void setListener(ParallelExpanderListener listener) {
+    int maxIndexOfItem = getMaxItem(pref);
+    if (listener.getStep() > maxIndexOfItem) {
+      listener.setStep(maxIndexOfItem+1);
+    }
     this.listener = listener;
   }
 
   public void setMaxWidth(int maxWidth) {
     this.maxWidth = maxWidth;
   }
-  
+
   public void setTimeout(long timeout) {
     this.timeout = timeout;
   }
-  
+
   public long getTimeout() {
     return timeout;
   }
@@ -221,54 +238,62 @@ public class Expander2 {
     }
     return tracked;
   }
-  
+
   public Expands2 getExpands() {
     return expands;
   }
-  
+
+  public void setExpands(Expands2 expands) {
+    this.expands = expands;
+  }
+
   public MallowsModel getModel() {
     return model;
   }
-  
+
   public PreferenceSet getPreferenceSet() {
     return pref;
   }
-  
+
+  public Expander2 clone() {
+    Expander2 expander2 = new Expander2(model, pref, threads);
+    expander2.setExpands(expands.clone());
+    return expander2;
+  }
+
   public static void main(String[] args) throws TimeoutException, InterruptedException {
-//    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
-    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
+    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
+//    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
+//    MapPreferenceSet pref = PreferenceIO.fromString("[17>10 12>6 2>12 14>10 6>5]", new ItemSet(20));
 
     Logger.info(pref);
-    ItemSet items = pref.getItemSet();    
+    ItemSet items = pref.getItemSet();
 
-    double phi = 0.5;
+    double phi = 0.8;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
-    
-    {
-      Expander2 expander2 = new Expander2(model, pref, 2);
-      System.out.println(expander2.expand());
-    }
 
     {
       Expander2 expander2 = new Expander2(model, pref, 2);
-      expander2.setMaxWidth(3, 5);
-      System.out.println(expander2.expand());
+      System.out.printf("Exact probability = %f \n", expander2.expand());
     }
 
-    {
+    for (int width = 1; width <= 3; width++) {
       Expander2 expander2 = new Expander2(model, pref, 2);
-      expander2.setMaxWidth(2, 5);
-      System.out.println(expander2.expand());
+      expander2.setMaxWidth(width, 10);
+      ParallelLowerBoundListener listener = new ParallelLowerBoundListener(10);
+      expander2.setListener(listener);
+      System.out.printf("upper = %f, lower = %f, under width=%d \n", expander2.expand(), listener.lb, width);
     }
 
-    {
+    for (int step = 10; step <= 20; step += 1) {
       Expander2 expander2 = new Expander2(model, pref, 2);
-      expander2.setMaxWidth(1, 5);
-      System.out.println(expander2.expand());
+      expander2.setMaxWidth(1, step);
+      ParallelLowerBoundListener listener = new ParallelLowerBoundListener(step);
+      expander2.setListener(listener);
+      System.out.printf("upper = %f, lower = %f, under step=%d \n", expander2.expand(), listener.lb, step);
     }
-
   }
-  
+
   ;
   
     private static class ParallelLowerBoundListener implements ParallelExpanderListener {
@@ -282,6 +307,16 @@ public class Expander2 {
     }
 
     @Override
+    public int getStep() {
+      return step;
+    }
+
+    @Override
+    public void setStep(int step) {
+      this.step = step;
+    }
+
+    @Override
     public void onStart(Expander2 expander) {
     }
 
@@ -289,8 +324,12 @@ public class Expander2 {
     public void onStepBegin(Expander2 expander, int step) throws TimeoutException {
       if (this.step == step) {
         this.timeBeforeLB = System.currentTimeMillis();
-//        ParallelLowerBoundLast lbb = new ParallelLowerBoundLast(expander);
-//        lb = lbb.getLowerBound();
+        Expander2 expander2 = expander.clone();
+        try {
+          lb = expander2.expand(true);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
         this.timeAfterLB = System.currentTimeMillis();
       }
     }

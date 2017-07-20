@@ -141,11 +141,6 @@ public class Expander2 extends Expander {
     }
   }
   
-  
-  public void setMaxWidth(int maxWidth) {
-    this.maxWidth = maxWidth;
-  }
-  
   /** Sets the maximum allowed width, and the step from which item removal can start */
   public void setMaxWidth(int maxWidth, int start) {
     this.maxWidth = maxWidth;
@@ -177,12 +172,12 @@ public class Expander2 extends Expander {
     if (maxWidth <= 0) return;
     if (step < startRelax) return;
     
-    List<Item> tracked = this.getTrackedItems(step);
+    List<Item> tracked = getTrackedItems(step);
     while (tracked.size() > maxWidth) {
       Item toRemove = tracked.get(0);
       pref.remove(toRemove);
       this.calculateSpans();
-      tracked = this.getTrackedItems(step);
+      tracked = getTrackedItems(step);
     }
   }
   

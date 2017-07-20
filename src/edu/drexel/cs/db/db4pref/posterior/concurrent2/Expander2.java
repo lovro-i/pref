@@ -1,19 +1,12 @@
 package edu.drexel.cs.db.db4pref.posterior.concurrent2;
 
-import edu.drexel.cs.db.db4pref.core.Item;
-import edu.drexel.cs.db.db4pref.core.ItemSet;
-import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
-import edu.drexel.cs.db.db4pref.core.MutablePreferenceSet;
-import edu.drexel.cs.db.db4pref.core.Preference;
-import edu.drexel.cs.db.db4pref.core.PreferenceSet;
-import edu.drexel.cs.db.db4pref.core.Ranking;
+import edu.drexel.cs.db.db4pref.core.*;
 import edu.drexel.cs.db.db4pref.data.PreferenceIO;
 import edu.drexel.cs.db.db4pref.gm.HasseDiagram;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.Span;
-import edu.drexel.cs.db.db4pref.posterior.expander.ExpanderListener;
-import edu.drexel.cs.db.db4pref.posterior.expander.LowerBoundLast;
 import edu.drexel.cs.db.db4pref.posterior.expander.ParallelExpanderListener;
+import edu.drexel.cs.db.db4pref.posterior.expander.ParallelLowerBoundListener;
 import edu.drexel.cs.db.db4pref.util.Logger;
 import edu.drexel.cs.db.db4pref.util.TestUtils;
 
@@ -26,14 +19,15 @@ import java.util.concurrent.TimeoutException;
 /**
  * Best parallel so far
  */
-public class Expander2 implements Cloneable{
+public class Expander2 implements Cloneable {
 
   private final MallowsModel model;
-  final Map<Item, Integer> referenceIndex;
-  final int threads;
-
   private PreferenceSet pref;
+  private final int threads;
+
+  final Map<Item, Integer> referenceIndex;
   MutablePreferenceSet tc;
+
   private Expands2 expands;
   Map<Item, Span> spans;
 
@@ -52,12 +46,11 @@ public class Expander2 implements Cloneable{
     this.pref = pref.clone();
   }
 
-  public double getProbability(PreferenceSet pref) throws TimeoutException, InterruptedException {
-    return expand();
-  }
-
+  /**
+   * Calculate the time spans for tracking items.
+   */
   private void calculateSpans() {
-    this.spans = new HashMap<Item, Span>();
+    this.spans = new HashMap<>();
     Ranking reference = model.getCenter();
 
     for (Item item : pref.getItems()) {
@@ -85,7 +78,7 @@ public class Expander2 implements Cloneable{
     }
   }
 
-  public Span getSpan(Item item) {
+  public Span getTimeSpanOf(Item item) {
     return spans.get(item);
   }
 
@@ -119,41 +112,35 @@ public class Expander2 implements Cloneable{
     return mallowsDP(isLowerBound);
   }
 
-  public double mallowsDP(boolean isLowerBound) throws TimeoutException, InterruptedException {
+  private double mallowsDP(boolean isLowerBound) throws TimeoutException, InterruptedException {
 
-    this.tc = pref.transitiveClosure();
     calculateSpans();
-
     Ranking reference = model.getCenter();
+    tc = pref.transitiveClosure();
+
+    int initialLength = expands.getStates().keySet().iterator().next().length();
     int maxIndex = getMaxItem(pref);
 
     startExpand = System.currentTimeMillis();
     if (listener != null) listener.onStart(this);
 
-    int initialLength = expands.getStates().keySet().iterator().next().length();
     if (initialLength <= maxIndex) {
       Workers2 workers = new Workers2(threads);
       for (int i = initialLength; i <= maxIndex; i++) {
-        if (listener != null) {
-          listener.onStepBegin(this, i+1);
-        }
+        if (listener != null) listener.onStepBegin(this, i);
         relax(i);
 
         Item item = reference.get(i);
         boolean missing = !this.pref.contains(item);
         expands = expands.insert(item, missing, isLowerBound, workers);
 
-        if (listener != null) {
-          listener.onStepEnd(this, i+1);
-        }
+        if (listener != null) listener.onStepEnd(this, i);
       }
       workers.stop();
     }
 
     double p = expands.getProbability();
-    if (listener != null) {
-      listener.onEnd(this, p);
-    }
+    if (listener != null) listener.onEnd(this, p);
     return p;
   }
 
@@ -176,19 +163,12 @@ public class Expander2 implements Cloneable{
     return p1;
   }
 
-  /**
-   * Starting from here, add approximation.
-   */
   public void setListener(ParallelExpanderListener listener) {
     int maxIndexOfItem = getMaxItem(pref);
     if (listener.getStep() > maxIndexOfItem) {
-      listener.setStep(maxIndexOfItem+1);
+      listener.setStep(maxIndexOfItem);
     }
     this.listener = listener;
-  }
-
-  public void setMaxWidth(int maxWidth) {
-    this.maxWidth = maxWidth;
   }
 
   public void setTimeout(long timeout) {
@@ -200,8 +180,10 @@ public class Expander2 implements Cloneable{
   }
 
   /**
-   * Sets the maximum allowed width, and the step from which item removal can
-   * start
+   * Set the parameters of upper bound.
+   *
+   * @param maxWidth maximum allowed width.
+   * @param start from which step the item removal can start.
    */
   public void setMaxWidth(int maxWidth, int start) {
     this.maxWidth = maxWidth;
@@ -212,19 +194,15 @@ public class Expander2 implements Cloneable{
   private int startRelax = 0;
 
   private void relax(int step) {
-    if (maxWidth <= 0) {
-      return;
-    }
-    if (step < startRelax) {
-      return;
-    }
+    if (maxWidth <= 0) return;
+    if (step < startRelax) return;
 
-    List<Item> tracked = this.getTrackedItems(step);
+    List<Item> tracked = getTrackedItems(step);
     while (tracked.size() > maxWidth) {
       Item toRemove = tracked.get(0);
       pref.remove(toRemove);
       this.calculateSpans();
-      tracked = this.getTrackedItems(step);
+      tracked = getTrackedItems(step);
     }
   }
 
@@ -255,6 +233,7 @@ public class Expander2 implements Cloneable{
     return pref;
   }
 
+  @Override
   public Expander2 clone() {
     Expander2 expander2 = new Expander2(model, pref, threads);
     expander2.setExpands(expands.clone());
@@ -262,8 +241,8 @@ public class Expander2 implements Cloneable{
   }
 
   public static void main(String[] args) throws TimeoutException, InterruptedException {
-    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
-//    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
+//    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
+    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
 //    MapPreferenceSet pref = PreferenceIO.fromString("[17>10 12>6 2>12 14>10 6>5]", new ItemSet(20));
 
     Logger.info(pref);
@@ -277,6 +256,7 @@ public class Expander2 implements Cloneable{
       System.out.printf("Exact probability = %f \n", expander2.expand());
     }
 
+    // test on relax
     for (int width = 1; width <= 3; width++) {
       Expander2 expander2 = new Expander2(model, pref, 2);
       expander2.setMaxWidth(width, 10);
@@ -285,61 +265,13 @@ public class Expander2 implements Cloneable{
       System.out.printf("upper = %f, lower = %f, under width=%d \n", expander2.expand(), listener.lb, width);
     }
 
-    for (int step = 10; step <= 20; step += 1) {
+    // test on split_step
+    for (int step = 0; step < 20; step += 1) {
       Expander2 expander2 = new Expander2(model, pref, 2);
       expander2.setMaxWidth(1, step);
       ParallelLowerBoundListener listener = new ParallelLowerBoundListener(step);
       expander2.setListener(listener);
       System.out.printf("upper = %f, lower = %f, under step=%d \n", expander2.expand(), listener.lb, step);
-    }
-  }
-
-  ;
-  
-    private static class ParallelLowerBoundListener implements ParallelExpanderListener {
-
-    int step;
-    long timeBeforeLB, timeAfterLB;
-    double lb;
-
-    private ParallelLowerBoundListener(int step) {
-      this.step = step;
-    }
-
-    @Override
-    public int getStep() {
-      return step;
-    }
-
-    @Override
-    public void setStep(int step) {
-      this.step = step;
-    }
-
-    @Override
-    public void onStart(Expander2 expander) {
-    }
-
-    @Override
-    public void onStepBegin(Expander2 expander, int step) throws TimeoutException {
-      if (this.step == step) {
-        this.timeBeforeLB = System.currentTimeMillis();
-        Expander2 expander2 = expander.clone();
-        try {
-          lb = expander2.expand(true);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        this.timeAfterLB = System.currentTimeMillis();
-      }
-    }
-
-    @Override
-    public void onStepEnd(Expander2 expander, int step) {
-    }
-
-    @Override
-    public void onEnd(Expander2 expander, double p) {
     }
   }
 }

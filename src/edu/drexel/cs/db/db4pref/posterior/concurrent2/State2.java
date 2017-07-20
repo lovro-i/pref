@@ -225,7 +225,7 @@ public class State2 {
   }
   
   public void insertPresent(Expands2 expands, Item item, boolean isLowerBound, double p1) {
-    Span track = expander.getSpan(item);
+    Span track = expander.getTimeSpanOf(item);
     if (track.from == track.to) {
       insertNonTracked(expands, item, p1);
     }

@@ -14,67 +14,71 @@ import java.util.Set;
 
 public class HasseDiagram {
 
-  private SparsePreferenceSet preferences;
-  private final Set<Item> items = new HashSet<Item>();
+  private SparsePreferenceSet hasseDiagram;
+  private final Set<Item> itemsInHasseDiagram = new HashSet<>();
   
-  private final Map<Item, Set<Preference>> prefs = new HashMap<>();
-  
-  public final PreferenceSet v;
+  private final Map<Item, Set<Preference>> itemToPrefsInTC = new HashMap<>();
+
+  public final PreferenceSet pref;
   public final MutablePreferenceSet tc;
 
   
-  public HasseDiagram(PreferenceSet v) {
-    this(v, v.transitiveClosure());
+  public HasseDiagram(PreferenceSet pref) {
+    this(pref, pref.transitiveClosure());
   }
 
   /** Provide preference set and its TC, in case you have it already. Not to calculate it again */
-  public HasseDiagram(PreferenceSet v, MutablePreferenceSet tc) {
-    this.preferences = new SparsePreferenceSet(v.getItemSet());
-    this.v = v;
+  public HasseDiagram(PreferenceSet pref, MutablePreferenceSet tc) {
+
+    this.pref = pref;
     this.tc = tc;
 
-    for (Item item: v.getItemSet()) {
-      prefs.put(item, new HashSet<Preference>());
+    this.hasseDiagram = new SparsePreferenceSet(pref.getItemSet());
+
+    for (Item item: pref.getItems()) {
+      itemToPrefsInTC.put(item, new HashSet<>());
     }
-    
-    for (Preference pref: tc.getPreferences()) {
-      prefs.get(pref.higher).add(pref);
-      prefs.get(pref.lower).add(pref);
+    for (Preference p: tc.getPreferences()) {
+      itemToPrefsInTC.get(p.higher).add(p);
+      itemToPrefsInTC.get(p.lower).add(p);
     }
   }
   
   public void add(Ranking ranking) {
     for (Item item: ranking.getItems()) {
-      if (v.contains(item)) this.add(item);
+      if (pref.contains(item)) this.add(item);
     }
   }
   
   public void add(Item item) {
     // Add new edges
-    preferences.addAll(prefs.get(item));
+    hasseDiagram.addAll(itemToPrefsInTC.get(item));
       
     // Remove edges
-    SparsePreferenceSet next = new SparsePreferenceSet(preferences);      
-    for (Preference p: preferences) {
-      for (Item inter: items) {
-        if (tc.contains(p.higher, inter) && tc.contains(inter, p.lower)) next.remove(p);
+    SparsePreferenceSet next = new SparsePreferenceSet(hasseDiagram);
+    for (Preference p: hasseDiagram) {
+      for (Item inter: itemsInHasseDiagram) {
+        if (tc.contains(p.higher, inter) && tc.contains(inter, p.lower)) {
+          next.remove(p);
+          break;
+        }
       }
     }
-    items.add(item);
-    this.preferences = next;
+    itemsInHasseDiagram.add(item);
+    this.hasseDiagram = next;
   }
   
   public SparsePreferenceSet getPreferenceSet() {
-    return preferences;
+    return hasseDiagram;
   }
   
   public int size() {
-    return preferences.size();
+    return hasseDiagram.size();
   }
   
   @Override
   public String toString() {
-    return preferences.toString();
+    return hasseDiagram.toString();
   }
   
   

@@ -147,6 +147,11 @@ public class Expander2 extends Expander {
     this.startRelax = start;
   }
   
+    /** Sets the maximum allowed width */
+  public void setMaxWidth(int maxWidth) {
+    this.maxWidth = maxWidth;
+  }
+  
   
 //  
 //  public void setMaxWidth(int maxWidth, int start) {

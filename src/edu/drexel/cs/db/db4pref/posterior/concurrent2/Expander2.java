@@ -178,6 +178,10 @@ public class Expander2 implements Cloneable {
   public long getTimeout() {
     return timeout;
   }
+  
+  public int getNumberOfThreads() {
+    return threads;
+  }
 
   /**
    * Set the parameters of upper bound.
@@ -241,12 +245,14 @@ public class Expander2 implements Cloneable {
   }
 
   public static void main(String[] args) throws TimeoutException, InterruptedException {
-//    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
-    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
-//    MapPreferenceSet pref = PreferenceIO.fromString("[17>10 12>6 2>12 14>10 6>5]", new ItemSet(20));
+    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
+//    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
+//    MapPreferenceSet pref = PreferenceIO.fromString("[8>1 18>12 9>19 15>10 12>19]", new ItemSet(20));
+
 
     Logger.info(pref);
     ItemSet items = pref.getItemSet();
+    items.tagOneBased();
 
     double phi = 0.8;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);

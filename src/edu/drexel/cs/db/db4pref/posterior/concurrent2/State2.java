@@ -54,7 +54,7 @@ public class State2 {
   }
   
   /** Create a clone of the state */
-  private State2(Expander2 expander, State2 e) {
+  public State2(Expander2 expander, State2 e) {
     this.expander = expander;
     this.items = new Item[e.items.length];
     System.arraycopy(e.items, 0, this.items, 0, items.length);    

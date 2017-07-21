@@ -31,7 +31,6 @@ public class ParallelLowerBoundListener implements ParallelExpanderListener {
   @Override
   public void onStepBegin(Expander2 expander, int step) throws TimeoutException {
     if (this.step == step) {
-      System.out.printf("enter step = %d \n", step);
       this.timeBeforeLB = System.currentTimeMillis();
       Expander2 expander2 = expander.clone();
       try {

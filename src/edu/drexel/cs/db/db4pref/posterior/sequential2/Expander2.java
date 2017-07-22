@@ -5,8 +5,11 @@ import edu.drexel.cs.db.db4pref.core.ItemSet;
 import edu.drexel.cs.db.db4pref.core.MapPreferenceSet;
 import edu.drexel.cs.db.db4pref.core.PreferenceSet;
 import edu.drexel.cs.db.db4pref.core.Ranking;
+import edu.drexel.cs.db.db4pref.data.PreferenceIO;
 import edu.drexel.cs.db.db4pref.model.MallowsModel;
 import edu.drexel.cs.db.db4pref.posterior.expander.Expander;
+import edu.drexel.cs.db.db4pref.posterior.expander.ExpanderListener;
+import edu.drexel.cs.db.db4pref.posterior.expander.LowerBoundLast;
 import edu.drexel.cs.db.db4pref.posterior.expander.State;
 import edu.drexel.cs.db.db4pref.posterior.sequential.Expander1;
 import edu.drexel.cs.db.db4pref.util.Logger;
@@ -187,8 +190,8 @@ public class Expander2 extends Expander {
   }
   
   public static void main(String args[]) throws TimeoutException, InterruptedException {
-    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
-    
+//    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
+    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
 //    ItemSet its = new ItemSet(30);
 //    its.tagOneBased();
 //    MapPreferenceSet pref = new MapPreferenceSet(its);
@@ -208,15 +211,64 @@ public class Expander2 extends Expander {
     ItemSet items = pref.getItemSet();    
     items.tagOneBased();
 
-    double phi = 0.5;
+    double phi = 0.8;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
 
-    Expander1 expander1 = new Expander1(model, pref);
-    System.out.println(expander1.expand());
+    {
+      Expander1 expander1 = new Expander1(model, pref);
+      System.out.println(expander1.expand());
+    }
     
-    Expander2 expander2 = new Expander2(model, pref);
-    System.out.println(expander2.expand());
+    {
+      Expander2 expander2 = new Expander2(model, pref);
+      System.out.println(expander2.expand());
+    }
 
+    // test on split_step
+    for (int step = 0; step < 20; step += 1) {
+      Expander2 expander2 = new Expander2(model, pref);
+      expander2.setMaxWidth(1, step);
+      LowerBoundListener listener = new LowerBoundListener(step);
+      expander2.setListener(listener);
+      System.out.printf("upper = %f, lower = %f, under step=%d \n", expander2.expand(), listener.lb, step);
+    }
+
+  }
+
+  private static class LowerBoundListener implements ExpanderListener {
+
+    int step;
+    long timeBeforeLB, timeAfterLB;
+    double lb;
+
+    private LowerBoundListener(int step) {
+      this.step = step;
+    }
+
+    @Override
+    public void onStart(Expander expander) {
+    }
+
+    @Override
+    public void onStepBegin(Expander expander, int step) throws TimeoutException {
+      if (this.step == step) {
+        this.timeBeforeLB = System.currentTimeMillis();
+        Expands2 expands = ((Expander2) expander).getExpands();
+        double p = expands.getProbability();
+        LowerBoundLast lbb = new LowerBoundLast((Expander2) expander);
+        lb = 0;
+        lb += lbb.getLowerBound();
+        this.timeAfterLB = System.currentTimeMillis();
+      }
+    }
+
+    @Override
+    public void onStepEnd(Expander expander, int step) {
+    }
+
+    @Override
+    public void onEnd(Expander expander, double p) {
+    }
   }
   
 }

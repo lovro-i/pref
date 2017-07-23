@@ -194,10 +194,15 @@ public class State2 {
     }
   }
   
-  public void insertNonTracked(Expands2 expands, Item item, double p1) {
+  public void insertNonTracked(Expands2 expands, Item item, boolean
+          isLowerbound, double p1) {
     int step = expander.getReferenceIndex(item);
     Span hilo = hilo(item);
-    for (int i = hilo.from; i <= hilo.to; i++) {
+    int initial = hilo.from;
+    if (isLowerbound) {
+      initial = hilo.to;
+    }
+    for (int i = initial; i <= hilo.to; i++) {
       this.insertOneMissing(expands, step, i, p1);
     }
   }
@@ -227,7 +232,7 @@ public class State2 {
   public void insertPresent(Expands2 expands, Item item, boolean isLowerBound, double p1) {
     Span track = expander.getTimeSpanOf(item);
     if (track.from == track.to) {
-      insertNonTracked(expands, item, p1);
+      insertNonTracked(expands, item, isLowerBound, p1);
     }
     else {
       Span hilo = hilo(item);

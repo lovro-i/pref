@@ -128,10 +128,6 @@ public class Expander2 implements Cloneable {
       Workers2 workers = new Workers2(threads);
       for (int i = initialLength; i <= maxIndex; i++) {
         if (listener != null) listener.onStepBegin(this, i);
-        if(i%20==19){
-          System.out.printf("isLowerBound=%b step=%d prob=%f #states=%d \n",
-                  isLowerBound, i, expands.getProbability(), expands.size());
-        }
         relax(i);
 
         Item item = reference.get(i);
@@ -209,7 +205,7 @@ public class Expander2 implements Cloneable {
     while (tracked.size() > maxWidth) {
       Item toRemove = tracked.get(0);
       pref.remove(toRemove);
-      this.calculateSpans();
+      calculateSpans();
       tracked = getTrackedItems(step);
     }
   }
@@ -243,16 +239,16 @@ public class Expander2 implements Cloneable {
 
   @Override
   public Expander2 clone() {
-    Expander2 expander2 = new Expander2(model, pref, threads);
-    expander2.setExpands(expands.clone());
+    Expander2 expander2 = new Expander2(model, pref.clone(), threads);
+    expander2.setExpands(expands.cloneWithExpander(expander2));
     return expander2;
   }
 
   public static void main(String[] args) throws TimeoutException, InterruptedException {
 //    MapPreferenceSet pref = TestUtils.generate(35, 4, 5);
-//    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
+    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
 //    MapPreferenceSet pref = PreferenceIO.fromString("[8>1 18>12 9>19 15>10 12>19]", new ItemSet(20));
-    MapPreferenceSet pref = PreferenceIO.fromString("[99>69 33>66 42>27 33>99 42>46 27>66]", new ItemSet(100));
+//    MapPreferenceSet pref = PreferenceIO.fromString("[99>69 33>66 42>27 33>99 42>46 27>66]", new ItemSet(100));
 
 
     Logger.info(pref);
@@ -263,42 +259,25 @@ public class Expander2 implements Cloneable {
 
     {
       Expander2 expander2 = new Expander2(model, pref, 2);
-      System.out.printf("Exact probability = %f \n", expander2.expand());
+      System.out.printf("Exact probability = %f \n\n", expander2.expand());
     }
 
-//    // test on relax
-//    for (int width = 1; width <= 3; width++) {
-//      Expander2 expander2 = new Expander2(model, pref, 2);
-//      expander2.setMaxWidth(width, 10);
-//      ParallelLowerBoundListener listener = new ParallelLowerBoundListener(10);
-//      expander2.setListener(listener);
-//      System.out.printf("upper = %f, lower = %f, under width=%d \n", expander2.expand(), listener.lb, width);
-//    }
-//
-//    // test on split_step
-//    for (int step = 0; step < 20; step += 1) {
-//      Expander2 expander2 = new Expander2(model, pref, 2);
-//      expander2.setMaxWidth(1, step);
-//      ParallelLowerBoundListener listener = new ParallelLowerBoundListener(step);
-//      expander2.setListener(listener);
-//      System.out.printf("upper = %f, lower = %f, under step=%d \n", expander2.expand(), listener.lb, step);
-//    }
-
-    {
-      int width = 1;
-      int step = 59;
+    // test on relax
+    for (int width = 1; width <= 3; width++) {
       Expander2 expander2 = new Expander2(model, pref, 2);
-      expander2.setMaxWidth(width, step);
+      expander2.setMaxWidth(width, 10);
+      ParallelLowerBoundListener listener = new ParallelLowerBoundListener(10);
+      expander2.setListener(listener);
+      System.out.printf("upper = %f, lower = %f, under width=%d \n", expander2.expand(), listener.lb, width);
+    }
+
+    // test on split_step
+    for (int step = 0; step < 20; step += 1) {
+      Expander2 expander2 = new Expander2(model, pref, 2);
+      expander2.setMaxWidth(1, step);
       ParallelLowerBoundListener listener = new ParallelLowerBoundListener(step);
       expander2.setListener(listener);
-      long start = System.currentTimeMillis();
-      double p = expander2.expand();
-      System.out.printf("upper = %f, lower = %f, under step=%d timeExact=%d " +
-              "timeLower=%d timeUpper=%d \n", p, listener
-              .lb, step, listener.timeBeforeLB-start,
-              listener.timeAfterLB - listener.timeBeforeLB,
-              System.currentTimeMillis() - listener.timeAfterLB);
-      System.out.printf("%d %d", listener.timeBeforeLB, listener.timeAfterLB);
+      System.out.printf("upper = %f, lower = %f, under step=%d \n", expander2.expand(), listener.lb, step);
     }
   }
 }

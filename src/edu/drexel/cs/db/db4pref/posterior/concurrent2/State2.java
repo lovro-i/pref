@@ -66,27 +66,24 @@ public class State2 {
   void compact() {
     int step = this.length();
     for (int i = 0; i < items.length; i++) {
-      // String before = this.toString();
-      if (expander.spans.containsKey(items[i])){
-        Span span = expander.spans.get(items[i]);
-        if (step > span.to) {
-          Item[] items2 = new Item[items.length-1];
-          int[] miss2 = new int[miss.length-1];
-          for (int j = 0; j < items2.length; j++) {
-            if (j < i) items2[j] = items[j];
-            else items2[j] = items[j+1];
-          }
-          for (int j = 0; j < miss2.length; j++) {
-            if (j < i) miss2[j] = miss[j];
-            else if (j == i) miss2[j] = miss[j] + miss[j+1] + 1;
-            else miss2[j] = miss[j+1];
-          }
-
-          this.items = items2;
-          this.miss = miss2;
-          // Logger.info("Compacting at step %d: %s -> %s", step, before, this);
-          i--;
+      Span span = expander.spans.get(items[i]);
+      if (span == null || step > span.to) {
+        Item[] items2 = new Item[items.length - 1];
+        int[] miss2 = new int[miss.length - 1];
+        for (int j = 0; j < items2.length; j++) {
+          if (j < i) items2[j] = items[j];
+          else items2[j] = items[j + 1];
         }
+        for (int j = 0; j < miss2.length; j++) {
+          if (j < i) miss2[j] = miss[j];
+          else if (j == i) miss2[j] = miss[j] + miss[j + 1] + 1;
+          else miss2[j] = miss[j + 1];
+        }
+
+        this.items = items2;
+        this.miss = miss2;
+        // Logger.info("Compacting at step %d: %s -> %s", step, before, this);
+        i--;
       }
     }
   }
@@ -108,12 +105,14 @@ public class State2 {
    */
   public void insertMissing(Expands2 expands, Item item, boolean isLowerBound, double p1) {
     int step = expander.referenceIndex.get(item);
-    int pos = 0;
 
     int initial = 0;
+    int pos = 0;
     if (isLowerBound) {
       initial = this.miss.length - 1;
+      pos = step - this.miss[initial];
     }
+
     for (int i = initial; i < this.miss.length; i++) {
       State2 state = new State2(expander, this);
       state.miss[i]++;
@@ -286,10 +285,10 @@ public class State2 {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();    
-    sb.append(miss[0]);
+    sb.append(String.format("(%s)", miss[0]));
     for (int i = 0; i < items.length; i++) {
-      sb.append('.').append(items[i]);
-      sb.append('.').append(miss[i+1]);      
+      sb.append(String.format(" %s ", items[i]));
+      sb.append(String.format("(%s)", miss[i+1]));
     }
     return sb.toString();
   }

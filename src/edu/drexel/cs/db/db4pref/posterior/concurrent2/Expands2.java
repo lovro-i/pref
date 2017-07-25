@@ -89,4 +89,12 @@ public class Expands2 implements Cloneable {
     }
     return expands;
   }
+
+  public Expands2 cloneWithExpander(Expander2 expander) {
+    Expands2 expands = new Expands2(expander);
+    for (State2 state: states.keySet()){
+      expands.add(state.clone(), states.get(state).doubleValue());
+    }
+    return expands;
+  }
 }

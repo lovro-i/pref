@@ -192,32 +192,13 @@ public class Expander2 extends Expander {
   public static void main(String args[]) throws TimeoutException, InterruptedException {
 //    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
     MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
-//    ItemSet its = new ItemSet(30);
-//    its.tagOneBased();
-//    MapPreferenceSet pref = new MapPreferenceSet(its);
-//    pref.addByTag(24, 19);
-//    pref.addByTag(26, 11);
-//    pref.addByTag(25, 14);
-//    pref.addByTag(25, 15);
-//    pref.addByTag(22, 13);
-    
-//    pref.addByTag(18, 11);
-//    pref.addByTag(4, 30);
-//    pref.addByTag(25, 22);
-//    pref.addByTag(16, 30);
-//    pref.addByTag(1, 18);
+//    MapPreferenceSet pref = PreferenceIO.fromString("[99>69 33>66 42>27 33>99 42>46 27>66]", new ItemSet(100));
     
     Logger.info(pref);
-    ItemSet items = pref.getItemSet();    
-    items.tagOneBased();
+    ItemSet items = pref.getItemSet();
 
     double phi = 0.8;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
-
-    {
-      Expander1 expander1 = new Expander1(model, pref);
-      System.out.println(expander1.expand());
-    }
     
     {
       Expander2 expander2 = new Expander2(model, pref);

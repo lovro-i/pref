@@ -228,6 +228,17 @@ public class State2 extends State {
     return true;
   }
 
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("(%s)", miss[0]));
+    for (int i = 0; i < items.length; i++) {
+      sb.append(String.format(" %s ", items[i]));
+      sb.append(String.format("(%s)", miss[i+1]));
+    }
+    return sb.toString();
+  }
+
   /** @return Is Item e at position pos */
   public boolean isAt(Item e, int pos) {
     int i = 0;

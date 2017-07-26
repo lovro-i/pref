@@ -29,7 +29,7 @@ public class Expander2 implements Cloneable {
   MutablePreferenceSet tc;
 
   private Expands2 expands;
-  Map<Item, Span> spans;
+  Map<Item, Span> spans = new HashMap<>();
 
   protected ParallelExpanderListener listener;
   public long startExpand;
@@ -50,30 +50,26 @@ public class Expander2 implements Cloneable {
    * Calculate the time spans for tracking items.
    */
   private void calculateSpans() {
-    this.spans = new HashMap<>();
-    Ranking reference = model.getCenter();
-
-    for (Item item : pref.getItems()) {
+    spans.clear();
+    for (Item item: pref.getItems()) {
       int from = referenceIndex.get(item);
       Span span = new Span(from, from);
       spans.put(item, span);
     }
 
     HasseDiagram hasse = new HasseDiagram(pref);
+    hasse.add(model.getCenter());
 
-    for (int step = 0; step < reference.length(); step++) {
-      Item item = reference.get(step);
-      if (pref.contains(item)) {
-        hasse.add(item);
-        for (Preference p : hasse.getPreferenceSet()) {
-          int il = referenceIndex.get(p.lower);
-          int ih = referenceIndex.get(p.higher);
-          if (il < ih && ih == step) {
-            spans.get(p.lower).setTo(step);
-          } else if (il > ih && il == step) {
-            spans.get(p.higher).setTo(step);
-          }
-        }
+    for (Preference p: hasse.getPreferenceSet()) {
+      Item higher = p.higher;
+      Item lower = p.lower;
+      int higherIdx = referenceIndex.get(higher);
+      int lowerIdx = referenceIndex.get(lower);
+      if (spans.get(higher).to < lowerIdx) {
+        spans.get(higher).setTo(lowerIdx);
+      }
+      if (spans.get(lower).to < higherIdx) {
+        spans.get(lower).setTo(higherIdx);
       }
     }
   }

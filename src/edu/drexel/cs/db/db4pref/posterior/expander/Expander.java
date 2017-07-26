@@ -93,7 +93,33 @@ public abstract class Expander {
       Span span = new Span(from, from);
       spans.put(item, span);
     }
-    
+
+    HasseDiagram hasse = new HasseDiagram(pref);
+    hasse.add(model.getCenter());
+
+    for (Preference p: hasse.getPreferenceSet()) {
+      Item higher = p.higher;
+      Item lower = p.lower;
+      int higherIdx = referenceIndex.get(higher);
+      int lowerIdx = referenceIndex.get(lower);
+      if (spans.get(higher).to < lowerIdx) {
+        spans.get(higher).setTo(lowerIdx);
+      }
+      if (spans.get(lower).to < higherIdx) {
+        spans.get(lower).setTo(higherIdx);
+      }
+    }
+  }
+
+  @Deprecated
+  public void calculateSpansBackup() {
+    spans.clear();
+    for (Item item: pref.getItems()) {
+      int from = referenceIndex.get(item);
+      Span span = new Span(from, from);
+      spans.put(item, span);
+    }
+
     Ranking reference = model.getCenter();
     HasseDiagram hasse = new HasseDiagram(pref);
     for (int step = 0; step < reference.length(); step++) {

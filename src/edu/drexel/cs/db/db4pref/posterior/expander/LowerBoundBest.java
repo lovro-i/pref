@@ -50,7 +50,7 @@ public class LowerBoundBest extends LowerBound {
     if (span == null) return false;
     if (span.from == step && span.to == step) return false;
     // Logger.info("Item %s tracked between %d and %d (asked for %d)", item, span.from, span.to, step);
-    return (step >= span.from) && (step <= span.to);
+    return (step > span.from) && (step <= span.to);
   }
   
   

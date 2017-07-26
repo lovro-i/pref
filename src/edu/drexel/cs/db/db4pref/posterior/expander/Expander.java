@@ -61,7 +61,7 @@ public abstract class Expander {
   public int getWidth(int step) {
     int w = 0;
     for (Span span: spans.values()) {
-      if (span.from <= step && step <= span.to && span.from != span.to) w++;
+      if (span.from < step && step <= span.to) w++;
     }
     return w;
   }
@@ -70,7 +70,7 @@ public abstract class Expander {
     List<Item> tracked = new ArrayList<Item>();
     for (Entry<Item, Span> entry: spans.entrySet()) {
       Span span = entry.getValue();
-      if (span.from <= step && step <= span.to && span.from != span.to) {
+      if (span.from < step && step <= span.to) {
         tracked.add(entry.getKey());
       }
     }

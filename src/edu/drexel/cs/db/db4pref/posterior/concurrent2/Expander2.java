@@ -210,7 +210,7 @@ public class Expander2 implements Cloneable {
     List<Item> tracked = new ArrayList<Item>();
     for (Map.Entry<Item, Span> entry : spans.entrySet()) {
       Span span = entry.getValue();
-      if (span.from <= step && step <= span.to && span.from != span.to) {
+      if (span.from < step && step <= span.to) {
         tracked.add(entry.getKey());
       }
     }

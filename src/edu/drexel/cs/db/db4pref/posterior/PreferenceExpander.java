@@ -87,7 +87,7 @@ public class PreferenceExpander implements Posterior {
   public int getS(int step) {
     int s = 0;
     for (Span span: spans.values()) {
-      if (step >= span.from && step <= span.to) s++;
+      if (step > span.from && step <= span.to) s++;
     }
     return s;
   }

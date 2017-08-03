@@ -188,6 +188,16 @@ public class LowerBoundLast {
     @Override
     public void onEnd(Expander expander, double p) {
     }
+
+    @Override
+    public int getStep() {
+      return step;
+    }
+
+    @Override
+    public void setStep(int step) {
+      this.step = step;
+    }
   };
   
   public static void main(String[] args) throws Exception {

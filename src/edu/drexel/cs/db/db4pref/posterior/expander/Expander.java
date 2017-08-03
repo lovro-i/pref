@@ -78,6 +78,9 @@ public abstract class Expander {
   }
  
   public void setListener(ExpanderListener listener) {
+    if (listener.getStep() > maxItem) {
+      listener.setStep(maxItem);
+    }
     this.listener = listener;
   }
   

@@ -13,4 +13,8 @@ public interface ExpanderListener {
 
   public void onEnd(Expander expander, double p);
 
+  public int getStep();
+
+  public void setStep(int step);
+
 }

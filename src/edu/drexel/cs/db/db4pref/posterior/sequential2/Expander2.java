@@ -154,24 +154,6 @@ public class Expander2 extends Expander {
   public void setMaxWidth(int maxWidth) {
     this.maxWidth = maxWidth;
   }
-  
-  
-//  
-//  public void setMaxWidth(int maxWidth, int start) {
-//    int maxIndex = getMaxItem(pref);
-//    List<Item> tracked;
-//    for (int step = start; step <= maxIndex; step++) {
-//      tracked = this.getTrackedItems(step);
-//      // Logger.info("Step %d: width %d", step, tracked.size());
-//      while (tracked.size() > maxWidth) {
-//        Item toRemove = tracked.get(0);
-//        pref.remove(toRemove);
-//        // Logger.info("Removing item %s at step %d, %d remaining", toRemove, step, tracked.size() - 1);
-//        this.calculateSpans();
-//        tracked = this.getTrackedItems(step);
-//      }
-//    }
-//  }
 
   private int maxWidth = 0;
   private int startRelax = 0;
@@ -182,7 +164,14 @@ public class Expander2 extends Expander {
     
     List<Item> tracked = getTrackedItems(step);
     while (tracked.size() > maxWidth) {
-      Item toRemove = tracked.get(0);
+
+      // find the earliest inserted item in tracked item list
+      int min = step;
+      for (Item e: tracked) {
+        int rank = referenceIndex.get(e);
+        if (rank < min) min = rank;
+      }
+      Item toRemove = model.getCenter().get(min);
       pref.remove(toRemove);
       this.calculateSpans();
       tracked = getTrackedItems(step);
@@ -190,20 +179,25 @@ public class Expander2 extends Expander {
   }
   
   public static void main(String args[]) throws TimeoutException, InterruptedException {
+    ItemSet items = new ItemSet(20);
+    items.tagOneBased();
 //    MapPreferenceSet pref = TestUtils.generate(20, 4, 5);
-    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", new ItemSet(20));
-//    MapPreferenceSet pref = PreferenceIO.fromString("[99>69 33>66 42>27 33>99 42>46 27>66]", new ItemSet(100));
-    
+    MapPreferenceSet pref = PreferenceIO.fromString("[19>12 12>8 4>8 9>16 19>11]", items);
+//    MapPreferenceSet pref = PreferenceIO.fromString("[99>69 33>66 42>27 33>99 42>46 27>66]", items);
+//    MapPreferenceSet pref = PreferenceIO.fromString("[88>49 66>60 60>88 35>49 26>88 65>49 58>60 58>65 58>66 " +
+//            "35>60 26>100 65>60 59>88 35>65 35>66 65>66 100>88 60>49 59>35 58>88 26>59 26>60 35>88 59>49 65>88 " +
+//            "26>65 26>66 58>35 58>100 100>49 66>49 59>58 59>65 58>49 100>60]", items);
+
+
     Logger.info(pref);
-    ItemSet items = pref.getItemSet();
 
     double phi = 0.8;
     MallowsModel model = new MallowsModel(items.getReferenceRanking(), phi);
     
-    {
-      Expander2 expander2 = new Expander2(model, pref);
-      System.out.println(expander2.expand());
-    }
+//    {
+//      Expander2 expander2 = new Expander2(model, pref);
+//      System.out.println(Math.log(expander2.expand()));
+//    }
 
     // test on split_step
     for (int step = 0; step < 20; step += 1) {
@@ -249,6 +243,16 @@ public class Expander2 extends Expander {
 
     @Override
     public void onEnd(Expander expander, double p) {
+    }
+
+    @Override
+    public int getStep() {
+      return step;
+    }
+
+    @Override
+    public void setStep(int step) {
+      this.step = step;
     }
   }
   
